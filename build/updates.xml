@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
+  <app appid='eckpbacihccmpeelogfabjmalmaeoaan'>
+    <updatecheck codebase='https://dl.dropboxusercontent.com/u/22109785/extensions/k2/k2.crx' version='2.0' />
+  </app>
+</gupdate>

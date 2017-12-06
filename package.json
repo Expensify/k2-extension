@@ -1,0 +1,78 @@
+{
+  "name": "k2-chrome-extension",
+  "version": "0.7.0",
+  "description": "A Chrome Extenstion for Kernel Schedule",
+  "main": "index.js",
+  "author": "Tim Golen <tim@golen.net>",
+  "scripts": {
+    "watch": "gulp",
+    "build": "gulp build",
+    "package": "gulp package"
+  },
+  "dependencies": {
+    "alt": "^0.17.8",
+    "browserify-shim": "^3.8.3",
+    "browsernizr": "^1.0.2",
+    "jquery": "^2.1.4",
+    "moment": "^2.10.3",
+    "react": "^0.14.2",
+    "react-dom": "^0.14.2",
+    "through2": "2.0.1",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "^6.0.15",
+    "babel-preset-react": "^6.0.15",
+    "babelify": "*",
+    "browserify": "*",
+    "eslint": "*",
+    "eslint-plugin-react": "7.2.1",
+    "gulp": "*",
+    "gulp-copy": "*",
+    "gulp-eslint": "*",
+    "gulp-ext-replace": "*",
+    "gulp-if": "2.0.2",
+    "gulp-import-css": "*",
+    "gulp-plumber": "*",
+    "gulp-react": "*",
+    "gulp-rename": "*",
+    "gulp-sass": "*",
+    "gulp-sourcemaps": "*",
+    "gulp-uglify": "*",
+    "gulp-util": "*",
+    "gulp-zip": "^3.2.0",
+    "minimist": "*",
+    "node-underscorify": "*",
+    "reactify": "*",
+    "run-sequence": "*",
+    "through2": "*",
+    "vinyl-buffer": "*",
+    "vinyl-source-stream": "*",
+    "vinyl-transform": "*",
+    "watchify": "*"
+  },
+  "browserify-shim": {
+    "./public/lib/jquery/dist/jquery.js": {
+      "exports": "$"
+    }
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim",
+      [
+        "node-underscorify",
+        {
+          "extensions": [
+            "html"
+          ],
+          "requires": [
+            {
+              "variable": "_",
+              "module": "underscore"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

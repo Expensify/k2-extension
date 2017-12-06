@@ -1,0 +1,353 @@
+@import 'global';
+
+$gutter: 5px;
+
+$color-nuetral-lighter: #eeeeee;
+$color-nuetral-light: #dddddd;
+$color-nuetral: #999999;
+$color-alert: #D52354;
+
+$color-red: #FF0000;
+$color-purple: #A85AD4;
+$color-orange: #eb6420;
+$color-green: #009800;
+$color-black: #000000;
+$color-white: #ffffff;
+$color-blue: #0000ff;
+$color-light-blue: #12a4d5;
+$color-darker-green: #2cb528;
+
+.k2-inactive {
+  opacity: 0.2;
+}
+.k2-hourly,
+.k2-daily,
+.k2-weekly,
+.k2-monthly,
+.k2-web,
+.k2-core,
+.k2-area-51,
+.k2-integration.server,
+.k2-scraper,
+.k2-design,
+.k2-mobile,
+.k2-ops,
+.k2-bug,
+.k2-task,
+.k2-feature {
+  background-image: none !important;
+  &.inactive { @extend .k2-inactive; }
+}
+
+.k2-hourly.active { background-color: $color-alert !important; }
+.k2-daily.active { background-color: $color-orange !important; color: white; }
+.k2-weekly.active { background-color: $color-green !important; color: white; }
+.k2-monthly.active { background-color: $color-purple !important; }
+.k2-web.active { background-color: #274073 !important; color: white; }
+.k2-core.active { background-color: #ff0066 !important; color: white; }
+.k2-area-51.active { background-color: #6CC417 !important; }
+.k2-integration.server.active { background-color: #c7def8 !important; }
+.k2-scraper.active { background-color: #bfe5bf !important; }
+.k2-mobile.active { background-color: #fad8c7 !important; }
+.k2-design.active { background-color: #00a4d3 !important; color: white; }
+.k2-ops.active { background-color: #37916C !important; color: white; }
+.k2-bug.active { background-color: #e11d21 !important; color: white; }
+.k2-task.active { background-color: #9C5959 !important; color: white; }
+.k2-feature.active { background-color: #A52A2A !important; color: white; }
+
+.k2-reviewing {
+  &.active { background-color: $color-nuetral; }
+  &.inactive { @extend .k2-inactive; }
+}
+.discussion-sidebar-item.discussion-sidebar-item.no-border {
+  margin: 0 !important;
+  border: 0 !important;
+  position: relative;
+
+  label {
+    color: #eee;
+    font-size: 22px;
+    left: 100%;
+    position: absolute;
+  }
+}
+.panel {
+  border: 1px solid $color-nuetral-light;
+  border-radius: 3px;
+  &.hourly {
+    .label {
+      display: none;
+    }
+
+    .panel-title {
+      background-color: $color-alert;
+      color: $color-white;
+    }
+  }
+  &.daily {
+    .label {
+      display: none;
+    }
+
+    .panel-title {
+      background-color: $color-orange;
+    }
+  }
+  &.weekly {
+    .label {
+      display: none;
+    }
+
+    .panel-title {
+      background-color: $color-green;
+    }
+  }
+  &.monthly {
+    .label {
+      display: none;
+    }
+
+    .panel-title {
+      background-color: $color-purple;
+    }
+  }
+}
+.label {
+  margin-right: $gutter;
+  &.hourly {
+    background-color: $color-alert;
+  }
+  &.daily {
+    background-color: $color-orange;
+  }
+  &.weekly {
+    background-color: $color-green;
+  }
+  &.monthly {
+    background-color: $color-purple;
+  }
+  &.newhire {
+    background-color: $color-light-blue;
+  }
+  &.waiting {
+    background-color: $color-nuetral-light;
+  }
+}
+
+.panel-title {
+  background: $color-nuetral-lighter;
+  font-size: 14px;
+  margin: 0px;
+  padding: $gutter ($gutter * 2);
+}
+
+.panel-item {
+  border-top: 1px solid $color-nuetral-light;
+  display: block;
+  padding: $gutter;
+}
+
+.panel-item-meta {
+  color: $color-nuetral;
+  font-size: 10px;
+  float: right;
+  & > span,
+  & > a,
+  .octicon {
+    padding-right: $gutter;
+  }
+}
+
+.panel-footer {
+  @extend .panel-title;
+  border-top: 1px solid $color-nuetral-light;
+}
+
+.issue {
+  line-height: 1em;
+  &:hover {
+    text-decoration: none;
+  }
+  &.overdue {
+      color: $color-alert !important;
+      // Only show the alert icon if the item is overdue
+      .octicon-alert {
+        display: inline;
+      }
+  }
+  &.planning,
+  &.hold,
+  &.reviewing {
+      color: $color-nuetral-light;
+      // Only show the check icon if the item is in review
+      .octicon-check {
+        display: inline;
+      }
+  }
+  &.waiting-on-customer {
+    color: $color-purple;
+  }
+  // Hide the icons for all issues by default
+  .octicon {
+    padding-right: $gutter;
+    display: none;
+    &.octicon-bug,
+    &.octicon-gift,
+    &.octicon-checklist {
+      display: inline;
+    }
+  }
+}
+
+.assignee {
+  padding-left: ($gutter * 4);
+}
+
+
+/**
+ * Dark Style
+ */
+body.dark {
+  background-color: #000;
+  color: #eee;
+  .sunken-menu,
+  .header {
+    background-color: #333;
+  }
+  .sunken-menu {
+    background-color: #000;
+    background-image: none;
+  }
+  .panel,
+  .panel-item,
+  .pagehead,
+  .header {
+    border-color: #666 !important;
+  }
+  .header-logo-invertocat,
+  .header-nav-link {
+    color: #eee;
+  }
+  .panel-title {
+    color: #000;
+  }
+  .hold,
+  .reviewing {
+    color: #333;
+  }
+}
+
+.hide {
+  display: none;
+}
+
+.milestones,
+.issueList {
+  position: relative;
+
+  .legend {
+    position: absolute;
+    top: 0;
+    left: -210px;
+    width: 200px;
+    text-align: right;
+  }
+}
+
+.travis-status {
+  color: $color-orange;
+
+  &.success {
+    color: $color-darker-green;
+  }
+  &.failure {
+    color: $color-alert;
+  }
+}
+
+.light {
+  display: inline-block;
+  border-radius: 5px;
+  margin: 0 5px;
+  position: relative;
+  top: 1px;
+  color: white;
+  padding-left: 5px;
+
+  &.red {
+    background-color: $color-nuetral;
+  }
+
+  &.green {
+    background-color: $color-green;
+  }
+}
+
+.milestone {
+  margin-bottom: 40px;
+}
+
+.btn-group {
+  .btn {
+    border-radius: 0px;
+    border-right-width: 0px;
+
+    &:first-child {
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+    }
+    &:last-child {
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      border-right-width: 1px;
+    }
+  }
+}
+
+.pull-right {
+  float: right;
+}
+
+.panel-item .issue {
+  padding-left: 20px;
+}
+
+.issues .form-inline {
+  opacity: 0.3;
+  position: relative;
+
+  input[type="text"] {
+    width: 78%;
+  }
+
+  .posting-comment-label {
+    position: absolute;
+    top: 6px;
+    right: 222px;
+  }
+}
+
+.lastcomment {
+  height: 21px;
+  overflow: hidden;
+  padding-left: 50px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-item:hover {
+  .lastcomment {
+    height: auto;
+    white-space: normal;
+  }
+  .form-inline {
+    opacity: 1;
+  }
+}
+
+.form-inline {
+  .checkbox {
+    display: inline;
+    margin: 0 10px;
+  }
+}
