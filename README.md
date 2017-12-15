@@ -3,11 +3,9 @@ K2 Chrome Extension
 
 GitHub UI integration for K2 - Kernel Scheduling Method
 
-Read about the features in the [wiki](https://github.com/tgolen/k2-chrome-extension/wiki)
-
 # Installing the Chrome Extension
 ## Easy (auto-updating)
-1. Download the extension from [here](https://github.com/tgolen/k2-chrome-extension/blob/master/build/k2.crx)
+1. Download the extension from [here](https://github.com/Expensify/k2-chrome-extension/blob/master/build/k2.crx)
 2. Go to `chrome://extensions`
 3. Drop the extension onto this window and let it install
 
@@ -27,7 +25,7 @@ Your personal access token is stored locally and securely. It is used to make ba
 
 # Installing this repo
 ```
-git clone git@github.com:tgolen/k2-chrome-extension.git
+git clone git@github.com:Expensify/k2-chrome-extension.git
 cd k2-chrome-extension
 npm i
 ```
