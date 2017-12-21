@@ -3,3 +3,4 @@ node_modules
 dist.pem
 dist.zip
 .idea
+content.js
