@@ -1,5 +1,8 @@
+# 0.7.2
+- Change labels to be upper cased
+
 # 0.7.1
-- Add a "New Issue" button 
+- Add a "New Issue" button
 
 # 0.7.0
 - Add the ability to filter data
