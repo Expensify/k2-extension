@@ -1,3 +1,6 @@
+# 0.7.3
+- Refactor the priority picker to be just like the type picker
+
 # 0.7.2
 - Change labels to be upper cased
 
