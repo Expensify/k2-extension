@@ -1,3 +1,9 @@
+# 0.7.4
+- Fixed a bug with the reviewing button not labeling issues properly
+
+# 0.7.3
+- Refactor the priority picker to be just like the type picker
+
 # 0.7.2
 - Change labels to be upper cased
 
