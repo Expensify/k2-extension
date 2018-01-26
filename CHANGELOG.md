@@ -1,3 +1,6 @@
+# 0.7.5
+- Fixed a bug where the pickers weren't initializing selection properly
+
 # 0.7.4
 - Fixed a bug with the reviewing button not labeling issues properly
 
