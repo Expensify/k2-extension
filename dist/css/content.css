@@ -37,7 +37,7 @@
 }
 
 .k2-hourly.active {
-  background-color: #D52354 !important;
+  background-color: #EC0E2D !important;
 }
 
 .k2-daily.active {
@@ -51,7 +51,8 @@
 }
 
 .k2-monthly.active {
-  background-color: #A85AD4 !important;
+  background-color: #5319e7 !important;
+  color: white;
 }
 
 .k2-web.active {
@@ -133,7 +134,7 @@
 
 .panel.hourly .panel-title,
 .panel.hourly .panel-footer {
-  background-color: #D52354;
+  background-color: #EC0E2D;
   color: #ffffff;
 }
 
@@ -161,7 +162,8 @@
 
 .panel.monthly .panel-title,
 .panel.monthly .panel-footer {
-  background-color: #A85AD4;
+  background-color: #5319e7;
+  color: white;
 }
 
 .label {
@@ -169,7 +171,7 @@
 }
 
 .label.hourly {
-  background-color: #D52354;
+  background-color: #EC0E2D;
 }
 
 .label.daily {
@@ -181,7 +183,7 @@
 }
 
 .label.monthly {
-  background-color: #A85AD4;
+  background-color: #5319e7;
 }
 
 .label.newhire {
@@ -209,12 +211,12 @@
 .panel-item-meta {
   color: #999999;
   font-size: 10px;
+  margin-top: 3px;
   float: right;
 }
 
 .panel-item-meta > span,
-.panel-item-meta > a,
-.panel-item-meta .octicon {
+.panel-item-meta > a {
   padding-right: 5px;
 }
 
@@ -232,10 +234,6 @@
 
 .issue.overdue {
   color: #D52354 !important;
-}
-
-.issue.overdue .octicon-alert {
-  display: inline;
 }
 
 .issue.planning,
