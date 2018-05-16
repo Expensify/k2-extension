@@ -1,3 +1,8 @@
+# 0.7.6
+- Removed all functionality of the What's Next tab
+- Adjusted the colors for the Daily and Monthly labels, as they changed on GitHub
+- Removed some `.octicon` elements as they're not supported by GitHub anymore :(
+
 # 0.7.5
 - Fixed a bug where the pickers weren't initializing selection properly
 
