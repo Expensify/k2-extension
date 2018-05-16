@@ -39,10 +39,10 @@ $color-darker-green: #2cb528;
   &.inactive { @extend .k2-inactive; }
 }
 
-.k2-hourly.active { background-color: $color-alert !important; }
+.k2-hourly.active { background-color: #EC0E2D !important; }
 .k2-daily.active { background-color: $color-orange !important; color: white; }
 .k2-weekly.active { background-color: $color-green !important; color: white; }
-.k2-monthly.active { background-color: $color-purple !important; }
+.k2-monthly.active { background-color: #5319e7 !important; color: white; }
 .k2-web.active { background-color: #274073 !important; color: white; }
 .k2-core.active { background-color: #ff0066 !important; color: white; }
 .k2-area-51.active { background-color: #6CC417 !important; }
@@ -80,7 +80,7 @@ $color-darker-green: #2cb528;
     }
 
     .panel-title {
-      background-color: $color-alert;
+      background-color: #EC0E2D;
       color: $color-white;
     }
   }
@@ -108,14 +108,15 @@ $color-darker-green: #2cb528;
     }
 
     .panel-title {
-      background-color: $color-purple;
+      background-color: #5319e7;
+      color: white;
     }
   }
 }
 .label {
   margin-right: $gutter;
   &.hourly {
-    background-color: $color-alert;
+    background-color: #EC0E2D;
   }
   &.daily {
     background-color: $color-orange;
@@ -124,7 +125,7 @@ $color-darker-green: #2cb528;
     background-color: $color-green;
   }
   &.monthly {
-    background-color: $color-purple;
+    background-color: #5319e7;
   }
   &.newhire {
     background-color: $color-light-blue;
