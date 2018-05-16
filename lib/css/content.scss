@@ -150,10 +150,11 @@ $color-darker-green: #2cb528;
 .panel-item-meta {
   color: $color-nuetral;
   font-size: 10px;
+  margin-top: 3px;
   float: right;
+
   & > span,
-  & > a,
-  .octicon {
+  & > a {
     padding-right: $gutter;
   }
 }
@@ -170,10 +171,6 @@ $color-darker-green: #2cb528;
   }
   &.overdue {
       color: $color-alert !important;
-      // Only show the alert icon if the item is overdue
-      .octicon-alert {
-        display: inline;
-      }
   }
   &.planning,
   &.hold,
