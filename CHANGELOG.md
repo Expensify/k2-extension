@@ -1,3 +1,6 @@
+# 0.7.7
+- Re-release to fix a faulty extension zip we uploaded with 0.7.6
+
 # 0.7.6
 - Removed all functionality of the What's Next tab
 - Adjusted the colors for the Daily and Monthly labels, as they changed on GitHub

@@ -6,7 +6,7 @@ var zip = require('gulp-zip');
 
 module.exports = function(options) {
   return function() {
-      return gulp.src('dist/*')
+      return gulp.src('dist/**/*')
         .pipe(plumber({
           errorHandler: require('../error.beep')
         }))
