@@ -349,3 +349,21 @@ body.dark {
     margin: 0 10px;
   }
 }
+
+.k2-extension-qa-guidelines {
+  display: none;
+  margin-left: 8px;
+  margin-right:8px;
+
+  &.show {
+    display: block;
+  }
+}
+
+.k2-extension-qa-guideline-list-item {
+  list-style: none;
+}
+
+.k2-extension-qa-guideline-list-item {
+  margin-bottom: 8px;
+}
