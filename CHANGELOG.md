@@ -1,3 +1,7 @@
+#0.7.8
+- Adding QA guidelines to PR creation and editing.
+- preventing a user from merging their own PR.
+
 # 0.7.7
 - Re-release to fix a faulty extension zip we uploaded with 0.7.6
 
