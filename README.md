@@ -49,6 +49,12 @@ In order to test your changes, you need to have the extension loaded into Chrome
 ### Caution When Using the Publicly Installed Extension
 Sometimes it is necessary to install and enable the public version of the extension. You want to take care not to have both the public extension and the local extension enabled at the same time. It will make everything run twice and you'll get a lot of DOM conflicts, plus API calls will run twice so you'll hit rate limits faster.
 
+# Creating your PR
+Be sure to do the following before pushing up your branch:
+1. Bump the version number in `dist/manifest.json` (use major.minor.patch version scheme)
+1. Bump the version number in `package.json` and `package-lock.json` to match
+1. Add a new change log entry in `CHANGELOG.md`
+
 # Publishing
 To publish a new version of this extension, you should follow these steps:
 
