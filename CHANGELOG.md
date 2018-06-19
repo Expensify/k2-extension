@@ -1,3 +1,7 @@
+#0.7.9
+- Only enforcing no self-merges on `master` branches.
+- Allowing self-merges in some specific infra repos.
+
 #0.7.8
 - Adding QA guidelines to PR creation and editing.
 - preventing a user from merging their own PR.
