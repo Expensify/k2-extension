@@ -1,3 +1,6 @@
+# 0.7.10
+- Fixing QA guidelines prep/appending multiple times
+
 # 0.7.9
 - Only enforcing no self-merges on `master` branches.
 - Allowing self-merges in some specific infra repos.
