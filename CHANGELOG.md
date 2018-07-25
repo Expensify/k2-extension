@@ -1,3 +1,6 @@
+# 0.8.0
+- Update k2-chrome-extension to use the Improvement label
+
 # 0.7.10
 - Fixing QA guidelines prep/appending multiple times
 
