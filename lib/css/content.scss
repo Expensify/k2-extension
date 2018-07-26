@@ -32,7 +32,7 @@ $color-darker-green: #2cb528;
 .k2-design,
 .k2-mobile,
 .k2-ops,
-.k2-bug,
+.k2-improvement,
 .k2-task,
 .k2-feature {
   background-image: none !important;
@@ -51,7 +51,7 @@ $color-darker-green: #2cb528;
 .k2-mobile.active { background-color: #fad8c7 !important; }
 .k2-design.active { background-color: #00a4d3 !important; color: white; }
 .k2-ops.active { background-color: #37916C !important; color: white; }
-.k2-bug.active { background-color: #e11d21 !important; color: white; }
+.k2-improvement.active { background-color: #4cd964 !important; color: white; }
 .k2-task.active { background-color: #9C5959 !important; color: white; }
 .k2-feature.active { background-color: #A52A2A !important; color: white; }
 
@@ -189,7 +189,7 @@ $color-darker-green: #2cb528;
   .octicon {
     padding-right: $gutter;
     display: none;
-    &.octicon-bug,
+    &.octicon-improvement,
     &.octicon-gift,
     &.octicon-checklist {
       display: inline;

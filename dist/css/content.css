@@ -11,7 +11,7 @@
 .k2-design.inactive,
 .k2-mobile.inactive,
 .k2-ops.inactive,
-.k2-bug.inactive,
+.k2-improvement.inactive,
 .k2-task.inactive,
 .k2-feature.inactive,
 .k2-reviewing.inactive {
@@ -30,7 +30,7 @@
 .k2-design,
 .k2-mobile,
 .k2-ops,
-.k2-bug,
+.k2-improvement,
 .k2-task,
 .k2-feature {
   background-image: none !important;
@@ -91,8 +91,8 @@
   color: white;
 }
 
-.k2-bug.active {
-  background-color: #e11d21 !important;
+.k2-improvement.active {
+  background-color: #4cd964 !important;
   color: white;
 }
 
@@ -257,7 +257,7 @@
   display: none;
 }
 
-.issue .octicon.octicon-bug,
+.issue .octicon.octicon-improvement,
 .issue .octicon.octicon-gift,
 .issue .octicon.octicon-checklist {
   display: inline;

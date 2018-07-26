@@ -1,3 +1,7 @@
+# 0.8.0
+- Replaced the Bug label with the Improvement label
+- Renamed Feature label to NewFeature label
+
 # 0.7.10
 - Fixing QA guidelines prep/appending multiple times
 
