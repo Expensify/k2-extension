@@ -1,5 +1,6 @@
 # 0.8.0
-- Update k2-chrome-extension to use the Improvement label
+- Replaced the Bug label with the Improvement label
+- Renamed Feature label to NewFeature label
 
 # 0.7.10
 - Fixing QA guidelines prep/appending multiple times
