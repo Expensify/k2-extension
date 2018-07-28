@@ -34,7 +34,7 @@ $color-darker-green: #2cb528;
 .k2-ops,
 .k2-improvement,
 .k2-task,
-.k2-feature {
+.k2-newfeature {
   background-image: none !important;
   &.inactive { @extend .k2-inactive; }
 }
@@ -53,7 +53,7 @@ $color-darker-green: #2cb528;
 .k2-ops.active { background-color: #37916C !important; color: white; }
 .k2-improvement.active { background-color: #604c8d !important; color: white; }
 .k2-task.active { background-color: #9C5959 !important; color: white; }
-.k2-feature.active { background-color: #A52A2A !important; color: white; }
+.k2-newfeature.active { background-color: #A52A2A !important; color: white; }
 
 .k2-reviewing {
   &.active { background-color: $color-nuetral; }
