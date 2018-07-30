@@ -1,3 +1,7 @@
+# 0.8.1
+- Fixed broken Type Picker for the NewFeature label
+- Updated Improvement label color to reflect the new one used in GH
+
 # 0.8.0
 - Replaced the Bug label with the Improvement label
 - Renamed Feature label to NewFeature label
