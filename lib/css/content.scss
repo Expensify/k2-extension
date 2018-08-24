@@ -203,42 +203,13 @@ $color-darker-green: #2cb528;
   padding-left: ($gutter * 4);
 }
 
-
-/**
- * Dark Style
- */
-body.dark {
-  background-color: #000;
-  color: #eee;
-  .sunken-menu,
-  .header {
-    background-color: #333;
-  }
-  .sunken-menu {
-    background-color: #000;
-    background-image: none;
-  }
-  .panel,
-  .panel-item,
-  .pagehead,
-  .header {
-    border-color: #666 !important;
-  }
-  .header-logo-invertocat,
-  .header-nav-link {
-    color: #eee;
-  }
-  .panel-title {
-    color: #000;
-  }
-  .hold,
-  .reviewing {
-    color: #333;
-  }
-}
-
 .hide {
   display: none;
+}
+
+/* For some reason our tabs don't get the default cursor behavior */
+.tabnav-tabs a {
+  cursor: pointer;
 }
 
 .milestones,
