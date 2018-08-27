@@ -2,8 +2,8 @@
 
 $gutter: 5px;
 
-$color-nuetral-lighter: #eeeeee;
-$color-nuetral-light: #dddddd;
+$color-neutral-lighter: #eeeeee;
+$color-neutral-light: #dddddd;
 $color-nuetral: #999999;
 $color-alert: #D52354;
 
@@ -72,7 +72,7 @@ $color-darker-green: #2cb528;
   }
 }
 .panel {
-  border: 1px solid $color-nuetral-light;
+  border: 1px solid $color-neutral-light;
   border-radius: 3px;
   &.hourly {
     .label {
@@ -130,19 +130,19 @@ $color-darker-green: #2cb528;
     background-color: $color-light-blue;
   }
   &.waiting {
-    background-color: $color-nuetral-light;
+    background-color: $color-neutral-light;
   }
 }
 
 .panel-title {
-  background: $color-nuetral-lighter;
+  background: $color-neutral-lighter;
   font-size: 14px;
   margin: 0px;
   padding: $gutter ($gutter * 2);
 }
 
 .panel-item {
-  border-top: 1px solid $color-nuetral-light;
+  border-top: 1px solid $color-neutral-light;
   display: block;
   padding: $gutter;
 }
@@ -160,7 +160,7 @@ $color-darker-green: #2cb528;
 
 .panel-footer {
   @extend .panel-title;
-  border-top: 1px solid $color-nuetral-light;
+  border-top: 1px solid $color-neutral-light;
 }
 
 .issue {
@@ -178,25 +178,19 @@ $color-darker-green: #2cb528;
   &.planning,
   &.hold,
   &.reviewing {
-      color: $color-nuetral-light;
-      // Only show the check icon if the item is in review
-      .octicon-check {
-        display: inline;
-      }
+      color: $color-neutral-light !important;
+    .label {
+      background-color: $color-neutral-light !important;
+    }
   }
   &.waiting-on-customer {
     color: $color-purple;
   }
-  // Hide the icons for all issues by default
-  .octicon {
-    padding-right: $gutter;
-    display: none;
-    &.octicon-improvement,
-    &.octicon-gift,
-    &.octicon-checklist {
-      display: inline;
-    }
-  }
+}
+
+// Add some padding when we put issues in a box-row
+.Box-row .issue {
+  padding-left: 35px;
 }
 
 .assignee {
@@ -283,12 +277,14 @@ $color-darker-green: #2cb528;
   padding-left: 20px;
 }
 
-.issues .form-inline {
+.Box-row .form-inline {
   opacity: 0.3;
+  padding-left: 35px;
+  padding-top: 10px;
   position: relative;
 
   input[type="text"] {
-    width: 78%;
+    width: 70%;
   }
 
   .posting-comment-label {
@@ -299,14 +295,17 @@ $color-darker-green: #2cb528;
 }
 
 .lastcomment {
-  height: 21px;
   overflow: hidden;
-  padding-left: 50px;
+  padding-left: 70px;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  &.hold {
+    color: $color-neutral-light;
+  }
 }
 
-.panel-item:hover {
+.Box-row:hover {
   .lastcomment {
     height: auto;
     white-space: normal;
