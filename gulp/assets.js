@@ -22,9 +22,6 @@ module.exports = {
   clientSass: [
     __dirname + '/../lib/css/**/*.scss'
   ],
-  clientFonts: [
-    __dirname + '/../lib/bower/font-awesome/fonts/*'
-  ],
   clientHtml: [
     __dirname + '/../lib/*.html'
   ],
