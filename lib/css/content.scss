@@ -295,20 +295,24 @@ $color-darker-green: #2cb528;
 }
 
 .lastcomment {
-  overflow: hidden;
   padding-left: 70px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 
   &.hold {
     color: $color-neutral-light;
+  }
+
+  img {
+    opacity: 0.3;
+    max-width: 5% !important;
   }
 }
 
 .Box-row:hover {
   .lastcomment {
-    height: auto;
-    white-space: normal;
+    img {
+      max-width: 25% !important;
+      opacity: 1;
+    }
   }
   .form-inline {
     opacity: 1;
