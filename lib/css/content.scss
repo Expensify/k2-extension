@@ -165,6 +165,7 @@ $color-darker-green: #2cb528;
 
 .issue {
   line-height: 1em;
+
   &:hover {
     text-decoration: none;
   }
@@ -191,6 +192,10 @@ $color-darker-green: #2cb528;
 // Add some padding when we put issues in a box-row
 .Box-row .issue {
   padding-left: 35px;
+
+  > a {
+    display: block;
+  }
 }
 
 .assignee {
@@ -304,6 +309,10 @@ $color-darker-green: #2cb528;
   img {
     opacity: 0.3;
     max-width: 5% !important;
+  }
+
+  .comment-body {
+    padding-left: 35px;
   }
 }
 
