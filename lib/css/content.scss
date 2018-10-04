@@ -114,7 +114,9 @@ $color-darker-green: #2cb528;
 }
 .label {
   margin-right: $gutter;
-  &.hourly {
+  &.hourly,
+  &.unassigned,
+  &.overdue {
     background-color: $color-alert;
   }
   &.daily {
@@ -126,10 +128,15 @@ $color-darker-green: #2cb528;
   &.monthly {
     background-color: $color-purple;
   }
-  &.newhire {
+  &.newhire,
+  &.underreview ,
+  &.onstaging ,
+  &.onproduction {
     background-color: $color-light-blue;
   }
-  &.waiting {
+  &.waiting,
+  &.planning,
+  &.hold {
     background-color: $color-neutral-light;
   }
 }
