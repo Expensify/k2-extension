@@ -187,6 +187,9 @@ $color-darker-green: #2cb528;
   &.hold,
   &.reviewing {
       color: $color-neutral-light !important;
+      .issue-link {
+        color: $color-neutral-light !important;
+      }
     .label {
       background-color: $color-neutral-light !important;
     }
