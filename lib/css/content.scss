@@ -365,3 +365,8 @@ $color-darker-green: #2cb528;
 .table-list-header-toggle .btn-link.selected {
   font-weight: bold;
 }
+
+.email-hidden-toggle,
+.email-hidden-reply {
+  display: none;
+}
