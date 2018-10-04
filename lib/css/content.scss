@@ -115,13 +115,13 @@ $color-darker-green: #2cb528;
 .label {
   margin-right: $gutter;
   &.hourly,
-  &.unassigned,
   &.overdue {
     background-color: $color-alert;
   }
   &.daily {
     background-color: $color-orange;
   }
+  &.unassigned,
   &.weekly {
     background-color: $color-green;
   }
