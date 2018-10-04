@@ -197,12 +197,12 @@ $color-darker-green: #2cb528;
 }
 
 // Add some padding when we put issues in a box-row
-.Box-row .issue {
+.Box-row .issue,
+.Box-row .labels {
   padding-left: 35px;
-
-  > a {
-    display: block;
-  }
+}
+.Box-row .issue > a {
+  display: block;
 }
 
 .assignee {
@@ -318,9 +318,17 @@ $color-darker-green: #2cb528;
     max-width: 5% !important;
   }
 
-  .comment-body {
-    padding-left: 35px;
+  .edit-comment-hide {
+    padding: 15px;
   }
+}
+
+// This hides a little arrow that shows up to the left of the comment box
+.timeline-comment-wrapper > .timeline-comment::before,
+.timeline-new-comment .timeline-comment::before,
+.timeline-comment-wrapper > .timeline-comment::after,
+.timeline-new-comment .timeline-comment::after{
+  display: none !important;
 }
 
 .Box-row:hover {
