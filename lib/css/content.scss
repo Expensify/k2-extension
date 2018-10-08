@@ -129,11 +129,11 @@ $color-darker-green: #2cb528;
     background-color: $color-purple;
   }
   &.newhire,
-  &.underreview ,
-  &.onstaging ,
+  &.onstaging,
   &.onproduction {
     background-color: $color-light-blue;
   }
+  &.underreview,
   &.waiting,
   &.planning,
   &.hold {
