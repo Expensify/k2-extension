@@ -1,3 +1,6 @@
+# 0.9.0
+- Re-introduced the What's Next view
+
 # 0.8.1
 - Fixed broken Type Picker for the NewFeature label
 - Updated Improvement label color to reflect the new one used in GH
