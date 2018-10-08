@@ -1,6 +1,9 @@
 # 0.9.0
 - Re-introduced the What's Next view
 
+# 0.8.2
+- List all pages of issues instead of just the first 30 results
+
 # 0.8.1
 - Fixed broken Type Picker for the NewFeature label
 - Updated Improvement label color to reflect the new one used in GH
