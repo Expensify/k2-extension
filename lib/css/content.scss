@@ -299,13 +299,7 @@ $color-darker-green: #2cb528;
   position: relative;
 
   input[type="text"] {
-    width: 64%;
-  }
-
-  .posting-comment-label {
-    position: absolute;
-    top: 6px;
-    right: 222px;
+    width: 60%;
   }
 }
 
@@ -387,4 +381,8 @@ $color-darker-green: #2cb528;
 .email-hidden-toggle,
 .email-hidden-reply {
   display: none;
+}
+
+.edit-comment-hide ul {
+  padding-left: 30px !important;
 }
