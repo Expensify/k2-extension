@@ -200,11 +200,8 @@ $color-darker-green: #2cb528;
 }
 
 // Add some padding when we put issues in a box-row
-.Box-row .issue,
-.Box-row .labels {
-  padding-left: 35px;
-}
-.Box-row .issue > a {
+.Box-row .issue {
+  // padding-left: 35px;
   display: block;
 }
 
@@ -284,6 +281,10 @@ $color-darker-green: #2cb528;
   }
 }
 
+.pull-left {
+  float: left;
+}
+
 .pull-right {
   float: right;
 }
@@ -292,9 +293,14 @@ $color-darker-green: #2cb528;
   padding-left: 20px;
 }
 
+.Box-row {
+  position: relative;
+  padding: 20px !important;
+}
+
 .Box-row .form-inline {
   opacity: 0.3;
-  padding-left: 35px;
+  padding-left: 0;
   padding-top: 10px;
   position: relative;
 
@@ -303,8 +309,28 @@ $color-darker-green: #2cb528;
   }
 }
 
-.lastcomment {
-  padding-left: 70px;
+.actionbuttons {
+  opacity: 0;
+  transition: opacity 150ms ease-in-out;
+  position: absolute;
+  left: 100%;
+  white-space: nowrap;
+  padding: 12px 20px 20px;
+  top: 0
+}
+
+.Box-row:hover .actionbuttons {
+  opacity: 1;
+}
+
+.timeline-comment-wrapper.lastcomment {
+  padding-left: 0;
+  margin-top: 8px;
+  margin-bottom: 0;
+
+  p:last-child {
+    margin-bottom: 0;
+  }
 
   &.hold {
     color: $color-neutral-light;
