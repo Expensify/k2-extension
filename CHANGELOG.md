@@ -1,3 +1,6 @@
+# 0.8.3
+- Updating planning label color to dark yellow
+
 # 0.8.2
 - List all pages of issues instead of just the first 30 results
 
