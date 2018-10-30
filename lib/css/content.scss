@@ -16,6 +16,7 @@ $color-white: #ffffff;
 $color-blue: #0000ff;
 $color-light-blue: #12a4d5;
 $color-darker-green: #2cb528;
+$color-dark-yellow: #DAA520;
 
 .k2-inactive {
   opacity: 0.2;
@@ -173,7 +174,9 @@ $color-darker-green: #2cb528;
   &.overdue {
       color: $color-alert !important;
   }
-  &.planning,
+  &.planning {
+    color: $color-dark-yellow !important;
+  }
   &.hold,
   &.reviewing {
       color: $color-nuetral-light;
