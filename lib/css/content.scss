@@ -348,6 +348,10 @@ $color-dark-yellow: #DAA520;
   .edit-comment-hide {
     padding: 15px;
   }
+
+  ul, ol {
+    margin-left: 40px;
+  }
 }
 
 // This hides a little arrow that shows up to the left of the comment box
