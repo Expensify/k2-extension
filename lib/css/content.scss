@@ -4,7 +4,7 @@ $gutter: 5px;
 
 $color-neutral-lighter: #eeeeee;
 $color-neutral-light: #dddddd;
-$color-nuetral: #999999;
+$color-neutral: #999999;
 $color-alert: #D52354;
 
 $color-red: #FF0000;
@@ -57,7 +57,7 @@ $color-dark-yellow: #DAA520;
 .k2-newfeature.active { background-color: #A52A2A !important; color: white; }
 
 .k2-reviewing {
-  &.active { background-color: $color-nuetral; }
+  &.active { background-color: $color-neutral; }
   &.inactive { @extend .k2-inactive; }
 }
 .discussion-sidebar-item.discussion-sidebar-item.no-border {
@@ -142,6 +142,9 @@ $color-dark-yellow: #DAA520;
     background-color: $color-neutral-light;
   }
 }
+.muted {
+  color: $color-neutral;
+}
 
 .panel-title {
   background: $color-neutral-lighter;
@@ -157,7 +160,7 @@ $color-dark-yellow: #DAA520;
 }
 
 .panel-item-meta {
-  color: $color-nuetral;
+  color: $color-neutral;
   font-size: 10px;
   float: right;
   & > span,
@@ -256,7 +259,7 @@ $color-dark-yellow: #DAA520;
   padding-left: 5px;
 
   &.red {
-    background-color: $color-nuetral;
+    background-color: $color-neutral;
   }
 
   &.green {
