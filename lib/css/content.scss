@@ -344,8 +344,7 @@ $color-dark-yellow: #DAA520;
   }
 
   img {
-    opacity: 0.3;
-    max-width: 5% !important;
+    max-width: 25% !important;
   }
 
   .edit-comment-hide {
@@ -366,12 +365,6 @@ $color-dark-yellow: #DAA520;
 }
 
 .Box-row:hover {
-  .lastcomment {
-    img {
-      max-width: 25% !important;
-      opacity: 1;
-    }
-  }
   .form-inline {
     opacity: 1;
   }
