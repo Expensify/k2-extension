@@ -1,6 +1,9 @@
 # 0.9.0
 - Re-introduced the What's Next view
 
+# 0.8.4
+- Updating Pull Requests to Review Requests and ensuring that an unassigned PR will still show up so it doesn't get lost
+
 # 0.8.3
 - Updating planning label color to dark yellow
 
