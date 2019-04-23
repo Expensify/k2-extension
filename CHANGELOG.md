@@ -1,3 +1,8 @@
+# 0.8.6
+- Adds Infra label selector
+- Removes Area 51 label selector
+- Changes all Area buttons to emojis
+
 # 0.8.5
 - Fixed a bug with getting the GH username.
 
