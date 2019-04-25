@@ -37,7 +37,6 @@ $color-dark-yellow: #DAA520;
 .k2-task,
 .k2-newfeature {
   background-image: none !important;
-  &.inactive { @extend .k2-inactive; }
 }
 
 .k2-hourly.active { background-color: #EC0E2D !important; }
@@ -68,7 +67,8 @@ $color-dark-yellow: #DAA520;
   label {
     color: #eee;
     font-size: 22px;
-    left: 100%;
+    left: 106%;
+    top: 12px;
     position: absolute;
   }
 }
@@ -374,4 +374,31 @@ body.dark {
 
 .k2-extension-qa-guideline-list-item {
   margin-bottom: 8px;
+}
+
+.btn-group-grid {
+  display: flex;
+  flex-flow: row wrap;
+
+  .btn {
+    margin: 0 2px 2px 0;
+    flex: auto;
+
+    &.k2-web {
+      width: 100%;
+    }
+  }
+}
+
+.k2picker-wrapper,
+.k2pickertype-wrapper,
+.k2togglereviewing-wrapper {
+  .btn-group {
+    display: flex;
+
+    .btn {
+      flex-basis: 0;
+      flex-grow: 1;
+    }
+  }
 }
