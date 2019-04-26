@@ -27,17 +27,16 @@ $color-dark-yellow: #DAA520;
 .k2-monthly,
 .k2-web,
 .k2-core,
-.k2-area-51,
 .k2-integration.server,
 .k2-scraper,
 .k2-design,
 .k2-mobile,
 .k2-ops,
+.k2-infra,
 .k2-improvement,
 .k2-task,
 .k2-newfeature {
   background-image: none !important;
-  &.inactive { @extend .k2-inactive; }
 }
 
 .k2-hourly.active { background-color: $color-alert !important; }
@@ -46,12 +45,12 @@ $color-dark-yellow: #DAA520;
 .k2-monthly.active { background-color: $color-purple !important; }
 .k2-web.active { background-color: #274073 !important; color: white; }
 .k2-core.active { background-color: #ff0066 !important; color: white; }
-.k2-area-51.active { background-color: #6CC417 !important; }
 .k2-integration.server.active { background-color: #c7def8 !important; }
 .k2-scraper.active { background-color: #bfe5bf !important; }
 .k2-mobile.active { background-color: #fad8c7 !important; }
 .k2-design.active { background-color: #00a4d3 !important; color: white; }
 .k2-ops.active { background-color: #37916C !important; color: white; }
+.k2-infra.active { background-color: #181c99 !important; color: white; }
 .k2-improvement.active { background-color: #604c8d !important; color: white; }
 .k2-task.active { background-color: #9C5959 !important; color: white; }
 .k2-newfeature.active { background-color: #A52A2A !important; color: white; }
@@ -68,7 +67,8 @@ $color-dark-yellow: #DAA520;
   label {
     color: #eee;
     font-size: 22px;
-    left: 100%;
+    left: 106%;
+    top: 12px;
     position: absolute;
   }
 }
@@ -415,4 +415,31 @@ $color-dark-yellow: #DAA520;
 
 .edit-comment-hide ul {
   padding-left: 30px !important;
+}
+
+.btn-group-grid {
+  display: flex;
+  flex-flow: row wrap;
+
+  .btn {
+    margin: 0 2px 2px 0;
+    flex: auto;
+
+    &.k2-web {
+      width: 100%;
+    }
+  }
+}
+
+.k2picker-wrapper,
+.k2pickertype-wrapper,
+.k2togglereviewing-wrapper {
+  .btn-group {
+    display: flex;
+
+    .btn {
+      flex-basis: 0;
+      flex-grow: 1;
+    }
+  }
 }
