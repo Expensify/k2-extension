@@ -1,3 +1,7 @@
+# 0.8.7
+- Add text labels back to the area buttons (next to the new emojis)
+- Shuffle around area / priority / issue type button groups
+
 # 0.8.6
 - Adds Infra label selector
 - Removes Area 51 label selector
