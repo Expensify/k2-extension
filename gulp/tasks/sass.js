@@ -8,9 +8,6 @@ var importCss = require('gulp-import-css');
 
 module.exports = function(options) {
   return function() {
-    gulp.src(require('../assets').clientFonts)
-      .pipe(gulp.dest(__dirname + '/../../dist/fonts'));
-
     return gulp.src(require('../assets').clientSass)
       .pipe(plumber({
         errorHandler: require('../error.beep')

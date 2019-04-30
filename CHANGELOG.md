@@ -1,3 +1,6 @@
+# 0.9.0
+- Re-introduced the What's Next view
+
 # 0.8.7
 - Add text labels back to the area buttons (next to the new emojis)
 - Shuffle around area / priority / issue type button groups

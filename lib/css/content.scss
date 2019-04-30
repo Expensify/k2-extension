@@ -2,9 +2,9 @@
 
 $gutter: 5px;
 
-$color-nuetral-lighter: #eeeeee;
-$color-nuetral-light: #dddddd;
-$color-nuetral: #999999;
+$color-neutral-lighter: #eeeeee;
+$color-neutral-light: #dddddd;
+$color-neutral: #999999;
 $color-alert: #D52354;
 
 $color-red: #FF0000;
@@ -39,10 +39,10 @@ $color-dark-yellow: #DAA520;
   background-image: none !important;
 }
 
-.k2-hourly.active { background-color: #EC0E2D !important; }
+.k2-hourly.active { background-color: $color-alert !important; }
 .k2-daily.active { background-color: $color-orange !important; color: white; }
 .k2-weekly.active { background-color: $color-green !important; color: white; }
-.k2-monthly.active { background-color: #5319e7 !important; color: white; }
+.k2-monthly.active { background-color: $color-purple !important; }
 .k2-web.active { background-color: #274073 !important; color: white; }
 .k2-core.active { background-color: #ff0066 !important; color: white; }
 .k2-integration.server.active { background-color: #c7def8 !important; }
@@ -56,7 +56,7 @@ $color-dark-yellow: #DAA520;
 .k2-newfeature.active { background-color: #A52A2A !important; color: white; }
 
 .k2-reviewing {
-  &.active { background-color: $color-nuetral; }
+  &.active { background-color: $color-neutral; }
   &.inactive { @extend .k2-inactive; }
 }
 .discussion-sidebar-item.discussion-sidebar-item.no-border {
@@ -73,7 +73,7 @@ $color-dark-yellow: #DAA520;
   }
 }
 .panel {
-  border: 1px solid $color-nuetral-light;
+  border: 1px solid $color-neutral-light;
   border-radius: 3px;
   &.hourly {
     .label {
@@ -81,7 +81,7 @@ $color-dark-yellow: #DAA520;
     }
 
     .panel-title {
-      background-color: #EC0E2D;
+      background-color: $color-alert;
       color: $color-white;
     }
   }
@@ -109,137 +109,120 @@ $color-dark-yellow: #DAA520;
     }
 
     .panel-title {
-      background-color: #5319e7;
-      color: white;
+      background-color: $color-purple;
     }
   }
 }
 .label {
   margin-right: $gutter;
-  &.hourly {
-    background-color: #EC0E2D;
+  &.hourly,
+  &.overdue,
+  &.closed {
+    background-color: $color-alert;
   }
   &.daily {
     background-color: $color-orange;
   }
+  &.unassigned,
   &.weekly {
     background-color: $color-green;
   }
   &.monthly {
-    background-color: #5319e7;
+    background-color: $color-purple;
   }
-  &.newhire {
+  &.newhire,
+  &.onstaging,
+  &.onproduction {
     background-color: $color-light-blue;
   }
-  &.waiting {
-    background-color: $color-nuetral-light;
+  &.underreview,
+  &.waiting,
+  &.planning,
+  &.hold {
+    background-color: $color-neutral-light;
   }
+}
+.muted {
+  color: $color-neutral;
 }
 
 .panel-title {
-  background: $color-nuetral-lighter;
+  background: $color-neutral-lighter;
   font-size: 14px;
   margin: 0px;
   padding: $gutter ($gutter * 2);
 }
 
 .panel-item {
-  border-top: 1px solid $color-nuetral-light;
+  border-top: 1px solid $color-neutral-light;
   display: block;
   padding: $gutter;
 }
 
 .panel-item-meta {
-  color: $color-nuetral;
+  color: $color-neutral;
   font-size: 10px;
-  margin-top: 3px;
   float: right;
-
   & > span,
-  & > a {
+  & > a,
+  .octicon {
     padding-right: $gutter;
   }
 }
 
 .panel-footer {
   @extend .panel-title;
-  border-top: 1px solid $color-nuetral-light;
+  border-top: 1px solid $color-neutral-light;
 }
 
 .issue {
   line-height: 1em;
+
   &:hover {
     text-decoration: none;
   }
   &.overdue {
       color: $color-alert !important;
+      // Only show the alert icon if the item is overdue
+      .octicon-alert {
+        display: inline;
+      }
   }
   &.planning {
     color: $color-dark-yellow !important;
   }
   &.hold,
   &.reviewing {
-      color: $color-nuetral-light;
-      // Only show the check icon if the item is in review
-      .octicon-check {
-        display: inline;
+      color: $color-neutral-light !important;
+      .issue-link {
+        color: $color-neutral-light !important;
       }
+    .label {
+      background-color: $color-neutral-light !important;
+    }
   }
   &.waiting-on-customer {
     color: $color-purple;
   }
-  // Hide the icons for all issues by default
-  .octicon {
-    padding-right: $gutter;
-    display: none;
-    &.octicon-improvement,
-    &.octicon-gift,
-    &.octicon-checklist {
-      display: inline;
-    }
-  }
+}
+
+// Add some padding when we put issues in a box-row
+.Box-row .issue {
+  // padding-left: 35px;
+  display: block;
 }
 
 .assignee {
   padding-left: ($gutter * 4);
 }
 
-
-/**
- * Dark Style
- */
-body.dark {
-  background-color: #000;
-  color: #eee;
-  .sunken-menu,
-  .header {
-    background-color: #333;
-  }
-  .sunken-menu {
-    background-color: #000;
-    background-image: none;
-  }
-  .panel,
-  .panel-item,
-  .pagehead,
-  .header {
-    border-color: #666 !important;
-  }
-  .header-logo-invertocat,
-  .header-nav-link {
-    color: #eee;
-  }
-  .panel-title {
-    color: #000;
-  }
-  .hold,
-  .reviewing {
-    color: #333;
-  }
-}
-
 .hide {
   display: none;
+}
+
+/* For some reason our tabs don't get the default cursor behavior */
+.tabnav-tabs a {
+  cursor: pointer;
 }
 
 .milestones,
@@ -276,7 +259,7 @@ body.dark {
   padding-left: 5px;
 
   &.red {
-    background-color: $color-nuetral;
+    background-color: $color-neutral;
   }
 
   &.green {
@@ -305,6 +288,10 @@ body.dark {
   }
 }
 
+.pull-left {
+  float: left;
+}
+
 .pull-right {
   float: right;
 }
@@ -313,34 +300,71 @@ body.dark {
   padding-left: 20px;
 }
 
-.issues .form-inline {
+.Box-row {
+  position: relative;
+  padding: 20px !important;
+}
+
+.Box-row .form-inline {
   opacity: 0.3;
+  padding-left: 0;
+  padding-top: 10px;
   position: relative;
 
   input[type="text"] {
-    width: 78%;
-  }
-
-  .posting-comment-label {
-    position: absolute;
-    top: 6px;
-    right: 222px;
+    width: 60%;
   }
 }
 
-.lastcomment {
-  height: 21px;
-  overflow: hidden;
-  padding-left: 50px;
-  text-overflow: ellipsis;
+.actionbuttons {
+  opacity: 0;
+  transition: opacity 150ms ease-in-out;
+  position: absolute;
+  left: 100%;
   white-space: nowrap;
+  padding: 12px 20px 20px;
+  top: 0
 }
 
-.panel-item:hover {
-  .lastcomment {
-    height: auto;
-    white-space: normal;
+.Box-row:hover .actionbuttons {
+  opacity: 1;
+}
+
+.timeline-comment-wrapper.lastcomment {
+  padding-left: 0;
+  margin-top: 8px;
+  margin-bottom: 0;
+
+  p:last-child {
+    margin-bottom: 0;
   }
+
+  &.hold {
+    color: $color-neutral-light;
+  }
+
+  img {
+    max-width: 25% !important;
+  }
+
+  .edit-comment-hide {
+    padding: 15px;
+  }
+
+  ul, ol {
+    margin-left: 40px;
+  }
+}
+
+// This hides a little arrow that shows up to the left of the comment box
+.timeline-comment-wrapper > .timeline-comment::before,
+.timeline-new-comment .timeline-comment::before,
+.timeline-comment-wrapper > .timeline-comment::after,
+.timeline-new-comment .timeline-comment::after{
+  display: none !important;
+}
+
+.Box-row:hover {
   .form-inline {
     opacity: 1;
   }
@@ -374,6 +398,23 @@ body.dark {
 
 .k2-extension-qa-guideline-list-item {
   margin-bottom: 8px;
+}
+
+.table-list-header-toggle .btn-link {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+.table-list-header-toggle .btn-link.selected {
+  font-weight: bold;
+}
+
+.email-hidden-toggle,
+.email-hidden-reply {
+  display: none;
+}
+
+.edit-comment-hide ul {
+  padding-left: 30px !important;
 }
 
 .btn-group-grid {
