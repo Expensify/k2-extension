@@ -5,10 +5,24 @@ let messenger = require('./lib/messenger');
 
 messenger.startNavEventPublisher();
 
-},{"./lib/messenger":2}],2:[function(require,module,exports){
+},{"./lib/messenger":3}],2:[function(require,module,exports){
 'use strict';
-/* global chrome */
+/* global chrome, browser */
 
+function getBrowser() {
+  if (chrome) {
+    return chrome;
+  }
+
+  return browser;
+}
+
+exports.browser = getBrowser();
+
+},{}],3:[function(require,module,exports){
+'use strict';
+
+const kvs2Browser = require('./browser');
 let listeners = {};
 
 /**
@@ -21,12 +35,12 @@ function startNavEventPublisher() {
   ];
 
   navEventList.forEach(function(e) {
-    chrome.webNavigation[e].addListener(() => {
-      chrome.tabs.query({
+    kvs2Browser.browser.webNavigation[e].addListener(() => {
+      kvs2Browser.browser.tabs.query({
         active: true,
         currentWindow: true
       }, tabs => {
-        chrome.tabs.sendMessage(tabs[0].id, 'nav');
+        kvs2Browser.browser.tabs.sendMessage(tabs[0].id, 'nav');
       });
     });
   });
@@ -66,7 +80,7 @@ function trigger(eventName, data) {
  * event listeners
  */
 function startMessageListener() {
-  chrome.runtime.onMessage.addListener(function(request) {
+  kvs2Browser.browser.runtime.onMessage.addListener(function(request) {
     trigger(request);
   });
 }
@@ -78,4 +92,4 @@ exports.startNavEventPublisher = startNavEventPublisher;
 exports.startMessageListener = startMessageListener;
 exports.on = on;
 
-},{}]},{},[1]);
+},{"./browser":2}]},{},[1]);
