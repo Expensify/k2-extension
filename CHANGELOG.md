@@ -1,3 +1,6 @@
+# 0.9.2
+- Combine some API requests into a single request
+
 # 0.9.0
 - Re-introduced the What's Next view
 
