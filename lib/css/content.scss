@@ -235,6 +235,10 @@ $color-dark-yellow: #DAA520;
     left: -210px;
     width: 200px;
     text-align: right;
+
+    > div {
+      line-height: 1.5em;
+    }
   }
 }
 
