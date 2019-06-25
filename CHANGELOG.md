@@ -1,3 +1,7 @@
+# 0.9.3
+- Add more items to the legend
+- Remove the area 51 tab
+
 # 0.9.2
 - Combine some API requests into a single request
 
