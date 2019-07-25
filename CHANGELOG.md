@@ -1,3 +1,7 @@
+#0.9.4
+- Removes the Mobile label
+- Removes the Mobile tab
+
 # 0.9.3
 - Add more items to the legend
 - Remove the area 51 tab
