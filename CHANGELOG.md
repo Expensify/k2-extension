@@ -1,3 +1,6 @@
+#0.9.5
+- Switch grid layout to use Bootstrap grid layout because GH changed some of their CSS
+
 #0.9.4
 - Removes the Mobile label
 - Removes the Mobile tab
