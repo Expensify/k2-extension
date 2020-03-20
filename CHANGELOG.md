@@ -1,3 +1,6 @@
+#0.9.6
+- Add a label for WhatsNext and put them in the top of the KSV2 groups
+
 #0.9.5
 - Switch grid layout to use Bootstrap grid layout because GH changed some of their CSS
 
