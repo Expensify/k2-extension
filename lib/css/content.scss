@@ -9,6 +9,7 @@ $color-alert: #D52354;
 
 $color-red: #FF0000;
 $color-purple: #A85AD4;
+$color-bright-purple: #8747FE;
 $color-orange: #eb6420;
 $color-green: #009800;
 $color-black: #000000;
@@ -138,6 +139,9 @@ $color-dark-yellow: #DAA520;
   &.planning,
   &.hold {
     background-color: $color-neutral-light;
+  }
+  &.whatsnext {
+    background-color: $color-bright-purple;
   }
 }
 .muted {
