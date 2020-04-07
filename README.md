@@ -5,9 +5,8 @@ GitHub UI integration for K2 - Kernel Scheduling Method
 
 # Installing the Chrome Extension
 ## Easy (auto-updating)
-1. Download the extension from [here](https://github.com/Expensify/k2-chrome-extension/blob/master/build/k2.crx)
-2. Go to `chrome://extensions`
-3. Drop the extension onto this window and let it install
+1. Download the extension from [here](https://chrome.google.com/webstore/detail/k2-for-github/hmhoemhekchomabhoccbidjnoenbphno?hl=en-US)
+2. Click on 'Add to Chrome'
 
 ## From the Source Code (for development)
 1. Go to `chrome://extensions`
