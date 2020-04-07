@@ -1,3 +1,6 @@
+#0.9.7
+- Fixes the buttons so they show up properly in the GH navbar
+
 #0.9.6
 - Add a label for WhatsNext and put them in the top of the KSV2 groups
 
