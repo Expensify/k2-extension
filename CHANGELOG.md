@@ -1,3 +1,9 @@
+#0.9.8
+- Fixes Github API rate limiting issue by delaying the pollIntervals for each element in the DOM
+- Removes unnecessary API call for getting reviewers
+- Fixes tab navigation CSS issue caused by Github class changes
+- Adds more detail to react-id keys for list elements
+
 #0.9.7
 - Fixes the buttons so they show up properly in the GH navbar
 
