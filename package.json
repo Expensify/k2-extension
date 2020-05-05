@@ -5,6 +5,7 @@
   "main": "index.js",
   "author": "Tim Golen <tim@golen.net>",
   "scripts": {
+    "preinstall": "./tools/checkRuntimeVersions.sh",
     "watch": "gulp",
     "build": "gulp build",
     "package": "gulp package"
