@@ -23,24 +23,11 @@ Your personal access token is stored locally and securely. It is used to make ba
 4. Use that token when signing in to the KSv2 dashboard
 
 # Installing this repo
-
-First, update NPM to the version specified in the topic of the
-`#engineering-chat` channel on Slack.
-
-```bash
-npm install -g npm@<version>
-```
-
-Then clone and install node modules
-
 ```
 git clone git@github.com:Expensify/k2-chrome-extension.git
 cd k2-chrome-extension
 npm i
 ```
-
-If you are running the agreed-upon version of npm, there should not be
-any changes to `package-lock.json`
 
 # Developing
 There are three NPM tasks to use with this project. All files are output to the `dist` folder.
@@ -48,31 +35,6 @@ There are three NPM tasks to use with this project. All files are output to the 
 1. `npm run watch` - Run this when doing development. It will watch files and run all code standardizing tasks whenever the files are saved. It will build all the JS code together in an unminified version for easier debugging.
 1. `npm run build` - This will doing the same thing as the normal gulp task except it won't watch files and will exit when finished.
 1. `npm run package` - This will output a minified version of the code which can be used to submit to the Chrome Store.
-
-**NOTE:** If you get the following error message when trying to run
-these commands...
-
-```
-Error: Node Sass does not yet support your current environment: Linux 64-bit with Unsupported runtime (59)
-```
-
-...you can fix this by rebuild node-sass.
-
-On macOS:
-
-```bash
-npm rebuild node-sass
-```
-
-Or, in Expensidev:
-
-```bash
-sudo npm rebuild node-sass
-```
-
-**NOTE:** This command exits with an error in Expensidev, but appears to
-still fix the error with `npm run build`. If you have a better solution,
-please update this README.
 
 In order to test your changes, you need to have the extension loaded into Chrome from your local folder.
 
