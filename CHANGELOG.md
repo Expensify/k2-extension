@@ -1,3 +1,8 @@
+# 0.9.9
+- GitHub search API sometimes returns closed PRs even with `state:open`, so filter those out
+- Show mergeability status next to PRs
+- Clicking on K2/WN tab should work from any other tab, not just repo home
+
 #0.9.8
 - Fixes Github API rate limiting issue by delaying the pollIntervals for each element in the DOM
 - Removes unnecessary API call for getting reviewers
