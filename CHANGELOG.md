@@ -1,3 +1,7 @@
+#0.9.10
+- Switch from basic auth to token auth (and ease in the change so folks don't have to re-auth)
+- Restore functionality that displays Travis status next to pull requests
+
 # 0.9.9
 - GitHub search API sometimes returns closed PRs even with `state:open`, so filter those out
 - Show mergeability status next to PRs
