@@ -1,3 +1,8 @@
+#0.9.11
+- Fix bug displaying Travis status for builds that are not yet finished
+- Better formatting for Travis status that contains underscores
+- Make sure we don't display blank Travis status
+
 #0.9.10
 - Switch from basic auth to token auth (and ease in the change so folks don't have to re-auth)
 - Restore functionality that displays Travis status next to pull requests
