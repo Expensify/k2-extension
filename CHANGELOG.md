@@ -1,3 +1,17 @@
+#0.9.11
+- Fix bug displaying Travis status for builds that are not yet finished
+- Better formatting for Travis status that contains underscores
+- Make sure we don't display blank Travis status
+
+#0.9.10
+- Switch from basic auth to token auth (and ease in the change so folks don't have to re-auth)
+- Restore functionality that displays Travis status next to pull requests
+
+# 0.9.9
+- GitHub search API sometimes returns closed PRs even with `state:open`, so filter those out
+- Show mergeability status next to PRs
+- Clicking on K2/WN tab should work from any other tab, not just repo home
+
 #0.9.8
 - Fixes Github API rate limiting issue by delaying the pollIntervals for each element in the DOM
 - Removes unnecessary API call for getting reviewers

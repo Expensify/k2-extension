@@ -255,6 +255,22 @@ $color-dark-yellow: #DAA520;
   }
 }
 
+.mergeable-state {
+  color: $color-dark-yellow;
+
+  &.dirty, &.blocked, &.behind {
+    color: $color-alert;
+  }
+
+  &.has_hooks, &.clean {
+    color: $color-darker-green;
+  }
+
+  &.draft {
+    color: $color-neutral;
+  }
+}
+
 .light {
   display: inline-block;
   border-radius: 5px;
