@@ -3,8 +3,8 @@
 installedNodeVersion=$(node -v)
 installedNpmVersion=$(npm -v)
 
-desiredNodeVersion="v14.1.0"
-desiredNpmVersion="6.14.4"
+desiredNodeVersion="v14.3.0"
+desiredNpmVersion="6.14.5"
 
 if [ "$installedNodeVersion" != "$desiredNodeVersion" ]
 then
