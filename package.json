@@ -1,6 +1,6 @@
 {
   "name": "k2-chrome-extension",
-  "version": "0.9.11",
+  "version": "0.9.12",
   "description": "A Chrome Extenstion for Kernel Schedule",
   "main": "index.js",
   "author": "Tim Golen <tim@golen.net>",

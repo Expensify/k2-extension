@@ -1,3 +1,7 @@
+#0.9.12
+- Restore missing tabs after GitHub UI update
+- Restore label colors on K2 page after GitHub UI update
+
 #0.9.11
 - Fix bug displaying Travis status for builds that are not yet finished
 - Better formatting for Travis status that contains underscores
