@@ -114,34 +114,37 @@ $color-dark-yellow: #DAA520;
 }
 .label {
   margin-right: $gutter;
+  color: $color-white;
+  border: none !important;
+
   &.hourly,
   &.overdue,
   &.closed {
-    background-color: $color-alert;
+    background-color: $color-alert !important;
   }
   &.daily {
-    background-color: $color-orange;
+    background-color: $color-orange !important;
   }
   &.unassigned,
   &.weekly {
-    background-color: $color-green;
+    background-color: $color-green !important;
   }
   &.monthly {
-    background-color: $color-purple;
+    background-color: $color-purple !important;
   }
   &.newhire,
   &.onstaging,
   &.onproduction {
-    background-color: $color-light-blue;
+    background-color: $color-light-blue !important;
   }
   &.underreview,
   &.waiting,
   &.planning,
   &.hold {
-    background-color: $color-neutral-light;
+    background-color: $color-neutral-light !important;
   }
   &.whatsnext {
-    background-color: $color-bright-purple;
+    background-color: $color-bright-purple !important;
   }
 }
 .muted {
