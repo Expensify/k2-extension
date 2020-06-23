@@ -5,7 +5,7 @@
   "main": "index.js",
   "author": "Tim Golen <tim@golen.net>",
   "scripts": {
-    "preinstall": "./tools/checkRuntimeVersions.sh",
+    "preinstall": "npx npm-force-resolutions && ./tools/checkRuntimeVersions.sh",
     "watch": "gulp",
     "build": "gulp build",
     "package": "gulp package"
@@ -22,14 +22,14 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "babel-core": "*",
+    "@babel/core": "*",
     "babel-preset-es2015": "^6.0.15",
     "babel-preset-react": "^6.0.15",
     "babelify": "*",
     "browserify": "*",
     "eslint": "*",
     "eslint-plugin-react": "7.2.1",
-    "gulp": "*",
+    "gulp": "3.9.1",
     "gulp-copy": "*",
     "gulp-eslint": "*",
     "gulp-ext-replace": "*",
@@ -52,6 +52,9 @@
     "vinyl-source-stream": "*",
     "vinyl-transform": "*",
     "watchify": "*"
+  },
+  "resolutions": {
+    "graceful-fs": "4.2.3"
   },
   "browserify-shim": {
     "./public/lib/jquery/dist/jquery.js": {
