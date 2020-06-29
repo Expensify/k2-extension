@@ -1,3 +1,7 @@
+#0.9.13
+- On the K2 tab, gray out issues when title starts with `[HOLD `
+- Held issues still display as red if they are labeled "Overdue"
+
 #0.9.12
 - Restore missing tabs after GitHub UI update
 - Restore label colors on K2 page after GitHub UI update

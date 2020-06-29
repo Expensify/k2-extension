@@ -186,6 +186,17 @@ $color-dark-yellow: #DAA520;
   &:hover {
     text-decoration: none;
   }
+  // define before overdue so overdue issues will still appears red, since
+  // issue erosion still happens for "held issues"
+  &.hold {
+    color: darken($color-neutral-light, 20%) !important;
+    .issue-link {
+      color: darken($color-neutral-light, 20%) !important;
+    }
+    .label {
+      background-color: darken($color-neutral-light, 20%) !important;
+    }
+  }
   &.overdue {
       color: $color-alert !important;
       // Only show the alert icon if the item is overdue
@@ -196,7 +207,6 @@ $color-dark-yellow: #DAA520;
   &.planning {
     color: $color-dark-yellow !important;
   }
-  &.hold,
   &.reviewing {
       color: $color-neutral-light !important;
       .issue-link {
