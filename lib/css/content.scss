@@ -180,16 +180,6 @@ $color-dark-yellow: #DAA520;
   border-top: 1px solid $color-neutral-light;
 }
 
-%hold-reviewing {
-    color: $color-neutral-light !important;
-    .issue-link {
-      color: $color-neutral-light !important;
-    }
-  .label {
-    background-color: $color-neutral-light !important;
-  }
-}
-
 .issue {
   line-height: 1em;
 
@@ -199,7 +189,13 @@ $color-dark-yellow: #DAA520;
   // define before overdue so overdue issues will still appears red, since
   // issue erosion still happens for "held issues"
   &.hold {
-    @extend %hold-reviewing;
+    color: darken($color-neutral-light, 20%) !important;
+    .issue-link {
+      color: darken($color-neutral-light, 20%) !important;
+    }
+    .label {
+      background-color: darken($color-neutral-light, 20%) !important;
+    }
   }
   &.overdue {
       color: $color-alert !important;
@@ -212,7 +208,13 @@ $color-dark-yellow: #DAA520;
     color: $color-dark-yellow !important;
   }
   &.reviewing {
-    @extend %hold-reviewing;
+      color: $color-neutral-light !important;
+      .issue-link {
+        color: $color-neutral-light !important;
+      }
+    .label {
+      background-color: $color-neutral-light !important;
+    }
   }
   &.waiting-on-customer {
     color: $color-purple;
