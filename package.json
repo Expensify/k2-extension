@@ -1,6 +1,6 @@
 {
   "name": "k2-chrome-extension",
-  "version": "0.9.13",
+  "version": "0.9.14",
   "description": "A Chrome Extenstion for Kernel Schedule",
   "main": "index.js",
   "author": "Tim Golen <tim@golen.net>",
@@ -8,7 +8,8 @@
     "preinstall": "npx npm-force-resolutions && ./tools/checkRuntimeVersions.sh",
     "watch": "gulp",
     "build": "gulp build",
-    "package": "gulp package"
+    "package": "gulp package",
+    "zip": "gulp zip"
   },
   "dependencies": {
     "alt": "^0.17.8",
