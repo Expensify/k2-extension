@@ -1,3 +1,7 @@
+#0.9.14
+- Fix "Reviewing" button, which broke due to GitHub page layout changes
+- Change text of "Reviewing" button to make it more clear
+
 #0.9.13
 - On the K2 tab, gray out issues when title starts with `[HOLD `
 - Held issues still display as red if they are labeled "Overdue"
