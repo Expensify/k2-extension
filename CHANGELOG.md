@@ -1,3 +1,7 @@
+#0.9.15
+- Fix K2/WN button links by hard-coding `/Expensify/Expensify` url instead of relying on GitHub markup
+- Finish deprecating `ghPassword` variable after switching to token auth
+
 #0.9.14
 - Fix "Reviewing" button, which broke due to GitHub page layout changes
 - Change text of "Reviewing" button to make it more clear
