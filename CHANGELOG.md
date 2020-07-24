@@ -1,3 +1,60 @@
+#0.9.15
+- Fix K2/WN button links by hard-coding `/Expensify/Expensify` url instead of relying on GitHub markup
+- Finish deprecating `ghPassword` variable after switching to token auth
+
+#0.9.14
+- Fix "Reviewing" button, which broke due to GitHub page layout changes
+- Change text of "Reviewing" button to make it more clear
+
+#0.9.13
+- On the K2 tab, gray out issues when title starts with `[HOLD `
+- Held issues still display as red if they are labeled "Overdue"
+
+#0.9.12
+- Restore missing tabs after GitHub UI update
+- Restore label colors on K2 page after GitHub UI update
+
+#0.9.11
+- Fix bug displaying Travis status for builds that are not yet finished
+- Better formatting for Travis status that contains underscores
+- Make sure we don't display blank Travis status
+
+#0.9.10
+- Switch from basic auth to token auth (and ease in the change so folks don't have to re-auth)
+- Restore functionality that displays Travis status next to pull requests
+
+# 0.9.9
+- GitHub search API sometimes returns closed PRs even with `state:open`, so filter those out
+- Show mergeability status next to PRs
+- Clicking on K2/WN tab should work from any other tab, not just repo home
+
+#0.9.8
+- Fixes Github API rate limiting issue by delaying the pollIntervals for each element in the DOM
+- Removes unnecessary API call for getting reviewers
+- Fixes tab navigation CSS issue caused by Github class changes
+- Adds more detail to react-id keys for list elements
+
+#0.9.7
+- Fixes the buttons so they show up properly in the GH navbar
+
+#0.9.6
+- Add a label for WhatsNext and put them in the top of the KSV2 groups
+
+#0.9.5
+- Switch grid layout to use Bootstrap grid layout because GH changed some of their CSS
+
+#0.9.4
+- Removes the Mobile label
+- Removes the Mobile tab
+
+# 0.9.3
+- Add more items to the legend
+- Remove the area 51 tab
+- Remove the scraper tab
+
+# 0.9.2
+- Combine some API requests into a single request
+
 # 0.9.0
 - Re-introduced the What's Next view
 

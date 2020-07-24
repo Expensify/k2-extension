@@ -5,3 +5,4 @@ dist.zip
 .idea
 dist/css/content.css
 dist/js/content.js
+dist/js/events.js

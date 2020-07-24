@@ -9,6 +9,7 @@ $color-alert: #D52354;
 
 $color-red: #FF0000;
 $color-purple: #A85AD4;
+$color-bright-purple: #8747FE;
 $color-orange: #eb6420;
 $color-green: #009800;
 $color-black: #000000;
@@ -30,7 +31,6 @@ $color-dark-yellow: #DAA520;
 .k2-integration.server,
 .k2-scraper,
 .k2-design,
-.k2-mobile,
 .k2-ops,
 .k2-infra,
 .k2-improvement,
@@ -47,7 +47,6 @@ $color-dark-yellow: #DAA520;
 .k2-core.active { background-color: #ff0066 !important; color: white; }
 .k2-integration.server.active { background-color: #c7def8 !important; }
 .k2-scraper.active { background-color: #bfe5bf !important; }
-.k2-mobile.active { background-color: #fad8c7 !important; }
 .k2-design.active { background-color: #00a4d3 !important; color: white; }
 .k2-ops.active { background-color: #37916C !important; color: white; }
 .k2-infra.active { background-color: #181c99 !important; color: white; }
@@ -115,31 +114,37 @@ $color-dark-yellow: #DAA520;
 }
 .label {
   margin-right: $gutter;
+  color: $color-white;
+  border: none !important;
+
   &.hourly,
   &.overdue,
   &.closed {
-    background-color: $color-alert;
+    background-color: $color-alert !important;
   }
   &.daily {
-    background-color: $color-orange;
+    background-color: $color-orange !important;
   }
   &.unassigned,
   &.weekly {
-    background-color: $color-green;
+    background-color: $color-green !important;
   }
   &.monthly {
-    background-color: $color-purple;
+    background-color: $color-purple !important;
   }
   &.newhire,
   &.onstaging,
   &.onproduction {
-    background-color: $color-light-blue;
+    background-color: $color-light-blue !important;
   }
   &.underreview,
   &.waiting,
   &.planning,
   &.hold {
-    background-color: $color-neutral-light;
+    background-color: $color-neutral-light !important;
+  }
+  &.whatsnext {
+    background-color: $color-bright-purple !important;
   }
 }
 .muted {
@@ -181,6 +186,17 @@ $color-dark-yellow: #DAA520;
   &:hover {
     text-decoration: none;
   }
+  // define before overdue so overdue issues will still appears red, since
+  // issue erosion still happens for "held issues"
+  &.hold {
+    color: darken($color-neutral-light, 20%) !important;
+    .issue-link {
+      color: darken($color-neutral-light, 20%) !important;
+    }
+    .label {
+      background-color: darken($color-neutral-light, 20%) !important;
+    }
+  }
   &.overdue {
       color: $color-alert !important;
       // Only show the alert icon if the item is overdue
@@ -191,7 +207,6 @@ $color-dark-yellow: #DAA520;
   &.planning {
     color: $color-dark-yellow !important;
   }
-  &.hold,
   &.reviewing {
       color: $color-neutral-light !important;
       .issue-link {
@@ -235,6 +250,10 @@ $color-dark-yellow: #DAA520;
     left: -210px;
     width: 200px;
     text-align: right;
+
+    > div {
+      line-height: 1.5em;
+    }
   }
 }
 
@@ -246,6 +265,22 @@ $color-dark-yellow: #DAA520;
   }
   &.failure {
     color: $color-alert;
+  }
+}
+
+.mergeable-state {
+  color: $color-dark-yellow;
+
+  &.dirty, &.blocked, &.behind {
+    color: $color-alert;
+  }
+
+  &.has_hooks, &.clean {
+    color: $color-darker-green;
+  }
+
+  &.draft {
+    color: $color-neutral;
   }
 }
 
