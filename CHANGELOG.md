@@ -1,3 +1,6 @@
+#0.9.16
+ - Update dashboard styling of issues with the label `Waiting for customer`
+
 #0.9.15
 - Fix K2/WN button links by hard-coding `/Expensify/Expensify` url instead of relying on GitHub markup
 - Finish deprecating `ghPassword` variable after switching to token auth

@@ -9,6 +9,7 @@ $color-alert: #D52354;
 
 $color-red: #FF0000;
 $color-purple: #A85AD4;
+$color-light-purple: #CFC8F1;
 $color-bright-purple: #8747FE;
 $color-orange: #eb6420;
 $color-green: #009800;
@@ -216,8 +217,8 @@ $color-dark-yellow: #DAA520;
       background-color: $color-neutral-light !important;
     }
   }
-  &.waiting-on-customer {
-    color: $color-purple;
+  &.waiting-for-customer {
+    color: $color-light-purple;
   }
 }
 
