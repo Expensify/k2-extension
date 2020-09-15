@@ -5,6 +5,13 @@
   "version": "0.9.15",
   "description": "Manage your Kernel Scheduling from directly inside GitHub",
 
+  "browser_specific_settings": {
+    "gecko": {
+        "id": "ksv2@expensify.com",
+        "strict_min_version": "42.0"
+      }
+  },
+
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
