@@ -1,18 +1,28 @@
-K2 Chrome Extension
+KS Browser Extension
 =============
 
-GitHub UI integration for K2 - Kernel Scheduling Method
+GitHub UI integration for KS - Kernel Scheduling Method
 
 # Installing the Chrome Extension
 ## Easy (auto-updating)
 1. Download the extension from [here](https://chrome.google.com/webstore/detail/k2-for-github/hmhoemhekchomabhoccbidjnoenbphno?hl=en-US)
 2. Click on 'Add to Chrome'
 
-## From the Source Code (for development)
+## From the Source Code for development
 1. Go to `chrome://extensions`
 2. Make sure you have _Developer Mode_ enabled at the top
 3. Click _Load Unpacked Extension_
 4. Navigate to the `dist` folder and select it
+
+# Installing on Firefox 
+## The "published" version
+1. steps TDB
+
+## From the Source Code for development
+1. Open up this page in firefox: `about:debugging#/runtime/this-firefox`
+1. Click **Load temporary add-on**
+1. Select the `dist/manifest.json` file in this repo (really any file within the dist should work) [more info](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#Trying_it_out)
+1. go to https://github.com/Expensify/Expensify#k2
 
 ## NOTE: It Requires a Personal Access token
 Your personal access token is stored locally and securely. It is used to make basic auth calls to the GitHub API. This is so that we don't have to implement OAuth or a separate API and we can get around a lot of the rate limiting issues.
