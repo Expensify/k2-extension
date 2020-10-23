@@ -16,7 +16,7 @@ GitHub UI integration for KS - Kernel Scheduling Method
 
 # Installing on Firefox
 ## The "published" version
-1. steps TDB
+1. https://stackoverflow.com/c/expensify/questions/7053/7054#7054
 
 ## From the Source Code for development
 1. Open up this page in firefox: `about:debugging#/runtime/this-firefox`
