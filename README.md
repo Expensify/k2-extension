@@ -14,7 +14,7 @@ GitHub UI integration for KS - Kernel Scheduling Method
 3. Click _Load Unpacked Extension_
 4. Navigate to the `dist` folder and select it
 
-# Installing on Firefox 
+# Installing on Firefox
 ## The "published" version
 1. steps TDB
 
@@ -71,6 +71,8 @@ To publish a new version of this extension, you should follow these steps:
 1. Bump the version number in `package.json` to match
 1. Add a new change log entry in `CHANGELOG.md`
 1. Run `gulp package` which will generate a `dist.zip` file
+
+## Chrome
 1. Go to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/developer/dashboard)
 1. Sign in with the account `apps@expensify.com`. The password is in Password1. If you need access to it, reach out to the #infra team.
 1. Click the **Edit** button for the **K2 for GitHub (BETA)** app
@@ -81,6 +83,9 @@ To publish a new version of this extension, you should follow these steps:
 1. Scroll down and click on **Publish changes**
 1. Click on **OK** in the confirmation window
 1. Done!
+
+## Firefox
+https://stackoverflow.com/c/expensify/questions/7043/7044#7044
 
 # Code Standards
 This repo uses several tools to keep the code standardized.
