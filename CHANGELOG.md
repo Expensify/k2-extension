@@ -1,3 +1,6 @@
+#0.9.17
+ - Update the `New Issue` button to bring to the template selection window
+
 #0.9.16
  - Update dashboard styling of issues with the label `Waiting for customer`
 
