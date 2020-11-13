@@ -1,3 +1,6 @@
+#0.9.18
+ - Remove the Scraper label
+
 #0.9.17
  - Update the `New Issue` button to bring to the template selection window
 
