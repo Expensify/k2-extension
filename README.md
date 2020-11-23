@@ -23,7 +23,7 @@ GitHub UI integration for KS - Kernel Scheduling Method
 1. Click **Load temporary add-on**
 1. Select the `dist/manifest.json` file in this repo (really any file within the dist should work) [more info](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#Trying_it_out)
 1. go to https://github.com/Expensify/Expensify#k2
-    Note: If this doesn't load you may need to run `npm run build` within the root of the repo to ensure all files have been generated properly (we dont' save all of the dist directory to the repo).
+    Note: If this doesn't load you may need to run `npm run build` within the root of the repo to ensure all files have been generated properly (we don't save all of the dist directory to the repo).
 
 ## NOTE: It Requires a Personal Access token
 Your personal access token is stored locally and securely. It is used to make basic auth calls to the GitHub API. This is so that we don't have to implement OAuth or a separate API and we can get around a lot of the rate limiting issues.
