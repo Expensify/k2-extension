@@ -1,3 +1,6 @@
+#0.9.19
+ - Fix buttons that broke after GitHub changed their markup
+
 #0.9.18
  - Remove the Scraper label
 
