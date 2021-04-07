@@ -1,3 +1,6 @@
+#0.9.20
+ - Surface `Expensify/Expensify.cash` issues in the dashboard
+
 #0.9.19
  - Fix buttons that broke after GitHub changed their markup
 
