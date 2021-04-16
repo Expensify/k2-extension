@@ -1,3 +1,6 @@
+#0.9.21
+ - Grey issues with "Take Home Challenge Sent" label since there is nothing actionable by the engineer
+
 #0.9.20
  - Surface `Expensify/Expensify.cash` issues in the dashboard
 

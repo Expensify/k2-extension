@@ -187,6 +187,7 @@ $color-dark-yellow: #DAA520;
   }
   // define before overdue so overdue issues will still appears red, since
   // issue erosion still happens for "held issues"
+  &.challenge-sent,
   &.hold {
     color: darken($color-neutral-light, 20%) !important;
     .issue-link {
