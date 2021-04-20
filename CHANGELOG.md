@@ -1,3 +1,6 @@
+#0.9.22
+ - Fix label buttons since GitHub changed their markup
+
 #0.9.21
  - Grey issues with "Take Home Challenge Sent" label since there is nothing actionable by the engineer
 

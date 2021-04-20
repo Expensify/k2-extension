@@ -35,6 +35,8 @@ $color-dark-yellow: #DAA520;
 .k2-infra,
 .k2-improvement,
 .k2-task,
+.k2-external,
+.k2-demolition,
 .k2-newfeature {
   background-image: none !important;
 }
@@ -52,6 +54,8 @@ $color-dark-yellow: #DAA520;
 .k2-improvement.active { background-color: #604c8d !important; color: white; }
 .k2-task.active { background-color: #9C5959 !important; color: white; }
 .k2-newfeature.active { background-color: #A52A2A !important; color: white; }
+.k2-external.active { background-color: #A7B8EF !important; color: white; }
+.k2-demolition.active { background-color: #6EB7C1 !important; color: white; }
 
 .k2-reviewing {
   &.active { background-color: $color-neutral; }
