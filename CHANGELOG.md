@@ -1,5 +1,8 @@
+#0.9.23
+- Fix a regex match so that the extension works on expensify.cash issues
+
 #0.9.22
- - Fix label buttons since GitHub changed their markup
+- Fix label buttons since GitHub changed their markup
 
 #0.9.21
  - Grey issues with "Take Home Challenge Sent" label since there is nothing actionable by the engineer
