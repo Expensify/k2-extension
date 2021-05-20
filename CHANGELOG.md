@@ -1,3 +1,6 @@
+#0.9.24
+- Fix backwards owner/repo so that labels work on e.cash issues
+
 #0.9.23
 - Fix a regex match so that the extension works on expensify.cash issues
 
