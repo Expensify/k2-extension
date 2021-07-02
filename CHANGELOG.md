@@ -1,3 +1,6 @@
+#0.9.25
+- Color issues with "Help Wanted" label purple, since we're waiting on action by a contributor to move forward
+
 #0.9.24
 - Fix backwards owner/repo so that labels work on e.cash issues
 
