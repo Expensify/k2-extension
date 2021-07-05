@@ -220,7 +220,8 @@ $color-dark-yellow: #DAA520;
       background-color: $color-neutral-light !important;
     }
   }
-  &.waiting-for-customer {
+  &.waiting-for-customer,
+  &.help-wanted {
     color: $color-light-purple;
   }
 }
