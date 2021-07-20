@@ -1,3 +1,6 @@
+#0.9.26
+- Update `Expensify.cash` repo to `App` in api to display e.cash issues
+
 #0.9.25
 - Color issues with "Help Wanted" label purple, since we're waiting on action by a contributor to move forward
 
