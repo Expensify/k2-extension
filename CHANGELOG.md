@@ -1,3 +1,6 @@
+#0.9.27
+- Update to show `VendorTasks` repo issues
+ 
 #0.9.26
 - Update `Expensify.cash` repo to `App` in api to display e.cash issues
 
