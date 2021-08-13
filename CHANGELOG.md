@@ -1,3 +1,6 @@
+#0.9.28
+- Update to filter out non-Expensify repos in "Your Pull Requests"
+
 #0.9.27
 - Update to show `VendorTasks` repo issues
  
