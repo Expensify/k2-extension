@@ -1,3 +1,6 @@
+#0.9.30
+- Update botify's token for WN dashboard
+
 #0.9.29
 - Update to have planning issues show red when overdue
 
