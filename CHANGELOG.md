@@ -1,5 +1,11 @@
-#0.9.29
+#0.9.31
 - Add "Help Wanted" to legend
+
+#0.9.30
+- Update botify's token for WN dashboard
+
+#0.9.29
+- Update to have planning issues show red when overdue
 
 #0.9.28
 - Update to filter out non-Expensify repos in "Your Pull Requests"

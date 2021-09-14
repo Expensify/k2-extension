@@ -6,13 +6,13 @@ GitHub UI integration for KS - Kernel Scheduling Method
 # Installing the Chrome Extension
 ## Easy (auto-updating)
 1. Download the extension from [here](https://chrome.google.com/webstore/detail/k2-for-github/hmhoemhekchomabhoccbidjnoenbphno?hl=en-US)
-2. Click on 'Add to Chrome'
+1. Click on 'Add to Chrome'
 
 ## From the Source Code for development
 1. Go to `chrome://extensions`
-2. Make sure you have _Developer Mode_ enabled at the top
-3. Click _Load Unpacked Extension_
-4. Navigate to the `dist` folder and select it
+1. Make sure you have _Developer Mode_ enabled at the top
+1. Click _Load Unpacked Extension_
+1. Navigate to the `dist` folder and select it
 
 # Installing on Firefox
 ## The "published" version
@@ -29,9 +29,9 @@ GitHub UI integration for KS - Kernel Scheduling Method
 Your personal access token is stored locally and securely. It is used to make basic auth calls to the GitHub API. This is so that we don't have to implement OAuth or a separate API and we can get around a lot of the rate limiting issues.
 
 1. Go to https://github.com/settings/tokens
-2. Generate a new token
-3. Give it full permission to notifications, repo and user
-4. Use that token when signing in to the KSv2 dashboard
+1. Generate a new token
+1. Give it full permission to notifications, repo and user
+1. Use that token when signing in to the KSv2 dashboard
 
 # Installing this repo
 ```
@@ -66,6 +66,8 @@ Be sure to do the following before pushing up your branch:
 1. Add a new change log entry in `CHANGELOG.md`
 
 # Publishing
+**Note:** Publishing KSv2 requires ring3 access. If you are not in ring 3 or below, tag your issue with the `ring3` label to assign a deployer.
+
 To publish a new version of this extension, you should follow these steps:
 
 1. Bump the version number in `dist/manifest.json` (use major.minor.patch version scheme)
@@ -75,14 +77,15 @@ To publish a new version of this extension, you should follow these steps:
 
 ## Chrome
 1. Go to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/developer/dashboard)
-1. Sign in with the account `apps@expensify.com`. The password is in Password1. If you need access to it, reach out to the #infra team.
-1. Click the **Edit** button for the **K2 for GitHub (BETA)** app
-1. Click the **Upload Updated Package** button
-1. Click on **Upload File** and choose the `dist.zip` file that was created earlier
+1. Sign in with the account `apps@expensify.com`. The password/2FA is in the ring3 vault in Password1.
+1. Click on the **K2 for Github** app.
+1. Click on the **Package** tab.
+1. Click on **Upload New Package**, then choose the `dist.zip` file that was created earlier.
 1. Click on **Upload**
-1. Verify that the version shown next to the **Upload Updated Package** button shows the new version number
-1. Scroll down and click on **Publish changes**
-1. Click on **OK** in the confirmation window
+1. Back on the **Package** tab, verify that the new version number is shown for the _Draft Package_.
+1. Go to the **Store Listing** tag, and enter the new version notes in the **Description** field.
+1. Click **Save Draft**, then **Submit for review**.
+1. Make sure `Publish "K2 for GitHub" automatically after it has passed review` is checked, then hit **Submit for review**.
 1. Done!
 
 ## Firefox
