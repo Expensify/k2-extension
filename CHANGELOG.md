@@ -1,3 +1,6 @@
+#0.9.31
+- Add "Help Wanted" to legend
+
 #0.9.30
 - Update botify's token for WN dashboard
 
