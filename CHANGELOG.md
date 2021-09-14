@@ -1,3 +1,6 @@
+#0.9.29
+- Add "Help Wanted" to legend
+
 #0.9.28
 - Update to filter out non-Expensify repos in "Your Pull Requests"
 
