@@ -1,3 +1,6 @@
+#0.9.33
+- Fix retry so that the list of issues isn't cleared every time we make a request, it is just updated when we get new results
+
 #0.9.32
 - Add "draft" label to such PRs in "Your Pull Requests"
 
