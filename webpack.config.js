@@ -2,10 +2,11 @@ const path = require('path');
 
 const webpackConfig = {
   entry: {
-    app: './index.js',
+    content: path.resolve(__dirname, './lib/js/content.js'),
+    events: path.resolve(__dirname, './lib/js/events.js')
   },
   output: {
-    filename: '[name]-[hash].bundle.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, '../../dist'),
     publicPath: '/',
   },
