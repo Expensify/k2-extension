@@ -2,8 +2,7 @@
   "name": "k2-chrome-extension",
   "version": "0.9.33",
   "description": "A Chrome Extenstion for Kernel Schedule",
-  "main": "index.js",
-  "author": "Tim Golen <tim@golen.net>",
+  "private": true,
   "scripts": {
     "preinstall": "npx npm-force-resolutions && ./tools/checkRuntimeVersions.sh",
     "watch": "gulp",
