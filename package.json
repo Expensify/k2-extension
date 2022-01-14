@@ -9,7 +9,7 @@
     "build": "gulp build",
     "package": "gulp package",
     "zip": "gulp zip",
-    "web": "webpack serve --open --config webpack.config.js"
+    "web": "webpack serve --config webpack.config.js"
   },
   "dependencies": {
     "alt": "^0.17.8",
