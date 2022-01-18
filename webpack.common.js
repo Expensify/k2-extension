@@ -1,6 +1,7 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 const webpackCommon = {
   context: path.resolve(__dirname, '.'),
@@ -22,6 +23,12 @@ const webpackCommon = {
       patterns: [
         {from: './assets/'}
       ]
+    }),
+    new ESLintPlugin({
+      cache: false,
+      emitWarning: true,
+      overrideConfigFile: path.resolve(__dirname, '.eslintrc.js'),
+      lintDirtyModulesOnly: true
     })
   ],
 
@@ -33,11 +40,11 @@ const webpackCommon = {
         use: 'html-loader'
       },
 
-      // Transpiles and lints all the JS
+      // Transpiles all the JS, including the react JSX
       {
-        test: /\.js$/i,
+        test: /\.js$/,
         use: 'babel-loader'
-      }
+      },
     ]
   }
 };
