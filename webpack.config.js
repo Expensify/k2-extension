@@ -6,10 +6,7 @@ const webpackConfig = {
     content: './lib/js/content.js',
     events: './lib/js/events.js'
   },
-  mode: 'development',
-  devServer: {
-    open: false
-  },
+  mode: 'production',
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, './dist')

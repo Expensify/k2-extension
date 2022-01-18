@@ -1,0 +1,39 @@
+{
+  "manifest_version": 2,
+
+  "name": "K2 for GitHub",
+  "version": "0.9.33",
+  "description": "Manage your Kernel Scheduling from directly inside GitHub",
+
+  "browser_specific_settings": {
+    "gecko": {
+        "id": "ksv2@expensify.com",
+        "strict_min_version": "42.0"
+      }
+  },
+
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+
+  "permissions": [
+    "*://api.github.com/*",
+    "storage",
+    "cookies",
+    "webNavigation",
+    "tabs"
+  ],
+
+  "content_scripts": [{
+    "matches": ["*://*.github.com/*"],
+    "css": ["css/content.css"],
+    "js": ["js/content.js"]
+  }],
+
+  "background": {
+    "persistent": false,
+    "scripts": ["js/events.js"]
+  }
+}
