@@ -27,7 +27,6 @@ const webpackCommon = {
     new ESLintPlugin({
       cache: false,
       emitWarning: true,
-      fix: true,
       overrideConfigFile: path.resolve(__dirname, '.eslintrc.js'),
       lintDirtyModulesOnly: true
     })
