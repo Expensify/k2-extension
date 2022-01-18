@@ -9,7 +9,7 @@
     "build": "gulp build",
     "package": "gulp package",
     "zip": "gulp zip",
-    "web": "webpack serve --config webpack.config.js"
+    "web": "webpack --watch --progress --config webpack.config.js"
   },
   "dependencies": {
     "alt": "^0.17.8",
@@ -37,6 +37,7 @@
     "babelify": "^8",
     "browserify": "*",
     "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^10.2.0",
     "eslint": "*",
     "eslint-plugin-react": "7.2.1",
     "gulp": "3.9.1",
