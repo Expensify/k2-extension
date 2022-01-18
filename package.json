@@ -9,7 +9,7 @@
     "build": "gulp build",
     "package": "gulp package",
     "zip": "gulp zip",
-    "web": "webpack --watch --progress --config webpack.config.js"
+    "web": "webpack --progress --config webpack.dev.js"
   },
   "dependencies": {
     "alt": "^0.17.8",
@@ -67,7 +67,8 @@
     "watchify": "*",
     "webpack": "^5.66.0",
     "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^3.11.0"
+    "webpack-dev-server": "^3.11.0",
+    "webpack-merge": "^5.8.0"
   },
   "resolutions": {
     "graceful-fs": "4.2.3"

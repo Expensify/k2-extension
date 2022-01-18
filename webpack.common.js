@@ -2,7 +2,7 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 
-const webpackConfig = {
+const webpackCommon = {
   context: path.resolve(__dirname, '.'),
   entry: {
     content: './lib/js/content.js',
@@ -17,12 +17,12 @@ const webpackConfig = {
   plugins: [
     new CleanWebpackPlugin(),
 
-    // Copies favicons into the dist/ folder to use for unread status
+    // Copies icons and manifest file into our dist folder
     new CopyPlugin({
       patterns: [
-        {from: './assets/'},
-      ],
-    }),
+        {from: './assets/'}
+      ]
+    })
   ],
 
   module: {
@@ -32,13 +32,14 @@ const webpackConfig = {
         test: /\.html$/i,
         use: 'html-loader'
       },
+
       // Transpiles and lints all the JS
       {
         test: /\.js$/i,
-        use: 'babel-loader',
+        use: 'babel-loader'
       }
     ]
   }
 };
 
-module.exports = webpackConfig;
+module.exports = webpackCommon;
