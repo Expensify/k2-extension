@@ -11,10 +11,12 @@ const defaultPlugins = [
 module.exports = {
   env: {
     production: {
+      sourceType: "unambiguous",
       presets: defaultPresets,
       plugins: [...defaultPlugins, 'transform-remove-console'],
     },
     development: {
+      sourceType: "unambiguous",
       presets: defaultPresets,
       plugins: defaultPlugins,
     },

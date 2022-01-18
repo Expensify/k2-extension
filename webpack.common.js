@@ -2,7 +2,8 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const {IgnorePlugin} = require('webpack');
 
 const webpackCommon = {
   context: path.resolve(__dirname, '.'),
@@ -19,6 +20,10 @@ const webpackCommon = {
   plugins: [
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin(),
+
+    new IgnorePlugin({
+      resourceRegExp: /^\.\/locale$/
+    }),
 
     // Copies icons and manifest file into our dist folder
     new CopyPlugin({
@@ -41,7 +46,7 @@ const webpackCommon = {
       // Load .html files as strings, used for underscore templates
       {
         test: /\.html$/i,
-        use: 'html-loader'
+        use: 'underscore-template-loader'
       },
 
       // Transpiles all the JS, including the react JSX
