@@ -12,6 +12,19 @@ const webpackConfig = {
     filename: '[name].js',
     path: path.resolve(__dirname, './dist'),
     publicPath: './dist'
+  },
+  module: {
+    rules: [
+      {
+        test: /\.html$/i,
+        loader: 'html-loader'
+      },
+      // Transpiles and lints all the JS
+      {
+        test: /\.js$/,
+        loader: 'babel-loader'
+      }
+    ]
   }
 };
 
