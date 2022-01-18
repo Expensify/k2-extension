@@ -2,6 +2,7 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const webpackCommon = {
   context: path.resolve(__dirname, '.'),
@@ -17,6 +18,7 @@ const webpackCommon = {
 
   plugins: [
     new CleanWebpackPlugin(),
+    new MiniCssExtractPlugin(),
 
     // Copies icons and manifest file into our dist folder
     new CopyPlugin({
@@ -24,6 +26,8 @@ const webpackCommon = {
         {from: './assets/'}
       ]
     }),
+
+    // Lint all the JS code
     new ESLintPlugin({
       cache: false,
       emitWarning: true,
@@ -44,6 +48,31 @@ const webpackCommon = {
       {
         test: /\.js$/,
         use: 'babel-loader'
+      },
+
+      // Transpile all our sass
+      {
+        test: /\.s[ac]ss$/i,
+        use: [
+          // Outputs the generated CSS to the dist folder
+          MiniCssExtractPlugin.loader,
+
+          // Translates CSS into CommonJS
+          {
+            loader: "css-loader",
+            options: {
+              sourceMap: true,
+            },
+          },
+
+          // Compiles Sass to CSS
+          {
+            loader: "sass-loader",
+            options: {
+              sourceMap: true,
+            },
+          },
+        ],
       },
     ]
   }
