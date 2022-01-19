@@ -1,3 +1,6 @@
+#0.9.34
+- Add support for `currentUser` URL parameter to view k2 as another user
+
 #0.9.33
 - Fix retry so that the list of issues isn't cleared every time we make a request, it is just updated when we get new results
 
