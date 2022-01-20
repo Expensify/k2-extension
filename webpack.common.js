@@ -21,6 +21,9 @@ const webpackCommon = {
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin(),
 
+    // This is necessary because when moment.js is imported, it require()s some locale files which aren't needed and this results
+    // in console errors. By ignoring those imports, it allows everything to work without errors. More can be read about this here:
+    // https://webpack.js.org/plugins/ignore-plugin/#example-of-ignoring-moment-locales
     new IgnorePlugin({
       resourceRegExp: /^\.\/locale$/
     }),
@@ -55,14 +58,14 @@ const webpackCommon = {
         use: 'babel-loader'
       },
 
-      // Transpile all our sass
+      // Transpile all our SASS
       {
         test: /\.s[ac]ss$/i,
         use: [
           // Outputs the generated CSS to the dist folder
           MiniCssExtractPlugin.loader,
 
-          // Translates CSS into CommonJS
+          // Translates CSS into CommonJS so that it can be loaded in the JS files using import or require()
           {
             loader: "css-loader",
             options: {
