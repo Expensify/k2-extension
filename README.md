@@ -43,9 +43,9 @@ npm i
 # Developing
 There are three NPM tasks to use with this project. All files are output to the `dist` folder.
 
-1. `npm run watch` - Run this when doing development. It will watch files and run all code standardizing tasks whenever the files are saved. It will build all the JS code together in an unminified version for easier debugging.
+1. `npm run web` - Run this when doing development. It will watch files and run all code standardizing tasks whenever the files are saved. It will build all the JS code together in an unminified version for easier debugging.
 1. `npm run build` - This will doing the same thing as the normal gulp task except it won't watch files and will exit when finished.
-1. `npm run package` - This will output a minified version of the code which can be used to submit to the Chrome Store.
+1. `npm run package` - This will output a minified version of the code (`dist.zip`) which can be used to submit to the Chrome Store.
 
 In order to test your changes, you need to have the extension loaded into Chrome from your local folder.
 

@@ -5,10 +5,8 @@
   "private": true,
   "scripts": {
     "preinstall": "npx npm-force-resolutions && ./tools/checkRuntimeVersions.sh",
-    "watch": "gulp",
-    "build": "gulp build",
-    "package": "gulp package",
-    "zip": "gulp zip",
+    "build": "webpack --progress --config webpack.prod.js",
+    "package": "zip -r -X dist.zip dist",
     "lint": "eslint . --max-warnings=0",
     "web": "webpack --progress --config webpack.dev.js"
   },
