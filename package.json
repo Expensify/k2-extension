@@ -8,6 +8,7 @@
     "build": "webpack --progress --config webpack.prod.js",
     "package": "zip -r -X dist.zip dist",
     "lint": "eslint . --max-warnings=0",
+    "lintfix": "eslint . --fix",
     "web": "webpack --progress --config webpack.dev.js"
   },
   "dependencies": {
