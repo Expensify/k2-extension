@@ -1,3 +1,6 @@
+#0.10.1
+- Build system was updated with webpack and the old system of gulp was removed
+
 #0.9.34
 - Add support for `currentUser` URL parameter to view k2 as another user
 
