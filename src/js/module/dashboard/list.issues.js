@@ -1,3 +1,12 @@
+import StoreIssueAssigned from '../../store/issue.all.assigned';
+import StorePullAssigned from '../../store/pull.assigned';
+import StorePullReviewing from '../../store/pull.reviewing';
+import StoreDailyImprovements from '../../store/dailyimprovements';
+
+import ActionsIssueAssigned from '../../action/issue.all.assigned';
+import ActionsPullAssigned from '../../action/pull.assigned';
+import ActionsPullReviewing from '../../action/pull.reviewing';
+import ActionsDailyImprovements from '../../action/dailyimprovements';
 
 const React = require('react');
 const prefs = require('../../lib/prefs');
@@ -6,17 +15,7 @@ const PanelList = require('../../component/panel/list');
 const Filters = require('./filters');
 const ListIssuesAssigned = require('./list.issues.assigned');
 
-const StoreIssueAssigned = require('../../store/issue.all.assigned');
-const StorePullAssigned = require('../../store/pull.assigned');
-const StorePullReviewing = require('../../store/pull.reviewing');
-const StoreDailyImprovements = require('../../store/dailyimprovements');
-
-const ActionsIssueAssigned = require('../../action/issue.all.assigned');
-const ActionsPullAssigned = require('../../action/pull.assigned');
-const ActionsPullReviewing = require('../../action/pull.reviewing');
-const ActionsDailyImprovements = require('../../action/dailyimprovements');
-
-module.exports = React.createClass({
+export default React.createClass({
     propTypes: {
         pollInterval: React.PropTypes.number,
     },

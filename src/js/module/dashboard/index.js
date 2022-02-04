@@ -5,11 +5,12 @@
  * Displays our home page with the list of issues and pull requests
  */
 
+import ListIssues from './list.issues';
+
 const $ = require('jquery');
 const React = require('react');
 const ReactDOM = require('react-dom');
 const prefs = require('../../lib/prefs');
-const ListIssues = require('./list.issues');
 const FormPassword = require('./form.password');
 
 /**
