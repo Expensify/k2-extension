@@ -73,10 +73,10 @@ module.exports = React.createClass({
     },
 
     /**
-   * Returns the appropriate classes for displaying this issue
-   *
-   * @returns {String}
-   */
+     * Returns the appropriate classes for displaying this issue
+     *
+     * @returns {String}
+     */
     getClassName() {
         let className = 'issue link-gray-dark v-align-middle no-underline h5';
 
@@ -97,8 +97,8 @@ module.exports = React.createClass({
     },
 
     /**
-   * Post a comment to the issue
-   */
+     * Post a comment to the issue
+     */
     postComment() {
         if (!this.commentField.value) {
             return;
@@ -131,8 +131,8 @@ module.exports = React.createClass({
     },
 
     /**
-   * Post a quick bump to the assignee
-   */
+     * Post a quick bump to the assignee
+     */
     postQuickBump() {
         if (this.commentField) {
             this.commentField.value = '';
@@ -157,8 +157,8 @@ module.exports = React.createClass({
     },
 
     /**
-   * Show or hide the confirmation to remove an issue
-   */
+     * Show or hide the confirmation to remove an issue
+     */
     toggleConfirmKill() {
         this.setState({
             showConfirmKill: !this.state.showConfirmKill,
@@ -166,8 +166,8 @@ module.exports = React.createClass({
     },
 
     /**
-   * Removes an issue from our dashboard by removing the what's next label
-   */
+     * Removes an issue from our dashboard by removing the what's next label
+     */
     removeIssue() {
         this.setState({
             hideIssue: true,

@@ -12,13 +12,13 @@ export default function () {
     const MainPage = new Base();
 
     /**
-   * Add buttons to the page and setup the event handler
-   */
+     * Add buttons to the page and setup the event handler
+     */
     MainPage.urlPath = '^(/[\\w-]+/[\\w-]+/?)$';
 
     /**
-   * Add buttons to the page and setup the event handler
-   */
+     * Add buttons to the page and setup the event handler
+     */
     MainPage.setup = function () {
     // Only do stuff if we are on the kernal page
         if (window.location.hash.search('#k2') === 0) {

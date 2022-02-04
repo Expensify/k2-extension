@@ -100,13 +100,13 @@ module.exports = function () {
     const PrPage = new Base();
 
     /**
-   * Add buttons to the page and setup the event handler
-   */
+     * Add buttons to the page and setup the event handler
+     */
     PrPage.urlPath = '^(/[\\w-]+/[\\w-]+/pull/[0-9]+\/?(?:/commits)?(?:/files)?)$';
 
     /**
-   * Add buttons to the page and setup the event handler
-   */
+     * Add buttons to the page and setup the event handler
+     */
     PrPage.setup = function () {
         setInterval(refreshHold, 1000);
 

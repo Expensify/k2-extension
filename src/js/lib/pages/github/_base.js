@@ -9,18 +9,18 @@ module.exports = function () {
     const Page = {};
 
     /**
-   * A uniqeu identifier for each page
-   *
-   * @type {String}
-   */
+     * A uniqeu identifier for each page
+     *
+     * @type {String}
+     */
     Page.id = '';
 
     /**
-   * A string to match the last part of the URL path to
-   * determine if this is a page we want to do anything on
-   *
-   * @type {String}
-   */
+     * A string to match the last part of the URL path to
+     * determine if this is a page we want to do anything on
+     *
+     * @type {String}
+     */
     Page.urlPath = '';
 
     Page.init = function () {
@@ -48,11 +48,11 @@ module.exports = function () {
     };
 
     /**
-   * This is the method that is ran after a page has matched the URL.
-   * All the magic should start here.
-   *
-   * This should be extended for each page type.
-   */
+     * This is the method that is ran after a page has matched the URL.
+     * All the magic should start here.
+     *
+     * This should be extended for each page type.
+     */
     Page.setup = function () {};
 
     Page.getRepoOwner = function () {
@@ -60,10 +60,10 @@ module.exports = function () {
     };
 
     /**
-   * Gets the name of the repo
-   *
-   * @return {string}
-   */
+     * Gets the name of the repo
+     *
+     * @return {string}
+     */
     Page.getRepo = function () {
         return $('.js-current-repository').text();
     };

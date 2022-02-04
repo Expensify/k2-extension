@@ -8,14 +8,14 @@ const defaultBtnClass = 'btn btn-sm';
 
 module.exports = React.createClass({
     /**
-   * Sets the initial class names for all of our buttons
-   *
-   * @author Tim Golen <tim@golen.net>
-   *
-   * @date 2015-07-30
-   *
-   * @return {Object}
-   */
+     * Sets the initial class names for all of our buttons
+     *
+     * @author Tim Golen <tim@golen.net>
+     *
+     * @date 2015-07-30
+     *
+     * @return {Object}
+     */
     getInitialState() {
         const state = {
             Engineering: {
@@ -61,14 +61,14 @@ module.exports = React.createClass({
     },
 
     /**
-   * Sets a single label to be active (or if already active, then turns all of them off)
-   *
-   * @author Tim Golen <tim@golen.net>
-   *
-   * @date 2015-07-30
-   *
-   * @param {String} label
-   */
+     * Sets a single label to be active (or if already active, then turns all of them off)
+     *
+     * @author Tim Golen <tim@golen.net>
+     *
+     * @date 2015-07-30
+     *
+     * @param {String} label
+     */
     _setActiveLabel(label) {
         const newState = _.clone(this.state);
 

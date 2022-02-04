@@ -28,13 +28,13 @@ module.exports = function () {
     const IssuePage = new Base();
 
     /**
-   * Add buttons to the page and setup the event handler
-   */
+     * Add buttons to the page and setup the event handler
+     */
     IssuePage.urlPath = '^(/[\\w-]+/[\\w-.]+/issues/\\d+)$';
 
     /**
-   * Add buttons to the page and setup the event handler
-   */
+     * Add buttons to the page and setup the event handler
+     */
     IssuePage.setup = function () {
         setTimeout(refreshPicker, 500);
 

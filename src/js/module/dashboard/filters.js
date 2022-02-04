@@ -48,10 +48,10 @@ module.exports = React.createClass({
     },
 
     /**
-   * Handle the form being submitted
-   *
-   * @param {SyntheticEvent} e
-   */
+     * Handle the form being submitted
+     *
+     * @param {SyntheticEvent} e
+     */
     submit(e) {
         e.preventDefault();
 

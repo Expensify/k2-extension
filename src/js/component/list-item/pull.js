@@ -17,14 +17,14 @@ const NotAssigned = require('../assignee/none');
 module.exports = React.createClass({
 
     /**
-   * Gets the class name for the item
-   *
-   * @author Tim Golen <tim@golen.net>
-   *
-   * @date 2015-06-10
-   *
-   * @return {string}
-   */
+     * Gets the class name for the item
+     *
+     * @author Tim Golen <tim@golen.net>
+     *
+     * @date 2015-06-10
+     *
+     * @return {string}
+     */
     getClassName() {
         let className = 'issue';
         const today = moment();

@@ -33,13 +33,13 @@ module.exports = function () {
     const CreatePrPage = new Base();
 
     /**
-   * Regex for the create new PR page
-   */
+     * Regex for the create new PR page
+     */
     CreatePrPage.urlPath = '^(/[\\w-]+/[\\w-]+/compare/.*)$';
 
     /**
-   * Runs on page load, adds qa guidelines content and event listener to show/hide the guidelines
-   */
+     * Runs on page load, adds qa guidelines content and event listener to show/hide the guidelines
+     */
     CreatePrPage.setup = function () {
         addQAGuidelines();
 

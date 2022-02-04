@@ -15,8 +15,8 @@ export default function () {
     };
 
     /**
-   * Add buttons to the page and setup the event handler
-   */
+     * Add buttons to the page and setup the event handler
+     */
     AllPages.setup = function () {
     // Hardcode because it doesn't change, and depending on GitHub markup means
     // it breaks every so often
