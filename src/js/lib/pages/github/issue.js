@@ -4,8 +4,7 @@ import sidebarWrapperHTML from '../../../template/sidebar.wrappers.html';
 import K2picker from '../../../module/K2picker/K2picker';
 import K2pickerarea from '../../../module/K2pickerarea/K2pickerarea';
 import K2pickerType from '../../../module/K2pickertype/K2pickertype';
-
-const ToggleReview = require('../../../module/ToggleReview/ToggleReview');
+import ToggleReview from '../../../module/ToggleReview/ToggleReview';
 
 const refreshPicker = function () {
     // Return early if the wrappers already exist so that they don't get redrawn unless necessary
