@@ -18,7 +18,7 @@ export default function () {
      * Add buttons to the page and setup the event handler
      */
     IssueNewPage.setup = function () {
-        $('.K2picker-wrapper, .k2pickerarea-wrapper, .k2pickertype-wrapper, .k2togglereviewing-wrapper').remove();
+        $('.K2picker-wrapper, .K2pickerarea-wrapper, .K2pickertype-wrapper, .k2togglereviewing-wrapper').remove();
     };
 
     return IssueNewPage;

@@ -15,7 +15,7 @@ module.exports = function () {
         draw() {
             ReactDOM.render(
                 <Picker />,
-                $('.k2pickerarea-wrapper')[0],
+                $('.K2pickerarea-wrapper')[0],
             );
         },
     };
