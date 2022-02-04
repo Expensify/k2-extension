@@ -1,8 +1,8 @@
 import $ from 'jquery';
 import Base from './_base';
 import sidebarWrapperHTML from '../../../template/sidebar.wrappers.html';
+import K2picker from '../../../module/K2picker/K2picker';
 
-const K2picker = require('../../../module/k2picker/index');
 const K2pickerType = require('../../../module/k2pickertype/index');
 const K2pickerArea = require('../../../module/k2pickerarea/index');
 const ToggleReview = require('../../../module/togglereview/index');
