@@ -3,8 +3,8 @@ import Base from './_base';
 import sidebarWrapperHTML from '../../../template/sidebar.wrappers.html';
 import K2picker from '../../../module/K2picker/K2picker';
 import K2pickerarea from '../../../module/K2pickerarea/K2pickerarea';
+import K2pickerType from '../../../module/K2pickertype/K2pickertype';
 
-const K2pickerType = require('../../../module/K2pickertype/K2pickertype');
 const ToggleReview = require('../../../module/ToggleReview/ToggleReview');
 
 const refreshPicker = function () {

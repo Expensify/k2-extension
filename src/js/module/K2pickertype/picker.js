@@ -1,13 +1,13 @@
+import $ from 'jquery';
+import _ from 'underscore';
+import React from 'react';
 
-const $ = require('jquery');
-const _ = require('underscore');
-const React = require('react');
 const API = require('../../lib/api');
 const BtnGroup = require('../../component/btngroup/index');
 
 const defaultBtnClass = 'btn btn-sm tooltipped tooltipped-n typepicker';
 
-module.exports = React.createClass({
+export default React.createClass({
     /**
      * Sets the initial class names for all of our buttons
      *
@@ -34,27 +34,29 @@ module.exports = React.createClass({
      * @date 2015-07-30
      */
     componentDidMount() {
-        const _this = this;
-        $('.js-issue-labels .IssueLabel').each(function () {
-            const label = $(this).text().trim();
+        // eslint-disable-next-line rulesdir/prefer-underscore-method
+        $('.js-issue-labels .IssueLabel').each((i, el) => {
+            const label = $(el).text().trim();
             if (['Improvement', 'Task', 'NewFeature'].indexOf(label) > -1) {
-                _this._setActiveLabel(label);
+                this.setActiveLabel(label);
             }
         });
     },
 
-    _saveNewLabel(label) {
+    saveNewLabel(label) {
         let previousLabel = null;
         _.each(this.state, (val, key) => {
-            if (val.search('active') > -1 && val.search('inactive') === -1) {
-                previousLabel = key;
+            if (val.search('active') <= -1 || val.search('inactive') !== -1) {
+                return;
             }
+            previousLabel = key;
         });
         if (label !== previousLabel) {
             API.addLabels([label], () => {
-                if (previousLabel) {
-                    API.removeLabel(previousLabel);
+                if (!previousLabel) {
+                    return;
                 }
+                API.removeLabel(previousLabel);
             });
         } else {
             API.removeLabel(label);
@@ -62,8 +64,8 @@ module.exports = React.createClass({
     },
 
     clickNSave(label) {
-        this._saveNewLabel(label);
-        this._setActiveLabel(label);
+        this.saveNewLabel(label);
+        this.setActiveLabel(label);
     },
 
     /**
@@ -75,7 +77,7 @@ module.exports = React.createClass({
      *
      * @param {String} label
      */
-    _setActiveLabel(label) {
+    setActiveLabel(label) {
         const initialState = this.getInitialState();
         let newState = {};
 
@@ -92,14 +94,37 @@ module.exports = React.createClass({
             : `${defaultBtnClass} k2-${key.toLowerCase()} inactive`));
         this.setState(newState);
     },
+
     render() {
         return (
             <div>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                 <label>Type</label>
                 <BtnGroup>
-                    <button className={this.state.Improvement} aria-label="Improvement" onClick={() => this.clickNSave('Improvement')}>Improv.</button>
-                    <button className={this.state.Task} aria-label="Task" onClick={() => this.clickNSave('Task')}>Task</button>
-                    <button className={this.state.NewFeature} aria-label="New Feature" onClick={() => this.clickNSave('NewFeature')}>New Feat.</button>
+                    <button
+                        type="button"
+                        className={this.state.Improvement}
+                        aria-label="Improvement"
+                        onClick={() => this.clickNSave('Improvement')}
+                    >
+                        Improv.
+                    </button>
+                    <button
+                        type="button"
+                        className={this.state.Task}
+                        aria-label="Task"
+                        onClick={() => this.clickNSave('Task')}
+                    >
+                        Task
+                    </button>
+                    <button
+                        type="button"
+                        className={this.state.NewFeature}
+                        aria-label="New Feature"
+                        onClick={() => this.clickNSave('NewFeature')}
+                    >
+                        New Feat.
+                    </button>
                 </BtnGroup>
             </div>
         );
