@@ -1,10 +1,6 @@
+import $ from 'jquery';
+import Base from './_base';
 
-/**
- * This pages manages the issue page
- */
-
-const $ = require('jquery');
-const Base = require('./_base');
 const K2picker = require('../../../module/k2picker/index');
 const K2pickerType = require('../../../module/k2pickertype/index');
 const K2pickerArea = require('../../../module/k2pickerarea/index');
@@ -24,7 +20,12 @@ const refreshPicker = function () {
     }
 };
 
-module.exports = function () {
+/**
+ * This class handles the functionality on the issue page
+ *
+ * @returns {Object}
+ */
+export default function () {
     const IssuePage = new Base();
 
     /**
@@ -48,4 +49,4 @@ module.exports = function () {
     };
 
     return IssuePage;
-};
+}

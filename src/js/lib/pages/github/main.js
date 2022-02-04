@@ -1,13 +1,14 @@
-
-/**
- * This pages manages the pull requests page
- */
 import $ from 'jquery';
+import Base from './_base';
 import Dashboard from '../../../module/dashboard/index';
 
-const Base = require('./_base');
 const WhatsNext = require('../../../module/whatsnext/index');
 
+/**
+ * This class displays either the K2 Dashboard or the WN Dashboard
+ *
+ * @returns {Object}
+ */
 export default function () {
     const MainPage = new Base();
 

@@ -8,7 +8,6 @@ import ghPr from './lib/pages/github/pr';
 import ghIssue from './lib/pages/github/issue';
 import ghIssuenew from './lib/pages/github/issuenew';
 import ghMain from './lib/pages/github/main';
-import ghCreatepr from './lib/pages/github/createpr';
 
 const pages = [
     ghAll(),
@@ -16,11 +15,10 @@ const pages = [
     ghIssue(),
     ghIssuenew(),
     ghMain(),
-    ghCreatepr(),
 ];
 
 /**
- * Get all of our pages and call their init methods
+ * Get all of the page classes and call their init methods
  *
  * @returns {void}
  */
@@ -30,6 +28,9 @@ function setupPages() {
     }
 }
 
+// The message listener needs to be started so that the background script can trigger events to happen in the extension
 messenger.startMessageListener();
+
+// The nav event is triggered anytime a page is navigated on GitHub
 messenger.on('nav', setupPages);
 setupPages();

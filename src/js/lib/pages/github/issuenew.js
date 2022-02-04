@@ -1,12 +1,12 @@
+import $ from 'jquery';
+import Base from './_base';
 
 /**
- * This pages manages the new issue page
+ * This class manages what happens on the new issue page
+ *
+ * @returns {Object}
  */
-
-const $ = require('jquery');
-const Base = require('./_base');
-
-module.exports = function () {
+export default function () {
     const IssueNewPage = new Base();
 
     /**
@@ -18,9 +18,8 @@ module.exports = function () {
      * Add buttons to the page and setup the event handler
      */
     IssueNewPage.setup = function () {
-        console.log('new issue page setup', $('.k2picker-wrapper, .k2pickerarea-wrapper, .k2pickertype-wrapper, .k2togglereviewing-wrapper').length);
         $('.k2picker-wrapper, .k2pickerarea-wrapper, .k2pickertype-wrapper, .k2togglereviewing-wrapper').remove();
     };
 
     return IssueNewPage;
-};
+}
