@@ -8,7 +8,7 @@ const API = require('../../lib/api');
 const Members = require('../../lib/members');
 const FireworkShow = require('../../component/fireworkShow');
 
-module.exports = React.createClass({
+export default React.createClass({
     propTypes() {
         return {
             // A callback that is triggered when we click the move up button
