@@ -1,9 +1,9 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import React from 'react';
+import BtnGroup from '../../component/BtnGroup';
 
 const API = require('../../lib/api');
-const BtnGroup = require('../../component/btngroup/index');
 
 const defaultBtnClass = 'btn btn-sm tooltipped tooltipped-n typepicker';
 

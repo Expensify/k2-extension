@@ -1,13 +1,6 @@
+import React from 'react';
 
-/**
- * Button Group
- *
- * Displays a group of HTML buttons
- */
-
-const React = require('react');
-
-module.exports = React.createClass({
+export default React.createClass({
     render() {
         return (
             <div className="btn-group">

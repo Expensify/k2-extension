@@ -1,3 +1,4 @@
+import BtnGroup from '../../component/BtnGroup';
 
 const React = require('react');
 const _ = require('underscore');
@@ -6,7 +7,6 @@ const moment = require('moment');
 const API = require('../../lib/api');
 const Members = require('../../lib/members');
 const FireworkShow = require('../../component/fireworkShow');
-const BtnGroup = require('../../component/btngroup/index');
 
 module.exports = React.createClass({
     propTypes() {
@@ -113,14 +113,16 @@ module.exports = React.createClass({
         });
 
         API.postIusseComment(this.props.data.number, newComment, (err) => {
-            if (!err) {
-                setTimeout(() => {
-                    this.setState({
-                        postingComment: false,
-                        commentText: 'Comment',
-                    });
-                }, 2000);
+            if (err) {
+                return;
             }
+
+            setTimeout(() => {
+                this.setState({
+                    postingComment: false,
+                    commentText: 'Comment',
+                });
+            }, 2000);
         });
     },
 
@@ -145,14 +147,15 @@ module.exports = React.createClass({
 
         const comment = `@${this.props.data.assignee.login} bump for an update`;
         API.postIusseComment(this.props.data.number, comment, (err) => {
-            if (!err) {
-                setTimeout(() => {
-                    this.setState({
-                        postingComment: false,
-                        quickBumpText: 'Bump',
-                    });
-                }, 2000);
+            if (err) {
+                return;
             }
+            setTimeout(() => {
+                this.setState({
+                    postingComment: false,
+                    quickBumpText: 'Bump',
+                });
+            }, 2000);
         });
     },
 
@@ -186,37 +189,42 @@ module.exports = React.createClass({
                 <div className="pull-right actionbuttons">
                     <BtnGroup>
                         <button
+                            type="button"
                             className={`btn tooltipped tooltipped-sw ${this.state.showCommentBar ? 'selected' : ''}`}
                             aria-label="Add comment"
                             onClick={this.toggleCommentBar}
                         >
-                            💬
+                            <span role="img" aria-label="add comment">💬</span>
                         </button>
                         <button
+                            type="button"
                             className="btn tooltipped tooltipped-sw"
                             aria-label="Increase issue priority"
                             onClick={this.props.onMoveUp}
                         >
-                            ▲
+                            <span role="img" aria-label="increase issue priority">▲</span>
                         </button>
                         <button
+                            type="button"
                             className="btn tooltipped tooltipped-sw"
                             aria-label="Decrease issue priority"
                             onClick={this.props.onMoveDown}
                         >
-                            ▼
+                            <span role="img" aria-label="Decrease issue priority">▼</span>
                         </button>
                         {!this.state.showConfirmKill && (this.isClosed || this.isOnStagingAndProduction) && (
                         <button
+                            type="button"
                             className="btn tooltipped tooltipped-sw"
                             aria-label="Remove issue from What's Next"
                             onClick={this.toggleConfirmKill}
                         >
-                            ☢
+                            <span role="img" aria-label="Remove issue from What's Next">☢</span>
                         </button>
                         )}
                         {this.state.showConfirmKill && (
                         <button
+                            type="button"
                             className="btn"
                             onClick={this.removeIssue}
                         >
@@ -225,6 +233,7 @@ module.exports = React.createClass({
                         )}
                         {this.state.showConfirmKill && (
                         <button
+                            type="button"
                             className="btn"
                             onClick={this.toggleConfirmKill}
                         >
@@ -233,6 +242,7 @@ module.exports = React.createClass({
                         )}
                         {this.props.data.assignee && (
                         <button
+                            type="button"
                             className="btn tooltipped tooltipped-sw"
                             aria-label="Send a quick comment to bump the assignee for an update"
                             onClick={this.postQuickBump}
@@ -268,7 +278,16 @@ module.exports = React.createClass({
 
                 {!this.isOnHold && this.state.showCommentBar && (
                 <div className="form-inline">
-                    {this.props.data.assignee && <button className="btn tooltipped tooltipped-sw" aria-label="Send a quick comment to bump the assignee for an update" onClick={this.postQuickBump}>{this.state.quickBumpText}</button>}
+                    {this.props.data.assignee && (
+                        <button
+                            type="button"
+                            className="btn tooltipped tooltipped-sw"
+                            aria-label="Send a quick comment to bump the assignee for an update"
+                            onClick={this.postQuickBump}
+                        >
+                            {this.state.quickBumpText}
+                        </button>
+                    )}
                     {'   '}
                     or
                     {'   '}
@@ -276,11 +295,18 @@ module.exports = React.createClass({
                         type="text"
                         className="form-control"
                         ref={el => this.commentField = el}
+                        /* eslint-disable-next-line jsx-a11y/no-autofocus */
                         autoFocus="true"
                         placeholder={this.state.postingComment ? 'Posting...' : 'Post a comment'}
                     />
                     {' '}
-                    <button className="btn btn-secondary" onClick={this.postComment}>{this.state.commentText}</button>
+                    <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={this.postComment}
+                    >
+                        {this.state.commentText}
+                    </button>
                 </div>
                 )}
 
