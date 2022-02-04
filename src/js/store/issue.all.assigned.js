@@ -15,4 +15,4 @@ class Store extends BaseIssueStore {
     }
 }
 
-module.exports = alt.createStore(Store, 'IssueStoreAllAssigned');
+export default alt.createStore(Store, 'IssueStoreAllAssigned');

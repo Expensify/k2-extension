@@ -14,4 +14,4 @@ class Store extends BaseIssueStore {
     }
 }
 
-module.exports = alt.createStore(Store, 'PullStoreAssigned');
+export default alt.createStore(Store, 'PullStoreAssigned');

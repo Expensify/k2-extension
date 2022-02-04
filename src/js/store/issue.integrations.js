@@ -15,4 +15,4 @@ class Store extends BaseIssueStore {
     }
 }
 
-module.exports = alt.createStore(Store, 'IssueStoreIntegrations');
+export default alt.createStore(Store, 'IssueStoreIntegrations');

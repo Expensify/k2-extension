@@ -14,4 +14,4 @@ class Store extends BaseIssueStore {
     }
 }
 
-module.exports = alt.createStore(Store, 'PullStoreAuthored');
+export default alt.createStore(Store, 'PullStoreAuthored');
