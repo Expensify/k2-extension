@@ -37,10 +37,25 @@ export default React.createClass({
             <div className="issueList">
 
                 <div className="legend">
-                    <button onClick={this.signOut} className="btn tooltipped tooltipped-sw" aria-label="Sign Out">Sign Out</button>
+                    <button
+                        type="button"
+                        onClick={this.signOut}
+                        className="btn tooltipped tooltipped-sw"
+                        aria-label="Sign Out"
+                    >
+                        Sign Out
+                    </button>
                     <br />
                     <br />
-                    <a className="btn btn-primary" aria-label="New Issue" href="https://github.com/Expensify/Expensify/issues/new/choose" target="_blank" rel="noreferrer">New Issue</a>
+                    <a
+                        className="btn btn-primary"
+                        aria-label="New Issue"
+                        href="https://github.com/Expensify/Expensify/issues/new/choose"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        New Issue
+                    </a>
 
                     <br />
                     <div className="issue reviewing">Under Review</div>
@@ -102,15 +117,35 @@ export default React.createClass({
 
                 <br />
                 <div>
-                    <PanelList title="Daily Improvements (All Areas)" action={ActionsDailyImprovements} store={StoreDailyImprovements} item="issue" pollInterval={this.props.pollInterval * 1.5} />
+                    <PanelList
+                        title="Daily Improvements (All Areas)"
+                        action={ActionsDailyImprovements}
+                        store={StoreDailyImprovements}
+                        item="issue"
+                        pollInterval={this.props.pollInterval * 1.5}
+                    />
                 </div>
                 <br />
                 <div>
-                    <PanelList title="Your Pull Requests" action={ActionsPullAssigned} store={StorePullAssigned} options={{showAssignee: false, showReviews: true}} item="pull" pollInterval={this.props.pollInterval * 2} />
+                    <PanelList
+                        title="Your Pull Requests"
+                        action={ActionsPullAssigned}
+                        store={StorePullAssigned}
+                        options={{showAssignee: false, showReviews: true}}
+                        item="pull"
+                        pollInterval={this.props.pollInterval * 2}
+                    />
                 </div>
                 <br />
                 <div>
-                    <PanelList title="Review Requests - You need to finish reviewing" action={ActionsPullReviewing} store={StorePullReviewing} options={{showAssignee: false, showReviews: true}} item="pull" pollInterval={this.props.pollInterval * 2.5} />
+                    <PanelList
+                        title="Review Requests - You need to finish reviewing"
+                        action={ActionsPullReviewing}
+                        store={StorePullReviewing}
+                        options={{showAssignee: false, showReviews: true}}
+                        item="pull"
+                        pollInterval={this.props.pollInterval * 2.5}
+                    />
                 </div>
                 <br />
                 <Filters filter={this.filterIssues} />

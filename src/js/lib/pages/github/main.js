@@ -2,13 +2,13 @@
 /**
  * This pages manages the pull requests page
  */
+import $ from 'jquery';
+import Dashboard from '../../../module/dashboard/index';
 
-const $ = require('jquery');
 const Base = require('./_base');
-const Dashboard = require('../../../module/dashboard/index');
 const WhatsNext = require('../../../module/whatsnext/index');
 
-module.exports = function () {
+export default function () {
     const MainPage = new Base();
 
     /**
@@ -58,4 +58,4 @@ module.exports = function () {
     };
 
     return MainPage;
-};
+}

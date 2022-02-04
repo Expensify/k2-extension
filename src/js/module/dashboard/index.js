@@ -5,11 +5,11 @@
  * Displays our home page with the list of issues and pull requests
  */
 
+import $ from 'jquery';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import ListIssues from './list.issues';
 
-const $ = require('jquery');
-const React = require('react');
-const ReactDOM = require('react-dom');
 const prefs = require('../../lib/prefs');
 const FormPassword = require('./form.password');
 
@@ -49,19 +49,17 @@ function showPasswordForm() {
     );
 }
 
-module.exports = function () {
-    return {
-        draw() {
-            $('.repository-content').children().remove();
+export default () => ({
+    draw() {
+        $('.repository-content').children().remove();
 
-            // Make sure they have entered their API token
-            prefs.get('ghToken', (ghToken) => {
-                if (ghToken) {
-                    showDashboard();
-                } else {
-                    showPasswordForm();
-                }
-            });
-        },
-    };
-};
+        // Make sure they have entered their API token
+        prefs.get('ghToken', (ghToken) => {
+            if (ghToken) {
+                showDashboard();
+            } else {
+                showPasswordForm();
+            }
+        });
+    },
+});
