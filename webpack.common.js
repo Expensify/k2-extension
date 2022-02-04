@@ -8,8 +8,8 @@ const {IgnorePlugin} = require('webpack');
 const webpackCommon = {
   context: path.resolve(__dirname, '.'),
   entry: {
-    content: './lib/js/content.js',
-    events: './lib/js/events.js'
+    content: './src/js/content.js',
+    events: './src/js/events.js'
   },
   mode: 'production',
   output: {
