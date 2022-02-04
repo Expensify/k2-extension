@@ -1,12 +1,14 @@
-
-/**
- * This pages manages the branch pages
- */
 import $ from 'jquery';
 import Base from './_base';
 import k2Button from '../../../template/button.github.k2.html';
 import whatsnextButton from '../../../template/button.github.whatsnext.html';
 
+/**
+ * This class manages the things that happen on *every* GitHub page. All it's doing is adding links to the
+ * dashboard into the top navigation.
+ *
+ * @return {Object}
+ */
 export default function () {
     const AllPages = new Base();
 
@@ -18,8 +20,8 @@ export default function () {
      * Add buttons to the page and setup the event handler
      */
     AllPages.setup = function () {
-    // Hardcode because it doesn't change, and depending on GitHub markup means
-    // it breaks every so often
+        // Hardcode because it doesn't change, and depending on GitHub markup means
+        // it breaks every so often
         const currentUrl = '/Expensify/Expensify';
 
         // Insert the what's next button right after the pull request button in the navigation
