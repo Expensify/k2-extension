@@ -81,7 +81,7 @@ export default function () {
     /**
      * Add buttons to the page and setup the event handler
      */
-    PrPage.urlPath = '^(/[\\w-]+/[\\w-]+/pull/[0-9]+\/?(?:/commits)?(?:/files)?)$';
+    PrPage.urlPath = '^(/[\\w-]+/[\\w-]+/pull/[0-9]+/?(?:/commits)?(?:/files)?)$';
 
     /**
      * Add buttons to the page and setup the event handler
