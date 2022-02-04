@@ -1,5 +1,7 @@
+// Import the style sheet here so that it is included by webpack and processed from SASS into CSS
 // eslint-disable-next-line no-unused-vars
 import styles from '../css/content.scss';
+
 import * as messenger from './lib/messenger';
 import ghAll from './lib/pages/github/all';
 import ghPr from './lib/pages/github/pr';
