@@ -2,9 +2,9 @@ import $ from 'jquery';
 import Base from './_base';
 import sidebarWrapperHTML from '../../../template/sidebar.wrappers.html';
 import K2picker from '../../../module/K2picker/K2picker';
+import K2pickerarea from '../../../module/K2pickerarea/K2pickerarea';
 
 const K2pickerType = require('../../../module/K2pickertype/K2pickertype');
-const K2pickerArea = require('../../../module/K2pickerarea/K2pickerarea');
 const ToggleReview = require('../../../module/ToggleReview/ToggleReview');
 
 const refreshPicker = function () {
@@ -16,7 +16,7 @@ const refreshPicker = function () {
     $('.js-issue-labels').after(sidebarWrapperHTML);
     new K2picker().draw();
     new K2pickerType().draw();
-    new K2pickerArea().draw();
+    new K2pickerarea().draw();
     new ToggleReview().draw();
 };
 
