@@ -1,5 +1,5 @@
+import alt from '../alt';
 
-const alt = require('../alt');
 const API = require('../lib/api');
 
 class Action {
@@ -23,4 +23,4 @@ class Action {
     }
 }
 
-module.exports = alt.createActions(Action);
+export default alt.createActions(Action);

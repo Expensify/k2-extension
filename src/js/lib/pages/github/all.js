@@ -2,13 +2,12 @@
 /**
  * This pages manages the branch pages
  */
+import $ from 'jquery';
+import Base from './_base';
+import k2Button from '../../../template/button.github.k2.html';
+import whatsnextButton from '../../../template/button.github.whatsnext.html';
 
-const $ = require('jquery');
-const Base = require('./_base');
-const k2Button = require('../../../template/button.github.k2.html');
-const whatsnextButton = require('../../../template/button.github.whatsnext.html');
-
-module.exports = function () {
+export default function () {
     const AllPages = new Base();
 
     AllPages.init = function () {
@@ -39,4 +38,4 @@ module.exports = function () {
     };
 
     return AllPages;
-};
+}

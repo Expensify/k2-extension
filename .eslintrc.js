@@ -4,6 +4,7 @@ module.exports = {
     rules: {
         'react/jsx-filename-extension': [1, {extensions: ['.js']}],
         'comma-dangle': ['error', 'always-multiline'],
+        'rulesdir/no-api-in-views': 'off',
     },
     settings: {
         'import/resolver': {

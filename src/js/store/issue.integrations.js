@@ -1,5 +1,5 @@
+import alt from '../alt';
 
-const alt = require('../alt');
 const IssueAction = require('../action/issue.integrations');
 const BaseIssueStore = require('./_issue');
 
