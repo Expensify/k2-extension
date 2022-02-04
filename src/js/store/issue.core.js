@@ -1,7 +1,6 @@
 import alt from '../alt';
-
-const IssueAction = require('../action/issue.core');
-const BaseIssueStore = require('./_issue');
+import IssueAction from '../action/issue.core';
+import BaseIssueStore from './_issue';
 
 class Store extends BaseIssueStore {
     constructor() {

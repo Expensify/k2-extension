@@ -1,4 +1,3 @@
-
 let alreadyFetched = false;
 
 class BaseStore {
@@ -10,12 +9,14 @@ class BaseStore {
     }
 
     handleFetch() {
-        if (!alreadyFetched) {
-            this.loading = true;
-            this.retrying = false;
-            this.data = [];
-            alreadyFetched = true;
+        if (alreadyFetched) {
+            return;
         }
+
+        this.loading = true;
+        this.retrying = false;
+        this.data = [];
+        alreadyFetched = true;
     }
 
     handleUpdate(data) {
@@ -37,4 +38,4 @@ class BaseStore {
     }
 }
 
-module.exports = BaseStore;
+export default BaseStore;
