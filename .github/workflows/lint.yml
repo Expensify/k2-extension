@@ -9,6 +9,8 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
+              with:
+                  fetch-depth: 0
 
             - uses: actions/cache@v2
               with:
@@ -29,4 +31,4 @@ jobs:
                   max_attempts: 5
                   command: npm ci
 
-            - run: npx eslint $(git diff --name-only main '**/*.js' | xargs)
+            - run: npx eslint --max-warnings=0 $(git diff --name-only main '**/*.js' | xargs)
