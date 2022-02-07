@@ -29,4 +29,4 @@ jobs:
                   max_attempts: 5
                   command: npm ci
 
-            - run: npx eslint $(git diff --name-only HEAD '**/*.js' | xargs)
+            - run: npx eslint $(git diff --name-only main '**/*.js' | xargs)
