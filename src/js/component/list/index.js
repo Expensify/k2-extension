@@ -53,8 +53,6 @@ module.exports = React.createClass({
      * Gets the items to display using the proper item
      * component
      *
-     * @author Tim Golen <tim@golen.net>
-     *
      * @date 2015-06-10
      *
      * @return {array}

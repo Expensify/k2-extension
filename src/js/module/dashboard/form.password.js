@@ -35,8 +35,6 @@ module.exports = React.createClass({
     /**
      * Get the password and store it as a user preference
      *
-     * @author Tim Golen <tim@golen.net>
-     *
      * @date 2015-06-15
      *
      * @param {Object} e React form submit event

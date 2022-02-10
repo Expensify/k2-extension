@@ -11,8 +11,6 @@ export default React.createClass({
     /**
      * Sets the initial class names for all of our buttons
      *
-     * @author Tim Golen <tim@golen.net>
-     *
      * @date 2015-07-30
      *
      * @return {Object}
@@ -28,8 +26,6 @@ export default React.createClass({
     /**
      * When the component has renered, we need to see if there
      * is an existing label, and if so, make that button enabled
-     *
-     * @author Tim Golen <tim@golen.net>
      *
      * @date 2015-07-30
      */
@@ -70,8 +66,6 @@ export default React.createClass({
 
     /**
      * Sets a single label to be active (or if already active, then turns all of them off)
-     *
-     * @author Tim Golen <tim@golen.net>
      *
      * @date 2015-07-30
      *
