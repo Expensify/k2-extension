@@ -233,8 +233,6 @@ function getMilestonesGraphQL(view, cb) {
  * Get all the pull requests where the current user is either assigned
  * or the author
  *
- * @author Tim Golen <tim@golen.net>
- *
  * @date 2015-06-07
  * @private
  *
@@ -367,8 +365,6 @@ function getPullsByType(type, cb, getReviews) {
 
 /**
  * Get all issues with a certain label
- *
- * @author Tim Golen <tim@golen.net>
  *
  * @date 2015-06-07
  * @private
@@ -688,8 +684,6 @@ function getIntegrationsIssues(cb, retryCb) {
 /**
  * Get all the pull requests assigned to the current user
  *
- * @author Tim Golen <tim@golen.net>
- *
  * @date 2015-06-07
  *
  * @param {Function} cb [description]
@@ -700,8 +694,6 @@ function getPullsAssigned(cb) {
 
 /**
  * Get all the pull requests the user is currently reviewing
- *
- * @author Tim Golen <tim@golen.net>
  *
  * @date 2015-06-07
  *
@@ -747,8 +739,6 @@ function getPullsReviewing(cb) {
 /**
  * Get all the pull requests assigned to the current user
  *
- * @author Tim Golen <tim@golen.net>
- *
  * @date 2015-06-07
  *
  * @param {Function} cb
@@ -759,8 +749,6 @@ function getPullsAuthored(cb) {
 
 /**
  * Get all the improvements that are not assigned and are dailys
- *
- * @author Tim Golen <tim@golen.net>
  *
  * @date 2015-06-07
  *
