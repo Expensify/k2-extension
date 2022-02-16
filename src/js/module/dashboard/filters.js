@@ -1,8 +1,8 @@
-const $ = require('jquery');
-const _ = require('underscore');
-const React = require('react');
-const prefs = require('../../lib/prefs');
-const API = require('../../lib/api');
+import $ from 'jquery';
+import _ from 'underscore';
+import React from 'react';
+import * as prefs from '../../lib/prefs';
+import * as API from '../../lib/api';
 
 module.exports = React.createClass({
     propTypes: {

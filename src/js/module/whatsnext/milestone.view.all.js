@@ -1,7 +1,5 @@
-
-const React = require('react');
-
-const API = require('../../lib/api');
+import React from 'react';
+import * as API from '../../lib/api';
 
 module.exports = React.createClass({
     getInitialState() {

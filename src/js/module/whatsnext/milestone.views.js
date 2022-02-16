@@ -1,7 +1,6 @@
+import * as API from '../../lib/api';
 
 const React = require('react');
-
-const API = require('../../lib/api');
 
 const MilestoneViewResync = require('./milestone.view.resync');
 
