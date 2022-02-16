@@ -16,8 +16,6 @@ const FormPassword = require('./form.password');
 /**
  * Display our dashboard with the list of issues
  *
- * @author Tim Golen <tim@golen.net>
- *
  * @date 2015-06-14
  */
 function showDashboard() {
@@ -33,8 +31,6 @@ function showDashboard() {
 
 /**
  * Prompt them for their password, then show the dashboard
- *
- * @author Tim Golen <tim@golen.net>
  *
  * @date 2015-06-14
  */

@@ -8,8 +8,6 @@ import ksBrowser from './browser';
 /**
  * Stores a piece of data with a name
  *
- * @author Tim Golen <tim@golen.net>
- *
  * @date 2015-05-05
  *
  * @param {string} name
@@ -24,8 +22,6 @@ function set(name, value, cb) {
 
 /**
  * Returns a previously stored piece of data
- *
- * @author Tim Golen <tim@golen.net>
  *
  * @date 2015-05-05
  *
@@ -42,8 +38,6 @@ function get(name, cb) {
 
 /**
  * Remove all user preferences from storage
- *
- * @author Tim Golen <tim@golen.net>
  *
  * @date 2015-05-05
  *

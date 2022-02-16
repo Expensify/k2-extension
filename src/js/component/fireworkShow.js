@@ -238,7 +238,7 @@ module.exports = React.createClass({
                   - going down
                   - close to the mouse
                   - 1% chance of random explosion
-              */
+                */
             if (rockets[i].pos.y < SCREEN_HEIGHT / 5 || rockets[i].vel.y >= 0 || distance < 50 || randomChance) {
                 rockets[i].explode();
             } else {

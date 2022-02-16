@@ -103,10 +103,10 @@ module.exports = React.createClass({
     },
 
     /**
-   * Refreshes our data with the given filters
-   * @public
-   * @param {Object} filters
-   */
+     * Refreshes our data with the given filters
+     * @public
+     * @param {Object} filters
+     */
     refreshWithFilters(filters) {
         if (this.state.loading || this.state.retrying) {
             return;

@@ -234,8 +234,6 @@ function getMilestonesGraphQL(view, cb) {
  * Get all the pull requests where the current user is either assigned
  * or the author
  *
- * @author Tim Golen <tim@golen.net>
- *
  * @date 2015-06-07
  * @private
  *
@@ -374,8 +372,6 @@ function getPullsByType(type, cb, getReviews) {
 
 /**
  * Get all issues with a certain label
- *
- * @author Tim Golen <tim@golen.net>
  *
  * @date 2015-06-07
  * @private
@@ -587,7 +583,7 @@ function getIssuesByArea(area, cb, retryCb) {
 /**
  * Add labels to a github issue
  * @param {String[]} labels
- * @param {Function} cb
+ * @param {Function} [cb]
  */
 function addLabels(labels, cb) {
     const repo = $('.application-main h1 strong a').text();
@@ -622,8 +618,8 @@ function addLabels(labels, cb) {
 
 /**
  * Remove a label from a github issue
- * @param {String[]} label
- * @param {Function} cb
+ * @param {String} label
+ * @param {Function} [cb]
  * @param {Number} [issueNumber] an issue number to use if we don't want to default to the currently open issue
  * @param {String} [repoName] a repository to use if we don't want to use the one on the current page
  */
@@ -698,8 +694,6 @@ function getIntegrationsIssues(cb, retryCb) {
 /**
  * Get all the pull requests assigned to the current user
  *
- * @author Tim Golen <tim@golen.net>
- *
  * @date 2015-06-07
  *
  * @param {Function} cb [description]
@@ -710,8 +704,6 @@ function getPullsAssigned(cb) {
 
 /**
  * Get all the pull requests the user is currently reviewing
- *
- * @author Tim Golen <tim@golen.net>
  *
  * @date 2015-06-07
  *
@@ -757,8 +749,6 @@ function getPullsReviewing(cb) {
 /**
  * Get all the pull requests assigned to the current user
  *
- * @author Tim Golen <tim@golen.net>
- *
  * @date 2015-06-07
  *
  * @param {Function} cb
@@ -769,8 +759,6 @@ function getPullsAuthored(cb) {
 
 /**
  * Get all the improvements that are not assigned and are dailys
- *
- * @author Tim Golen <tim@golen.net>
  *
  * @date 2015-06-07
  *
