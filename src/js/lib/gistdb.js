@@ -1,6 +1,5 @@
-
-const $ = require('jquery');
-const _ = require('underscore');
+import $ from 'jquery';
+import _ from 'underscore';
 
 /**
  * This library uses public Gists to store non-sensitive data.
@@ -63,9 +62,10 @@ function set(name, value, cb) {
                     Authorization: `Basic ${btoa(`botify:${userToken}`)}`,
                 },
             }).done(() => {
-                if (_.isFunction(cb)) {
-                    cb();
+                if (!_.isFunction(cb)) {
+                    return;
                 }
+                cb();
             });
         } catch (e) {
             console.error(e);
@@ -101,5 +101,7 @@ function get(name, cb) {
     });
 }
 
-exports.set = set;
-exports.get = get;
+export {
+    get,
+    set,
+};

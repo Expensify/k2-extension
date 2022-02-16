@@ -1,9 +1,8 @@
-
-const $ = require('jquery');
-const _ = require('underscore');
-const moment = require('moment');
-const prefs = require('./prefs');
-const GistDB = require('./gistdb');
+import $ from 'jquery';
+import _ from 'underscore';
+import moment from 'moment';
+import * as prefs from './prefs';
+import * as GistDB from './gistdb';
 
 const baseUrl = 'https://api.github.com';
 
