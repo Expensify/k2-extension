@@ -4,7 +4,7 @@ import React from 'react';
 import * as prefs from '../../lib/prefs';
 import * as API from '../../lib/api';
 
-module.exports = React.createClass({
+export default React.createClass({
     propTypes: {
         filter: React.PropTypes.func.isRequired,
     },
@@ -38,12 +38,13 @@ module.exports = React.createClass({
 
     updateFilterFields() {
         prefs.get('issueFilters', (issueFilters) => {
-            if (issueFilters && !_.isEmpty(issueFilters)) {
-                this.fieldImprovement.checked = issueFilters.improvement;
-                this.fieldTask.checked = issueFilters.task;
-                this.fieldFeature.checked = issueFilters.feature;
-                $(this.fieldMilestone).val(issueFilters.milestone);
+            if (!issueFilters || _.isEmpty(issueFilters)) {
+                return;
             }
+            this.fieldImprovement.checked = issueFilters.improvement;
+            this.fieldTask.checked = issueFilters.task;
+            this.fieldFeature.checked = issueFilters.feature;
+            $(this.fieldMilestone).val(issueFilters.milestone);
         });
     },
 
@@ -66,7 +67,7 @@ module.exports = React.createClass({
         prefs.set('issueFilters', newFilters);
 
         // Trigger our filter callback
-        this.props.filter(newFilters);
+        _.filter(this.props, newFilters);
     },
 
     render() {
@@ -99,10 +100,10 @@ module.exports = React.createClass({
                     </div>
 
                     <div className="checkbox">
-                        <label>
+                        <label htmlFor="milestone">
                             Milestone:&nbsp;
                         </label>
-                        <select name="milestone" ref={el => this.fieldMilestone = el}>
+                        <select id="milestone" name="milestone" ref={el => this.fieldMilestone = el}>
                             {_.map(this.state.milestones, option => (
                                 <option value={option.value} key={option.value}>{option.text}</option>
                             ))}
