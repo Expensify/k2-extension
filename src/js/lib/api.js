@@ -287,6 +287,7 @@ function getPullsByType(type, cb, getReviews) {
                     const repo = repoArray[repoArray.length - 1];
                     const url2 = `${baseUrl}/repos/${owner}/${repo}/pulls/${item.number}`;
 
+                    // eslint-disable-next-line no-param-reassign
                     item.prType = type;
 
                     $.ajax({
@@ -295,6 +296,7 @@ function getPullsByType(type, cb, getReviews) {
                             Authorization: `Bearer ${ghToken}`,
                         },
                     }).done((data2) => {
+                        // eslint-disable-next-line no-param-reassign
                         item.pr = data2;
 
                         // Now get the PR check runs
@@ -321,12 +323,14 @@ function getPullsByType(type, cb, getReviews) {
                                         Accept: 'application/vnd.github.black-cat-preview+json',
                                     },
                                 }).done((data4) => {
+                                    // eslint-disable-next-line no-param-reassign
                                     item.reviews = data4;
                                     const reviewsByUser = _.filter(data4, r => r.user.login === getCurrentUser());
                                     const approved = _.findWhere(reviewsByUser, {state: 'APPROVED'});
                                     const commented = _.findWhere(reviewsByUser, {state: 'COMMENTED'});
                                     const reviewDismissed = _.findWhere(reviewsByUser, {state: 'DISMISSED'});
                                     const changesRequested = _.findWhere(reviewsByUser, {state: 'CHANGES_REQUESTED'});
+                                    // eslint-disable-next-line no-param-reassign
                                     item.userIsFinishedReviewing = !reviewDismissed && ((commented && !changesRequested) || approved);
                                     return done();
                                 });
@@ -345,12 +349,14 @@ function getPullsByType(type, cb, getReviews) {
                                     },
                                 }).done((statusesData) => {
                                     // Filter out non-travis statuses (i.e. musedev)
+                                    // eslint-disable-next-line no-param-reassign
                                     item.pr.status = _.filter(statusesData, status => status.context === 'continuous-integration/travis-ci/pr');
                                     return maybeGetReviews();
                                 });
                             } else {
                                 // Check-runs endpoint uses .conclusion instead of .state - map it
                                 // back to .state in order not to change the view
+                                // eslint-disable-next-line no-param-reassign
                                 item.pr.status = _.map(check_runs, (status) => {
                                     const state = ((status.conclusion ? status.conclusion : status.status) || '').replace(/_/g, ' ');
                                     return {state, ...status};
