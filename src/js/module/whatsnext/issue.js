@@ -112,7 +112,7 @@ module.exports = React.createClass({
             commentText: 'Commenting...',
         });
 
-        API.postIusseComment(this.props.data.number, newComment, (err) => {
+        API.postIssueComment(this.props.data.number, newComment, (err) => {
             if (!err) {
                 setTimeout(() => {
                     this.setState({
@@ -144,7 +144,7 @@ module.exports = React.createClass({
         });
 
         const comment = `@${this.props.data.assignee.login} bump for an update`;
-        API.postIusseComment(this.props.data.number, comment, (err) => {
+        API.postIssueComment(this.props.data.number, comment, (err) => {
             if (!err) {
                 setTimeout(() => {
                     this.setState({

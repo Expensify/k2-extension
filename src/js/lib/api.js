@@ -985,20 +985,22 @@ function getOrganizationMembers(cb) {
     recursiveMemberQuery();
 }
 
-exports.getEngineeringIssues = getEngineeringIssues;
-exports.getIntegrationsIssues = getIntegrationsIssues;
-exports.getAllAssigned = getAllAssigned;
-exports.getAllUnassigned = getAllUnassigned;
-exports.getPullsAssigned = getPullsAssigned;
-exports.getPullsReviewing = getPullsReviewing;
-exports.getPullsAuthored = getPullsAuthored;
-exports.getDailyImprovements = getDailyImprovements;
-exports.addLabels = addLabels;
-exports.removeLabel = removeLabel;
-exports.getMilestones = getMilestones;
-exports.getMilestonesGraphQL = getMilestonesGraphQL;
-exports.getIssuesForMilestones = getIssuesForMilestones;
-exports.getCommentsForIssue = getCommentsForIssue;
-exports.postIusseComment = postIssueComment;
-exports.getCurrentUser = getCurrentUser;
-exports.getOrganizationMembers = getOrganizationMembers;
+export {
+    getEngineeringIssues,
+    getIntegrationsIssues,
+    getAllAssigned,
+    getAllUnassigned,
+    getPullsAssigned,
+    getPullsReviewing,
+    getPullsAuthored,
+    getDailyImprovements,
+    addLabels,
+    removeLabel,
+    getMilestones,
+    getMilestonesGraphQL,
+    getIssuesForMilestones,
+    getCommentsForIssue,
+    postIssueComment,
+    getCurrentUser,
+    getOrganizationMembers,
+};
