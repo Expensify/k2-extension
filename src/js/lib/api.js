@@ -267,21 +267,21 @@ function getPullsByType(type, cb, getReviews) {
             },
         })
             .done((data) => {
-                let done;
+                const modifiedData = {...data};
                 if (!data.items || !data.items.length) {
                     return cb(null, []);
                 }
 
                 // Filter out closed issues, as the search query does not do this correctly,
                 // even though we are specifying `state:open`
-                data.items = data.items.filter(item => item.state === 'open');
+                modifiedData.items = _.filter(modifiedData.items, item => item.state === 'open');
 
-                done = _.after(data.items.length, () => {
-                    cb(null, data.items);
+                const done = _.after(modifiedData.items.length, () => {
+                    cb(null, modifiedData.items);
                 });
 
                 // Get the detailed PR info for each PR
-                _.each(data.items, (item) => {
+                _.each(modifiedData.items, (item) => {
                     const repoArray = item.repository_url.split('/');
                     const owner = repoArray[repoArray.length - 2];
                     const repo = repoArray[repoArray.length - 1];
@@ -306,7 +306,7 @@ function getPullsByType(type, cb, getReviews) {
                             },
                         }).done((data3) => {
                             // Filter out non-travis check-runs
-                            const check_runs = (data3.check_runs || []).filter(run => run.app.slug === 'travis-ci');
+                            const check_runs = _.filter((data3.check_runs || []), run => run.app.slug === 'travis-ci');
                             const maybeGetReviews = function () {
                                 // Stop here if we aren't getting reviewers
                                 if (!getReviews) {
@@ -338,19 +338,20 @@ function getPullsByType(type, cb, getReviews) {
                             // try the old statuses url
                             if (check_runs.length === 0) {
                                 $.ajax({
+                                    // eslint-disable-next-line no-underscore-dangle
                                     url: data2._links.statuses.href,
                                     headers: {
                                         Authorization: `Bearer ${ghToken}`,
                                     },
                                 }).done((statusesData) => {
                                     // Filter out non-travis statuses (i.e. musedev)
-                                    item.pr.status = statusesData.filter(status => status.context === 'continuous-integration/travis-ci/pr');
+                                    item.pr.status = _.filter(statusesData, status => status.context === 'continuous-integration/travis-ci/pr');
                                     return maybeGetReviews();
                                 });
                             } else {
                                 // Check-runs endpoint uses .conclusion instead of .state - map it
                                 // back to .state in order not to change the view
-                                item.pr.status = check_runs.map((status) => {
+                                item.pr.status = _.map(check_runs, (status) => {
                                     const state = ((status.conclusion ? status.conclusion : status.status) || '').replace(/_/g, ' ');
                                     return {state, ...status};
                                 });
