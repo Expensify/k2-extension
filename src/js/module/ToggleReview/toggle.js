@@ -2,8 +2,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 import React from 'react';
 import BtnGroup from '../../component/BtnGroup';
-
-const API = require('../../lib/api');
+import * as API from '../../lib/api';
 
 const defaultBtnClass = 'btn btn-sm';
 
