@@ -62,10 +62,12 @@ function getMilestones(view, cb) {
 
         function handleData(data, status, xhr) {
             // Combine our data with some of our gist data
-            const enhancedData = _.each(data, (item) => {
+            const enhancedData = _.map(data, (item) => {
+                const modifiedItem = {...item};
                 const gistDataMilestone = _.findWhere(gistDataMilestones, {id: item.id});
-                item.hidden = gistDataMilestone && gistDataMilestone.hidden;
-                item.percentComplete = item.open_issues || item.closed_issues ? Math.round((item.closed_issues / (item.open_issues + item.closed_issues)) * 100) : 0;
+                modifiedItem.hidden = gistDataMilestone && gistDataMilestone.hidden;
+                modifiedItem.percentComplete = item.open_issues || item.closed_issues ? Math.round((item.closed_issues / (item.open_issues + item.closed_issues)) * 100) : 0;
+                return modifiedItem;
             });
             result = result.concat(enhancedData);
 
@@ -244,7 +246,6 @@ function getMilestonesGraphQL(view, cb) {
  */
 function getPullsByType(type, cb, getReviews) {
     let query = '?q=';
-    let url;
 
     // Get the PRs assigned to me
     query += '+state:open';
@@ -256,7 +257,7 @@ function getPullsByType(type, cb, getReviews) {
 
     query += '&sort=updated';
 
-    url = `${baseUrl}/search/issues${query}`;
+    const url = `${baseUrl}/search/issues${query}`;
 
     prefs.get('ghToken', (ghToken) => {
         $.ajax({
@@ -382,7 +383,6 @@ function getIssuesByLabel(label, assignee, cb, retryCb) {
     const filterLabels = ['hourly', 'daily', 'weekly', 'monthly'];
     let query = '?per_page=300&q=';
     let result = [];
-    let url;
 
     // Get the PRs assigned to me
     query += '+state:open';
@@ -407,13 +407,11 @@ function getIssuesByLabel(label, assignee, cb, retryCb) {
         query += `+label:${label}`;
     }
 
-    url = `${baseUrl}/search/issues${query}`;
+    const url = `${baseUrl}/search/issues${query}`;
 
     function handleData(data, status, xhr) {
-    // Set the type of the item to be the label we are looking for
-        _.map(data.items, (item) => {
-            item.type = label;
-        });
+        // Set the type of the item to be the label we are looking for
+        _.map(data.items, item => ({...item, type: label}));
 
         result = result.concat(data.items);
 
@@ -477,21 +475,22 @@ function getIssuesByArea(area, cb, retryCb) {
     let result = [];
 
     function handleData(data, status, xhr) {
-    // Set the type of the item to be the label we are looking for
+        // Set the type of the item to be the label we are looking for
         const sortedData = _.chain(data.items)
-            .each((i) => {
-                i.type = area;
+            .map((item) => {
+                const modifiedItem = {...item};
+                modifiedItem.type = area;
 
-                const age = moment().diff(i.created_at, 'days');
-                const isImprovement = _.findWhere(i.labels, {name: 'Improvement'});
-                const isTask = _.findWhere(i.labels, {name: 'Task'});
-                const isFeature = _.findWhere(i.labels, {name: 'NewFeature'});
-                const isHourly = _.findWhere(i.labels, {name: 'Hourly'});
-                const isDaily = _.findWhere(i.labels, {name: 'Daily'});
-                const isWeekly = _.findWhere(i.labels, {name: 'Weekly'});
-                const isMonthly = _.findWhere(i.labels, {name: 'Monthly'});
-                const isFirstPick = _.findWhere(i.labels, {name: 'FirstPick'});
-                const isWhatsNext = _.findWhere(i.labels, {name: 'WhatsNext'});
+                const age = moment().diff(item.created_at, 'days');
+                const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
+                const isTask = _.findWhere(item.labels, {name: 'Task'});
+                const isFeature = _.findWhere(item.labels, {name: 'NewFeature'});
+                const isHourly = _.findWhere(item.labels, {name: 'Hourly'});
+                const isDaily = _.findWhere(item.labels, {name: 'Daily'});
+                const isWeekly = _.findWhere(item.labels, {name: 'Weekly'});
+                const isMonthly = _.findWhere(item.labels, {name: 'Monthly'});
+                const isFirstPick = _.findWhere(item.labels, {name: 'FirstPick'});
+                const isWhatsNext = _.findWhere(item.labels, {name: 'WhatsNext'});
                 let score = 0;
 
                 // Sort by K2
@@ -514,8 +513,9 @@ function getIssuesByArea(area, cb, retryCb) {
                 // Sort by age too
                 score += age / 100;
 
-                i.score = score;
-                i.age = age;
+                modifiedItem.score = score;
+                modifiedItem.age = age;
+                return modifiedItem;
             })
             .sortBy('score')
             .value();
@@ -600,14 +600,16 @@ function addLabels(labels, cb) {
             },
         })
             .done((data) => {
-                if (cb) {
-                    cb(null, data);
+                if (!cb) {
+                    return;
                 }
+                cb(null, data);
             })
             .fail((err) => {
-                if (cb) {
-                    cb(err);
+                if (!cb) {
+                    return;
                 }
+                cb(err);
             });
     });
 }
@@ -633,14 +635,16 @@ function removeLabel(label, cb, issueNumber, repoName) {
             },
         })
             .done((data) => {
-                if (cb) {
-                    cb(null, data);
+                if (!cb) {
+                    return;
                 }
+                cb(null, data);
             })
             .fail((err) => {
-                if (cb) {
-                    cb(err);
+                if (!cb) {
+                    return;
                 }
+                cb(err);
             });
     });
 }
@@ -768,7 +772,6 @@ function getPullsAuthored(cb) {
  */
 function getDailyImprovements(cb) {
     let query = '?q=';
-    let url;
 
     // Get the PRs assigned to me
     query += '+state:open';
@@ -780,7 +783,7 @@ function getDailyImprovements(cb) {
     query += '+label:improvement';
     query += '+label:daily';
 
-    url = `${baseUrl}/search/issues${query}`;
+    const url = `${baseUrl}/search/issues${query}`;
     prefs.get('ghToken', (ghToken) => {
         $.ajax({
             url,
@@ -792,7 +795,7 @@ function getDailyImprovements(cb) {
                 cb(null, data.items);
             })
             .fail((err) => {
-                console.log(err);
+                console.error(err);
                 cb(err);
             });
     });
@@ -807,7 +810,6 @@ function getDailyImprovements(cb) {
 function getIssuesForMilestones(type, cb) {
     let query = '?per_page=300&q=';
     let result = [];
-    let url;
 
     // Always start with all issues that have the whatsnext label
     query += '+label:whatsnext';
@@ -833,7 +835,7 @@ function getIssuesForMilestones(type, cb) {
             break;
     }
 
-    url = `${baseUrl}/search/issues${query}`;
+    const url = `${baseUrl}/search/issues${query}`;
 
     function handleData(data, status, xhr) {
         result = result.concat(data.items);
