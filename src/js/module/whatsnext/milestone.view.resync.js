@@ -57,9 +57,9 @@ module.exports = React.createClass({
     },
 
     /**
-   * Make this view show the loading state
-   * @public
-   */
+     * Make this view show the loading state
+     * @public
+     */
     showLoadingState() {
         this.setState({
             isLoadingIssues: true,
@@ -67,10 +67,10 @@ module.exports = React.createClass({
     },
 
     /**
-   * Make this view hide the loading state and show the milestones
-   * @public
-   * @param {Object[]} issues
-   */
+     * Make this view hide the loading state and show the milestones
+     * @public
+     * @param {Object[]} issues
+     */
     hideLoadingStateAndShowIssues(issues) {
         MilestoneStore.addIssuesToMilestones(this.currentView, issues, this.state.milestones, (data) => {
             this.setState({
@@ -81,9 +81,9 @@ module.exports = React.createClass({
     },
 
     /**
-   * Change a milestone from hidden to being visible
-   * @param {Number} id
-   */
+     * Change a milestone from hidden to being visible
+     * @param {Number} id
+     */
     show(id) {
         MilestoneStore.show(this.currentView, id, this.state.milestones, (newMilestones) => {
             this.setState({
@@ -93,9 +93,9 @@ module.exports = React.createClass({
     },
 
     /**
-   * Change a milestone from being visible to being hidden
-   * @param {Number} id
-   */
+     * Change a milestone from being visible to being hidden
+     * @param {Number} id
+     */
     hide(id) {
         MilestoneStore.hide(this.currentView, id, this.state.milestones, (newMilestones) => {
             this.setState({
@@ -105,9 +105,9 @@ module.exports = React.createClass({
     },
 
     /**
-   * Change the order of milestones by moving this one up
-   * @param {Number} id
-   */
+     * Change the order of milestones by moving this one up
+     * @param {Number} id
+     */
     moveUp(id) {
         MilestoneStore.moveUp(this.currentView, id, this.state.milestones, (newMilestones) => {
             this.setState({
@@ -117,9 +117,9 @@ module.exports = React.createClass({
     },
 
     /**
-   * Change the order of milestones by moving this one down
-   * @param {Number} id
-   */
+     * Change the order of milestones by moving this one down
+     * @param {Number} id
+     */
     moveDown(id) {
         MilestoneStore.moveDown(this.currentView, id, this.state.milestones, (newMilestones) => {
             this.setState({
@@ -129,10 +129,10 @@ module.exports = React.createClass({
     },
 
     /**
-   * Change the order of issues in a milestone by moving this one up
-   * @param {Number} milestoneId
-   * @param {Number} issueId
-   */
+     * Change the order of issues in a milestone by moving this one up
+     * @param {Number} milestoneId
+     * @param {Number} issueId
+     */
     moveIssueUp(milestoneId, issueId) {
         MilestoneStore.moveIssueUp(this.currentView, milestoneId, issueId, this.state.milestones, (newMilestones) => {
             this.setState({
@@ -142,10 +142,10 @@ module.exports = React.createClass({
     },
 
     /**
-   * Change the order of issues in a milestone by moving this one down
-   * @param {Number} milestoneId
-   * @param {Number} issueId
-   */
+     * Change the order of issues in a milestone by moving this one down
+     * @param {Number} milestoneId
+     * @param {Number} issueId
+     */
     moveIssueDown(milestoneId, issueId) {
         MilestoneStore.moveIssueDown(this.currentView, milestoneId, issueId, this.state.milestones, (newMilestones) => {
             this.setState({

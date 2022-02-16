@@ -1,32 +1,27 @@
+import $ from 'jquery';
 
 /**
- * This class is to be extended by each of the pages that we want to do things on.
+ * This class is to be extended by each of the distinct types of webpages that the extension works on
+ * @returns {Object}
  */
-
-const $ = require('jquery');
-
-module.exports = function () {
+export default function () {
     const Page = {};
 
     /**
-   * A uniqeu identifier for each page
-   *
-   * @type {String}
-   */
+     * A unique identifier for each page
+     */
     Page.id = '';
 
     /**
-   * A string to match the last part of the URL path to
-   * determine if this is a page we want to do anything on
-   *
-   * @type {String}
-   */
+     * A string to match the last part of the URL path to
+     * determine if this is a webpage that the extension works on
+     */
     Page.urlPath = '';
 
     Page.init = function () {
-    // We need to special case the homepage where there is an empty pathname
+        // The home page is a special case because the pathname will be empty
         if (this.urlPath === ''
-      && (window.location.pathname === '' || window.location.pathname === '/')) {
+            && (window.location.pathname === '' || window.location.pathname === '/')) {
             return this.setup();
         }
 
@@ -34,43 +29,30 @@ module.exports = function () {
             return;
         }
 
-        // Check if this page matches our URL path
+        // Check if the page currently open matches the URL path defined for this page class
         const regex = new RegExp(this.urlPath);
-
-        // console.log(window.location.pathname, this.urlPath, regex);
-
-        // Do a regex test to see if this page matches
-        // the urlPath regex
-        if (regex.test(window.location.pathname)) {
-            // console.log('page matched')
-            this.setup();
+        if (!regex.test(window.location.pathname)) {
+            return;
         }
+
+        this.setup();
     };
 
     /**
-   * This is the method that is ran after a page has matched the URL.
-   * All the magic should start here.
-   *
-   * This should be extended for each page type.
-   */
+     * This is the method that is ran after a page has matched the URL.
+     * All the magic should start here.
+     *
+     * This should be extended for each page type.
+     */
     Page.setup = function () {};
 
     Page.getRepoOwner = function () {
         return $('.author a span').text();
     };
 
-    /**
-   * Gets the name of the repo
-   *
-   * @return {string}
-   */
     Page.getRepo = function () {
         return $('.js-current-repository').text();
     };
 
-    Page.getSrcUrl = function () {
-        return window.location.href;
-    };
-
     return Page;
-};
+}

@@ -1,21 +1,19 @@
+import $ from 'jquery';
+import _ from 'underscore';
+import React from 'react';
 
-const $ = require('jquery');
-const _ = require('underscore');
-const React = require('react');
 const API = require('../../lib/api');
 
 const defaultBtnClass = 'btn btn-sm';
 
-module.exports = React.createClass({
+export default React.createClass({
     /**
-   * Sets the initial class names for all of our buttons
-   *
-   * @author Tim Golen <tim@golen.net>
-   *
-   * @date 2015-07-30
-   *
-   * @return {Object}
-   */
+     * Sets the initial class names for all of our buttons
+     *
+     * @date 2015-07-30
+     *
+     * @return {Object}
+     */
     getInitialState() {
         const state = {
             Engineering: {
@@ -47,6 +45,7 @@ module.exports = React.createClass({
                 shortName: '💣 Demolition',
             },
         };
+        // eslint-disable-next-line rulesdir/prefer-underscore-method
         $('.js-issue-labels .IssueLabel').each(function () {
             const label = $(this).text().trim();
             if (state[label]) {
@@ -57,19 +56,17 @@ module.exports = React.createClass({
     },
 
     clickNSave(label) {
-        this._setActiveLabel(label);
+        this.setActiveLabel(label);
     },
 
     /**
-   * Sets a single label to be active (or if already active, then turns all of them off)
-   *
-   * @author Tim Golen <tim@golen.net>
-   *
-   * @date 2015-07-30
-   *
-   * @param {String} label
-   */
-    _setActiveLabel(label) {
+     * Sets a single label to be active (or if already active, then turns all of them off)
+     *
+     * @date 2015-07-30
+     *
+     * @param {String} label
+     */
+    setActiveLabel(label) {
         const newState = _.clone(this.state);
 
         if (newState[label].className.search('inactive') > -1) {
@@ -85,9 +82,20 @@ module.exports = React.createClass({
     render() {
         return (
             <div>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                 <label>Area</label>
                 <div className="btn-group-grid">
-                    {_.map(_.keys(this.state), label => <button key={label} className={this.state[label].className} aria-label={label} onClick={() => this.clickNSave(label)}>{this.state[label].shortName}</button>)}
+                    {_.map(_.keys(this.state), label => (
+                        <button
+                            type="button"
+                            key={label}
+                            className={this.state[label].className}
+                            aria-label={label}
+                            onClick={() => this.clickNSave(label)}
+                        >
+                            {this.state[label].shortName}
+                        </button>
+                    ))}
                 </div>
             </div>
         );

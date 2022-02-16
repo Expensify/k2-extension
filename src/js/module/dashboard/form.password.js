@@ -16,10 +16,10 @@ const PanelList = require('../../component/panel/list');
 module.exports = React.createClass({
 
     /**
-   * The items which will be displayed in our form
-   *
-   * @type {Array}
-   */
+     * The items which will be displayed in our form
+     *
+     * @type {Array}
+     */
     items: [
         {
             id: 'password',
@@ -33,14 +33,12 @@ module.exports = React.createClass({
     ],
 
     /**
-   * Get the password and store it as a user preference
-   *
-   * @author Tim Golen <tim@golen.net>
-   *
-   * @date 2015-06-15
-   *
-   * @param {Object} e React form submit event
-   */
+     * Get the password and store it as a user preference
+     *
+     * @date 2015-06-15
+     *
+     * @param {Object} e React form submit event
+     */
     submitForm(e) {
         const formData = $(this.refs.form).serializeArray();
         const passwordData = _.findWhere(formData, {name: 'password'});

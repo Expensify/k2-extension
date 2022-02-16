@@ -1,21 +1,21 @@
+import $ from 'jquery';
+import Base from './_base';
 
-/**
- * This pages manages the pull requests page, the qa guidelines is copied from createpr.js
- */
-
-const $ = require('jquery');
-const Base = require('./_base');
 const API = require('../../api');
 
-const reposAllowSelfMerge = [
-    'salt',
-    'ops-configs',
-    'terraform',
-];
-
+/**
+ * Check whether or not the current repo allows someone to merge their own PR that they created. This is limited
+ * to specific repos in infra.
+ *
+ * @return {boolean}
+ */
 function isSelfMergingAllowed() {
+    const reposAllowSelfMerge = [
+        'salt',
+        'ops-configs',
+        'terraform',
+    ];
     const repoName = window.location.pathname.split('/')[2].toLowerCase();
-
     return reposAllowSelfMerge.indexOf(repoName) > -1;
 }
 
@@ -70,51 +70,24 @@ const refreshHold = function () {
     }
 };
 
-const qaGuidelines = require('../../../template/qa.guidelines.html');
-const qaGuidelinesToggle = require('../../../template/qa.guidelines.toggle.html');
-
-// The selectors here differ slighty from createpr.js
-const addQAGuidelines = function () {
-    const $btnContainer = $('.discussion-timeline .form-actions');
-    const $cancelBtn = $btnContainer.find('.js-comment-cancel-button');
-
-    if ($('.k2-extension-qa-guidelines-toggle-container').length > 0) {
-        $('.k2-extension-qa-guidelines-toggle-container').remove();
-    }
-
-    if ($('.k2-extension-qa-guidelines').length > 0) {
-        $('.k2-extension-qa-guidelines').remove();
-    }
-
-    $cancelBtn.after(qaGuidelinesToggle);
-    $btnContainer.after(qaGuidelines);
-};
-
-const toggleQAGuidelines = function () {
-    const $qaToggle = $('#k2-extension-qa-guidelines-toggle');
-
-    $('.k2-extension-qa-guidelines').toggleClass('show', $qaToggle.is(':checked'));
-};
-
-module.exports = function () {
+/**
+ * This class handles what happens on the pull request page
+ *
+ * @returns {Object}
+ */
+export default function () {
     const PrPage = new Base();
 
     /**
-   * Add buttons to the page and setup the event handler
-   */
-    PrPage.urlPath = '^(/[\\w-]+/[\\w-]+/pull/[0-9]+\/?(?:/commits)?(?:/files)?)$';
+     * Add buttons to the page and setup the event handler
+     */
+    PrPage.urlPath = '^(/[\\w-]+/[\\w-]+/pull/[0-9]+/?(?:/commits)?(?:/files)?)$';
 
     /**
-   * Add buttons to the page and setup the event handler
-   */
+     * Add buttons to the page and setup the event handler
+     */
     PrPage.setup = function () {
         setInterval(refreshHold, 1000);
-
-        // Add qa guidelines content
-        addQAGuidelines();
-
-        // Set event listener to hide/show qa guidelines
-        $('#k2-extension-qa-guidelines-toggle').on('change', toggleQAGuidelines);
     };
 
     return PrPage;

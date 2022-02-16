@@ -21,8 +21,8 @@ export default React.createClass({
     },
 
     /**
-   * Sign out the user so they are prompted for their API token again
-   */
+     * Sign out the user so they are prompted for their API token again
+     */
     signOut() {
         prefs.clear('ghToken');
         window.location.reload(true);

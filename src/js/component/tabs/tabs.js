@@ -32,9 +32,9 @@ module.exports = React.createClass({
     },
 
     /**
-   * Set a tab to active
-   * @param {String} id of the tab to activate
-   */
+     * Set a tab to active
+     * @param {String} id of the tab to activate
+     */
     setActive(id) {
         localStorage.activeTab = id;
         this.setState({
@@ -45,10 +45,10 @@ module.exports = React.createClass({
     },
 
     /**
-   * Refreshes our data with the given filters
-   * @public
-   * @param {Object} filters
-   */
+     * Refreshes our data with the given filters
+     * @public
+     * @param {Object} filters
+     */
     refreshWithFilters(filters) {
         if (this.contents) {
             this.contents.refreshWithFilters(filters);
