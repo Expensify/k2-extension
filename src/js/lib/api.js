@@ -62,11 +62,15 @@ function getMilestones(view, cb) {
         function handleData(data, status, xhr) {
             // Combine our data with some of our gist data
             const enhancedData = _.map(data, (item) => {
-                const modifiedItem = {...item};
                 const gistDataMilestone = _.findWhere(gistDataMilestones, {id: item.id});
-                modifiedItem.hidden = gistDataMilestone && gistDataMilestone.hidden;
-                modifiedItem.percentComplete = item.open_issues || item.closed_issues ? Math.round((item.closed_issues / (item.open_issues + item.closed_issues)) * 100) : 0;
-                return modifiedItem;
+                const percentComplete = item.open_issues || item.closed_issues
+                    ? Math.round((item.closed_issues / (item.open_issues + item.closed_issues)) * 100)
+                    : 0;
+                return {
+                    ...item,
+                    hidden: gistDataMilestone && gistDataMilestone.hidden,
+                    percentComplete,
+                };
             });
             result = result.concat(enhancedData);
 
