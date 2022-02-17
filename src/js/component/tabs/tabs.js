@@ -1,13 +1,11 @@
+import React from 'react';
+import _ from 'underscore';
+import Contents from './contents';
 
 /**
  * A component for tabs to show the selected tab and the corresponding content
  */
-
-const React = require('react');
-const _ = require('underscore');
-const Contents = require('./contents');
-
-module.exports = React.createClass({
+export default React.createClass({
     getInitialState() {
         return {
             items: this.props.items,
@@ -19,10 +17,11 @@ module.exports = React.createClass({
 
         // Set the currently selected tab based on our hash
         _.each(this.state.items, (i) => {
-            if (localStorage.activeTab === i.id) {
-                this.setActive(i.id);
-                foundActiveTab = true;
+            if (localStorage.activeTab !== i.id) {
+                return;
             }
+            this.setActive(i.id);
+            foundActiveTab = true;
         });
 
         // Select the web tab by default, because I'm selfish
@@ -38,9 +37,7 @@ module.exports = React.createClass({
     setActive(id) {
         localStorage.activeTab = id;
         this.setState({
-            items: _.each(this.state.items, (i) => {
-                i.selected = i.id === id ? 'selected' : '';
-            }),
+            items: _.map(this.state.items, item => ({...item, selected: item.id === id ? 'selected' : ''})),
         });
     },
 
@@ -50,9 +47,11 @@ module.exports = React.createClass({
      * @param {Object} filters
      */
     refreshWithFilters(filters) {
-        if (this.contents) {
-            this.contents.refreshWithFilters(filters);
+        if (!this.contents) {
+            return;
         }
+
+        this.contents.refreshWithFilters(filters);
     },
 
     render() {
@@ -62,6 +61,7 @@ module.exports = React.createClass({
             <div>
                 <nav className="hx_reponav reponav js-repo-nav js-sidenav-container-pjax" role="navigation" data-pjax="#js-repo-pjax-container">
                     {_.map(this.state.items, i => (
+                        // eslint-disable-next-line jsx-a11y/anchor-is-valid,jsx-a11y/interactive-supports-focus
                         <a
                             key={_.uniqueId()}
                             data-key={i.apiMethod}
@@ -70,6 +70,7 @@ module.exports = React.createClass({
                                 e.preventDefault();
                                 this.setActive(i.id);
                             }}
+                            role="button"
                         >
                             {' '}
                             {i.title}
@@ -78,6 +79,7 @@ module.exports = React.createClass({
                         </a>
                     ))}
                 </nav>
+                {/* eslint-disable-next-line react/jsx-props-no-spreading */}
                 {selectedItem ? <Contents ref={el => this.contents = el} {...selectedItem} type={this.props.type} pollInterval={this.props.pollInterval} /> : null}
             </div>
         );

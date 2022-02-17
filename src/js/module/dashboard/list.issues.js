@@ -1,6 +1,7 @@
 import React from 'react';
 import * as prefs from '../../lib/prefs';
 import Filters from './filters';
+import Tabs from '../../component/tabs/tabs';
 
 import StoreIssueAssigned from '../../store/issue.all.assigned';
 import StorePullAssigned from '../../store/pull.assigned';
@@ -12,7 +13,6 @@ import ActionsPullAssigned from '../../action/pull.assigned';
 import ActionsPullReviewing from '../../action/pull.reviewing';
 import ActionsDailyImprovements from '../../action/dailyimprovements';
 
-const Tabs = require('../../component/tabs/tabs');
 const PanelList = require('../../component/panel/list');
 const ListIssuesAssigned = require('./list.issues.assigned');
 
