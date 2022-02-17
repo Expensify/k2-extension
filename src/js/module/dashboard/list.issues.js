@@ -1,3 +1,7 @@
+import React from 'react';
+import * as prefs from '../../lib/prefs';
+import Filters from './filters';
+
 import StoreIssueAssigned from '../../store/issue.all.assigned';
 import StorePullAssigned from '../../store/pull.assigned';
 import StorePullReviewing from '../../store/pull.reviewing';
@@ -8,11 +12,8 @@ import ActionsPullAssigned from '../../action/pull.assigned';
 import ActionsPullReviewing from '../../action/pull.reviewing';
 import ActionsDailyImprovements from '../../action/dailyimprovements';
 
-const React = require('react');
-const prefs = require('../../lib/prefs');
 const Tabs = require('../../component/tabs/tabs');
 const PanelList = require('../../component/panel/list');
-const Filters = require('./filters');
 const ListIssuesAssigned = require('./list.issues.assigned');
 
 export default React.createClass({
