@@ -28,8 +28,9 @@ class Action {
             // and once in "review-requested" results
             const uniqueData = _.uniq(expensifyOnlyPRs, pr => pr.id);
 
-            if(uniqueData.length > 0)
+            if (uniqueData.length > 0) {
                 this.actions.update(uniqueData);
+            }
         });
     }
 }
