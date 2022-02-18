@@ -1,3 +1,6 @@
+#0.10.2
+- Fixed retry so that list of PRs to review do not vanish after a lapse in internet connectivity.
+
 #0.10.1
 - Build system was updated with webpack and the old system of gulp was removed
 

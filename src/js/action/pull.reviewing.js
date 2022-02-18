@@ -17,6 +17,7 @@ class Action {
 
         API.getPullsReviewing((err, data) => {
             if (err) {
+                console.log('an error occurred while fetching',err)
                 return this.actions.failed(err);
             }
 
@@ -28,7 +29,8 @@ class Action {
             // and once in "review-requested" results
             const uniqueData = _.uniq(expensifyOnlyPRs, pr => pr.id);
 
-            this.actions.update(uniqueData);
+            if(uniqueData.length > 0)
+                this.actions.update(uniqueData);
         });
     }
 }

@@ -15,13 +15,15 @@ class BaseStore {
 
         this.loading = true;
         this.retrying = false;
-        this.data = [];
+        if(this.data.length <= 0)
+            this.data = [];
         alreadyFetched = true;
     }
 
     handleUpdate(data) {
         this.loading = false;
         this.retrying = false;
+        if(data.length <= 0) return;
         this.data = data;
         this.setState({data});
     }
