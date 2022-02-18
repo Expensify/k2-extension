@@ -17,7 +17,6 @@ class Action {
 
         API.getPullsReviewing((err, data) => {
             if (err) {
-                console.log('an error occurred while fetching',err)
                 return this.actions.failed(err);
             }
 
