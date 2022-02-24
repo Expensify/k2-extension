@@ -1,10 +1,5 @@
-
-/**
- * This library keeps track of the members in the GH org so we know their names and stuff
- */
-
-const _ = require('underscore');
-const API = require('./api');
+import _ from 'underscore';
+import * as API from './api';
 
 // A map of members where the key is the member login
 let members = {};
@@ -35,7 +30,7 @@ function getNameFromLogin(login) {
     return members[login] ? members[login].name : login;
 }
 
-module.exports = {
+export {
     init,
     getNameFromLogin,
 };

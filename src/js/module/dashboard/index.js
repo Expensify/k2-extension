@@ -1,3 +1,8 @@
+import $ from 'jquery';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import ListIssues from './list.issues';
+import * as prefs from '../../lib/prefs';
 
 /**
  * Dashboard
@@ -5,12 +10,6 @@
  * Displays our home page with the list of issues and pull requests
  */
 
-import $ from 'jquery';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import ListIssues from './list.issues';
-
-const prefs = require('../../lib/prefs');
 const FormPassword = require('./form.password');
 
 /**

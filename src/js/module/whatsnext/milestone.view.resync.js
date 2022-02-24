@@ -1,8 +1,8 @@
+import * as API from '../../lib/api';
 
 const React = require('react');
 const _ = require('underscore');
 
-const API = require('../../lib/api');
 const Members = require('../../lib/members');
 const Milestone = require('./milestone');
 const MilestoneStore = require('../../store/milestones');

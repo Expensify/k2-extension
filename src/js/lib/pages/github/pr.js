@@ -1,7 +1,6 @@
 import $ from 'jquery';
 import Base from './_base';
-
-const API = require('../../api');
+import * as API from '../../api';
 
 /**
  * Check whether or not the current repo allows someone to merge their own PR that they created. This is limited

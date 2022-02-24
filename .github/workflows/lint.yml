@@ -25,7 +25,7 @@ jobs:
                   node-version: '14.18.2'
 
             - name: Install node packages
-              uses: nick-invision/retry@7c68161adf97a48beb850a595b8784ec57a98cbb
+              uses: nick-fields/retry@7c68161adf97a48beb850a595b8784ec57a98cbb
               with:
                   timeout_minutes: 10
                   max_attempts: 5

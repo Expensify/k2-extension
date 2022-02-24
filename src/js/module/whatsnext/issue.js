@@ -1,10 +1,10 @@
 import BtnGroup from '../../component/BtnGroup';
+import * as API from '../../lib/api';
 
 const React = require('react');
 const _ = require('underscore');
 const moment = require('moment');
 
-const API = require('../../lib/api');
 const Members = require('../../lib/members');
 const FireworkShow = require('../../component/fireworkShow');
 
