@@ -1,7 +1,6 @@
 import $ from 'jquery';
 import alt from '../alt';
-
-const API = require('../lib/api');
+import * as API from '../lib/api';
 
 class Action {
     update(data) {

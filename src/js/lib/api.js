@@ -1,9 +1,8 @@
-
-const $ = require('jquery');
-const _ = require('underscore');
-const moment = require('moment');
-const prefs = require('./prefs');
-const GistDB = require('./gistdb');
+import $ from 'jquery';
+import _ from 'underscore';
+import moment from 'moment';
+import * as prefs from './prefs';
+import * as GistDB from './gistdb';
 
 const baseUrl = 'https://api.github.com';
 
@@ -62,10 +61,16 @@ function getMilestones(view, cb) {
 
         function handleData(data, status, xhr) {
             // Combine our data with some of our gist data
-            const enhancedData = _.each(data, (item) => {
+            const enhancedData = _.map(data, (item) => {
                 const gistDataMilestone = _.findWhere(gistDataMilestones, {id: item.id});
-                item.hidden = gistDataMilestone && gistDataMilestone.hidden;
-                item.percentComplete = item.open_issues || item.closed_issues ? Math.round((item.closed_issues / (item.open_issues + item.closed_issues)) * 100) : 0;
+                const percentComplete = item.open_issues || item.closed_issues
+                    ? Math.round((item.closed_issues / (item.open_issues + item.closed_issues)) * 100)
+                    : 0;
+                return {
+                    ...item,
+                    hidden: gistDataMilestone && gistDataMilestone.hidden,
+                    percentComplete,
+                };
             });
             result = result.concat(enhancedData);
 
@@ -242,7 +247,6 @@ function getMilestonesGraphQL(view, cb) {
  */
 function getPullsByType(type, cb, getReviews) {
     let query = '?q=';
-    let url;
 
     // Get the PRs assigned to me
     query += '+state:open';
@@ -254,7 +258,7 @@ function getPullsByType(type, cb, getReviews) {
 
     query += '&sort=updated';
 
-    url = `${baseUrl}/search/issues${query}`;
+    const url = `${baseUrl}/search/issues${query}`;
 
     prefs.get('ghToken', (ghToken) => {
         $.ajax({
@@ -264,26 +268,27 @@ function getPullsByType(type, cb, getReviews) {
             },
         })
             .done((data) => {
-                let done;
+                const modifiedData = {...data};
                 if (!data.items || !data.items.length) {
                     return cb(null, []);
                 }
 
                 // Filter out closed issues, as the search query does not do this correctly,
                 // even though we are specifying `state:open`
-                data.items = data.items.filter(item => item.state === 'open');
+                modifiedData.items = _.filter(modifiedData.items, item => item.state === 'open');
 
-                done = _.after(data.items.length, () => {
-                    cb(null, data.items);
+                const done = _.after(modifiedData.items.length, () => {
+                    cb(null, modifiedData.items);
                 });
 
                 // Get the detailed PR info for each PR
-                _.each(data.items, (item) => {
+                _.each(modifiedData.items, (item) => {
                     const repoArray = item.repository_url.split('/');
                     const owner = repoArray[repoArray.length - 2];
                     const repo = repoArray[repoArray.length - 1];
                     const url2 = `${baseUrl}/repos/${owner}/${repo}/pulls/${item.number}`;
 
+                    // eslint-disable-next-line no-param-reassign
                     item.prType = type;
 
                     $.ajax({
@@ -292,6 +297,7 @@ function getPullsByType(type, cb, getReviews) {
                             Authorization: `Bearer ${ghToken}`,
                         },
                     }).done((data2) => {
+                        // eslint-disable-next-line no-param-reassign
                         item.pr = data2;
 
                         // Now get the PR check runs
@@ -303,7 +309,7 @@ function getPullsByType(type, cb, getReviews) {
                             },
                         }).done((data3) => {
                             // Filter out non-travis check-runs
-                            const check_runs = (data3.check_runs || []).filter(run => run.app.slug === 'travis-ci');
+                            const check_runs = _.filter((data3.check_runs || []), run => run.app.slug === 'travis-ci');
                             const maybeGetReviews = function () {
                                 // Stop here if we aren't getting reviewers
                                 if (!getReviews) {
@@ -318,12 +324,14 @@ function getPullsByType(type, cb, getReviews) {
                                         Accept: 'application/vnd.github.black-cat-preview+json',
                                     },
                                 }).done((data4) => {
+                                    // eslint-disable-next-line no-param-reassign
                                     item.reviews = data4;
                                     const reviewsByUser = _.filter(data4, r => r.user.login === getCurrentUser());
                                     const approved = _.findWhere(reviewsByUser, {state: 'APPROVED'});
                                     const commented = _.findWhere(reviewsByUser, {state: 'COMMENTED'});
                                     const reviewDismissed = _.findWhere(reviewsByUser, {state: 'DISMISSED'});
                                     const changesRequested = _.findWhere(reviewsByUser, {state: 'CHANGES_REQUESTED'});
+                                    // eslint-disable-next-line no-param-reassign
                                     item.userIsFinishedReviewing = !reviewDismissed && ((commented && !changesRequested) || approved);
                                     return done();
                                 });
@@ -335,19 +343,22 @@ function getPullsByType(type, cb, getReviews) {
                             // try the old statuses url
                             if (check_runs.length === 0) {
                                 $.ajax({
+                                    // eslint-disable-next-line no-underscore-dangle
                                     url: data2._links.statuses.href,
                                     headers: {
                                         Authorization: `Bearer ${ghToken}`,
                                     },
                                 }).done((statusesData) => {
                                     // Filter out non-travis statuses (i.e. musedev)
-                                    item.pr.status = statusesData.filter(status => status.context === 'continuous-integration/travis-ci/pr');
+                                    // eslint-disable-next-line no-param-reassign
+                                    item.pr.status = _.filter(statusesData, status => status.context === 'continuous-integration/travis-ci/pr');
                                     return maybeGetReviews();
                                 });
                             } else {
                                 // Check-runs endpoint uses .conclusion instead of .state - map it
                                 // back to .state in order not to change the view
-                                item.pr.status = check_runs.map((status) => {
+                                // eslint-disable-next-line no-param-reassign
+                                item.pr.status = _.map(check_runs, (status) => {
                                     const state = ((status.conclusion ? status.conclusion : status.status) || '').replace(/_/g, ' ');
                                     return {state, ...status};
                                 });
@@ -378,7 +389,6 @@ function getIssuesByLabel(label, assignee, cb, retryCb) {
     const filterLabels = ['hourly', 'daily', 'weekly', 'monthly'];
     let query = '?per_page=300&q=';
     let result = [];
-    let url;
 
     // Get the PRs assigned to me
     query += '+state:open';
@@ -403,13 +413,11 @@ function getIssuesByLabel(label, assignee, cb, retryCb) {
         query += `+label:${label}`;
     }
 
-    url = `${baseUrl}/search/issues${query}`;
+    const url = `${baseUrl}/search/issues${query}`;
 
     function handleData(data, status, xhr) {
-    // Set the type of the item to be the label we are looking for
-        _.map(data.items, (item) => {
-            item.type = label;
-        });
+        // Set the type of the item to be the label we are looking for
+        _.map(data.items, item => ({...item, type: label}));
 
         result = result.concat(data.items);
 
@@ -473,21 +481,22 @@ function getIssuesByArea(area, cb, retryCb) {
     let result = [];
 
     function handleData(data, status, xhr) {
-    // Set the type of the item to be the label we are looking for
+        // Set the type of the item to be the label we are looking for
         const sortedData = _.chain(data.items)
-            .each((i) => {
-                i.type = area;
+            .map((item) => {
+                const modifiedItem = {...item};
+                modifiedItem.type = area;
 
-                const age = moment().diff(i.created_at, 'days');
-                const isImprovement = _.findWhere(i.labels, {name: 'Improvement'});
-                const isTask = _.findWhere(i.labels, {name: 'Task'});
-                const isFeature = _.findWhere(i.labels, {name: 'NewFeature'});
-                const isHourly = _.findWhere(i.labels, {name: 'Hourly'});
-                const isDaily = _.findWhere(i.labels, {name: 'Daily'});
-                const isWeekly = _.findWhere(i.labels, {name: 'Weekly'});
-                const isMonthly = _.findWhere(i.labels, {name: 'Monthly'});
-                const isFirstPick = _.findWhere(i.labels, {name: 'FirstPick'});
-                const isWhatsNext = _.findWhere(i.labels, {name: 'WhatsNext'});
+                const age = moment().diff(item.created_at, 'days');
+                const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
+                const isTask = _.findWhere(item.labels, {name: 'Task'});
+                const isFeature = _.findWhere(item.labels, {name: 'NewFeature'});
+                const isHourly = _.findWhere(item.labels, {name: 'Hourly'});
+                const isDaily = _.findWhere(item.labels, {name: 'Daily'});
+                const isWeekly = _.findWhere(item.labels, {name: 'Weekly'});
+                const isMonthly = _.findWhere(item.labels, {name: 'Monthly'});
+                const isFirstPick = _.findWhere(item.labels, {name: 'FirstPick'});
+                const isWhatsNext = _.findWhere(item.labels, {name: 'WhatsNext'});
                 let score = 0;
 
                 // Sort by K2
@@ -510,8 +519,9 @@ function getIssuesByArea(area, cb, retryCb) {
                 // Sort by age too
                 score += age / 100;
 
-                i.score = score;
-                i.age = age;
+                modifiedItem.score = score;
+                modifiedItem.age = age;
+                return modifiedItem;
             })
             .sortBy('score')
             .value();
@@ -596,14 +606,16 @@ function addLabels(labels, cb) {
             },
         })
             .done((data) => {
-                if (cb) {
-                    cb(null, data);
+                if (!cb) {
+                    return;
                 }
+                cb(null, data);
             })
             .fail((err) => {
-                if (cb) {
-                    cb(err);
+                if (!cb) {
+                    return;
                 }
+                cb(err);
             });
     });
 }
@@ -629,14 +641,16 @@ function removeLabel(label, cb, issueNumber, repoName) {
             },
         })
             .done((data) => {
-                if (cb) {
-                    cb(null, data);
+                if (!cb) {
+                    return;
                 }
+                cb(null, data);
             })
             .fail((err) => {
-                if (cb) {
-                    cb(err);
+                if (!cb) {
+                    return;
                 }
+                cb(err);
             });
     });
 }
@@ -756,7 +770,6 @@ function getPullsAuthored(cb) {
  */
 function getDailyImprovements(cb) {
     let query = '?q=';
-    let url;
 
     // Get the PRs assigned to me
     query += '+state:open';
@@ -768,7 +781,7 @@ function getDailyImprovements(cb) {
     query += '+label:improvement';
     query += '+label:daily';
 
-    url = `${baseUrl}/search/issues${query}`;
+    const url = `${baseUrl}/search/issues${query}`;
     prefs.get('ghToken', (ghToken) => {
         $.ajax({
             url,
@@ -780,7 +793,7 @@ function getDailyImprovements(cb) {
                 cb(null, data.items);
             })
             .fail((err) => {
-                console.log(err);
+                console.error(err);
                 cb(err);
             });
     });
@@ -795,7 +808,6 @@ function getDailyImprovements(cb) {
 function getIssuesForMilestones(type, cb) {
     let query = '?per_page=300&q=';
     let result = [];
-    let url;
 
     // Always start with all issues that have the whatsnext label
     query += '+label:whatsnext';
@@ -821,7 +833,7 @@ function getIssuesForMilestones(type, cb) {
             break;
     }
 
-    url = `${baseUrl}/search/issues${query}`;
+    const url = `${baseUrl}/search/issues${query}`;
 
     function handleData(data, status, xhr) {
         result = result.concat(data.items);
@@ -973,20 +985,22 @@ function getOrganizationMembers(cb) {
     recursiveMemberQuery();
 }
 
-exports.getEngineeringIssues = getEngineeringIssues;
-exports.getIntegrationsIssues = getIntegrationsIssues;
-exports.getAllAssigned = getAllAssigned;
-exports.getAllUnassigned = getAllUnassigned;
-exports.getPullsAssigned = getPullsAssigned;
-exports.getPullsReviewing = getPullsReviewing;
-exports.getPullsAuthored = getPullsAuthored;
-exports.getDailyImprovements = getDailyImprovements;
-exports.addLabels = addLabels;
-exports.removeLabel = removeLabel;
-exports.getMilestones = getMilestones;
-exports.getMilestonesGraphQL = getMilestonesGraphQL;
-exports.getIssuesForMilestones = getIssuesForMilestones;
-exports.getCommentsForIssue = getCommentsForIssue;
-exports.postIusseComment = postIssueComment;
-exports.getCurrentUser = getCurrentUser;
-exports.getOrganizationMembers = getOrganizationMembers;
+export {
+    getEngineeringIssues,
+    getIntegrationsIssues,
+    getAllAssigned,
+    getAllUnassigned,
+    getPullsAssigned,
+    getPullsReviewing,
+    getPullsAuthored,
+    getDailyImprovements,
+    addLabels,
+    removeLabel,
+    getMilestones,
+    getMilestonesGraphQL,
+    getIssuesForMilestones,
+    getCommentsForIssue,
+    postIssueComment,
+    getCurrentUser,
+    getOrganizationMembers,
+};

@@ -1,18 +1,18 @@
+import $ from 'jquery';
+import _ from 'underscore';
+import React from 'react';
+import * as prefs from '../../lib/prefs';
+import * as API from '../../lib/api';
 
 /**
  * A component for tabs to show the selected tab and the corresponding content
  */
 
-const $ = require('jquery');
-const React = require('react');
-const _ = require('underscore');
-const Prefs = require('../../lib/prefs');
-const API = require('../../lib/api');
 const ListItemIssue = require('../list-item/issue');
 const ListItemPull = require('../list-item/pull');
 const ListItemForm = require('../list-item/form');
 
-module.exports = React.createClass({
+export default React.createClass({
     fetched: false,
     getInitialState() {
         return {
@@ -76,7 +76,7 @@ module.exports = React.createClass({
             $(`[data-key="${this.props.apiMethod}"] .Counter`).html(data.length);
 
             // Apply issue filters if we need to
-            Prefs.get('issueFilters', (issueFilters) => {
+            prefs.get('issueFilters', (issueFilters) => {
                 let filteredData = data;
                 if (this.props.type === 'issue' && issueFilters && !_.isEmpty(issueFilters)) {
                     filteredData = this.filterData(issueFilters);
@@ -178,6 +178,7 @@ module.exports = React.createClass({
                             case 'issue': result = <ListItemIssue key={item.id} data={item} />; break;
                             case 'pull': result = <ListItemPull key={item.id} data={item} />; break;
                             case 'form': result = <ListItemForm key={item.id} data={item} />; break;
+                            default: result = null; break;
                         }
                         return result;
                     })}
