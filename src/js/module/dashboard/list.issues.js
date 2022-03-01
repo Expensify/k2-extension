@@ -123,7 +123,7 @@ export default React.createClass({
                         action={ActionsDailyImprovements}
                         store={StoreDailyImprovements}
                         item="issue"
-                        pollInterval={this.props.pollInterval * 1.5}
+                        pollInterval={this.props.pollInterval * 1.6}
                     />
                 </div>
                 <br />
