@@ -1,18 +1,7 @@
 import React from 'react';
-
-/**
- * List Item - Form Element variant
- *
- * Displays a form element
- *
- * @param {object} data about the element being shown
- * @param {object} options
- */
-
-const FormInput = require('../form/input');
+import FormInput from '../form/FormInput';
 
 export default React.createClass({
-
     render() {
         let element;
         let hint;
