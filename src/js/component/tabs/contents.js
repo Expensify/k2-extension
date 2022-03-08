@@ -8,7 +8,7 @@ import * as API from '../../lib/api';
  * A component for tabs to show the selected tab and the corresponding content
  */
 
-const ListItemIssue = require('../list-item/issue');
+const ListItemIssue = require('../list-item/ListItemIssue');
 const ListItemPull = require('../list-item/pull');
 const ListItemForm = require('../list-item/form');
 

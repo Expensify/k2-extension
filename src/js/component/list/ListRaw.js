@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'underscore';
+import ListItemIssue from '../list-item/ListItemIssue';
 
-const ListItemIssue = require('../list-item/issue');
 const ListItemPull = require('../list-item/pull');
 const ListItemForm = require('../list-item/form');
 
