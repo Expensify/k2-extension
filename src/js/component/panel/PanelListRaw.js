@@ -1,7 +1,6 @@
 import React from 'react';
 import Title from '../panel-title/Title';
-
-const ListRaw = require('../list/ListRaw');
+import ListRaw from '../list/ListRaw';
 
 const propTypes = {
     /** A CSS class to add to this panel to give it some color */
