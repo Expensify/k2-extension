@@ -11,7 +11,7 @@ import PanelList from '../../component/panel/PanelList';
  *
  * @param {Function} onFinished called when the form is done
  */
-module.exports = React.createClass({
+export default React.createClass({
 
     /**
      * The items which will be displayed in our form
