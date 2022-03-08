@@ -1,5 +1,6 @@
 import React from 'react';
 import Title from '../panel-title/Title';
+
 /**
  * Panel - List variant
  *
@@ -39,7 +40,7 @@ module.exports = React.createClass({
     },
 
     fetch() {
-        this.refs.list.fetch();
+        this.list.fetch();
     },
 
     getPanelClass() {
@@ -51,12 +52,13 @@ module.exports = React.createClass({
             <div className={this.getPanelClass()}>
                 <Title text={this.props.title} />
                 <List
-                    ref="list"
+                    ref={el => this.list = el}
                     type={this.props.item}
                     options={this.props.options}
                     action={this.props.action}
                     store={this.props.store}
                     data={this.props.list}
+                    // eslint-disable-next-line react/jsx-props-no-spreading
                     {...this.props.listOptions}
                 />
                 {this.props.children}
