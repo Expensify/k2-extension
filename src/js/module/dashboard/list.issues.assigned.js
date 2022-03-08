@@ -1,7 +1,6 @@
-
-const React = require('react');
-const _ = require('underscore');
-const PanelListRaw = require('../../component/panel/list.raw');
+import React from 'react';
+import _ from 'underscore';
+import PanelListRaw from '../../component/panel/list.raw';
 
 module.exports = React.createClass({
     propTypes: {
@@ -66,7 +65,7 @@ module.exports = React.createClass({
                             title="Hourly"
                             extraClass="hourly"
                             item="issue"
-                            data={this.state.data.filter(row => _.findWhere(row.labels, {name: 'Hourly'}))}
+                            data={_.filter(this.state.data, row => _.findWhere(row.labels, {name: 'Hourly'}))}
                         />
                     </div>
                     <div className="col-3 pr-4">
@@ -74,7 +73,7 @@ module.exports = React.createClass({
                             title="Daily"
                             extraClass="daily"
                             item="issue"
-                            data={this.state.data.filter(row => _.findWhere(row.labels, {name: 'Daily'}))}
+                            data={_.filter(this.state.data, row => _.findWhere(row.labels, {name: 'Daily'}))}
                         />
                     </div>
                     <div className="col-3 pr-4">
@@ -82,7 +81,7 @@ module.exports = React.createClass({
                             title="Weekly"
                             extraClass="weekly"
                             item="issue"
-                            data={this.state.data.filter(row => _.findWhere(row.labels, {name: 'Weekly'}))}
+                            data={_.filter(this.state.data, row => _.findWhere(row.labels, {name: 'Weekly'}))}
                         />
                     </div>
                     <div className="col-3">
@@ -90,7 +89,7 @@ module.exports = React.createClass({
                             title="Monthly"
                             extraClass="monthly"
                             item="issue"
-                            data={this.state.data.filter(row => _.findWhere(row.labels, {name: 'Monthly'}))}
+                            data={_.filter(this.state.data, row => _.findWhere(row.labels, {name: 'Monthly'}))}
                         />
                     </div>
                 </div>
@@ -99,7 +98,8 @@ module.exports = React.createClass({
                         title="None"
                         extraClass="none"
                         item="issue"
-                        data={this.state.data.filter(row => _.intersection(row.labels.map(label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0)}
+                        // eslint-disable-next-line rulesdir/prefer-underscore-method
+                        data={_.filter(this.state.data, row => _.intersection(row.labels.map(label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0)}
                     />
                 </div>
             </div>
