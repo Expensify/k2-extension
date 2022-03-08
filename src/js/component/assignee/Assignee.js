@@ -1,5 +1,4 @@
-
-const React = require('react');
+import React from 'react';
 
 const propTypes = {
     /** The GitHub URL for the assignee */
