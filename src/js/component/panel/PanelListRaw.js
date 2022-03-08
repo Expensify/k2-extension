@@ -1,6 +1,6 @@
 import React from 'react';
+import Title from '../panel-title/Title';
 
-const Title = require('../panel-title/index');
 const ListRaw = require('../list/raw');
 
 const propTypes = {
@@ -16,6 +16,7 @@ const propTypes = {
     /** The data that will be displayed in the list */
     data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
 };
+
 const PanelListRaw = props => (
     <div className={`panel ${props.extraClass}`}>
         <Title text={props.title} />
@@ -25,6 +26,7 @@ const PanelListRaw = props => (
         />
     </div>
 );
+
 PanelListRaw.propTypes = propTypes;
 PanelListRaw.displayName = 'ListRaw';
 export default PanelListRaw;

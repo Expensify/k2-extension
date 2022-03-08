@@ -1,4 +1,5 @@
-
+import React from 'react';
+import Title from '../panel-title/Title';
 /**
  * Panel - List variant
  *
@@ -11,8 +12,6 @@
  * @param {string} extraClass gets appended to the panels class for styling purposes
  */
 
-const React = require('react');
-const Title = require('../panel-title/index');
 const List = require('../list/index');
 
 module.exports = React.createClass({
