@@ -5,8 +5,7 @@ import * as prefs from '../../lib/prefs';
 import * as API from '../../lib/api';
 import ListItemIssue from '../list-item/ListItemIssue';
 import ListItemPull from '../list-item/ListItemPull';
-
-const ListItemForm = require('../list-item/form');
+import ListItemForm from '../list-item/ListItemForm';
 
 export default React.createClass({
     fetched: false,

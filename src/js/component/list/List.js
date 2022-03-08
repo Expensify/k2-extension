@@ -1,6 +1,8 @@
 import React from 'react';
 import _ from 'underscore';
 import ListItemIssue from '../list-item/ListItemIssue';
+import ListItemPull from '../list-item/ListItemPull';
+import ListItemForm from '../list-item/ListItemForm';
 
 /**
  * List
@@ -10,9 +12,6 @@ import ListItemIssue from '../list-item/ListItemIssue';
  * @param {array} data which will be displayed as items
  * @param {object} options
  */
-
-const ListItemPull = require('../list-item/ListItemPull');
-const ListItemForm = require('../list-item/form');
 
 export default React.createClass({
     getInitialState() {

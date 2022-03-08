@@ -2,8 +2,7 @@ import React from 'react';
 import _ from 'underscore';
 import ListItemIssue from '../list-item/ListItemIssue';
 import ListItemPull from '../list-item/ListItemPull';
-
-const ListItemForm = require('../list-item/form');
+import ListItemForm from '../list-item/ListItemForm';
 
 const propTypes = {
     /** The type of data being displayed */

@@ -1,3 +1,4 @@
+import React from 'react';
 
 /**
  * List Item - Form Element variant
@@ -8,10 +9,9 @@
  * @param {object} options
  */
 
-const React = require('react');
 const FormInput = require('../form/input');
 
-module.exports = React.createClass({
+export default React.createClass({
 
     render() {
         let element;
@@ -19,6 +19,7 @@ module.exports = React.createClass({
 
         switch (this.props.data.type) {
             case 'password': element = <FormInput data={this.props.data} type="password" />; break;
+            default: element = null;
         }
 
         if (this.props.data.hint) {
