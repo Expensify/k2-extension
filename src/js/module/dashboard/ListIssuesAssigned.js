@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'underscore';
 import PanelListRaw from '../../component/panel/PanelListRaw';
 
-module.exports = React.createClass({
+export default React.createClass({
     propTypes: {
         pollInterval: React.PropTypes.number,
     },

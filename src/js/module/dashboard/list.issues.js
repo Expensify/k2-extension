@@ -13,8 +13,7 @@ import ActionsPullAssigned from '../../action/pull.assigned';
 import ActionsPullReviewing from '../../action/pull.reviewing';
 import ActionsDailyImprovements from '../../action/dailyimprovements';
 import PanelList from '../../component/panel/PanelList';
-
-const ListIssuesAssigned = require('./list.issues.assigned');
+import ListIssuesAssigned from './ListIssuesAssigned';
 
 export default React.createClass({
     propTypes: {
