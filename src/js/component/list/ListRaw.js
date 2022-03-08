@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'underscore';
 import ListItemIssue from '../list-item/ListItemIssue';
 
-const ListItemPull = require('../list-item/pull');
+const ListItemPull = require('../list-item/ListItemPull');
 const ListItemForm = require('../list-item/form');
 
 const propTypes = {

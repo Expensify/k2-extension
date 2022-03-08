@@ -11,7 +11,7 @@ import ListItemIssue from '../list-item/ListItemIssue';
  * @param {object} options
  */
 
-const ListItemPull = require('../list-item/pull');
+const ListItemPull = require('../list-item/ListItemPull');
 const ListItemForm = require('../list-item/form');
 
 export default React.createClass({
