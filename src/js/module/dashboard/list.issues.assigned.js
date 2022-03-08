@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'underscore';
-import PanelListRaw from '../../component/panel/list.raw';
+import PanelListRaw from '../../component/panel/PanelListRaw';
 
 module.exports = React.createClass({
     propTypes: {
