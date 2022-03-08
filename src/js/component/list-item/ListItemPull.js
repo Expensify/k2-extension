@@ -1,18 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import AssigneeNone from '../assignee/AssigneeNone';
-
-/**
- * List Item - Pull Request variant
- *
- * Displays a pull request item
- *
- * @param {object} data the data returned from GitHub for a pull request
- * @param {object} options
- * @param {boolean} options.showAssignee whether or not to show the assignee
- */
-
-const Assignee = require('../assignee/index');
+import Assignee from '../assignee/Assignee';
 
 export default React.createClass({
 
@@ -87,7 +76,7 @@ export default React.createClass({
         // If we are showing the assignee, we need to figure which template to display
         if (this.props.options.showAssignee) {
             if (this.props.data.assignee) {
-                person = <Assignee data={this.props.data.assignee} />;
+                person = <Assignee html_url={this.props.data.html_url} login={this.props.data.login} />;
             } else {
                 person = <AssigneeNone />;
             }
