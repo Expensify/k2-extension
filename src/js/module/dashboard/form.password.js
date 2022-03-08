@@ -1,3 +1,8 @@
+import $ from 'jquery';
+import React from 'react';
+import _ from 'underscore';
+import * as prefs from '../../lib/prefs';
+import PanelList from '../../component/panel/PanelList';
 
 /**
  * FORM - Password
@@ -6,13 +11,6 @@
  *
  * @param {Function} onFinished called when the form is done
  */
-
-const $ = require('jquery');
-const _ = require('underscore');
-const React = require('react');
-const prefs = require('../../lib/prefs');
-const PanelList = require('../../component/panel/list');
-
 module.exports = React.createClass({
 
     /**
@@ -40,16 +38,16 @@ module.exports = React.createClass({
      * @param {Object} e React form submit event
      */
     submitForm(e) {
-        const formData = $(this.refs.form).serializeArray();
+        const formData = $(this.form).serializeArray();
         const passwordData = _.findWhere(formData, {name: 'password'});
-        const _this = this;
 
         // Set ghToken too if we are logging in for the first time so we can
         // more easily transition later
         prefs.set('ghToken', passwordData.value, () => {
-            if (_this.props.onFinished) {
-                _this.props.onFinished();
+            if (!this.props.onFinished) {
+                return;
             }
+            this.props.onFinished();
         });
 
         e.preventDefault();
@@ -59,10 +57,10 @@ module.exports = React.createClass({
         return (
             <div className="columns">
                 <div className="one-third column centered">
-                    <form ref="form" onSubmit={this.submitForm}>
+                    <form ref={el => this.form = el} onSubmit={this.submitForm}>
                         <PanelList title="Enter Credentials" list={this.items} item="form">
                             <footer className="panel-footer form-actions">
-                                <button className="btn btn-primary">
+                                <button className="btn btn-primary" type="button">
                                     Submit
                                 </button>
                             </footer>

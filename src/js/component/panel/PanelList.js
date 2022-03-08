@@ -13,8 +13,7 @@ import List from '../list/List';
  * @param {object} options various options passed to the list as well
  * @param {string} extraClass gets appended to the panels class for styling purposes
  */
-
-module.exports = React.createClass({
+export default React.createClass({
     fetched: false,
     componentDidMount() {
         if (!this.fetched) {
