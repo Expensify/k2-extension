@@ -13,6 +13,7 @@ GitHub UI integration for KS - Kernel Scheduling Method
 1. Make sure you have _Developer Mode_ enabled at the top
 1. Click _Load Unpacked Extension_
 1. Navigate to the `dist` folder and select it
+    - Note: Do this after running `npm i` then `npm run web`
 
 # Installing on Firefox
 ## The "published" version
@@ -35,8 +36,8 @@ Your personal access token is stored locally and securely. It is used to make ba
 
 # Installing this repo
 ```
-git clone git@github.com:Expensify/k2-chrome-extension.git
-cd k2-chrome-extension
+git clone git@github.com:Expensify/k2-extension.git
+cd k2-extension
 npm i
 ```
 
@@ -62,11 +63,11 @@ Sometimes it is necessary to install and enable the public version of the extens
 # Creating your PR
 Be sure to do the following before pushing up your branch:
 1. Bump the version number in `dist/manifest.json` (use major.minor.patch version scheme)
-1. Bump the version number in `package.json` and `package-lock.json` to match
+1. Bump the version number in `package.json` and `package-lock.json` and `assets/manifest.json` to match
 1. Add a new change log entry in `CHANGELOG.md`
 
 # Publishing
-**Note:** Publishing KSv2 requires ring3 access. If you are not in ring 3 or below, tag your issue with the `ring3` label to assign a deployer.
+**Note:** Publishing KSv2 requires ring3 access. If you are not in ring 3 or below, tag your PR with the `ring3` label to assign a deployer.
 
 To publish a new version of this extension, you should follow these steps:
 
