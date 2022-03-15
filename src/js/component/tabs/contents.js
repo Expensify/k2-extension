@@ -3,14 +3,9 @@ import _ from 'underscore';
 import React from 'react';
 import * as prefs from '../../lib/prefs';
 import * as API from '../../lib/api';
-
-/**
- * A component for tabs to show the selected tab and the corresponding content
- */
-
-const ListItemIssue = require('../list-item/issue');
-const ListItemPull = require('../list-item/pull');
-const ListItemForm = require('../list-item/form');
+import ListItemIssue from '../list-item/ListItemIssue';
+import ListItemPull from '../list-item/ListItemPull';
+import ListItemForm from '../list-item/ListItemForm';
 
 export default React.createClass({
     fetched: false,

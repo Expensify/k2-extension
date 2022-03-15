@@ -3,19 +3,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import ListIssues from './list.issues';
 import * as prefs from '../../lib/prefs';
-
-/**
- * Dashboard
- *
- * Displays our home page with the list of issues and pull requests
- */
-
-const FormPassword = require('./form.password');
+import FormPassword from './FormPassword';
 
 /**
  * Display our dashboard with the list of issues
- *
- * @date 2015-06-14
  */
 function showDashboard() {
     $('.repository-content').children().hide();
