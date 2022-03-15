@@ -62,7 +62,12 @@ export default React.createClass({
                     <div className="issue reviewing">Under Review</div>
                     <div className="issue overdue">Overdue</div>
                     <div className="issue planning">Planning</div>
-                    <div className="issue help-wanted">Help Wanted</div>
+                    <div className="issue contributor-assigned">Contributor Assigned</div>
+                    <div className="issue">
+                        <sup>E</sup>
+                        {' '}
+                        External
+                    </div>
                     <div className="issue">
                         <sup>I</sup>
                         {' '}
