@@ -3,7 +3,7 @@ import Base from './_base';
 import Dashboard from '../../../module/dashboard/index';
 
 /**
- * This class displays either the K2 Dashboard or the WN Dashboard
+ * This class displays the K2 Dashboard
  *
  * @returns {Object}
  */
