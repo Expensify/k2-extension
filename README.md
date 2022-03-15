@@ -67,7 +67,7 @@ Be sure to do the following before pushing up your branch:
 1. Add a new change log entry in `CHANGELOG.md`
 
 # Publishing
-**Note:** Publishing KSv2 requires ring3 access. If you are not in ring 3 or below, tag your PR with the `ring3` label to assign a deployer.
+**Note:** Publishing KSv2 requires ring3 access. If you are not in ring 3 or below, tag your issue with the `ring3` label to assign a deployer.
 
 To publish a new version of this extension, you should follow these steps:
 
