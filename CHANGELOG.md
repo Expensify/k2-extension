@@ -1,3 +1,6 @@
+#0.10.3
+- Removed the What's Next functionality
+
 #0.10.2
 - Fixed retry so that list of PRs to review do not vanish after a lapse in internet connectivity.
 
