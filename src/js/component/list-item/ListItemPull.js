@@ -1,20 +1,9 @@
+import React from 'react';
+import moment from 'moment';
+import AssigneeNone from '../assignee/AssigneeNone';
+import Assignee from '../assignee/Assignee';
 
-/**
- * List Item - Pull Request variant
- *
- * Displays a pull request item
- *
- * @param {object} data the data returned from GitHub for a pull request
- * @param {object} options
- * @param {boolean} options.showAssignee whether or not to show the assignee
- */
-
-const React = require('react');
-const moment = require('moment');
-const Assignee = require('../assignee/index');
-const NotAssigned = require('../assignee/none');
-
-module.exports = React.createClass({
+export default React.createClass({
 
     /**
      * Gets the class name for the item
@@ -27,10 +16,9 @@ module.exports = React.createClass({
         let className = 'issue';
         const today = moment();
         const days = 7;
-        let isOverdue;
 
         // See if it's overdue
-        isOverdue = moment(this.props.data.updated_at).isBefore(today.subtract(days, 'days'), 'day');
+        const isOverdue = moment(this.props.data.updated_at).isBefore(today.subtract(days, 'days'), 'day');
 
         if (isOverdue) {
             className += ' overdue';
@@ -83,15 +71,14 @@ module.exports = React.createClass({
             case 'unknown':
             default:
                 mergeability = 'Mergeability Unknown';
-                console.log('Unable to determine mergeable state of this PR', this.props.data.pr);
         }
 
         // If we are showing the assignee, we need to figure which template to display
         if (this.props.options.showAssignee) {
             if (this.props.data.assignee) {
-                person = <Assignee data={this.props.data.assignee} />;
+                person = <Assignee html_url={this.props.data.html_url} login={this.props.data.login} />;
             } else {
-                person = <NotAssigned />;
+                person = <AssigneeNone />;
             }
         }
 

@@ -1,17 +1,7 @@
+import React from 'react';
+import _ from 'underscore';
 
-/**
- * List Item - Issue variant
- *
- * Displays an issue
- *
- * @param {object} data the data being returned from GH for an issue
- * @param {string} data.type daily|weekly|monthly|none identifies the type of issue
- */
-
-const React = require('react');
-const _ = require('underscore');
-
-module.exports = React.createClass({
+export default React.createClass({
     parseIssue() {
         this.isExternal = _.some(this.props.data.labels, {name: 'External'}) ? <sup>E</sup> : null;
         this.isImprovement = _.findWhere(this.props.data.labels, {name: 'Improvement'}) ? <sup>I</sup> : null;

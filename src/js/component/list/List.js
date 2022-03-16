@@ -1,3 +1,8 @@
+import React from 'react';
+import _ from 'underscore';
+import ListItemIssue from '../list-item/ListItemIssue';
+import ListItemPull from '../list-item/ListItemPull';
+import ListItemForm from '../list-item/ListItemForm';
 
 /**
  * List
@@ -8,13 +13,7 @@
  * @param {object} options
  */
 
-const _ = require('underscore');
-const React = require('react');
-const ListItemIssue = require('../list-item/issue');
-const ListItemPull = require('../list-item/pull');
-const ListItemForm = require('../list-item/form');
-
-module.exports = React.createClass({
+export default React.createClass({
     getInitialState() {
         if (!this.props.store) {
             return {data: this.props.data};
@@ -23,30 +22,31 @@ module.exports = React.createClass({
     },
 
     fetch() {
-        if (this.props.action) {
-            this.props.action.fetch();
+        if (!this.props.action) {
+            return;
         }
+        this.props.action.fetch();
     },
 
     componentDidMount() {
-    // Listen to our store
-        if (this.props.store) {
-            this.props.store.listen(this.onStoreChange);
+        if (!this.props.store) {
+            return;
         }
+        this.props.store.listen(this.onStoreChange);
     },
 
     componentWillUnmount() {
-        if (this.props.store) {
-            // Stop listening to our store
-            this.props.store.unlisten(this.onStoreChange);
+        if (!this.props.store) {
+            return;
         }
+        this.props.store.unlisten(this.onStoreChange);
     },
 
     onStoreChange() {
-        if (this.props.store) {
-            // Update our state when the store changes
-            this.setState(this.props.store.getState());
+        if (!this.props.store) {
+            return;
         }
+        this.setState(this.props.store.getState());
     },
 
     /**
@@ -57,17 +57,18 @@ module.exports = React.createClass({
      *
      * @return {array}
      */
-    _getItems() {
+    getItems() {
         const type = this.props.type;
         const options = this.props.options;
 
-        return this.state.data.map((item) => {
+        return _.map(this.state.data, (item) => {
             let result;
             switch (type) {
                 case 'issue': result = (<ListItemIssue key={`issue_${item.id}`} data={item} options={options} />); break;
                 case 'pull': result = (<ListItemPull key={`pull_${item.id}`} data={item} options={options} />); break;
                 case 'review': result = (<ListItemPull key={`review_${item.id}`} data={item} options={options} />); break;
                 case 'form': result = (<ListItemForm key={`form_${item.id}`} data={item} options={options} />); break;
+                default: result = null;
             }
             return result;
         });
@@ -97,9 +98,10 @@ module.exports = React.createClass({
                 </div>
             );
         }
+
         return (
             <div>
-                {this._getItems()}
+                {this.getItems()}
             </div>
         );
     },

@@ -1,3 +1,6 @@
+import React from 'react';
+import Title from '../panel-title/Title';
+import List from '../list/List';
 
 /**
  * Panel - List variant
@@ -10,12 +13,7 @@
  * @param {object} options various options passed to the list as well
  * @param {string} extraClass gets appended to the panels class for styling purposes
  */
-
-const React = require('react');
-const Title = require('../panel-title/index');
-const List = require('../list/index');
-
-module.exports = React.createClass({
+export default React.createClass({
     fetched: false,
     componentDidMount() {
         if (!this.fetched) {
@@ -40,7 +38,7 @@ module.exports = React.createClass({
     },
 
     fetch() {
-        this.refs.list.fetch();
+        this.list.fetch();
     },
 
     getPanelClass() {
@@ -52,12 +50,13 @@ module.exports = React.createClass({
             <div className={this.getPanelClass()}>
                 <Title text={this.props.title} />
                 <List
-                    ref="list"
+                    ref={el => this.list = el}
                     type={this.props.item}
                     options={this.props.options}
                     action={this.props.action}
                     store={this.props.store}
                     data={this.props.list}
+                    // eslint-disable-next-line react/jsx-props-no-spreading
                     {...this.props.listOptions}
                 />
                 {this.props.children}

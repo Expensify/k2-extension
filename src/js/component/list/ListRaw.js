@@ -1,10 +1,18 @@
+import React from 'react';
+import _ from 'underscore';
+import ListItemIssue from '../list-item/ListItemIssue';
+import ListItemPull from '../list-item/ListItemPull';
+import ListItemForm from '../list-item/ListItemForm';
 
-const React = require('react');
-const ListItemIssue = require('../list-item/issue');
-const ListItemPull = require('../list-item/pull');
-const ListItemForm = require('../list-item/form');
+const propTypes = {
+    /** The type of data being displayed */
+    type: React.PropTypes.oneOf(['issue', 'pull', 'review', 'form']).isRequired,
 
-module.exports = (props) => {
+    /** The data that will be displayed */
+    data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+};
+
+const ListRaw = (props) => {
     if (!props.data.length) {
         return (
             <div className="blankslate capped clean-background">
@@ -15,7 +23,7 @@ module.exports = (props) => {
 
     return (
         <div>
-            {props.data.map((item) => {
+            {_.map(props.data, (item) => {
                 switch (props.type) {
                     case 'issue':
                         return <ListItemIssue key={`issue_raw_${item.id}`} data={item} />;
@@ -25,8 +33,14 @@ module.exports = (props) => {
                         return <ListItemPull key={`review_raw_${item.id}`} data={item} />;
                     case 'form':
                         return <ListItemForm key={`form_raw_${item.id}`} data={item} />;
+                    default: return null;
                 }
             })}
         </div>
     );
 };
+
+ListRaw.propTypes = propTypes;
+ListRaw.displayName = 'ListRaw';
+
+export default ListRaw;
