@@ -39,14 +39,15 @@ Your personal access token is stored locally and securely. It is used to make ba
 git clone git@github.com:Expensify/k2-extension.git
 cd k2-extension
 npm i
+npm run web
 ```
 
 # Developing
 There are three NPM tasks to use with this project. All files are output to the `dist` folder.
 
 1. `npm run web` - Run this when doing development. It will watch files and run all code standardizing tasks whenever the files are saved. It will build all the JS code together in an unminified version for easier debugging.
-1. `npm run build` - This will doing the same thing as the normal gulp task except it won't watch files and will exit when finished.
-1. `npm run package` - This will output a minified version of the code (`dist.zip`) which can be used to submit to the Chrome Store.
+1. `npm run build` - This will also build all the JS code together but it won't watch files, it will minify the output, and will exit when finished.
+1. `npm run package` - This will bundle up the files in the `/dist` directory into a file `dist.zip` which can be used to submit to the Chrome Store.
 
 In order to test your changes, you need to have the extension loaded into Chrome from your local folder.
 
@@ -62,8 +63,8 @@ Sometimes it is necessary to install and enable the public version of the extens
 
 # Creating your PR
 Be sure to do the following before pushing up your branch:
-1. Bump the version number in `dist/manifest.json` (use major.minor.patch version scheme)
-1. Bump the version number in `package.json` and `package-lock.json` and `assets/manifest.json` to match
+1. Bump the version number in `assets/manifest.json` (use major.minor.patch version scheme)
+1. Bump the version number in `package.json` and `package-lock.json` to match
 1. Add a new change log entry in `CHANGELOG.md`
 
 # Publishing
@@ -71,10 +72,11 @@ Be sure to do the following before pushing up your branch:
 
 To publish a new version of this extension, you should follow these steps:
 
-1. Bump the version number in `dist/manifest.json` (use major.minor.patch version scheme)
-1. Bump the version number in `package.json` to match
-1. Add a new change log entry in `CHANGELOG.md`
-1. Run `gulp package` which will generate a `dist.zip` file
+1. Make sure the version number was bumped in `assets/manifest.json` (use major.minor.patch version scheme)
+1. Make sure the version number in `package.json` matches
+1. Make sure a new change log entry was added in `CHANGELOG.md`
+1. Run `npm run build` to output the minified code in the `/dist` directory
+1. Run `npm run package` which will generate a `dist.zip` file
 
 ## Chrome
 1. Go to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/developer/dashboard)
