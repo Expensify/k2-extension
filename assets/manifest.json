@@ -2,7 +2,7 @@
   "manifest_version": 2,
 
   "name": "K2 for GitHub",
-  "version": "0.10.1",
+  "version": "0.10.3",
   "description": "Manage your Kernel Scheduling from directly inside GitHub",
 
   "browser_specific_settings": {

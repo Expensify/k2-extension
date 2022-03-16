@@ -3,6 +3,7 @@ import _ from 'underscore';
 
 export default React.createClass({
     parseIssue() {
+        this.isExternal = _.some(this.props.data.labels, {name: 'External'}) ? <sup>E</sup> : null;
         this.isImprovement = _.findWhere(this.props.data.labels, {name: 'Improvement'}) ? <sup>I</sup> : null;
         this.isTask = _.findWhere(this.props.data.labels, {name: 'Task'}) ? <sup>T</sup> : null;
         this.isFeature = _.findWhere(this.props.data.labels, {name: 'NewFeature'}) ? <sup>F</sup> : null;
@@ -18,7 +19,7 @@ export default React.createClass({
         this.isWaitingOnCustomer = _.findWhere(this.props.data.labels, {name: 'Waiting for customer'}) ? ' waiting-for-customer' : '';
         this.isHeld = this.props.data.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
         this.isChallengeSent = _.findWhere(this.props.data.labels, {name: 'Take Home Challenge Sent'}) ? ' challenge-sent' : '';
-        this.isHelpWanted = _.findWhere(this.props.data.labels, {name: 'Help Wanted'}) ? ' help-wanted' : '';
+        this.isContributorAssigned = _.some(this.props.data.labels, {name: 'Exported'}) && !_.some(this.props.data.labels, {name: 'Help Wanted'}) ? ' contributor-assigned' : '';
         this.isUnderReview = _.find(this.props.data.labels, label => label.name.toLowerCase() === 'reviewing');
     },
     getClassName() {
@@ -34,7 +35,7 @@ export default React.createClass({
             className += ' overdue';
         }
 
-        return className + this.isPlanning + this.isWaitingOnCustomer + this.isHeld + this.isChallengeSent + this.isHelpWanted;
+        return className + this.isPlanning + this.isWaitingOnCustomer + this.isHeld + this.isChallengeSent + this.isContributorAssigned;
     },
     render() {
         this.parseIssue();
@@ -47,6 +48,7 @@ export default React.createClass({
                 {this.isWhatsNext}
                 {this.isNewhire}
                 {this.isWaitingForCustomer}
+                {this.isExternal}
                 {this.isImprovement}
                 {this.isTask}
                 {this.isFeature}
