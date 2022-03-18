@@ -1,3 +1,6 @@
+#0.10.4
+- Remove the What's Next functionality
+
 #0.10.3
 - Add little "E" next to issues with "External" label (and added to legend)
 - Changed "Help Wanted" to "Contributor Assigned" in legend
