@@ -1,5 +1,7 @@
 #0.10.3
-- Removed the What's Next functionality
+- Add little "E" next to issues with "External" label (and added to legend)
+- Changed "Help Wanted" to "Contributor Assigned" in legend
+- E/App issues will no longer show purple when they have the "Help Wanted" label, instead they will be purple when they have the "Exported" label and **DON'T have** the "Help Wanted" label.
 
 #0.10.2
 - Fixed retry so that list of PRs to review do not vanish after a lapse in internet connectivity.

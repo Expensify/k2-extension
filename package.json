@@ -1,5 +1,5 @@
 {
-  "name": "k2-chrome-extension",
+  "name": "k2-extension",
   "version": "0.10.3",
   "description": "A Chrome Extenstion for Kernel Schedule",
   "private": true,
