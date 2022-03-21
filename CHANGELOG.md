@@ -1,3 +1,6 @@
+#0.10.5
+- Remove the What's Next functionality
+
 #0.10.4
 - Fix "Submit" button type so personal access token form submits correctly.
 
