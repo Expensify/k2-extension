@@ -1,3 +1,6 @@
+#0.10.4
+- Fix "Submit" button type so personal access token form submits correctly.
+
 #0.10.3
 - Add little "E" next to issues with "External" label (and added to legend)
 - Changed "Help Wanted" to "Contributor Assigned" in legend
