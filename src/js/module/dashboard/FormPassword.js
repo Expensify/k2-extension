@@ -60,7 +60,7 @@ export default React.createClass({
                     <form ref={el => this.form = el} onSubmit={this.submitForm}>
                         <PanelList title="Enter Credentials" list={this.items} item="form">
                             <footer className="panel-footer form-actions">
-                                <button className="btn btn-primary" type="button">
+                                <button className="btn btn-primary" type="submit">
                                     Submit
                                 </button>
                             </footer>
