@@ -1,3 +1,6 @@
+#0.10.6
+- Fix margin and padding on the dashboard and access token form.
+
 #0.10.5
 - Remove the What's Next functionality
 
