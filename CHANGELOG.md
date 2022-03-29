@@ -1,3 +1,6 @@
+#0.10.7
+- Add Expensify/Expensify Guides repo issues to dashboard
+
 #0.10.6
 - Fix margin and padding on the dashboard and access token form.
 
