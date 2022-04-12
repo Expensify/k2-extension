@@ -17,6 +17,24 @@ function getCurrentUser() {
     return currentUser.replace('@', '');
 }
 
+/**
+ * Returns the name of the current repo
+ *
+ * @returns {String}
+ */
+function getRepo() {
+    return $('#repository-container-header strong a').text();
+}
+
+/**
+ * Returns the name of the current repo owner
+ *
+ * @returns {String}
+ */
+function getOwner() {
+    return $('#repository-container-header .author a').text();
+}
+
 function parse_link_header(header) {
     if (header.length === 0) {
         throw new Error('input must not be of zero length');
@@ -480,8 +498,8 @@ function getIssuesByArea(area, cb, retryCb) {
  * @param {Function} [cb]
  */
 function addLabels(labels, cb) {
-    const repo = $('.application-main h1 strong a').text();
-    const owner = $('.application-main h1 .author a').text();
+    const repo = getRepo();
+    const owner = getOwner();
     const issueNum = $('.gh-header-number').first().text().replace('#', '');
     const url = `${baseUrl}/repos/${owner}/${repo}/issues/${issueNum}/labels`;
 
@@ -518,8 +536,8 @@ function addLabels(labels, cb) {
  * @param {String} [repoName] a repository to use if we don't want to use the one on the current page
  */
 function removeLabel(label, cb, issueNumber, repoName) {
-    const repo = repoName || $('.application-main h1 strong a').text();
-    const owner = $('.application-main h1 .author a').text();
+    const repo = repoName || getRepo();
+    const owner = getOwner();
     const issueNum = issueNumber || $('.gh-header-number').first().text().replace('#', '');
     const url = `${baseUrl}/repos/${owner}/${repo}/issues/${issueNum}/labels/${label}`;
     prefs.get('ghToken', (ghToken) => {
