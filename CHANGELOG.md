@@ -1,3 +1,6 @@
+#0.10.7
+- Fix sidebar buttons that broke after GitHub changed their markup
+
 #0.10.6
 - Fix margin and padding on the dashboard and access token form.
 
