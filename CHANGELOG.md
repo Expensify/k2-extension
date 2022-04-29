@@ -1,3 +1,6 @@
+#0.10.8
+- Show tasks from Expensify/Insiders repo
+
 #0.10.7
 - Fix sidebar buttons that broke after GitHub changed their markup
 

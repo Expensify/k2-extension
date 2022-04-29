@@ -303,6 +303,7 @@ function getIssuesByLabel(label, assignee, cb, retryCb) {
     query += '+is:issue';
     query += '+repo:Expensify/Expensify';
     query += '+repo:Expensify/App';
+    query += '+repo:Expensify/Insiders';
     query += '+repo:Expensify/VendorTasks';
 
     if (assignee === 'none') {
@@ -461,6 +462,7 @@ function getIssuesByArea(area, cb, retryCb) {
         query += '+repo:Expensify/Expensify';
         query += '+repo:Expensify/App';
         query += '+repo:Expensify/VendorTasks';
+        query += '+repo:Expensify/Insiders';
         query += '&page=1';
 
         url = `${baseUrl}/search/issues${query}`;
@@ -685,6 +687,7 @@ function getDailyImprovements(cb) {
     query += '+repo:Expensify/Expensify';
     query += '+repo:Expensify/App';
     query += '+repo:Expensify/VendorTasks';
+    query += '+repo:Expensify/Insiders';
     query += '+no:assignee';
     query += '+label:improvement';
     query += '+label:daily';
