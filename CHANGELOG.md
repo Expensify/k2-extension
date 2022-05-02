@@ -1,3 +1,6 @@
+#0.10.9
+- Add Expensify/Expensify Guides repo issues to dashboard
+
 #0.10.8
 - Show tasks from Expensify/Insiders repo
 
