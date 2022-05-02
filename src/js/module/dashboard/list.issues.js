@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import * as prefs from '../../lib/prefs';
 import Filters from './filters';
 import Tabs from '../../component/tabs/tabs';
@@ -15,10 +16,18 @@ import ActionsDailyImprovements from '../../action/dailyimprovements';
 import PanelList from '../../component/panel/PanelList';
 import ListIssuesAssigned from './ListIssuesAssigned';
 
-export default React.createClass({
-    propTypes: {
-        pollInterval: React.PropTypes.number,
-    },
+const propTypes = {
+    /** The number of seconds to refresh the list of issues */
+    pollInterval: PropTypes.number.isRequired,
+};
+
+class ListIssues extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.signOut = this.signOut.bind(this);
+        this.filterIssues = this.filterIssues.bind(this);
+    }
 
     /**
      * Sign out the user so they are prompted for their API token again
@@ -26,11 +35,11 @@ export default React.createClass({
     signOut() {
         prefs.clear('ghToken');
         window.location.reload(true);
-    },
+    }
 
     filterIssues(filters) {
         this.tabs.refreshWithFilters(filters);
-    },
+    }
 
     render() {
         return (
@@ -52,7 +61,7 @@ export default React.createClass({
                         aria-label="New Issue"
                         href="https://github.com/Expensify/Expensify/issues/new/choose"
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                     >
                         New Issue
                     </a>
@@ -176,5 +185,9 @@ export default React.createClass({
                 </div>
             </div>
         );
-    },
-});
+    }
+}
+
+ListIssues.propTypes = propTypes;
+
+export default ListIssues;
