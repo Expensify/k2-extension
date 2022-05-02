@@ -1,9 +1,21 @@
 import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import ReactNativeOnyx from 'react-native-onyx';
 import ListIssues from './list.issues';
 import * as prefs from '../../lib/prefs';
 import FormPassword from './FormPassword';
+
+let ghToken;
+ReactNativeOnyx.connect({
+    key: 'preferences',
+    callback: (preferences) => {
+        console.log('prefs', preferences);
+        if (preferences.ghToken) {
+            ghToken = preferences.ghToken;
+        }
+    },
+});
 
 /**
  * Display our dashboard with the list of issues
@@ -40,12 +52,10 @@ export default () => ({
         $('.repository-content').children().remove();
 
         // Make sure they have entered their API token
-        prefs.get('ghToken', (ghToken) => {
-            if (ghToken) {
-                showDashboard();
-            } else {
-                showPasswordForm();
-            }
-        });
+        if (ghToken) {
+            showDashboard();
+        } else {
+            showPasswordForm();
+        }
     },
 });
