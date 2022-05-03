@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'underscore';
-import Contents from './contents';
+import Contents from './Contents';
 
 /**
  * A component for tabs to show the selected tab and the corresponding content

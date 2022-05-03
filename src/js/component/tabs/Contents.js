@@ -1,46 +1,62 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import React from 'react';
+import PropTypes from 'prop-types';
 import * as prefs from '../../lib/prefs';
 import * as API from '../../lib/api';
 import ListItemIssue from '../list-item/ListItemIssue';
 import ListItemPull from '../list-item/ListItemPull';
 import ListItemForm from '../list-item/ListItemForm';
 
-export default React.createClass({
-    fetched: false,
-    getInitialState() {
-        return {
+const propTypes = {
+    /** The API method that will be called to load the data */
+    apiMethod: PropTypes.string.isRequired,
+
+    /** The type of items that are being displayed */
+    type: PropTypes.oneOf(['issues']).isRequired,
+
+    /** The number of milliseconds that will be used for refreshing the data */
+    pollInterval: PropTypes.number.isRequired,
+};
+const defaultProps = {};
+
+class Contents extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.fetched = false;
+
+        this.state = {
             error: null,
             loading: true,
             retrying: false,
             retryingIn: 0,
             data: [],
         };
-    },
+    }
 
     componentDidMount() {
         this.loadData();
-    },
+    }
 
-    componentDidUpdate() {
-        this.loadData();
-    },
-
-    componentWillReceiveProps(nextProps) {
-    // Reset our fetched flag if our API method changed
-        this.fetched = this.props.apiMethod === nextProps.apiMethod;
-        if (!this.fetched) {
-            this.setState({
-                loading: true,
-                retrying: false,
-                error: null,
-            });
+    componentDidUpdate(prevProps) {
+        if (this.props.apiMethod === prevProps.apiMethod) {
+            return;
         }
-    },
+
+        this.fetched = false;
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState({
+            loading: true,
+            retrying: false,
+            error: null,
+        }, () => {
+            this.loadData();
+        });
+    }
 
     loadData() {
-    // Don't load any data if we have already fetched it
+        // Don't load any data if we have already fetched it
         if (this.fetched) {
             return;
         }
@@ -52,7 +68,7 @@ export default React.createClass({
         this.callApi();
 
         this.fetched = true;
-    },
+    }
 
     callApi() {
         clearInterval(this.interval);
@@ -95,7 +111,7 @@ export default React.createClass({
                 retryingIn: Math.round(data / 1000),
             });
         });
-    },
+    }
 
     /**
      * Refreshes our data with the given filters
@@ -112,7 +128,7 @@ export default React.createClass({
                 data: this.filterData(filters),
             });
         }
-    },
+    }
 
     filterData(filters) {
         return _.filter(this.unfilteredData, (item) => {
@@ -126,10 +142,10 @@ export default React.createClass({
                 return false;
             }
             return (filters.improvement && isImprovement)
-        || (filters.task && isTask)
-        || (filters.feature && isFeature);
+                || (filters.task && isTask)
+                || (filters.feature && isFeature);
         });
-    },
+    }
 
     render() {
         if (this.state.error) {
@@ -180,5 +196,10 @@ export default React.createClass({
                 </div>
             </div>
         );
-    },
-});
+    }
+}
+
+Contents.propTypes = propTypes;
+Contents.defaultProps = defaultProps;
+
+export default Contents;
