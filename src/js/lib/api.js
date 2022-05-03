@@ -305,6 +305,7 @@ function getIssuesByLabel(label, assignee, cb, retryCb) {
     query += '+repo:Expensify/App';
     query += '+repo:Expensify/Insiders';
     query += '+repo:Expensify/VendorTasks';
+    query += '+repo:Expensify/Expensify-Guides';
 
     if (assignee === 'none') {
         query += '+no:assignee';
@@ -463,6 +464,7 @@ function getIssuesByArea(area, cb, retryCb) {
         query += '+repo:Expensify/App';
         query += '+repo:Expensify/VendorTasks';
         query += '+repo:Expensify/Insiders';
+        query += '+repo:Expensify/Expensify-Guides';
         query += '&page=1';
 
         url = `${baseUrl}/search/issues${query}`;
@@ -681,13 +683,14 @@ function getPullsAuthored(cb) {
 function getDailyImprovements(cb) {
     let query = '?q=';
 
-    // Get the PRs assigned to me
+    // Get all the open issues with no assignees
     query += '+state:open';
     query += '+is:issue';
     query += '+repo:Expensify/Expensify';
     query += '+repo:Expensify/App';
     query += '+repo:Expensify/VendorTasks';
     query += '+repo:Expensify/Insiders';
+    query += '+repo:Expensify/Expensify-Guides';
     query += '+no:assignee';
     query += '+label:improvement';
     query += '+label:daily';
