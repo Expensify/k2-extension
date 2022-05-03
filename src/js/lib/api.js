@@ -682,8 +682,8 @@ function getPullsAuthored(cb) {
  */
 function getDailyImprovements(cb) {
     let query = '?q=';
-    
-    //Get all the open issues with no assignees
+
+    // Get all the open issues with no assignees
     query += '+state:open';
     query += '+is:issue';
     query += '+repo:Expensify/Expensify';
