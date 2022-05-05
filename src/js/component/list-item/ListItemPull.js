@@ -1,7 +1,5 @@
 import React from 'react';
 import moment from 'moment';
-import AssigneeNone from '../assignee/AssigneeNone';
-import Assignee from '../assignee/Assignee';
 import PropTypes from 'prop-types';
 
 const propTypes = {
@@ -52,29 +50,28 @@ const ListItemPull = (props) => {
         const days = 7;
 
         // See if it's overdue
-        const isOverdue = moment(this.props.data.updated_at).isBefore(today.subtract(days, 'days'), 'day');
+        const isOverdue = moment(props.data.updated_at).isBefore(today.subtract(days, 'days'), 'day');
 
         if (isOverdue) {
             className += ' overdue';
         }
 
-        if (this.props.data.title.indexOf('[HOLD') > -1
-            || this.props.data.title.indexOf('[WIP') > -1) {
+        if (props.data.title.indexOf('[HOLD') > -1
+            || props.data.title.indexOf('[WIP') > -1) {
             className += ' hold';
         }
 
         return className;
     }
 
-    if (!this.props.data.pr || this.props.data.pr.merged) {
+    if (!props.data.pr || props.data.pr.merged) {
         // This should not be reached unless there is a GitHub API error. Since we
         // have seen some such errors, filter out already-merged PRs or PRs with
         // missing data.
         return null;
     }
 
-    let person = '';
-    const mergeableState = this.props.data.pr.mergeable_state || 'unknown';
+    const mergeableState = props.data.pr.mergeable_state || 'unknown';
     let mergeability = '';
 
     switch (mergeableState) {
@@ -82,7 +79,7 @@ const ListItemPull = (props) => {
             mergeability = 'Merge Conflicts';
             break;
         case 'blocked':
-            if (!this.props.data.reviews || !this.props.data.reviews.length) {
+            if (!props.data.reviews || !props.data.reviews.length) {
                 mergeability = 'Needs Review';
             } else {
                 mergeability = 'Changes Requested';
@@ -109,54 +106,53 @@ const ListItemPull = (props) => {
     return (
         <div className="panel-item">
 
-                <span className="panel-item-meta">
-                    {person}
+            <span className="panel-item-meta">
+                <span className="age">
+                    Updated:
+                    {moment(props.data.updated_at).fromNow()}
+                </span>
 
-                    <span className="age">
-                        Updated:
-                        {moment(this.props.data.updated_at).fromNow()}
-                    </span>
+                <span className="comments">
+                    Comments:
+                    {' '}
+                    {props.data.comments}
+                </span>
 
-                    <span className="comments">
-                        Comments:
-                        {' '}
-                        {this.props.data.comments}
-                    </span>
+                <span className="comments">
+                    Reviews:
+                    {' '}
+                    {props.data.reviews.length}
+                </span>
 
-                    <span className="comments">
-                        Reviews:
-                        {' '}
-                        {this.props.data.reviews.length}
-                    </span>
+                {props.data.pr.status && props.data.pr.status.length && props.data.pr.status[0].state
+                    ? (
+                        <span className={`travis-status ${props.data.pr.status[0].state}`}>
+                            Travis:
+                            {' '}
+                            {props.data.pr.status[0].state}
+                            ,
+                        </span>
+                    )
+                    : null}
 
-                    {this.props.data.pr.status && this.props.data.pr.status.length && this.props.data.pr.status[0].state
-                        ? (
-                            <span className={`travis-status ${this.props.data.pr.status[0].state}`}>
-                                Travis:
-                                {' '}
-                                {this.props.data.pr.status[0].state}
-                                ,
-                            </span>
-                        )
-                        : null}
-
-                    {mergeability && (
-                        <span className={`mergeable-state ${mergeableState}`}>
+                {mergeability && (
+                    <span className={`mergeable-state ${mergeableState}`}>
                         {mergeability}
                     </span>
-                    )}
-                </span>
-            <a href={this.props.data.html_url} className={getClassName()} target="_blank" rel="noreferrer">
+                )}
+            </span>
+
+            <a href={props.data.html_url} className={getClassName()} target="_blank" rel="noreferrer">
                 <span className="octicon octicon-alert" />
-                {this.props.data.title}
+                {props.data.title}
                 {' '}
             </a>
 
-            {this.props.data.userIsFinishedReviewing ? (
+            {props.data.userIsFinishedReviewing ? (
                 <span>
-                        <span className="Counter">done reviewing</span>
+                    <span className="Counter">done reviewing</span>
                     {' '}
-                    </span>
+                </span>
             ) : null}
 
             {mergeableState === 'draft' ? (
@@ -164,6 +160,8 @@ const ListItemPull = (props) => {
             ) : null}
         </div>
     );
-}
+};
+
+ListItemPull.propTypes = propTypes;
 
 export default ListItemPull;
