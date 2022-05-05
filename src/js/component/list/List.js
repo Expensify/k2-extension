@@ -59,15 +59,14 @@ export default React.createClass({
      */
     getItems() {
         const type = this.props.type;
-        const options = this.props.options;
 
         return _.map(this.state.data, (item) => {
             let result;
             switch (type) {
-                case 'issue': result = (<ListItemIssue key={`issue_${item.id}`} data={item} options={options} />); break;
-                case 'pull': result = (<ListItemPull key={`pull_${item.id}`} data={item} options={options} />); break;
-                case 'review': result = (<ListItemPull key={`review_${item.id}`} data={item} options={options} />); break;
-                case 'form': result = (<ListItemForm key={`form_${item.id}`} data={item} options={options} />); break;
+                case 'issue': result = (<ListItemIssue key={`issue_${item.id}`} data={item} />); break;
+                case 'pull': result = (<ListItemPull key={`pull_${item.id}`} data={item} />); break;
+                case 'review': result = (<ListItemPull key={`review_${item.id}`} data={item} />); break;
+                case 'form': result = (<ListItemForm key={`form_${item.id}`} data={item} />); break;
                 default: result = null;
             }
             return result;

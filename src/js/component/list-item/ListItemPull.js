@@ -2,17 +2,51 @@ import React from 'react';
 import moment from 'moment';
 import AssigneeNone from '../assignee/AssigneeNone';
 import Assignee from '../assignee/Assignee';
+import PropTypes from 'prop-types';
 
-export default React.createClass({
+const propTypes = {
+    /** Data about the pull request being displayed */
+    data: PropTypes.shape({
+        /** The date that the PR was updated */
+        updated_at: PropTypes.string.isRequired,
 
-    /**
-     * Gets the class name for the item
-     *
-     * @date 2015-06-10
-     *
-     * @return {string}
-     */
-    getClassName() {
+        /** The title of the PR */
+        title: PropTypes.string.isRequired,
+
+        /** The URL to the PR */
+        html_url: PropTypes.string.isRequired,
+
+        /** The user login of the person assigned to the PR */
+        login: PropTypes.string.isRequired,
+
+        /** The comments on the PR */
+        comments: PropTypes.arrayOf(PropTypes.string).isRequired,
+
+        /** Whether or not the user is done reviewing */
+        userIsFinishedReviewing: PropTypes.bool.isRequired,
+
+        /** Information about the PR from GitHub */
+        pr: PropTypes.shape({
+            /** Whether or not the PR is merged */
+            merged: PropTypes.bool.isRequired,
+
+            /** The current state of the PR merge */
+            mergeable_state: PropTypes.string.isRequired,
+
+            /** Travis Status of the PR */
+            status: PropTypes.arrayOf(PropTypes.shape({
+                /** Current state of the travis tests */
+                state: PropTypes.string.isRequired,
+            })).isRequired,
+        }),
+
+        /** Information about review on the PR */
+        reviews: PropTypes.arrayOf(PropTypes.object),
+    }).isRequired,
+};
+
+const ListItemPull = (props) => {
+    function getClassName() {
         let className = 'issue';
         const today = moment();
         const days = 7;
@@ -25,65 +59,55 @@ export default React.createClass({
         }
 
         if (this.props.data.title.indexOf('[HOLD') > -1
-        || this.props.data.title.indexOf('[WIP') > -1) {
+            || this.props.data.title.indexOf('[WIP') > -1) {
             className += ' hold';
         }
 
         return className;
-    },
+    }
 
-    render() {
-        if (!this.props.data.pr || this.props.data.pr.merged) {
-            // This should not be reached unless there is a GitHub API error. Since we
-            // have seen some such errors, filter out already-merged PRs or PRs with
-            // missing data.
-            return null;
-        }
+    if (!this.props.data.pr || this.props.data.pr.merged) {
+        // This should not be reached unless there is a GitHub API error. Since we
+        // have seen some such errors, filter out already-merged PRs or PRs with
+        // missing data.
+        return null;
+    }
 
-        let person = '';
-        const mergeableState = this.props.data.pr.mergeable_state || 'unknown';
-        let mergeability = '';
+    let person = '';
+    const mergeableState = this.props.data.pr.mergeable_state || 'unknown';
+    let mergeability = '';
 
-        switch (mergeableState) {
-            case 'dirty':
-                mergeability = 'Merge Conflicts';
-                break;
-            case 'blocked':
-                if (!this.props.data.reviews || !this.props.data.reviews.length) {
-                    mergeability = 'Needs Review';
-                } else {
-                    mergeability = 'Changes Requested';
-                }
-                break;
-            case 'behind':
-                mergeability = 'Branch Behind';
-                break;
-            case 'unstable':
-                mergeability = 'Merge With Caution';
-                break;
-            case 'has_hooks':
-            case 'clean':
-                mergeability = 'Approved';
-                break;
-            case 'draft':
-                mergeability = 'Draft';
-                break;
-            case 'unknown':
-            default:
-                mergeability = 'Mergeability Unknown';
-        }
-
-        // If we are showing the assignee, we need to figure which template to display
-        if (this.props.options.showAssignee) {
-            if (this.props.data.assignee) {
-                person = <Assignee html_url={this.props.data.html_url} login={this.props.data.login} />;
+    switch (mergeableState) {
+        case 'dirty':
+            mergeability = 'Merge Conflicts';
+            break;
+        case 'blocked':
+            if (!this.props.data.reviews || !this.props.data.reviews.length) {
+                mergeability = 'Needs Review';
             } else {
-                person = <AssigneeNone />;
+                mergeability = 'Changes Requested';
             }
-        }
+            break;
+        case 'behind':
+            mergeability = 'Branch Behind';
+            break;
+        case 'unstable':
+            mergeability = 'Merge With Caution';
+            break;
+        case 'has_hooks':
+        case 'clean':
+            mergeability = 'Approved';
+            break;
+        case 'draft':
+            mergeability = 'Draft';
+            break;
+        case 'unknown':
+        default:
+            mergeability = 'Mergeability Unknown';
+    }
 
-        return (
-            <div className="panel-item">
+    return (
+        <div className="panel-item">
 
                 <span className="panel-item-meta">
                     {person}
@@ -92,19 +116,18 @@ export default React.createClass({
                         Updated:
                         {moment(this.props.data.updated_at).fromNow()}
                     </span>
+
                     <span className="comments">
                         Comments:
                         {' '}
                         {this.props.data.comments}
                     </span>
 
-                    {this.props.showReviews ? (
-                        <span className="comments">
-                            Reviews:
-                            {' '}
-                            {this.props.data.reviews.length}
-                        </span>
-                    ) : null}
+                    <span className="comments">
+                        Reviews:
+                        {' '}
+                        {this.props.data.reviews.length}
+                    </span>
 
                     {this.props.data.pr.status && this.props.data.pr.status.length && this.props.data.pr.status[0].state
                         ? (
@@ -118,28 +141,29 @@ export default React.createClass({
                         : null}
 
                     {mergeability && (
-                    <span className={`mergeable-state ${mergeableState}`}>
+                        <span className={`mergeable-state ${mergeableState}`}>
                         {mergeability}
                     </span>
                     )}
                 </span>
-                <a href={this.props.data.html_url} className={this.getClassName()} target="_blank" rel="noreferrer">
-                    <span className="octicon octicon-alert" />
-                    {this.props.data.title}
-                    {' '}
-                </a>
+            <a href={this.props.data.html_url} className={getClassName()} target="_blank" rel="noreferrer">
+                <span className="octicon octicon-alert" />
+                {this.props.data.title}
+                {' '}
+            </a>
 
-                {this.props.data.userIsFinishedReviewing ? (
-                    <span>
+            {this.props.data.userIsFinishedReviewing ? (
+                <span>
                         <span className="Counter">done reviewing</span>
-                        {' '}
+                    {' '}
                     </span>
-                ) : null}
+            ) : null}
 
-                {mergeableState === 'draft' ? (
-                    <span className="Counter">draft</span>
-                ) : null}
-            </div>
-        );
-    },
-});
+            {mergeableState === 'draft' ? (
+                <span className="Counter">draft</span>
+            ) : null}
+        </div>
+    );
+}
+
+export default ListItemPull;

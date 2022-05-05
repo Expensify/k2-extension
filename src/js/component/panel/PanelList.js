@@ -52,12 +52,9 @@ export default React.createClass({
                 <List
                     ref={el => this.list = el}
                     type={this.props.item}
-                    options={this.props.options}
                     action={this.props.action}
                     store={this.props.store}
                     data={this.props.list}
-                    // eslint-disable-next-line react/jsx-props-no-spreading
-                    {...this.props.listOptions}
                 />
                 {this.props.children}
             </div>

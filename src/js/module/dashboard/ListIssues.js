@@ -145,7 +145,6 @@ class ListIssues extends React.Component {
                         title="Your Pull Requests"
                         action={ActionsPullAssigned}
                         store={StorePullAssigned}
-                        options={{showAssignee: false, showReviews: true}}
                         item="pull"
                         pollInterval={this.props.pollInterval * 2}
                     />
@@ -156,7 +155,6 @@ class ListIssues extends React.Component {
                         title="Review Requests - You need to finish reviewing"
                         action={ActionsPullReviewing}
                         store={StorePullReviewing}
-                        options={{showAssignee: false, showReviews: true}}
                         item="pull"
                         pollInterval={this.props.pollInterval * 2.5}
                     />
