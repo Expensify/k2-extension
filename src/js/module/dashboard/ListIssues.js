@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as prefs from '../../lib/prefs';
-import Filters from './filters';
+import Filters from './Filters';
 import Tabs from '../../component/tabs/tabs';
 
 import StoreIssueAssigned from '../../store/issue.all.assigned';
