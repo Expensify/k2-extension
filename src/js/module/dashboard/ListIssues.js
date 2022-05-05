@@ -162,7 +162,7 @@ class ListIssues extends React.Component {
                     />
                 </div>
                 <br />
-                <Filters filter={this.filterIssues} />
+                <Filters onChange={this.filterIssues} />
                 <br />
                 <div>
                     <Tabs

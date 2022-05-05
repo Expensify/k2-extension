@@ -1,19 +1,25 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import React from 'react';
+import PropTypes from 'prop-types';
 import * as prefs from '../../lib/prefs';
 import * as API from '../../lib/api';
 
-export default React.createClass({
-    propTypes: {
-        filter: React.PropTypes.func.isRequired,
-    },
+const propTypes = {
+    /** A callback that is triggered when a filter has changed */
+    onChange: PropTypes.func.isRequired,
+};
 
-    getInitialState() {
-        return {
+class Filters extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.saveFilters = this.saveFilters.bind(this);
+
+        this.state = {
             milestones: [],
         };
-    },
+    }
 
     componentDidMount() {
         API.getMilestones('all', (err, milestones) => {
@@ -34,7 +40,7 @@ export default React.createClass({
 
             this.setState(newState, this.updateFilterFields);
         });
-    },
+    }
 
     updateFilterFields() {
         prefs.get('issueFilters', (issueFilters) => {
@@ -46,14 +52,14 @@ export default React.createClass({
             this.fieldFeature.checked = issueFilters.feature;
             $(this.fieldMilestone).val(issueFilters.milestone);
         });
-    },
+    }
 
     /**
      * Handle the form being submitted
      *
      * @param {SyntheticEvent} e
      */
-    submit(e) {
+    saveFilters(e) {
         e.preventDefault();
 
         // Get our filter values
@@ -67,13 +73,13 @@ export default React.createClass({
         prefs.set('issueFilters', newFilters);
 
         // Trigger our filter callback
-        _.filter(this.props, newFilters);
-    },
+        this.props.onChange(newFilters);
+    }
 
     render() {
         return (
             <div className="">
-                <form className="form-inline" onSubmit={this.submit}>
+                <form className="form-inline" onSubmit={this.saveFilters}>
                     Filter by:
                     <div className="checkbox">
                         <label>
@@ -114,5 +120,9 @@ export default React.createClass({
                 </form>
             </div>
         );
-    },
-});
+    }
+}
+
+Filters.propTypes = propTypes;
+
+export default Filters;
