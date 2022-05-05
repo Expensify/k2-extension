@@ -1,62 +1,63 @@
 import React from 'react';
 import _ from 'underscore';
+import PropTypes from 'prop-types';
 import ListItemIssue from '../list-item/ListItemIssue';
 import ListItemPull from '../list-item/ListItemPull';
 import ListItemForm from '../list-item/ListItemForm';
 
-/**
- * List
- *
- * Display a list of items depending on the type
- *
- * @param {array} data which will be displayed as items
- * @param {object} options
- */
+const propTypes = {
+    /** The `Alt` action used to fetch data */
+    // eslint-disable-next-line react/forbid-prop-types
+    action: PropTypes.object,
 
-export default React.createClass({
-    getInitialState() {
+    /** The `Alt` store that holds the data for the list */
+    // eslint-disable-next-line react/forbid-prop-types
+    store: PropTypes.object,
+
+    /** Data to display in the list */
+    data: PropTypes.arrayOf(PropTypes.object).isRequired,
+
+    /** The type of list items to display */
+    type: PropTypes.oneOf(['pull', 'issue', 'review', 'form']).isRequired,
+};
+
+const defaultProps = {
+    action: null,
+    store: null,
+};
+
+class List extends React.Component {
+    constructor(props) {
+        super(props);
+
         if (!this.props.store) {
-            return {data: this.props.data};
+            this.state = {data: this.props.data};
+        } else {
+            this.state = this.props.store.getState();
         }
-        return this.props.store.getState();
-    },
-
-    fetch() {
-        if (!this.props.action) {
-            return;
-        }
-        this.props.action.fetch();
-    },
+    }
 
     componentDidMount() {
         if (!this.props.store) {
             return;
         }
         this.props.store.listen(this.onStoreChange);
-    },
+    }
 
     componentWillUnmount() {
         if (!this.props.store) {
             return;
         }
         this.props.store.unlisten(this.onStoreChange);
-    },
+    }
 
     onStoreChange() {
         if (!this.props.store) {
             return;
         }
         this.setState(this.props.store.getState());
-    },
+    }
 
-    /**
-     * Gets the items to display using the proper item
-     * component
-     *
-     * @date 2015-06-10
-     *
-     * @return {array}
-     */
     getItems() {
         const type = this.props.type;
 
@@ -71,7 +72,14 @@ export default React.createClass({
             }
             return result;
         });
-    },
+    }
+
+    fetch() {
+        if (!this.props.action) {
+            return;
+        }
+        this.props.action.fetch();
+    }
 
     render() {
         if (this.state.loading) {
@@ -103,5 +111,10 @@ export default React.createClass({
                 {this.getItems()}
             </div>
         );
-    },
-});
+    }
+}
+
+List.propTypes = propTypes;
+List.defaultProps = defaultProps;
+
+export default List;
