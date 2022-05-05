@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Picker from './picker';
+import Picker from './Picker'
 
 export default function () {
     return {
