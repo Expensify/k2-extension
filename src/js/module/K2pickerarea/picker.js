@@ -5,16 +5,11 @@ import * as API from '../../lib/api';
 
 const defaultBtnClass = 'btn btn-sm';
 
-export default React.createClass({
-    /**
-     * Sets the initial class names for all of our buttons
-     *
-     * @date 2015-07-30
-     *
-     * @return {Object}
-     */
-    getInitialState() {
-        const state = {
+class Picker extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
             Engineering: {
                 className: `${defaultBtnClass} inactive k2-web`,
                 shortName: '💻 Engineering',
@@ -47,16 +42,11 @@ export default React.createClass({
         // eslint-disable-next-line rulesdir/prefer-underscore-method
         $('.js-issue-labels .IssueLabel').each(function () {
             const label = $(this).text().trim();
-            if (state[label]) {
-                state[label].className = state[label].className.replace('inactive', 'active');
+            if (this.state[label]) {
+                this.state[label].className = this.state[label].className.replace('inactive', 'active');
             }
         });
-        return state;
-    },
-
-    clickNSave(label) {
-        this.setActiveLabel(label);
-    },
+    }
 
     /**
      * Sets a single label to be active (or if already active, then turns all of them off)
@@ -77,7 +67,12 @@ export default React.createClass({
         }
 
         this.setState(newState);
-    },
+    }
+
+    clickNSave(label) {
+        this.setActiveLabel(label);
+    }
+
     render() {
         return (
             <div>
@@ -98,5 +93,7 @@ export default React.createClass({
                 </div>
             </div>
         );
-    },
-});
+    }
+}
+
+export default Picker;
