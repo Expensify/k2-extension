@@ -1,34 +1,36 @@
 import $ from 'jquery';
 import React from 'react';
 import _ from 'underscore';
+import PropTypes from 'prop-types';
 import * as prefs from '../../lib/prefs';
 import PanelList from '../../component/panel/PanelList';
 
-/**
- * FORM - Password
- *
- * Displays a form to get the user's password
- *
- * @param {Function} onFinished called when the form is done
- */
-export default React.createClass({
+const propTypes = {
+    /** A callback function that is triggered after the form is submitted */
+    onFinished: PropTypes.func,
+};
+const defaultProps = {
+    onFinished: () => {},
+};
 
-    /**
-     * The items which will be displayed in our form
-     *
-     * @type {Array}
-     */
-    items: [
-        {
-            id: 'password',
-            type: 'password',
-            label: 'Personal Access Token',
-            className: 'input-block',
-            hint: 'A personal access token is required to make custom queries agains the GitHub.com API.',
-            required: true,
-            focus: true,
-        },
-    ],
+class FormPassword extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.submitForm = this.submitForm.bind(this);
+
+        this.items = [
+            {
+                id: 'password',
+                type: 'password',
+                label: 'Personal Access Token',
+                className: 'input-block',
+                hint: 'A personal access token is required to make custom queries agains the GitHub.com API.',
+                required: true,
+                focus: true,
+            },
+        ];
+    }
 
     /**
      * Get the password and store it as a user preference
@@ -51,7 +53,7 @@ export default React.createClass({
         });
 
         e.preventDefault();
-    },
+    }
 
     render() {
         return (
@@ -69,5 +71,10 @@ export default React.createClass({
                 </div>
             </div>
         );
-    },
-});
+    }
+}
+
+FormPassword.propTypes = propTypes;
+FormPassword.defaultProps = defaultProps;
+
+export default FormPassword;
