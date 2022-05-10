@@ -32,25 +32,24 @@ class PanelList extends React.Component {
     }
 
     componentDidMount() {
-        if (!this.fetched) {
-            this.fetch();
-        }
-        if (this.props.pollInterval && !this.interval) {
-            this.interval = setInterval(this.fetch, this.props.pollInterval);
-        }
+        this.setupFetchAndRefreshInterval();
     }
 
     componentDidUpdate() {
-        if (!this.fetched) {
-            this.fetch();
-        }
-        if (this.props.pollInterval && !this.interval) {
-            this.interval = setInterval(this.fetch, this.props.pollInterval);
-        }
+        this.setupFetchAndRefreshInterval();
     }
 
     componentWillUnmount() {
         clearInterval(this.interval);
+    }
+
+    setupFetchAndRefreshInterval() {
+        if (!this.fetched) {
+            this.fetch();
+        }
+        if (this.props.pollInterval && !this.interval) {
+            this.interval = setInterval(this.fetch, this.props.pollInterval);
+        }
     }
 
     getPanelClass() {
