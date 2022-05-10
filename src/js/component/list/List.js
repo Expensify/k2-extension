@@ -1,24 +1,12 @@
 import React from 'react';
 import _ from 'underscore';
-import PropTypes from 'prop-types';
 import ListItemIssue from '../list-item/ListItemIssue';
 import ListItemPull from '../list-item/ListItemPull';
 import ListItemForm from '../list-item/ListItemForm';
+import listPropTypes from './listPropTypes';
 
 const propTypes = {
-    /** The `Alt` action used to fetch data */
-    // eslint-disable-next-line react/forbid-prop-types
-    action: PropTypes.object,
-
-    /** The `Alt` store that holds the data for the list */
-    // eslint-disable-next-line react/forbid-prop-types
-    store: PropTypes.object,
-
-    /** Data to display in the list */
-    data: PropTypes.arrayOf(PropTypes.object).isRequired,
-
-    /** The type of list items to display */
-    type: PropTypes.oneOf(['pull', 'issue', 'review', 'form']).isRequired,
+    ...listPropTypes,
 };
 
 const defaultProps = {
