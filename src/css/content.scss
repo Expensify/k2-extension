@@ -494,3 +494,8 @@ $color-dark-yellow: #DAA520;
     }
   }
 }
+
+#partial-discussion-sidebar[data-url^="/Expensify/"] {
+  position: sticky;
+  top: 60px;
+}
