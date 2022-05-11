@@ -1,3 +1,6 @@
+#0.10.10
+- Make the right sidebar on issues sticky
+
 #0.10.9
 - Add Expensify/Expensify Guides repo issues to dashboard
 
