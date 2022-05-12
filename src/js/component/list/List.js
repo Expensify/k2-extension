@@ -18,6 +18,8 @@ class List extends React.Component {
     constructor(props) {
         super(props);
 
+        this.onStoreChange = this.onStoreChange.bind(this);
+
         if (!this.props.store) {
             this.state = {data: this.props.data};
         } else {

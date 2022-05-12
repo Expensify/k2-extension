@@ -15,14 +15,15 @@ const propTypes = {
     title: PropTypes.string.isRequired,
 
     /** Elements to display inside the panel */
-    children: PropTypes.element.isRequired,
+    children: PropTypes.element,
 
     ...listPropTypes,
 };
 
 const defaultProps = {
-    pollInterval: null,
+    children: null,
     extraClass: '',
+    pollInterval: null,
 };
 
 class PanelList extends React.Component {

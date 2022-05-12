@@ -5,7 +5,7 @@ import Contents from './Contents';
 
 const propTypes = {
     /** Information about the tabs to display */
-    items: PropTypes.arrayOf().isRequired,
+    items: PropTypes.arrayOf(PropTypes.object).isRequired,
 
     /** The type of items being displayed */
     type: PropTypes.string.isRequired,

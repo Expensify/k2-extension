@@ -19,6 +19,9 @@ const propTypes = {
 class ListIssuesAssigned extends React.Component {
     constructor(props) {
         super(props);
+
+        this.onStoreChange = this.onStoreChange.bind(this);
+
         this.state = this.props.store.getState();
     }
 

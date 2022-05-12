@@ -13,7 +13,7 @@ const propTypes = {
     apiMethod: PropTypes.string.isRequired,
 
     /** The type of items that are being displayed */
-    type: PropTypes.oneOf(['issues']).isRequired,
+    type: PropTypes.oneOf(['issue']).isRequired,
 
     /** The number of milliseconds that will be used for refreshing the data */
     pollInterval: PropTypes.number.isRequired,
