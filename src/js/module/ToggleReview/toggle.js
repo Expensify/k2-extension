@@ -27,14 +27,6 @@ class Toggle extends React.Component {
     /**
      * @param {String} label
      */
-    clickNSave(label) {
-        this.saveNewLabel(label);
-        this.setActiveLabel(label);
-    }
-
-    /**
-     * @param {String} label
-     */
     setActiveLabel(label) {
         const initialState = this.getInitialState();
         let newState = {};
@@ -74,6 +66,14 @@ class Toggle extends React.Component {
         } else {
             API.removeLabel(label);
         }
+    }
+
+    /**
+     * @param {String} label
+     */
+    clickNSave(label) {
+        this.saveNewLabel(label);
+        this.setActiveLabel(label);
     }
 
     render() {
