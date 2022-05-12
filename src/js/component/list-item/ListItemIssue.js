@@ -1,7 +1,38 @@
 import React from 'react';
 import _ from 'underscore';
+import PropTypes from 'prop-types';
 
-export default React.createClass({
+const propTypes = {
+    /** Information about the issue that is being displayed */
+    data: PropTypes.shape({
+        /** The URL to the issue in GH */
+        html_url: PropTypes.string.isRequired,
+
+        /** The labels that the issue is assigned to */
+        labels: PropTypes.arrayOf(PropTypes.string).isRequired,
+
+        /** The title of the issue */
+        title: PropTypes.string.isRequired,
+    }).isRequired,
+};
+
+class ListItemIssue extends React.Component {
+    getClassName() {
+        let className = 'panel-item issue';
+
+        // See if it's under review
+
+        if (this.isUnderReview) {
+            className += ' reviewing';
+        }
+
+        if (this.isOverdue) {
+            className += ' overdue';
+        }
+
+        return className + this.isPlanning + this.isWaitingOnCustomer + this.isHeld + this.isChallengeSent + this.isContributorAssigned;
+    }
+
     parseIssue() {
         this.isExternal = _.some(this.props.data.labels, {name: 'External'}) ? <sup>E</sup> : null;
         this.isImprovement = _.findWhere(this.props.data.labels, {name: 'Improvement'}) ? <sup>I</sup> : null;
@@ -21,26 +52,17 @@ export default React.createClass({
         this.isChallengeSent = _.findWhere(this.props.data.labels, {name: 'Take Home Challenge Sent'}) ? ' challenge-sent' : '';
         this.isContributorAssigned = _.some(this.props.data.labels, {name: 'Exported'}) && !_.some(this.props.data.labels, {name: 'Help Wanted'}) ? ' contributor-assigned' : '';
         this.isUnderReview = _.find(this.props.data.labels, label => label.name.toLowerCase() === 'reviewing');
-    },
-    getClassName() {
-        let className = 'panel-item issue';
+    }
 
-        // See if it's under review
-
-        if (this.isUnderReview) {
-            className += ' reviewing';
-        }
-
-        if (this.isOverdue) {
-            className += ' overdue';
-        }
-
-        return className + this.isPlanning + this.isWaitingOnCustomer + this.isHeld + this.isChallengeSent + this.isContributorAssigned;
-    },
     render() {
         this.parseIssue();
         return (
-            <a href={this.props.data.html_url} className={this.getClassName()} target="_blank" rel="noreferrer">
+            <a
+                href={this.props.data.html_url}
+                className={this.getClassName()}
+                target="_blank"
+                rel="noopener noreferrer"
+            >
                 {this.isHourly}
                 {this.isDaily}
                 {this.isWeekly}
@@ -55,5 +77,9 @@ export default React.createClass({
                 {this.props.data.title}
             </a>
         );
-    },
-});
+    }
+}
+
+ListItemIssue.propTypes = propTypes;
+
+export default ListItemIssue;
