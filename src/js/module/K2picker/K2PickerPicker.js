@@ -4,31 +4,25 @@ import React from 'react';
 import BtnGroup from '../../component/BtnGroup';
 import * as API from '../../lib/api';
 
-const defaultBtnClass = 'btn btn-sm tooltipped tooltipped-n typepicker';
+const defaultBtnClass = 'btn btn-sm tooltipped tooltipped-n';
 
-class Picker extends React.Component {
-    /**
-     * @return {Object}
-     */
-    getInitialState() {
-        return {
-            Improvement: `${defaultBtnClass} k2-improvement`,
-            Task: `${defaultBtnClass} k2-task`,
-            NewFeature: `${defaultBtnClass} k2-newfeature`,
+class K2PickerPicker extends React.Component {
+    constructor(props) {
+        super(props);
+        this.initialState = {
+            Hourly: `${defaultBtnClass} k2-hourly`,
+            Daily: `${defaultBtnClass} k2-daily`,
+            Weekly: `${defaultBtnClass} k2-weekly`,
+            Monthly: `${defaultBtnClass} k2-monthly`,
         };
+        this.state = this.initialState;
     }
 
-    /**
-     * When the component has renered, we need to see if there
-     * is an existing label, and if so, make that button enabled
-     *
-     * @date 2015-07-30
-     */
     componentDidMount() {
         // eslint-disable-next-line rulesdir/prefer-underscore-method
         $('.js-issue-labels .IssueLabel').each((i, el) => {
             const label = $(el).text().trim();
-            if (['Improvement', 'Task', 'NewFeature'].indexOf(label) > -1) {
+            if (['Hourly', 'Daily', 'Weekly', 'Monthly'].indexOf(label) > -1) {
                 this.setActiveLabel(label);
             }
         });
@@ -38,18 +32,17 @@ class Picker extends React.Component {
      * @param {String} label
      */
     setActiveLabel(label) {
-        const initialState = this.getInitialState();
         let newState = {};
 
         // If that label is already active, then set everything back
         // to the default (which removes all labels)
         if (this.state[label].indexOf(' active') > -1) {
-            this.setState(initialState);
+            this.setState(this.initialState);
             return;
         }
 
         // Set all the proper active/inactive classes
-        newState = _.mapObject(initialState, (val, key) => (key === label
+        newState = _.mapObject(this.initialState, (val, key) => (key === label
             ? `${defaultBtnClass} k2-${key.toLowerCase()} active`
             : `${defaultBtnClass} k2-${key.toLowerCase()} inactive`));
         this.setState(newState);
@@ -90,31 +83,39 @@ class Picker extends React.Component {
         return (
             <div>
                 {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                <label>Type</label>
+                <label>Priority</label>
                 <BtnGroup>
                     <button
                         type="button"
-                        className={this.state.Improvement}
-                        aria-label="Improvement"
-                        onClick={() => this.clickNSave('Improvement')}
+                        className={this.state.Hourly}
+                        aria-label="Hourly"
+                        onClick={() => this.clickNSave('Hourly')}
                     >
-                        Improv.
+                        H
                     </button>
                     <button
                         type="button"
-                        className={this.state.Task}
-                        aria-label="Task"
-                        onClick={() => this.clickNSave('Task')}
+                        className={this.state.Daily}
+                        aria-label="Daily"
+                        onClick={() => this.clickNSave('Daily')}
                     >
-                        Task
+                        D
                     </button>
                     <button
                         type="button"
-                        className={this.state.NewFeature}
-                        aria-label="New Feature"
-                        onClick={() => this.clickNSave('NewFeature')}
+                        className={this.state.Weekly}
+                        aria-label="Weekly"
+                        onClick={() => this.clickNSave('Weekly')}
                     >
-                        New Feat.
+                        W
+                    </button>
+                    <button
+                        type="button"
+                        className={this.state.Monthly}
+                        aria-label="Monthly"
+                        onClick={() => this.clickNSave('Monthly')}
+                    >
+                        M
                     </button>
                 </BtnGroup>
             </div>
@@ -122,4 +123,4 @@ class Picker extends React.Component {
     }
 }
 
-export default Picker;
+export default K2PickerPicker;

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Picker from './Picker';
+import K2PickerPicker from './K2PickerPicker';
 
 /**
  * Displays the picker for the KSV2 Labels
@@ -11,7 +11,7 @@ export default function () {
     return {
         draw() {
             ReactDOM.render(
-                <Picker />,
+                <K2PickerPicker />,
                 document.getElementsByClassName('k2picker-wrapper')[0],
             );
         },

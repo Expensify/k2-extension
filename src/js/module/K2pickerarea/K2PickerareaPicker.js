@@ -5,7 +5,7 @@ import * as API from '../../lib/api';
 
 const defaultBtnClass = 'btn btn-sm';
 
-class Picker extends React.Component {
+class K2PickerareaPicker extends React.Component {
     constructor(props) {
         super(props);
 
@@ -96,4 +96,4 @@ class Picker extends React.Component {
     }
 }
 
-export default Picker;
+export default K2PickerareaPicker;
