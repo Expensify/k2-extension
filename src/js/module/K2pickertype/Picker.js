@@ -6,12 +6,8 @@ import * as API from '../../lib/api';
 
 const defaultBtnClass = 'btn btn-sm tooltipped tooltipped-n typepicker';
 
-export default React.createClass({
+class Picker extends React.Component {
     /**
-     * Sets the initial class names for all of our buttons
-     *
-     * @date 2015-07-30
-     *
      * @return {Object}
      */
     getInitialState() {
@@ -20,7 +16,7 @@ export default React.createClass({
             Task: `${defaultBtnClass} k2-task`,
             NewFeature: `${defaultBtnClass} k2-newfeature`,
         };
-    },
+    }
 
     /**
      * When the component has renered, we need to see if there
@@ -36,38 +32,9 @@ export default React.createClass({
                 this.setActiveLabel(label);
             }
         });
-    },
-
-    saveNewLabel(label) {
-        let previousLabel = null;
-        _.each(this.state, (val, key) => {
-            if (val.search('active') <= -1 || val.search('inactive') !== -1) {
-                return;
-            }
-            previousLabel = key;
-        });
-        if (label !== previousLabel) {
-            API.addLabels([label], () => {
-                if (!previousLabel) {
-                    return;
-                }
-                API.removeLabel(previousLabel);
-            });
-        } else {
-            API.removeLabel(label);
-        }
-    },
-
-    clickNSave(label) {
-        this.saveNewLabel(label);
-        this.setActiveLabel(label);
-    },
+    }
 
     /**
-     * Sets a single label to be active (or if already active, then turns all of them off)
-     *
-     * @date 2015-07-30
-     *
      * @param {String} label
      */
     setActiveLabel(label) {
@@ -86,7 +53,38 @@ export default React.createClass({
             ? `${defaultBtnClass} k2-${key.toLowerCase()} active`
             : `${defaultBtnClass} k2-${key.toLowerCase()} inactive`));
         this.setState(newState);
-    },
+    }
+
+    /**
+     * @param {String} label
+     */
+    clickNSave(label) {
+        this.saveNewLabel(label);
+        this.setActiveLabel(label);
+    }
+
+    /**
+     * @param {String} label
+     */
+    saveNewLabel(label) {
+        let previousLabel = null;
+        _.each(this.state, (val, key) => {
+            if (val.search('active') <= -1 || val.search('inactive') !== -1) {
+                return;
+            }
+            previousLabel = key;
+        });
+        if (label !== previousLabel) {
+            API.addLabels([label], () => {
+                if (!previousLabel) {
+                    return;
+                }
+                API.removeLabel(previousLabel);
+            });
+        } else {
+            API.removeLabel(label);
+        }
+    }
 
     render() {
         return (
@@ -121,5 +119,7 @@ export default React.createClass({
                 </BtnGroup>
             </div>
         );
-    },
-});
+    }
+}
+
+export default Picker;
