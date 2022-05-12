@@ -9,7 +9,10 @@ const propTypes = {
         html_url: PropTypes.string.isRequired,
 
         /** The labels that the issue is assigned to */
-        labels: PropTypes.arrayOf(PropTypes.string).isRequired,
+        labels: PropTypes.arrayOf(PropTypes.shape({
+            /** The name of the label */
+            name: PropTypes.string.isRequired,
+        })).isRequired,
 
         /** The title of the issue */
         title: PropTypes.string.isRequired,

@@ -15,13 +15,13 @@ const propTypes = {
         html_url: PropTypes.string.isRequired,
 
         /** The user login of the person assigned to the PR */
-        login: PropTypes.string.isRequired,
+        login: PropTypes.string,
 
-        /** The comments on the PR */
-        comments: PropTypes.arrayOf(PropTypes.string).isRequired,
+        /** The number of comments on the PR */
+        comments: PropTypes.number.isRequired,
 
         /** Whether or not the user is done reviewing */
-        userIsFinishedReviewing: PropTypes.bool.isRequired,
+        userIsFinishedReviewing: PropTypes.bool,
 
         /** Information about the PR from GitHub */
         pr: PropTypes.shape({

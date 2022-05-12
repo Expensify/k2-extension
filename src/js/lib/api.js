@@ -236,7 +236,7 @@ function getPullsByType(type, cb, getReviews) {
                                 const reviewDismissed = _.findWhere(reviewsByUser, {state: 'DISMISSED'});
                                 const changesRequested = _.findWhere(reviewsByUser, {state: 'CHANGES_REQUESTED'});
                                 // eslint-disable-next-line no-param-reassign
-                                item.userIsFinishedReviewing = !reviewDismissed && ((commented && !changesRequested) || approved);
+                                item.userIsFinishedReviewing = Boolean(!reviewDismissed && ((commented && !changesRequested) || approved));
                                 return done();
                             });
                         };
