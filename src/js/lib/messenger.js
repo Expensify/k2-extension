@@ -44,11 +44,13 @@ function on(eventName, cb) {
  * @param {Object|undefined} data (optional)
  */
 function trigger(eventName, data) {
-    if (listeners[eventName] && listeners[eventName].length) {
-        for (let i = 0; i < listeners[eventName].length; i++) {
-            const callback = listeners[eventName][i];
-            callback.apply(null, data);
-        }
+    if (!listeners[eventName] || !listeners[eventName].length) {
+        return;
+    }
+
+    for (let i = 0; i < listeners[eventName].length; i++) {
+        const callback = listeners[eventName][i];
+        callback(data);
     }
 }
 

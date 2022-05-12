@@ -142,7 +142,7 @@ const ListItemPull = (props) => {
                 )}
             </span>
 
-            <a href={props.data.html_url} className={getClassName()} target="_blank" rel="noreferrer">
+            <a href={props.data.html_url} className={getClassName()} target="_blank" rel="noreferrer noopener">
                 <span className="octicon octicon-alert" />
                 {props.data.title}
                 {' '}

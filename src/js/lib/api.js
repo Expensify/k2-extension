@@ -507,7 +507,6 @@ function addLabels(labels, cb) {
     const issueNum = $('.gh-header-number').first().text().replace('#', '');
     const url = `${baseUrl}/repos/${owner}/${repo}/issues/${issueNum}/labels`;
 
-
     prefs.get('ghToken', (ghToken) => {
         $.ajax({
             url,

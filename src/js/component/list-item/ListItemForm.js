@@ -32,7 +32,6 @@ const ListItemForm = (props) => {
         hint = <p>{props.data.hint}</p>;
     }
 
-
     return (
         <div className="panel-item">
             <label htmlFor={props.data.id}>{props.data.label}</label>
