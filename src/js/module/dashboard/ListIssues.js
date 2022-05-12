@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as prefs from '../../lib/prefs';
 import Filters from './Filters';
-import Tabs from '../../component/tabs/tabs';
+import Tabs from '../../component/tabs/Tabs';
 
 import StoreIssueAssigned from '../../store/issue.all.assigned';
 import StorePullAssigned from '../../store/pull.assigned';
