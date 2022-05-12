@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 const propTypes = {
     /** The things to display inside the btn-group */
-    children: PropTypes.element.isRequired,
+    children: PropTypes.node.isRequired,
 };
 
 const BtnGroup = props => (

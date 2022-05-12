@@ -15,7 +15,7 @@ const propTypes = {
     title: PropTypes.string.isRequired,
 
     /** Elements to display inside the panel */
-    children: PropTypes.element,
+    children: PropTypes.node,
 
     ...listPropTypes,
 };
