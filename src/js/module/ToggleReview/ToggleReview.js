@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Toggle from './toggle';
+import Toggle from './Toggle';
 
 export default function () {
     return {
