@@ -10,10 +10,10 @@ const listPropTypes = {
     store: PropTypes.object,
 
     /** Data to display in the list */
-    data: PropTypes.arrayOf(PropTypes.object).isRequired,
+    data: PropTypes.arrayOf(PropTypes.object),
 
     /** The type of list items to display */
-    type: PropTypes.oneOf(['pull', 'issue', 'review', 'form']).isRequired,
+    type: PropTypes.oneOf(['pull', 'issue', 'review', 'form']),
 };
 
 export default listPropTypes;
