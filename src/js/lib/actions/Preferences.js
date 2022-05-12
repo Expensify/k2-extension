@@ -1,10 +1,30 @@
 import ReactNativeOnyx from 'react-native-onyx';
 
-function setGitHubToken(token) {
-    ReactNativeOnyx.merge('preferences', {ghToken: token});
+let ghToken;
+ReactNativeOnyx.connect({
+    key: 'preferences',
+    callback: (preferences) => {
+        // Make sure they have entered their API token
+        if (!preferences || !preferences.ghToken) {
+            return;
+        }
+
+        ghToken = preferences.ghToken;
+    },
+});
+
+function getGitHubToken() {
+    return ghToken;
+}
+
+/**
+ * @param {String} value
+ */
+function setGitHubToken(value) {
+    ReactNativeOnyx.merge('preferences', {ghToken: value});
 }
 
 export {
-    // eslint-disable-next-line import/prefer-default-export
+    getGitHubToken,
     setGitHubToken,
 };

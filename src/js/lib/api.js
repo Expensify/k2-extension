@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import moment from 'moment';
-import * as prefs from './prefs';
+import * as Preferences from './actions/Preferences';
 import * as GistDB from './gistdb';
 
 const baseUrl = 'https://api.github.com';
@@ -126,16 +126,14 @@ function getMilestones(view, cb) {
             query += '+state:open';
 
             url = `${baseUrl}/repos/expensify/expensify/milestones${query}`;
-            prefs.get('ghToken', (ghToken) => {
-                $.ajax({
-                    url: overwriteUrl || url,
-                    headers: {
-                        Authorization: `Bearer ${ghToken}`,
-                    },
-                })
-                    .done(handleData)
-                    .fail(cb);
-            });
+            $.ajax({
+                url: overwriteUrl || url,
+                headers: {
+                    Authorization: `Bearer ${Preferences.getGitHubToken()}`,
+                },
+            })
+                .done(handleData)
+                .fail(cb);
         }
 
         makeRequest();
@@ -167,119 +165,116 @@ function getPullsByType(type, cb, getReviews) {
     query += '&sort=updated';
 
     const url = `${baseUrl}/search/issues${query}`;
+    $.ajax({
+        url,
+        headers: {
+            Authorization: `Bearer ${Preferences.getGitHubToken()}`,
+        },
+    })
+        .done((data) => {
+            const modifiedData = {...data};
+            if (!data.items || !data.items.length) {
+                return cb(null, []);
+            }
 
-    prefs.get('ghToken', (ghToken) => {
-        $.ajax({
-            url,
-            headers: {
-                Authorization: `Bearer ${ghToken}`,
-            },
-        })
-            .done((data) => {
-                const modifiedData = {...data};
-                if (!data.items || !data.items.length) {
-                    return cb(null, []);
-                }
+            // Filter out closed issues, as the search query does not do this correctly,
+            // even though we are specifying `state:open`
+            modifiedData.items = _.filter(modifiedData.items, item => item.state === 'open');
 
-                // Filter out closed issues, as the search query does not do this correctly,
-                // even though we are specifying `state:open`
-                modifiedData.items = _.filter(modifiedData.items, item => item.state === 'open');
+            const done = _.after(modifiedData.items.length, () => {
+                cb(null, modifiedData.items);
+            });
 
-                const done = _.after(modifiedData.items.length, () => {
-                    cb(null, modifiedData.items);
-                });
+            // Get the detailed PR info for each PR
+            _.each(modifiedData.items, (item) => {
+                const repoArray = item.repository_url.split('/');
+                const owner = repoArray[repoArray.length - 2];
+                const repo = repoArray[repoArray.length - 1];
+                const url2 = `${baseUrl}/repos/${owner}/${repo}/pulls/${item.number}`;
 
-                // Get the detailed PR info for each PR
-                _.each(modifiedData.items, (item) => {
-                    const repoArray = item.repository_url.split('/');
-                    const owner = repoArray[repoArray.length - 2];
-                    const repo = repoArray[repoArray.length - 1];
-                    const url2 = `${baseUrl}/repos/${owner}/${repo}/pulls/${item.number}`;
+                // eslint-disable-next-line no-param-reassign
+                item.prType = type;
 
+                $.ajax({
+                    url: url2,
+                    headers: {
+                        Authorization: `Bearer ${Preferences.getGitHubToken()}`,
+                    },
+                }).done((data2) => {
                     // eslint-disable-next-line no-param-reassign
-                    item.prType = type;
+                    item.pr = data2;
 
+                    // Now get the PR check runs
                     $.ajax({
-                        url: url2,
+                        url: `${baseUrl}/repos/${owner}/${repo}/commits/${data2.head.sha}/check-runs`,
                         headers: {
-                            Authorization: `Bearer ${ghToken}`,
+                            Authorization: `Bearer ${Preferences.getGitHubToken()}`,
+                            Accept: 'application/vnd.github.antiope-preview+json',
                         },
-                    }).done((data2) => {
-                        // eslint-disable-next-line no-param-reassign
-                        item.pr = data2;
-
-                        // Now get the PR check runs
-                        $.ajax({
-                            url: `${baseUrl}/repos/${owner}/${repo}/commits/${data2.head.sha}/check-runs`,
-                            headers: {
-                                Authorization: `Bearer ${ghToken}`,
-                                Accept: 'application/vnd.github.antiope-preview+json',
-                            },
-                        }).done((data3) => {
-                            // Filter out non-travis check-runs
-                            const check_runs = _.filter((data3.check_runs || []), run => run.app.slug === 'travis-ci');
-                            const maybeGetReviews = function () {
-                                // Stop here if we aren't getting reviewers
-                                if (!getReviews) {
-                                    return done();
-                                }
-
-                                // Now get the PR reviews
-                                $.ajax({
-                                    url: `${baseUrl}/repos/${owner}/${repo}/pulls/${item.number}/reviews`,
-                                    headers: {
-                                        Authorization: `Bearer ${ghToken}`,
-                                        Accept: 'application/vnd.github.black-cat-preview+json',
-                                    },
-                                }).done((data4) => {
-                                    // eslint-disable-next-line no-param-reassign
-                                    item.reviews = data4;
-                                    const reviewsByUser = _.filter(data4, r => r.user.login === getCurrentUser());
-                                    const approved = _.findWhere(reviewsByUser, {state: 'APPROVED'});
-                                    const commented = _.findWhere(reviewsByUser, {state: 'COMMENTED'});
-                                    const reviewDismissed = _.findWhere(reviewsByUser, {state: 'DISMISSED'});
-                                    const changesRequested = _.findWhere(reviewsByUser, {state: 'CHANGES_REQUESTED'});
-                                    // eslint-disable-next-line no-param-reassign
-                                    item.userIsFinishedReviewing = !reviewDismissed && ((commented && !changesRequested) || approved);
-                                    return done();
-                                });
-                            };
-
-                            // If there are no valid Travis check-runs, it is either because
-                            // there are no tests running on Travis OR because the repo is using the
-                            // older Travis CI OAuth App instead of the new GitHub App. In that case,
-                            // try the old statuses url
-                            if (check_runs.length === 0) {
-                                $.ajax({
-                                    // eslint-disable-next-line no-underscore-dangle
-                                    url: data2._links.statuses.href,
-                                    headers: {
-                                        Authorization: `Bearer ${ghToken}`,
-                                    },
-                                }).done((statusesData) => {
-                                    // Filter out non-travis statuses (i.e. musedev)
-                                    // eslint-disable-next-line no-param-reassign
-                                    item.pr.status = _.filter(statusesData, status => status.context === 'continuous-integration/travis-ci/pr');
-                                    return maybeGetReviews();
-                                });
-                            } else {
-                                // Check-runs endpoint uses .conclusion instead of .state - map it
-                                // back to .state in order not to change the view
-                                // eslint-disable-next-line no-param-reassign
-                                item.pr.status = _.map(check_runs, (status) => {
-                                    const state = ((status.conclusion ? status.conclusion : status.status) || '').replace(/_/g, ' ');
-                                    return {state, ...status};
-                                });
-                                return maybeGetReviews();
+                    }).done((data3) => {
+                        // Filter out non-travis check-runs
+                        const check_runs = _.filter((data3.check_runs || []), run => run.app.slug === 'travis-ci');
+                        const maybeGetReviews = function () {
+                            // Stop here if we aren't getting reviewers
+                            if (!getReviews) {
+                                return done();
                             }
-                        });
+
+                            // Now get the PR reviews
+                            $.ajax({
+                                url: `${baseUrl}/repos/${owner}/${repo}/pulls/${item.number}/reviews`,
+                                headers: {
+                                    Authorization: `Bearer ${Preferences.getGitHubToken()}`,
+                                    Accept: 'application/vnd.github.black-cat-preview+json',
+                                },
+                            }).done((data4) => {
+                                // eslint-disable-next-line no-param-reassign
+                                item.reviews = data4;
+                                const reviewsByUser = _.filter(data4, r => r.user.login === getCurrentUser());
+                                const approved = _.findWhere(reviewsByUser, {state: 'APPROVED'});
+                                const commented = _.findWhere(reviewsByUser, {state: 'COMMENTED'});
+                                const reviewDismissed = _.findWhere(reviewsByUser, {state: 'DISMISSED'});
+                                const changesRequested = _.findWhere(reviewsByUser, {state: 'CHANGES_REQUESTED'});
+                                // eslint-disable-next-line no-param-reassign
+                                item.userIsFinishedReviewing = !reviewDismissed && ((commented && !changesRequested) || approved);
+                                return done();
+                            });
+                        };
+
+                        // If there are no valid Travis check-runs, it is either because
+                        // there are no tests running on Travis OR because the repo is using the
+                        // older Travis CI OAuth App instead of the new GitHub App. In that case,
+                        // try the old statuses url
+                        if (check_runs.length === 0) {
+                            $.ajax({
+                                // eslint-disable-next-line no-underscore-dangle
+                                url: data2._links.statuses.href,
+                                headers: {
+                                    Authorization: `Bearer ${Preferences.getGitHubToken()}`,
+                                },
+                            }).done((statusesData) => {
+                                // Filter out non-travis statuses (i.e. musedev)
+                                // eslint-disable-next-line no-param-reassign
+                                item.pr.status = _.filter(statusesData, status => status.context === 'continuous-integration/travis-ci/pr');
+                                return maybeGetReviews();
+                            });
+                        } else {
+                            // Check-runs endpoint uses .conclusion instead of .state - map it
+                            // back to .state in order not to change the view
+                            // eslint-disable-next-line no-param-reassign
+                            item.pr.status = _.map(check_runs, (status) => {
+                                const state = ((status.conclusion ? status.conclusion : status.status) || '').replace(/_/g, ' ');
+                                return {state, ...status};
+                            });
+                            return maybeGetReviews();
+                        }
                     });
                 });
-            })
-            .fail((err) => {
-                cb(err);
             });
-    });
+        })
+        .fail((err) => {
+            cb(err);
+        });
 }
 
 /**
@@ -347,31 +342,29 @@ function getIssuesByLabel(label, assignee, cb, retryCb) {
     }
 
     function makeRequest(overwriteUrl) {
-        prefs.get('ghToken', (ghToken) => {
-            $.ajax({
-                url: overwriteUrl || url,
-                headers: {
-                    Authorization: `Bearer ${ghToken}`,
-                },
-            })
-                .done(handleData)
-                .fail((xhr, err, msg) => {
-                    if (xhr.status === 403) {
-                        const resetTime = new Date(xhr.getResponseHeader('X-RateLimit-Reset') * 1000);
-                        const resetInterval = setInterval(() => {
-                            if (retryCb) {
-                                retryCb(resetTime - new Date());
-                            }
-                            if (new Date() > resetTime) {
-                                clearInterval(resetInterval);
-                                makeRequest(overwriteUrl);
-                            }
-                        }, 1000);
-                        return;
-                    }
-                    cb(xhr, err, msg);
-                });
-        });
+        $.ajax({
+            url: overwriteUrl || url,
+            headers: {
+                Authorization: `Bearer ${Preferences.getGitHubToken()}`,
+            },
+        })
+            .done(handleData)
+            .fail((xhr, err, msg) => {
+                if (xhr.status === 403) {
+                    const resetTime = new Date(xhr.getResponseHeader('X-RateLimit-Reset') * 1000);
+                    const resetInterval = setInterval(() => {
+                        if (retryCb) {
+                            retryCb(resetTime - new Date());
+                        }
+                        if (new Date() > resetTime) {
+                            clearInterval(resetInterval);
+                            makeRequest(overwriteUrl);
+                        }
+                    }, 1000);
+                    return;
+                }
+                cb(xhr, err, msg);
+            });
     }
 
     makeRequest();
@@ -468,29 +461,27 @@ function getIssuesByArea(area, cb, retryCb) {
         query += '&page=1';
 
         url = `${baseUrl}/search/issues${query}`;
-        prefs.get('ghToken', (ghToken) => {
-            $.ajax({
-                url: overwriteUrl || url,
-                headers: {
-                    Authorization: `Bearer ${ghToken}`,
-                },
-            })
-                .done(handleData)
-                .fail((xhr, err, msg) => {
-                    if (xhr.status === 403) {
-                        const resetTime = new Date(xhr.getResponseHeader('X-RateLimit-Reset') * 1000);
-                        const resetInterval = setInterval(() => {
-                            retryCb(resetTime - new Date());
-                            if (new Date() > resetTime) {
-                                clearInterval(resetInterval);
-                                makeRequest(overwriteUrl);
-                            }
-                        }, 1000);
-                        return;
-                    }
-                    cb(xhr, err, msg);
-                });
-        });
+        $.ajax({
+            url: overwriteUrl || url,
+            headers: {
+                Authorization: `Bearer ${Preferences.getGitHubToken()}`,
+            },
+        })
+            .done(handleData)
+            .fail((xhr, err, msg) => {
+                if (xhr.status === 403) {
+                    const resetTime = new Date(xhr.getResponseHeader('X-RateLimit-Reset') * 1000);
+                    const resetInterval = setInterval(() => {
+                        retryCb(resetTime - new Date());
+                        if (new Date() > resetTime) {
+                            clearInterval(resetInterval);
+                            makeRequest(overwriteUrl);
+                        }
+                    }, 1000);
+                    return;
+                }
+                cb(xhr, err, msg);
+            });
     }
 
     makeRequest();
@@ -506,29 +497,26 @@ function addLabels(labels, cb) {
     const owner = getOwner();
     const issueNum = $('.gh-header-number').first().text().replace('#', '');
     const url = `${baseUrl}/repos/${owner}/${repo}/issues/${issueNum}/labels`;
-
-    prefs.get('ghToken', (ghToken) => {
-        $.ajax({
-            url,
-            method: 'post',
-            data: JSON.stringify(labels),
-            headers: {
-                Authorization: `Bearer ${ghToken}`,
-            },
+    $.ajax({
+        url,
+        method: 'post',
+        data: JSON.stringify(labels),
+        headers: {
+            Authorization: `Bearer ${Preferences.getGitHubToken()}`,
+        },
+    })
+        .done((data) => {
+            if (!cb) {
+                return;
+            }
+            cb(null, data);
         })
-            .done((data) => {
-                if (!cb) {
-                    return;
-                }
-                cb(null, data);
-            })
-            .fail((err) => {
-                if (!cb) {
-                    return;
-                }
-                cb(err);
-            });
-    });
+        .fail((err) => {
+            if (!cb) {
+                return;
+            }
+            cb(err);
+        });
 }
 
 /**
@@ -543,27 +531,25 @@ function removeLabel(label, cb, issueNumber, repoName) {
     const owner = getOwner();
     const issueNum = issueNumber || $('.gh-header-number').first().text().replace('#', '');
     const url = `${baseUrl}/repos/${owner}/${repo}/issues/${issueNum}/labels/${label}`;
-    prefs.get('ghToken', (ghToken) => {
-        $.ajax({
-            url,
-            method: 'delete',
-            headers: {
-                Authorization: `Bearer ${ghToken}`,
-            },
+    $.ajax({
+        url,
+        method: 'delete',
+        headers: {
+            Authorization: `Bearer ${Preferences.getGitHubToken()}`,
+        },
+    })
+        .done((data) => {
+            if (!cb) {
+                return;
+            }
+            cb(null, data);
         })
-            .done((data) => {
-                if (!cb) {
-                    return;
-                }
-                cb(null, data);
-            })
-            .fail((err) => {
-                if (!cb) {
-                    return;
-                }
-                cb(err);
-            });
-    });
+        .fail((err) => {
+            if (!cb) {
+                return;
+            }
+            cb(err);
+        });
 }
 
 /**
@@ -695,21 +681,19 @@ function getDailyImprovements(cb) {
     query += '+label:daily';
 
     const url = `${baseUrl}/search/issues${query}`;
-    prefs.get('ghToken', (ghToken) => {
-        $.ajax({
-            url,
-            headers: {
-                Authorization: `Bearer ${ghToken}`,
-            },
+    $.ajax({
+        url,
+        headers: {
+            Authorization: `Bearer ${Preferences.getGitHubToken()}`,
+        },
+    })
+        .done((data) => {
+            cb(null, data.items);
         })
-            .done((data) => {
-                cb(null, data.items);
-            })
-            .fail((err) => {
-                console.error(err);
-                cb(err);
-            });
-    });
+        .fail((err) => {
+            console.error(err);
+            cb(err);
+        });
 }
 
 export {
