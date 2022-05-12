@@ -1,7 +1,7 @@
 {
   "name": "k2-extension",
-  "version": "0.10.10",
-  "description": "A Chrome Extenstion for Kernel Schedule",
+  "version": "1.0.0",
+  "description": "A Chrome Extension for Kernel Schedule",
   "private": true,
   "scripts": {
     "preinstall": "./tools/checkRuntimeVersions.sh",
