@@ -9,9 +9,10 @@ const defaultBtnClass = 'btn btn-sm';
 class Toggle extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
+        this.initialState = {
             Reviewing: `${defaultBtnClass} k2-reviewing`,
         };
+        this.state = this.initialState;
     }
 
     componentDidMount() {
@@ -28,18 +29,17 @@ class Toggle extends React.Component {
      * @param {String} label
      */
     setActiveLabel(label) {
-        const initialState = this.getInitialState();
         let newState = {};
 
         // If that label is already active, then set everything back
         // to the default (which removes all labels)
         if (this.state[label].indexOf(' selected') > -1) {
-            this.setState(initialState);
+            this.setState(this.initialState);
             return;
         }
 
         // Set all the proper active/inactive classes
-        newState = _.mapObject(initialState, (val, key) => (key === label
+        newState = _.mapObject(this.initialState, (val, key) => (key === label
             ? `${defaultBtnClass} k2-${key.toLowerCase()} selected`
             : `${defaultBtnClass} k2-${key.toLowerCase()}`));
         this.setState(newState);

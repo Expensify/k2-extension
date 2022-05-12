@@ -40,8 +40,8 @@ class K2PickerareaPicker extends React.Component {
             },
         };
         // eslint-disable-next-line rulesdir/prefer-underscore-method
-        $('.js-issue-labels .IssueLabel').each(function () {
-            const label = $(this).text().trim();
+        $('.js-issue-labels .IssueLabel').each((i, el) => {
+            const label = $(el).text().trim();
             if (this.state[label]) {
                 this.state[label].className = this.state[label].className.replace('inactive', 'active');
             }
