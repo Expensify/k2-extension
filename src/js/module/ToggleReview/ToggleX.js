@@ -6,7 +6,7 @@ import * as API from '../../lib/api';
 
 const defaultBtnClass = 'btn btn-sm';
 
-class Toggle extends React.Component {
+class ToggleX extends React.Component {
     constructor(props) {
         super(props);
         this.initialState = {
@@ -95,4 +95,4 @@ class Toggle extends React.Component {
     }
 }
 
-export default Toggle;
+export default ToggleX;
