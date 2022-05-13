@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ToggleX from './ToggleX';
+import Toggle from './Toggle';
 
 export default function () {
     return {
         draw() {
             ReactDOM.render(
-                <ToggleX />,
+                <Toggle />,
                 document.getElementsByClassName('k2togglereviewing-wrapper')[0],
             );
         },
