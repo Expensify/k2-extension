@@ -22,10 +22,9 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-native-config": "^1.4.2",
-    "react-native-onyx": "git+https://github.com/Expensify/react-native-onyx.git#44d97f111bb0a7b3733639b7ec06f9f28aeeae4c",
+    "react-native-onyx": "git+https://github.com/Expensify/react-native-onyx.git#1e82e592032c6d0ede8e40f08beb6be790d149e8",
     "react-router-dom": "^5.1.2",
-    "underscore": "^1.13.2",
-    "localforage": "^1.10.0"
+    "underscore": "^1.13.2"
   },
   "devDependencies": {
     "@babel/core": "^7.16.7",
