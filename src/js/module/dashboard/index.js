@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ReactNativeOnyx from 'react-native-onyx';
+import ReactNativeOnyx from 'react-native-onyx/web';
 import ListIssues from './ListIssues';
 import FormPassword from './FormPassword';
 
@@ -38,6 +38,7 @@ function showPasswordForm() {
 export default () => ({
     draw() {
         $('.repository-content').children().remove();
+        ReactNativeOnyx.init({captureMetrics: false});
 
         ReactNativeOnyx.connect({
             key: 'preferences',

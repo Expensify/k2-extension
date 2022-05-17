@@ -2,7 +2,7 @@ import $ from 'jquery';
 import React from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
-import {withOnyx} from 'react-native-onyx';
+import {withOnyx} from 'react-native-onyx/web';
 import PanelList from '../../component/panel/PanelList';
 import * as Preferences from '../../lib/actions/Preferences';
 
