@@ -1,4 +1,4 @@
-import ReactNativeOnyx from 'react-native-onyx';
+import ReactNativeOnyx from 'react-native-onyx/web';
 
 let ghToken;
 ReactNativeOnyx.connect({
