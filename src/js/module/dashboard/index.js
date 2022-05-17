@@ -4,6 +4,8 @@ import ReactDOM from 'react-dom';
 import ReactNativeOnyx from 'react-native-onyx/web';
 import ListIssues from './ListIssues';
 import FormPassword from './FormPassword';
+import * as prefs from '../../lib/prefs';
+import * as Preferences from '../../lib/actions/Preferences';
 
 /**
  * Display our dashboard with the list of issues
@@ -40,11 +42,29 @@ export default () => ({
         $('.repository-content').children().remove();
         ReactNativeOnyx.init({captureMetrics: false});
 
-        ReactNativeOnyx.connect({
+        const preferencesOnyxConnection = ReactNativeOnyx.connect({
             key: 'preferences',
             callback: (preferences) => {
-                // Make sure they have entered their API token
-                if (!preferences || !preferences.ghToken) {
+                ReactNativeOnyx.disconnect(preferencesOnyxConnection);
+
+                // If there is no `preferences` object, then we need to try and migrate their ghToken from the old
+                // storage to the new storage
+                if (!preferences) {
+                    prefs.get('ghToken', (ghToken) => {
+                        if (ghToken) {
+                            // Save the github token to our locally stored preferences
+                            Preferences.setGitHubToken(ghToken);
+                            showDashboard();
+                        } else {
+                            // Have them enter a ghToken
+                            showPasswordForm();
+                        }
+                    });
+                    return;
+                }
+
+                // If there is a `preferences` object, but it doesn't have a ghToken, have the user enter one
+                if (!preferences.ghToken) {
                     showPasswordForm();
                     return;
                 }

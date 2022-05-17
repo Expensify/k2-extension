@@ -15,6 +15,7 @@ import ActionsPullReviewing from '../../action/pull.reviewing';
 import ActionsDailyImprovements from '../../action/dailyimprovements';
 import PanelList from '../../component/panel/PanelList';
 import ListIssuesAssigned from './ListIssuesAssigned';
+import * as Preferences from '../../lib/actions/Preferences';
 
 const propTypes = {
     /** The number of seconds to refresh the list of issues */
@@ -34,6 +35,7 @@ class ListIssues extends React.Component {
      */
     signOut() {
         prefs.clear('ghToken');
+        Preferences.setGitHubToken('');
         window.location.reload(true);
     }
 
