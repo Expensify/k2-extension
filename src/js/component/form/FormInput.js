@@ -7,7 +7,7 @@ const propTypes = {
         /** Whether or not is should be automatically focused or not */
         focus: PropTypes.bool,
 
-        /** the HTML ID of the input */
+        /** The HTML ID of the input */
         id: PropTypes.string,
 
         /** Whether or not the input is required for the HTML form */
