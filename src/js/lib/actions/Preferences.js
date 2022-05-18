@@ -5,7 +5,7 @@ ReactNativeOnyx.connect({
     key: 'preferences',
     callback: (preferences) => {
         // Make sure they have entered their API token
-        if (!preferences || !preferences.ghToken) {
+        if (!preferences) {
             return;
         }
 
@@ -21,6 +21,7 @@ function getGitHubToken() {
  * @param {String} value
  */
 function setGitHubToken(value) {
+    ghToken = value;
     ReactNativeOnyx.merge('preferences', {ghToken: value});
 }
 
