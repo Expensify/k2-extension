@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ReactNativeOnyx from 'react-native-onyx/web';
+import ReactNativeOnyx from 'react-native-onyx';
 import K2PickertypePicker from './K2PickertypePicker';
 
 export default function () {

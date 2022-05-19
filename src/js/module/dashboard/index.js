@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ReactNativeOnyx from 'react-native-onyx/web';
+import ReactNativeOnyx from 'react-native-onyx';
 import ListIssues from './ListIssues';
 import FormPassword from './FormPassword';
 import * as prefs from '../../lib/prefs';
