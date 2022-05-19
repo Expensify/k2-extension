@@ -22,7 +22,7 @@ jobs:
             - name: Setup Node
               uses: actions/setup-node@v1
               with:
-                  node-version: '14.19.0'
+                  node-version: '14.19.3'
 
             - name: Install node packages
               uses: nick-fields/retry@7c68161adf97a48beb850a595b8784ec57a98cbb
