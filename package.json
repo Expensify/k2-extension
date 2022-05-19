@@ -6,7 +6,7 @@
   "scripts": {
     "preinstall": "./tools/checkRuntimeVersions.sh",
     "build": "webpack --progress --config webpack.prod.js",
-    "package": "zip -r -X dist.zip dist",
+    "package": "cd dist && zip -r -X dist.zip *",
     "lint": "eslint . --max-warnings=0",
     "lintfix": "eslint . --fix",
     "web": "webpack --progress --config webpack.dev.js"
