@@ -1,15 +1,16 @@
 import React from 'react';
 import _ from 'underscore';
+import PropTypes from 'prop-types';
 import ListItemIssue from '../list-item/ListItemIssue';
 import ListItemPull from '../list-item/ListItemPull';
 import ListItemForm from '../list-item/ListItemForm';
 
 const propTypes = {
     /** The type of data being displayed */
-    type: React.PropTypes.oneOf(['issue', 'pull', 'review', 'form']).isRequired,
+    type: PropTypes.oneOf(['issue', 'pull', 'review', 'form']).isRequired,
 
     /** The data that will be displayed */
-    data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+    data: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 const ListRaw = (props) => {

@@ -1,89 +1,96 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
-const ESLintPlugin = require('eslint-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const {IgnorePlugin} = require('webpack');
 
-const webpackCommon = {
-  context: path.resolve(__dirname, '.'),
-  entry: {
-    content: './src/js/content.js',
-    events: './src/js/events.js'
-  },
-  mode: 'production',
-  output: {
-    filename: '[name].js',
-    path: path.resolve(__dirname, 'dist')
-  },
+module.exports = {
+    context: path.resolve(__dirname, '.'),
+    entry: {
+        content: './src/js/content.js',
+        events: './src/js/events.js',
+    },
+    output: {
+        filename: '[name].js',
+        path: path.resolve(__dirname, 'dist'),
+    },
+    resolve: {
+        extensions: ['.jsx', '.js'],
+    },
 
-  plugins: [
-    new CleanWebpackPlugin(),
-    new MiniCssExtractPlugin(),
+    plugins: [
+        new CleanWebpackPlugin(),
+        new MiniCssExtractPlugin(),
 
-    // This is necessary because when moment.js is imported, it require()s some locale files which aren't needed and this results
-    // in console errors. By ignoring those imports, it allows everything to work without errors. More can be read about this here:
-    // https://webpack.js.org/plugins/ignore-plugin/#example-of-ignoring-moment-locales
-    new IgnorePlugin({
-      resourceRegExp: /^\.\/locale$/
-    }),
+        // This is necessary because when moment.js is imported, it require()s some locale files which aren't needed and this results
+        // in console errors. By ignoring those imports, it allows everything to work without errors. More can be read about this here:
+        // https://webpack.js.org/plugins/ignore-plugin/#example-of-ignoring-moment-locales
+        new IgnorePlugin({
+            resourceRegExp: /^\.\/locale$/,
+        }),
 
-    // Copies icons and manifest file into our dist folder
-    new CopyPlugin({
-      patterns: [
-        {from: './assets/'}
-      ]
-    }),
+        // Copies icons and manifest file into our dist folder
+        new CopyPlugin({
+            patterns: [
+                {from: './assets/', to: path.resolve(__dirname, 'dist')}
+            ]
+        }),
+    ],
 
-    // Lint all the JS code
-    new ESLintPlugin({
-      cache: false,
-      emitWarning: true,
-      overrideConfigFile: path.resolve(__dirname, '.eslintrc.js'),
-      lintDirtyModulesOnly: true
-    })
-  ],
-
-  module: {
-    rules: [
-      // Load .html files as strings, used for underscore templates
-      {
-        test: /\.html$/i,
-        use: 'underscore-template-loader'
-      },
-
-      // Transpiles all the JS, including the react JSX
-      {
-        test: /\.js$/,
-        use: 'babel-loader'
-      },
-
-      // Transpile all our SASS
-      {
-        test: /\.s[ac]ss$/i,
-        use: [
-          // Outputs the generated CSS to the dist folder
-          MiniCssExtractPlugin.loader,
-
-          // Translates CSS into CommonJS so that it can be loaded in the JS files using import or require()
-          {
-            loader: "css-loader",
-            options: {
-              sourceMap: true,
+    module: {
+        rules: [
+            // Load .html files as strings, used for underscore templates
+            {
+                test: /\.html$/i,
+                use: 'underscore-template-loader'
             },
-          },
 
-          // Compiles Sass to CSS
-          {
-            loader: "sass-loader",
-            options: {
-              sourceMap: true,
+            // Transpiles ES6 and JSX
+            {
+                test: /\.js$/,
+                use: {
+                    loader: 'babel-loader',
+                },
+
+                /**
+                 * Exclude node_modules except two packages we need to convert for rendering HTML because they import
+                 * "react-native" internally and use JSX which we need to convert to JS for the browser.
+                 *
+                 * You can remove something from this list if it doesn't use JSX/JS that needs to be transformed by babel.
+                 */
+                include: [
+                    path.resolve(__dirname, 'src'),
+                    path.resolve(__dirname, 'node_modules/react-native-onyx'),
+                ],
+                exclude: [
+                    path.resolve(__dirname, 'node_modules/react-native-onyx/node_modules'),
+                ],
             },
-          },
-        ],
-      },
-    ]
-  }
+            {
+                test: /\.s[ac]ss$/i,
+                use: [
+                    // Outputs the generated CSS to the dist folder
+                    MiniCssExtractPlugin.loader,
+
+                    // Translates CSS into CommonJS
+                    'css-loader',
+
+                    // Compiles Sass to CSS
+                    'sass-loader',
+                ],
+            },
+            {
+                test: /\.js$/,
+                loader: 'eslint-loader',
+                exclude: [
+                    path.resolve(__dirname, 'node_modules'),
+                ],
+                options: {
+                    cache: false,
+                    emitWarning: true,
+                    configFile: path.resolve(__dirname, '.eslintrc.js'),
+                },
+            },
+        ]
+    },
 };
-
-module.exports = webpackCommon;

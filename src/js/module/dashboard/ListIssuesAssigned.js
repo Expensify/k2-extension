@@ -1,22 +1,36 @@
 import React from 'react';
 import _ from 'underscore';
+import PropTypes from 'prop-types';
 import PanelListRaw from '../../component/panel/PanelListRaw';
 
-export default React.createClass({
-    propTypes: {
-        pollInterval: React.PropTypes.number,
-    },
+const propTypes = {
+    /** The number of milliseconds to refresh the data */
+    pollInterval: PropTypes.number.isRequired,
 
-    getInitialState() {
-        return this.props.store.getState();
-    },
+    /** The 'alt' store to get data from for this component */
+    // eslint-disable-next-line react/forbid-prop-types
+    store: PropTypes.object.isRequired,
+
+    /** The 'alt' action for fetching data */
+    // eslint-disable-next-line react/forbid-prop-types
+    action: PropTypes.object.isRequired,
+};
+
+class ListIssuesAssigned extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.onStoreChange = this.onStoreChange.bind(this);
+
+        this.state = this.props.store.getState();
+    }
 
     componentDidMount() {
         this.fetch();
 
         // Listen to our store
         this.props.store.listen(this.onStoreChange);
-    },
+    }
 
     componentWillUnmount() {
         if (this.interval) {
@@ -25,12 +39,12 @@ export default React.createClass({
 
         // Stop listening to our store
         this.props.store.unlisten(this.onStoreChange);
-    },
+    }
 
     onStoreChange() {
-    // Update our state when the store changes
+        // Update our state when the store changes
         this.setState(this.props.store.getState());
-    },
+    }
 
     fetch() {
         this.props.action.fetch();
@@ -38,7 +52,7 @@ export default React.createClass({
         if (this.props.pollInterval && !this.interval) {
             this.interval = setInterval(this.fetch, this.props.pollInterval);
         }
-    },
+    }
 
     render() {
         if (this.state.loading) {
@@ -104,5 +118,9 @@ export default React.createClass({
                 </div>
             </div>
         );
-    },
-});
+    }
+}
+
+ListIssuesAssigned.propTypes = propTypes;
+
+export default ListIssuesAssigned;

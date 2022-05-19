@@ -31,6 +31,7 @@ const refreshHold = function () {
         $('.merge-message button')
             .removeClass('btn-primary')
             .attr('disabled', 'disabled');
+        // eslint-disable-next-line rulesdir/prefer-underscore-method
         $('.branch-action-item').last().find('.completeness-indicator')
             .removeClass('completeness-indicator-success')
             .addClass('completeness-indicator-problem')
@@ -53,6 +54,7 @@ const refreshHold = function () {
         $('.merge-message button')
             .removeClass('btn-primary')
             .attr('disabled', 'disabled');
+        // eslint-disable-next-line rulesdir/prefer-underscore-method
         $('.branch-action-item').last().find('.completeness-indicator')
             .removeClass('completeness-indicator-success')
             .addClass('completeness-indicator-problem')
@@ -90,4 +92,4 @@ export default function () {
     };
 
     return PrPage;
-};
+}

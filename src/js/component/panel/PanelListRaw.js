@@ -1,19 +1,20 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import Title from '../panel-title/Title';
 import ListRaw from '../list/ListRaw';
 
 const propTypes = {
     /** A CSS class to add to this panel to give it some color */
-    extraClass: React.PropTypes.string.isRequired,
+    extraClass: PropTypes.string.isRequired,
 
     /** The title of the panel */
-    title: React.PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
 
     /** The type of data being displayed in the list */
-    item: React.PropTypes.oneOf(['issue', 'pull', 'review', 'form']).isRequired,
+    item: PropTypes.oneOf(['issue', 'pull', 'review', 'form']).isRequired,
 
     /** The data that will be displayed in the list */
-    data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+    data: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 const PanelListRaw = props => (

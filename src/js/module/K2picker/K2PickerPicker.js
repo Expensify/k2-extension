@@ -6,29 +6,18 @@ import * as API from '../../lib/api';
 
 const defaultBtnClass = 'btn btn-sm tooltipped tooltipped-n';
 
-export default React.createClass({
-    /**
-     * Sets the initial class names for all of our buttons
-     *
-     * @date 2015-07-30
-     *
-     * @return {Object}
-     */
-    getInitialState() {
-        return {
+class K2PickerPicker extends React.Component {
+    constructor(props) {
+        super(props);
+        this.initialState = {
             Hourly: `${defaultBtnClass} k2-hourly`,
             Daily: `${defaultBtnClass} k2-daily`,
             Weekly: `${defaultBtnClass} k2-weekly`,
             Monthly: `${defaultBtnClass} k2-monthly`,
         };
-    },
+        this.state = this.initialState;
+    }
 
-    /**
-     * When the component has renered, we need to see if there
-     * is an existing label, and if so, make that button enabled
-     *
-     * @date 2015-07-30
-     */
     componentDidMount() {
         // eslint-disable-next-line rulesdir/prefer-underscore-method
         $('.js-issue-labels .IssueLabel').each((i, el) => {
@@ -37,8 +26,39 @@ export default React.createClass({
                 this.setActiveLabel(label);
             }
         });
-    },
+    }
 
+    /**
+     * @param {String} label
+     */
+    setActiveLabel(label) {
+        let newState = {};
+
+        // If that label is already active, then set everything back
+        // to the default (which removes all labels)
+        if (this.state[label].indexOf(' active') > -1) {
+            this.setState(this.initialState);
+            return;
+        }
+
+        // Set all the proper active/inactive classes
+        newState = _.mapObject(this.initialState, (val, key) => (key === label
+            ? `${defaultBtnClass} k2-${key.toLowerCase()} active`
+            : `${defaultBtnClass} k2-${key.toLowerCase()} inactive`));
+        this.setState(newState);
+    }
+
+    /**
+     * @param {String} label
+     */
+    clickNSave(label) {
+        this.saveNewLabel(label);
+        this.setActiveLabel(label);
+    }
+
+    /**
+     * @param {String} label
+     */
     saveNewLabel(label) {
         let previousLabel = null;
         _.each(this.state, (val, key) => {
@@ -57,37 +77,8 @@ export default React.createClass({
         } else {
             API.removeLabel(label);
         }
-    },
+    }
 
-    clickNSave(label) {
-        this.saveNewLabel(label);
-        this.setActiveLabel(label);
-    },
-
-    /**
-     * Sets a single label to be active (or if already active, then turns all of them off)
-     *
-     * @date 2015-07-30
-     *
-     * @param {String} label
-     */
-    setActiveLabel(label) {
-        const initialState = this.getInitialState();
-        let newState = {};
-
-        // If that label is already active, then set everything back
-        // to the default (which removes all labels)
-        if (this.state[label].indexOf(' active') > -1) {
-            this.setState(initialState);
-            return;
-        }
-
-        // Set all the proper active/inactive classes
-        newState = _.mapObject(initialState, (val, key) => (key === label
-            ? `${defaultBtnClass} k2-${key.toLowerCase()} active`
-            : `${defaultBtnClass} k2-${key.toLowerCase()} inactive`));
-        this.setState(newState);
-    },
     render() {
         return (
             <div>
@@ -129,5 +120,7 @@ export default React.createClass({
                 </BtnGroup>
             </div>
         );
-    },
-});
+    }
+}
+
+export default K2PickerPicker;

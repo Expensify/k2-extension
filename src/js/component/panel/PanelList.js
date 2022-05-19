@@ -1,49 +1,65 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import Title from '../panel-title/Title';
 import List from '../list/List';
+import listPropTypes from '../list/listPropTypes';
 
-/**
- * Panel - List variant
- *
- * This panel contains a title and a list of items.
- *
- * @param {array} list the data that will be displayed in the list
- * @param {string} item the type of item that will be displayed in the list
- *                      will correspond to something in component/list-item
- * @param {object} options various options passed to the list as well
- * @param {string} extraClass gets appended to the panels class for styling purposes
- */
-export default React.createClass({
-    fetched: false,
+const propTypes = {
+    /** The number of milliseconds to refresh the data */
+    pollInterval: PropTypes.number,
+
+    /** And extra CSS class to apply to the panel container */
+    extraClass: PropTypes.string,
+
+    /** The title of the panel to be displayed */
+    title: PropTypes.string.isRequired,
+
+    /** Elements to display inside the panel */
+    children: PropTypes.node,
+
+    ...listPropTypes,
+};
+
+const defaultProps = {
+    children: null,
+    extraClass: '',
+    pollInterval: null,
+};
+
+class PanelList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.fetched = false;
+    }
+
     componentDidMount() {
-        if (!this.fetched) {
-            this.fetch();
-        }
-        if (this.props.pollInterval && !this.interval) {
-            this.interval = setInterval(this.fetch, this.props.pollInterval);
-        }
-    },
+        this.setupFetchAndRefreshInterval();
+    }
 
     componentDidUpdate() {
-        if (!this.fetched) {
-            this.fetch();
-        }
-        if (this.props.pollInterval && !this.interval) {
-            this.interval = setInterval(this.fetch, this.props.pollInterval);
-        }
-    },
+        this.setupFetchAndRefreshInterval();
+    }
 
     componentWillUnmount() {
         clearInterval(this.interval);
-    },
+    }
 
-    fetch() {
-        this.list.fetch();
-    },
+    setupFetchAndRefreshInterval() {
+        if (!this.fetched) {
+            this.fetch();
+        }
+        if (this.props.pollInterval && !this.interval) {
+            this.interval = setInterval(this.fetch, this.props.pollInterval);
+        }
+    }
 
     getPanelClass() {
         return `panel ${this.props.extraClass}`;
-    },
+    }
+
+    fetch() {
+        this.list.fetch();
+    }
 
     render() {
         return (
@@ -52,15 +68,17 @@ export default React.createClass({
                 <List
                     ref={el => this.list = el}
                     type={this.props.item}
-                    options={this.props.options}
                     action={this.props.action}
                     store={this.props.store}
                     data={this.props.list}
-                    // eslint-disable-next-line react/jsx-props-no-spreading
-                    {...this.props.listOptions}
                 />
                 {this.props.children}
             </div>
         );
-    },
-});
+    }
+}
+
+PanelList.propTypes = propTypes;
+PanelList.defaultProps = defaultProps;
+
+export default PanelList;

@@ -1,11 +1,18 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-export default React.createClass({
-    render() {
-        return (
-            <div className="btn-group">
-                {this.props.children}
-            </div>
-        );
-    },
-});
+const propTypes = {
+    /** The things to display inside the btn-group */
+    children: PropTypes.node.isRequired,
+};
+
+const BtnGroup = props => (
+    <div className="btn-group">
+        {props.children}
+    </div>
+);
+
+BtnGroup.propTypes = propTypes;
+BtnGroup.displayName = 'BtnGroup';
+
+export default BtnGroup;

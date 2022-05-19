@@ -1,64 +1,63 @@
 import $ from 'jquery';
 import React from 'react';
 import _ from 'underscore';
-import * as prefs from '../../lib/prefs';
+import PropTypes from 'prop-types';
+import {withOnyx} from 'react-native-onyx/web';
 import PanelList from '../../component/panel/PanelList';
+import * as Preferences from '../../lib/actions/Preferences';
 
-/**
- * FORM - Password
- *
- * Displays a form to get the user's password
- *
- * @param {Function} onFinished called when the form is done
- */
-export default React.createClass({
+const propTypes = {
+    /** A callback function that is triggered after the form is submitted */
+    onFinished: PropTypes.func,
+};
+const defaultProps = {
+    onFinished: () => {},
+};
 
-    /**
-     * The items which will be displayed in our form
-     *
-     * @type {Array}
-     */
-    items: [
-        {
-            id: 'password',
-            type: 'password',
-            label: 'Personal Access Token',
-            className: 'input-block',
-            hint: 'A personal access token is required to make custom queries agains the GitHub.com API.',
-            required: true,
-            focus: true,
-        },
-    ],
+class FormPassword extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.submitForm = this.submitForm.bind(this);
+    }
 
     /**
      * Get the password and store it as a user preference
      *
-     * @date 2015-06-15
-     *
      * @param {Object} e React form submit event
      */
     submitForm(e) {
+        e.preventDefault();
         const formData = $(this.form).serializeArray();
         const passwordData = _.findWhere(formData, {name: 'password'});
 
-        // Set ghToken too if we are logging in for the first time so we can
-        // more easily transition later
-        prefs.set('ghToken', passwordData.value, () => {
-            if (!this.props.onFinished) {
-                return;
-            }
-            this.props.onFinished();
-        });
+        // Save the github token to our locally stored preferences
+        Preferences.setGitHubToken(passwordData.value);
 
-        e.preventDefault();
-    },
+        // Trigger the callback function so we can move on
+        this.props.onFinished();
+    }
 
     render() {
         return (
             <div className="columns">
                 <div className="one-third column centered">
                     <form ref={el => this.form = el} onSubmit={this.submitForm}>
-                        <PanelList title="Enter Credentials" list={this.items} item="form">
+                        <PanelList
+                            title="Enter Credentials"
+                            item="form"
+                            list={[
+                                {
+                                    id: 'password',
+                                    type: 'password',
+                                    label: 'Personal Access Token',
+                                    className: 'input-block',
+                                    hint: 'A personal access token is required to make custom queries against the GitHub.com API.',
+                                    required: true,
+                                    focus: true,
+                                },
+                            ]}
+                        >
                             <footer className="panel-footer form-actions">
                                 <button className="btn btn-primary" type="submit">
                                     Submit
@@ -69,5 +68,14 @@ export default React.createClass({
                 </div>
             </div>
         );
+    }
+}
+
+FormPassword.propTypes = propTypes;
+FormPassword.defaultProps = defaultProps;
+
+export default withOnyx({
+    preferences: {
+        key: 'preferences',
     },
-});
+})(FormPassword);

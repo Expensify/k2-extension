@@ -1,16 +1,26 @@
 import React from 'react';
 import _ from 'underscore';
-import Contents from './contents';
+import PropTypes from 'prop-types';
+import Contents from './Contents';
 
-/**
- * A component for tabs to show the selected tab and the corresponding content
- */
-export default React.createClass({
-    getInitialState() {
-        return {
-            items: this.props.items,
+const propTypes = {
+    /** Information about the tabs to display */
+    items: PropTypes.arrayOf(PropTypes.object).isRequired,
+
+    /** The type of items being displayed */
+    type: PropTypes.string.isRequired,
+
+    /** The number of milliseconds to refresh the data */
+    pollInterval: PropTypes.number.isRequired,
+};
+
+class Tabs extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            items: props.items,
         };
-    },
+    }
 
     componentDidMount() {
         let foundActiveTab = false;
@@ -28,7 +38,7 @@ export default React.createClass({
         if (!foundActiveTab) {
             this.setActive('web');
         }
-    },
+    }
 
     /**
      * Set a tab to active
@@ -36,14 +46,13 @@ export default React.createClass({
      */
     setActive(id) {
         localStorage.activeTab = id;
-        this.setState({
-            items: _.map(this.state.items, item => ({...item, selected: item.id === id ? 'selected' : ''})),
-        });
-    },
+        this.setState(currentState => ({
+            items: _.map(currentState.items, item => ({...item, selected: item.id === id ? 'selected' : ''})),
+        }));
+    }
 
     /**
      * Refreshes our data with the given filters
-     * @public
      * @param {Object} filters
      */
     refreshWithFilters(filters) {
@@ -52,7 +61,7 @@ export default React.createClass({
         }
 
         this.contents.refreshWithFilters(filters);
-    },
+    }
 
     render() {
         const selectedItem = _.findWhere(this.state.items, {selected: 'selected'});
@@ -83,5 +92,9 @@ export default React.createClass({
                 {selectedItem ? <Contents ref={el => this.contents = el} {...selectedItem} type={this.props.type} pollInterval={this.props.pollInterval} /> : null}
             </div>
         );
-    },
-});
+    }
+}
+
+Tabs.propTypes = propTypes;
+
+export default Tabs;

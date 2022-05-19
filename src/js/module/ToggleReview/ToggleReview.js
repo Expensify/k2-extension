@@ -1,10 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Toggle from './toggle';
+import ReactNativeOnyx from 'react-native-onyx/web';
+import Toggle from './Toggle';
 
 export default function () {
     return {
         draw() {
+            ReactNativeOnyx.init();
             ReactDOM.render(
                 <Toggle />,
                 document.getElementsByClassName('k2togglereviewing-wrapper')[0],

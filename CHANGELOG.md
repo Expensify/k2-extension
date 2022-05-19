@@ -1,3 +1,8 @@
+#1.0.0
+- Update to current version of React
+- Update to use ES6 modules
+- Introduce the first concept of using Onyx
+ 
 #0.10.10
 - Make the right sidebar on issues sticky
 

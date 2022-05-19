@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Picker from './picker';
+import ReactNativeOnyx from 'react-native-onyx/web';
+import K2PickerPicker from './K2PickerPicker';
 
 /**
  * Displays the picker for the KSV2 Labels
@@ -10,8 +11,9 @@ import Picker from './picker';
 export default function () {
     return {
         draw() {
+            ReactNativeOnyx.init();
             ReactDOM.render(
-                <Picker />,
+                <K2PickerPicker />,
                 document.getElementsByClassName('k2picker-wrapper')[0],
             );
         },

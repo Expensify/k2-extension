@@ -1,8 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const propTypes = {
     /** The text to display */
-    text: React.PropTypes.string.isRequired,
+    text: PropTypes.string.isRequired,
 };
 
 const Title = props => (
