@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import ReactNativeOnyx from 'react-native-onyx/web';
 import K2PickerPicker from './K2PickerPicker';
 
 /**
@@ -10,6 +11,7 @@ import K2PickerPicker from './K2PickerPicker';
 export default function () {
     return {
         draw() {
+            ReactNativeOnyx.init();
             ReactDOM.render(
                 <K2PickerPicker />,
                 document.getElementsByClassName('k2picker-wrapper')[0],

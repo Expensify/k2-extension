@@ -40,7 +40,7 @@ function showPasswordForm() {
 export default () => ({
     draw() {
         $('.repository-content').children().remove();
-        ReactNativeOnyx.init({captureMetrics: false});
+        ReactNativeOnyx.init();
 
         const preferencesOnyxConnection = ReactNativeOnyx.connect({
             key: 'preferences',
