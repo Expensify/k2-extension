@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ReactNativeOnyx from 'react-native-onyx/web';
+import ReactNativeOnyx from 'react-native-onyx';
 import K2PickerPicker from './K2PickerPicker';
 
 /**
