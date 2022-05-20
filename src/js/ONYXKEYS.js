@@ -5,9 +5,6 @@ export default {
     // Holds all the user preferences
     PREFERENCES: 'preferences',
 
-    // Collection Keys
-    COLLECTION: {
-        // A collection of GitHub issues
-        ISSUE: 'issue_',
-    },
+    // Holds all the issues assigned to the user
+    ASSIGNED_ISSUES: 'assignedIssues',
 };
