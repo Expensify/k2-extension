@@ -1,22 +1,10 @@
 import React from 'react';
 import _ from 'underscore';
-import PropTypes from 'prop-types';
+import IssuePropTypes from './IssuePropTypes';
 
 const propTypes = {
     /** Information about the issue that is being displayed */
-    data: PropTypes.shape({
-        /** The URL to the issue in GH */
-        url: PropTypes.string.isRequired,
-
-        /** The labels that the issue is assigned to */
-        labels: PropTypes.arrayOf(PropTypes.shape({
-            /** The name of the label */
-            name: PropTypes.string.isRequired,
-        })).isRequired,
-
-        /** The title of the issue */
-        title: PropTypes.string.isRequired,
-    }).isRequired,
+    data: IssuePropTypes.isRequired,
 };
 
 class ListItemIssue extends React.Component {

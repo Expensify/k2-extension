@@ -336,6 +336,7 @@ function getAllAssigned() {
             const results = _.reduce(data.search.edges, (finalResults, searchEdge) => {
                 finalResults.push({
                     ...searchEdge.node,
+                    id: searchEdge.node.id.replace('_', '-'),
                     labels: _.reduce(searchEdge.node.labels.edges, (finalLabels, labelEdge) => {
                         finalLabels.push({
                             ...labelEdge.node,
@@ -344,7 +345,7 @@ function getAllAssigned() {
                     }, []),
                 });
                 return finalResults;
-            }, {});
+            }, []);
 
             return results;
         });
