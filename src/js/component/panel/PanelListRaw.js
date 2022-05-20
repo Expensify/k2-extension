@@ -18,18 +18,15 @@ const propTypes = {
     data: PropTypes.arrayOf(IssuePropTypes).isRequired,
 };
 
-const PanelListRaw = props => {
-    console.log(props)
-    return (
-        <div className={`panel ${props.extraClass}`}>
-            <Title text={props.title} />
-            <ListRaw
-                type={props.item}
-                data={props.data}
-            />
-        </div>
-    );
-};
+const PanelListRaw = props => (
+    <div className={`panel ${props.extraClass}`}>
+        <Title text={props.title} />
+        <ListRaw
+            type={props.item}
+            data={props.data}
+        />
+    </div>
+);
 
 PanelListRaw.propTypes = propTypes;
 PanelListRaw.displayName = 'PanelListRaw';
