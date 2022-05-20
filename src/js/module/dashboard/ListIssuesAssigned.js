@@ -37,7 +37,7 @@ class ListIssuesAssigned extends React.Component {
     }
 
     fetch() {
-        Issues.getAllAssignedIssues();
+        Issues.getAllAssigned();
 
         if (this.props.pollInterval && !this.interval) {
             this.interval = setInterval(this.fetch, this.props.pollInterval);
