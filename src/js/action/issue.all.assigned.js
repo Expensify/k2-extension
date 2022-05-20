@@ -10,6 +10,10 @@ class Action {
         this.dispatch(msg);
     }
 
+    retry(data) {
+        this.dispatch(data);
+    }
+
     fetch() {
         this.dispatch();
 

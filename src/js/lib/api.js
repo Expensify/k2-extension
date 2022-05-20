@@ -333,8 +333,8 @@ function getAllAssigned() {
     `)
         .then((data) => {
             // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-            const results = _.reduce(data.search.edges, (result, searchEdge) => {
-                result.push({
+            const results = _.reduce(data.search.edges, (finalResults, searchEdge) => {
+                finalResults.push({
                     ...searchEdge.node,
                     labels: _.reduce(searchEdge.node.labels.edges, (finalLabels, labelEdge) => {
                         finalLabels.push({
@@ -343,8 +343,8 @@ function getAllAssigned() {
                         return finalLabels;
                     }, []),
                 });
-                return result;
-            }, []);
+                return finalResults;
+            }, {});
 
             return results;
         });
