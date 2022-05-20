@@ -281,9 +281,9 @@ function getPullsByType(type, cb, getReviews) {
 /**
  * Get all issues assigned to the current user
  *
- * @param {Function} cb
+ * @returns {Promise}
  */
-function getAllAssigned(cb) {
+function getAllAssigned() {
     let query = '';
 
     // Get the PRs assigned to me
@@ -305,7 +305,7 @@ function getAllAssigned(cb) {
 
     const octokit = new Octokit({auth: Preferences.getGitHubToken()});
 
-    octokit.graphql(`
+    return octokit.graphql(`
         query {
             search(
                 query: "${query}"
@@ -346,7 +346,7 @@ function getAllAssigned(cb) {
                 return result;
             }, []);
 
-            cb(null, results);
+            return results;
         });
 }
 

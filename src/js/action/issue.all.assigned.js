@@ -13,13 +13,9 @@ class Action {
     fetch() {
         this.dispatch();
 
-        API.getAllAssigned((err, data) => {
-            if (err) {
-                return this.actions.failed(err);
-            }
-
-            this.actions.update(data);
-        });
+        API.getAllAssigned()
+            .then(this.actions.update)
+            .catch(this.actions.failed);
     }
 }
 
