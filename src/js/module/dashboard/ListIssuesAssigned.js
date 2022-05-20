@@ -53,7 +53,7 @@ class ListIssuesAssigned extends React.Component {
             );
         }
 
-        if (!this.props.issues.length) {
+        if (!_.size(this.props.issues)) {
             return (
                 <div className="blankslate capped clean-background">
                     No items
