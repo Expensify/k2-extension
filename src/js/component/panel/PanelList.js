@@ -29,6 +29,9 @@ const defaultProps = {
 class PanelList extends React.Component {
     constructor(props) {
         super(props);
+
+        this.fetch = this.fetch.bind(this);
+
         this.fetched = false;
     }
 

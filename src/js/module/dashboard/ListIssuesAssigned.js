@@ -21,6 +21,7 @@ class ListIssuesAssigned extends React.Component {
         super(props);
 
         this.onStoreChange = this.onStoreChange.bind(this);
+        this.fetch = this.fetch.bind(this);
 
         this.state = this.props.store.getState();
     }
