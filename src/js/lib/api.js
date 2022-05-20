@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import moment from 'moment';
+import {Octokit} from 'octokit';
 import * as Preferences from './actions/Preferences';
 import * as GistDB from './gistdb';
 
@@ -289,85 +290,68 @@ function getPullsByType(type, cb, getReviews) {
  * @param {Function} retryCb called each time we attempting to retry the API call
  */
 function getIssuesByLabel(label, assignee, cb, retryCb) {
-    const filterLabels = ['hourly', 'daily', 'weekly', 'monthly'];
-    let query = '?per_page=300&q=';
-    let result = [];
+    let query = '';
 
     // Get the PRs assigned to me
-    query += '+state:open';
-    query += '+is:issue';
-    query += '+repo:Expensify/Expensify';
-    query += '+repo:Expensify/App';
-    query += '+repo:Expensify/Insiders';
-    query += '+repo:Expensify/VendorTasks';
-    query += '+repo:Expensify/Expensify-Guides';
+    query += ' state:open';
+    query += ' is:issue';
+    query += ' repo:Expensify/Expensify';
+    query += ' repo:Expensify/App';
+    query += ' repo:Expensify/Insiders';
+    query += ' repo:Expensify/VendorTasks';
+    query += ' repo:Expensify/Expensify-Guides';
 
     if (assignee === 'none') {
-        query += '+no:assignee';
+        query += ' no:assignee';
     } else if (assignee) {
-        query += `+assignee:${assignee}`;
+        query += ` assignee:${assignee}`;
     }
 
-    // We need to exclude our other filter labels if we are searching
-    // for no priority
-    if (label === 'none') {
-        for (let i = filterLabels.length - 1; i >= 0; i--) {
-            query += `+-label:${filterLabels[i]}`;
-        }
-    } else if (label) {
-        query += `+label:${label}`;
-    }
+    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
 
-    const url = `${baseUrl}/search/issues${query}`;
-
-    function handleData(data, status, xhr) {
-        // Set the type of the item to be the label we are looking for
-        _.map(data.items, item => ({...item, type: label}));
-
-        result = result.concat(data.items);
-
-        // If we have a next link, then we do some recursive pagination
-        const responseHeaderLink = xhr.getResponseHeader('Link');
-        if (responseHeaderLink) {
-            const links = parse_link_header(responseHeaderLink);
-            if (links.next) {
-                /* eslint-disable no-use-before-define */
-                makeRequest(links.next);
-                /* eslint-enable no-use-before-define */
-                return;
+    octokit.graphql(`
+query {
+  search(
+    query: "${query}"
+    type: ISSUE
+    first: 100
+  ) {
+    edges {
+      node {
+        ... on Issue {
+          title
+          labels(first: 100) {
+            edges {
+              node {
+                name
+              }
             }
+          }
+          id
+          url
         }
-
-        cb(null, result);
+      }
     }
+  }
+}
+    `).then(data => {
 
-    function makeRequest(overwriteUrl) {
-        $.ajax({
-            url: overwriteUrl || url,
-            headers: {
-                Authorization: `Bearer ${Preferences.getGitHubToken()}`,
-            },
-        })
-            .done(handleData)
-            .fail((xhr, err, msg) => {
-                if (xhr.status === 403) {
-                    const resetTime = new Date(xhr.getResponseHeader('X-RateLimit-Reset') * 1000);
-                    const resetInterval = setInterval(() => {
-                        if (retryCb) {
-                            retryCb(resetTime - new Date());
-                        }
-                        if (new Date() > resetTime) {
-                            clearInterval(resetInterval);
-                            makeRequest(overwriteUrl);
-                        }
-                    }, 1000);
-                    return;
-                }
-                cb(xhr, err, msg);
+        // Put the data into a format that the rest of the app will use to remove things like edges and nodes
+        const results = _.reduce(data.search.edges, (result, searchEdge) => {
+            result.push({
+                ...searchEdge.node,
+                labels: _.reduce(searchEdge.node.labels.edges, (finalLabels, labelEdge) => {
+                    finalLabels.push({
+                        ...labelEdge.node,
+                    });
+                    return finalLabels;
+                }, []),
             });
-    }
+            return result;
+        }, []);
 
-    makeRequest();
+        cb(null, results)
+    });
 }
 
 /**
