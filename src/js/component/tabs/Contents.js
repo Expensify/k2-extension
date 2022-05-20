@@ -24,6 +24,8 @@ class Contents extends React.Component {
     constructor(props) {
         super(props);
 
+        this.callApi = this.callApi.bind(this);
+
         this.fetched = false;
 
         this.state = {

@@ -1,3 +1,6 @@
+#1.0.1
+- Fix a bug with incorrect scope for fetching new data
+
 #1.0.0
 - Update to current version of React
 - Update to use ES6 modules
