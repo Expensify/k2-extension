@@ -1,8 +1,9 @@
 import ReactNativeOnyx from 'react-native-onyx';
+import ONYXKEYS from '../../ONYXKEYS';
 
 let ghToken;
 ReactNativeOnyx.connect({
-    key: 'preferences',
+    key: ONYXKEYS.PREFERENCES,
     callback: (preferences) => {
         // Make sure they have entered their API token
         if (!preferences) {
@@ -22,7 +23,7 @@ function getGitHubToken() {
  */
 function setGitHubToken(value) {
     ghToken = value;
-    ReactNativeOnyx.merge('preferences', {ghToken: value});
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {ghToken: value});
 }
 
 export {
