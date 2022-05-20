@@ -10,10 +10,6 @@ class Action {
         this.dispatch(msg);
     }
 
-    retry(data) {
-        this.dispatch(data);
-    }
-
     fetch() {
         this.dispatch();
 
@@ -23,8 +19,6 @@ class Action {
             }
 
             this.actions.update(data);
-        }, () => {
-            this.actions.retry();
         });
     }
 }

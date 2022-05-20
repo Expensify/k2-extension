@@ -279,17 +279,11 @@ function getPullsByType(type, cb, getReviews) {
 }
 
 /**
- * Get all issues with a certain label
+ * Get all issues assigned to the current user
  *
- * @date 2015-06-07
- * @private
- *
- * @param {string} label
- * @param {string} assignee
  * @param {Function} cb
- * @param {Function} retryCb called each time we attempting to retry the API call
  */
-function getIssuesByLabel(label, assignee, cb, retryCb) {
+function getAllAssigned(cb) {
     let query = '';
 
     // Get the PRs assigned to me
@@ -301,6 +295,8 @@ function getIssuesByLabel(label, assignee, cb, retryCb) {
     query += ' repo:Expensify/VendorTasks';
     query += ' repo:Expensify/Expensify-Guides';
 
+    const assignee = getCurrentUser();
+
     if (assignee === 'none') {
         query += ' no:assignee';
     } else if (assignee) {
@@ -310,48 +306,48 @@ function getIssuesByLabel(label, assignee, cb, retryCb) {
     const octokit = new Octokit({auth: Preferences.getGitHubToken()});
 
     octokit.graphql(`
-query {
-  search(
-    query: "${query}"
-    type: ISSUE
-    first: 100
-  ) {
-    edges {
-      node {
-        ... on Issue {
-          title
-          labels(first: 100) {
-            edges {
-              node {
-                name
-              }
+        query {
+            search(
+                query: "${query}"
+                type: ISSUE
+                first: 100
+            ) {
+                edges {
+                    node {
+                        ... on Issue {
+                            title
+                            id
+                            url
+                            labels(first: 100) {
+                                edges {
+                                    node {
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-          }
-          id
-          url
         }
-      }
-    }
-  }
-}
-    `).then(data => {
+    `)
+        .then((data) => {
+            // Put the data into a format that the rest of the app will use to remove things like edges and nodes
+            const results = _.reduce(data.search.edges, (result, searchEdge) => {
+                result.push({
+                    ...searchEdge.node,
+                    labels: _.reduce(searchEdge.node.labels.edges, (finalLabels, labelEdge) => {
+                        finalLabels.push({
+                            ...labelEdge.node,
+                        });
+                        return finalLabels;
+                    }, []),
+                });
+                return result;
+            }, []);
 
-        // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-        const results = _.reduce(data.search.edges, (result, searchEdge) => {
-            result.push({
-                ...searchEdge.node,
-                labels: _.reduce(searchEdge.node.labels.edges, (finalLabels, labelEdge) => {
-                    finalLabels.push({
-                        ...labelEdge.node,
-                    });
-                    return finalLabels;
-                }, []),
-            });
-            return result;
-        }, []);
-
-        cb(null, results)
-    });
+            cb(null, results);
+        });
 }
 
 /**
@@ -537,26 +533,6 @@ function removeLabel(label, cb, issueNumber, repoName) {
 }
 
 /**
- * Gets all issues assigned to someone
- *
- * @param {Function} cb
- * @param {Function} retryCb
- */
-function getAllAssigned(cb, retryCb) {
-    getIssuesByLabel(null, getCurrentUser(), cb, retryCb);
-}
-
-/**
- * Gets all issues not assigned to anyone
- *
- * @param {Function} cb
- * @param {Function} retryCb
- */
-function getAllUnassigned(cb, retryCb) {
-    getIssuesByLabel(null, 'none', cb, retryCb);
-}
-
-/**
  * Gets the issues for web that are open and should be worked on
  *
  * @param {Function} cb
@@ -684,7 +660,6 @@ export {
     getEngineeringIssues,
     getIntegrationsIssues,
     getAllAssigned,
-    getAllUnassigned,
     getPullsAssigned,
     getPullsReviewing,
     getPullsAuthored,
