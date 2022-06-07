@@ -6,6 +6,7 @@ import ListIssues from './ListIssues';
 import FormPassword from './FormPassword';
 import * as prefs from '../../lib/prefs';
 import * as Preferences from '../../lib/actions/Preferences';
+import ONYXKEYS from '../../ONYXKEYS';
 
 /**
  * Display our dashboard with the list of issues
@@ -40,7 +41,9 @@ function showPasswordForm() {
 export default () => ({
     draw() {
         $('.repository-content').children().remove();
-        ReactNativeOnyx.init();
+        ReactNativeOnyx.init({
+            keys: ONYXKEYS,
+        });
 
         const preferencesOnyxConnection = ReactNativeOnyx.connect({
             key: 'preferences',

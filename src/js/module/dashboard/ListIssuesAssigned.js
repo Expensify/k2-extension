@@ -1,54 +1,43 @@
 import React from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
+import {withOnyx} from 'react-native-onyx';
+import * as Issues from '../../lib/actions/Issues';
 import PanelListRaw from '../../component/panel/PanelListRaw';
+import ONYXKEYS from '../../ONYXKEYS';
+import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 
 const propTypes = {
     /** The number of milliseconds to refresh the data */
     pollInterval: PropTypes.number.isRequired,
 
-    /** The 'alt' store to get data from for this component */
-    // eslint-disable-next-line react/forbid-prop-types
-    store: PropTypes.object.isRequired,
-
-    /** The 'alt' action for fetching data */
-    // eslint-disable-next-line react/forbid-prop-types
-    action: PropTypes.object.isRequired,
+    /** All the GH issues assigned to the current user */
+    issues: PropTypes.arrayOf(IssuePropTypes),
+};
+const defaultProps = {
+    issues: null,
 };
 
 class ListIssuesAssigned extends React.Component {
     constructor(props) {
         super(props);
 
-        this.onStoreChange = this.onStoreChange.bind(this);
         this.fetch = this.fetch.bind(this);
-
-        this.state = this.props.store.getState();
     }
 
     componentDidMount() {
         this.fetch();
-
-        // Listen to our store
-        this.props.store.listen(this.onStoreChange);
     }
 
     componentWillUnmount() {
-        if (this.interval) {
-            clearInterval(this.interval);
+        if (!this.interval) {
+            return;
         }
-
-        // Stop listening to our store
-        this.props.store.unlisten(this.onStoreChange);
-    }
-
-    onStoreChange() {
-        // Update our state when the store changes
-        this.setState(this.props.store.getState());
+        clearInterval(this.interval);
     }
 
     fetch() {
-        this.props.action.fetch();
+        Issues.getAllAssigned();
 
         if (this.props.pollInterval && !this.interval) {
             this.interval = setInterval(this.fetch, this.props.pollInterval);
@@ -56,7 +45,7 @@ class ListIssuesAssigned extends React.Component {
     }
 
     render() {
-        if (this.state.loading) {
+        if (!this.props.issues) {
             return (
                 <div className="blankslate capped clean-background">
                     Loading
@@ -64,7 +53,7 @@ class ListIssuesAssigned extends React.Component {
             );
         }
 
-        if (!this.state.data || !this.state.data.length) {
+        if (!_.size(this.props.issues)) {
             return (
                 <div className="blankslate capped clean-background">
                     No items
@@ -80,7 +69,7 @@ class ListIssuesAssigned extends React.Component {
                             title="Hourly"
                             extraClass="hourly"
                             item="issue"
-                            data={_.filter(this.state.data, row => _.findWhere(row.labels, {name: 'Hourly'}))}
+                            data={_.filter(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Hourly'}))}
                         />
                     </div>
                     <div className="col-3 pr-4">
@@ -88,7 +77,7 @@ class ListIssuesAssigned extends React.Component {
                             title="Daily"
                             extraClass="daily"
                             item="issue"
-                            data={_.filter(this.state.data, row => _.findWhere(row.labels, {name: 'Daily'}))}
+                            data={_.filter(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Daily'}))}
                         />
                     </div>
                     <div className="col-3 pr-4">
@@ -96,7 +85,7 @@ class ListIssuesAssigned extends React.Component {
                             title="Weekly"
                             extraClass="weekly"
                             item="issue"
-                            data={_.filter(this.state.data, row => _.findWhere(row.labels, {name: 'Weekly'}))}
+                            data={_.filter(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Weekly'}))}
                         />
                     </div>
                     <div className="col-3">
@@ -104,7 +93,7 @@ class ListIssuesAssigned extends React.Component {
                             title="Monthly"
                             extraClass="monthly"
                             item="issue"
-                            data={_.filter(this.state.data, row => _.findWhere(row.labels, {name: 'Monthly'}))}
+                            data={_.filter(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Monthly'}))}
                         />
                     </div>
                 </div>
@@ -113,8 +102,7 @@ class ListIssuesAssigned extends React.Component {
                         title="None"
                         extraClass="none"
                         item="issue"
-                        // eslint-disable-next-line rulesdir/prefer-underscore-method
-                        data={_.filter(this.state.data, row => _.intersection(row.labels.map(label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0)}
+                        data={_.filter(this.props.issues, issue => _.intersection(_.map(issue.labels, label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0)}
                     />
                 </div>
             </div>
@@ -123,5 +111,10 @@ class ListIssuesAssigned extends React.Component {
 }
 
 ListIssuesAssigned.propTypes = propTypes;
+ListIssuesAssigned.defaultProps = defaultProps;
 
-export default ListIssuesAssigned;
+export default withOnyx({
+    issues: {
+        key: ONYXKEYS.ASSIGNED_ISSUES,
+    },
+})(ListIssuesAssigned);

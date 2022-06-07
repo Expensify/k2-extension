@@ -4,13 +4,14 @@ import PropTypes from 'prop-types';
 import ListItemIssue from '../list-item/ListItemIssue';
 import ListItemPull from '../list-item/ListItemPull';
 import ListItemForm from '../list-item/ListItemForm';
+import IssuePropTypes from '../list-item/IssuePropTypes';
 
 const propTypes = {
     /** The type of data being displayed */
     type: PropTypes.oneOf(['issue', 'pull', 'review', 'form']).isRequired,
 
     /** The data that will be displayed */
-    data: PropTypes.arrayOf(PropTypes.object).isRequired,
+    data: PropTypes.arrayOf(IssuePropTypes).isRequired,
 };
 
 const ListRaw = (props) => {

@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import moment from 'moment';
+import {Octokit} from 'octokit';
 import * as Preferences from './actions/Preferences';
 import * as GistDB from './gistdb';
 
@@ -278,96 +279,75 @@ function getPullsByType(type, cb, getReviews) {
 }
 
 /**
- * Get all issues with a certain label
+ * Get all issues assigned to the current user
  *
- * @date 2015-06-07
- * @private
- *
- * @param {string} label
- * @param {string} assignee
- * @param {Function} cb
- * @param {Function} retryCb called each time we attempting to retry the API call
+ * @returns {Promise}
  */
-function getIssuesByLabel(label, assignee, cb, retryCb) {
-    const filterLabels = ['hourly', 'daily', 'weekly', 'monthly'];
-    let query = '?per_page=300&q=';
-    let result = [];
+function getAllAssigned() {
+    let query = '';
 
     // Get the PRs assigned to me
-    query += '+state:open';
-    query += '+is:issue';
-    query += '+repo:Expensify/Expensify';
-    query += '+repo:Expensify/App';
-    query += '+repo:Expensify/Insiders';
-    query += '+repo:Expensify/VendorTasks';
-    query += '+repo:Expensify/Expensify-Guides';
+    query += ' state:open';
+    query += ' is:issue';
+    query += ' repo:Expensify/Expensify';
+    query += ' repo:Expensify/App';
+    query += ' repo:Expensify/Insiders';
+    query += ' repo:Expensify/VendorTasks';
+    query += ' repo:Expensify/Expensify-Guides';
+
+    const assignee = getCurrentUser();
 
     if (assignee === 'none') {
-        query += '+no:assignee';
+        query += ' no:assignee';
     } else if (assignee) {
-        query += `+assignee:${assignee}`;
+        query += ` assignee:${assignee}`;
     }
 
-    // We need to exclude our other filter labels if we are searching
-    // for no priority
-    if (label === 'none') {
-        for (let i = filterLabels.length - 1; i >= 0; i--) {
-            query += `+-label:${filterLabels[i]}`;
-        }
-    } else if (label) {
-        query += `+label:${label}`;
-    }
+    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
 
-    const url = `${baseUrl}/search/issues${query}`;
-
-    function handleData(data, status, xhr) {
-        // Set the type of the item to be the label we are looking for
-        _.map(data.items, item => ({...item, type: label}));
-
-        result = result.concat(data.items);
-
-        // If we have a next link, then we do some recursive pagination
-        const responseHeaderLink = xhr.getResponseHeader('Link');
-        if (responseHeaderLink) {
-            const links = parse_link_header(responseHeaderLink);
-            if (links.next) {
-                /* eslint-disable no-use-before-define */
-                makeRequest(links.next);
-                /* eslint-enable no-use-before-define */
-                return;
+    return octokit.graphql(`
+        query {
+            search(
+                query: "${query}"
+                type: ISSUE
+                first: 100
+            ) {
+                edges {
+                    node {
+                        ... on Issue {
+                            title
+                            id
+                            url
+                            labels(first: 100) {
+                                edges {
+                                    node {
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
+    `)
+        .then((data) => {
+            // Put the data into a format that the rest of the app will use to remove things like edges and nodes
+            const results = _.reduce(data.search.edges, (finalResults, searchEdge) => {
+                finalResults.push({
+                    ...searchEdge.node,
+                    labels: _.reduce(searchEdge.node.labels.edges, (finalLabels, labelEdge) => {
+                        finalLabels.push({
+                            ...labelEdge.node,
+                        });
+                        return finalLabels;
+                    }, []),
+                });
+                return finalResults;
+            }, []);
 
-        cb(null, result);
-    }
-
-    function makeRequest(overwriteUrl) {
-        $.ajax({
-            url: overwriteUrl || url,
-            headers: {
-                Authorization: `Bearer ${Preferences.getGitHubToken()}`,
-            },
-        })
-            .done(handleData)
-            .fail((xhr, err, msg) => {
-                if (xhr.status === 403) {
-                    const resetTime = new Date(xhr.getResponseHeader('X-RateLimit-Reset') * 1000);
-                    const resetInterval = setInterval(() => {
-                        if (retryCb) {
-                            retryCb(resetTime - new Date());
-                        }
-                        if (new Date() > resetTime) {
-                            clearInterval(resetInterval);
-                            makeRequest(overwriteUrl);
-                        }
-                    }, 1000);
-                    return;
-                }
-                cb(xhr, err, msg);
-            });
-    }
-
-    makeRequest();
+            return results;
+        });
 }
 
 /**
@@ -553,26 +533,6 @@ function removeLabel(label, cb, issueNumber, repoName) {
 }
 
 /**
- * Gets all issues assigned to someone
- *
- * @param {Function} cb
- * @param {Function} retryCb
- */
-function getAllAssigned(cb, retryCb) {
-    getIssuesByLabel(null, getCurrentUser(), cb, retryCb);
-}
-
-/**
- * Gets all issues not assigned to anyone
- *
- * @param {Function} cb
- * @param {Function} retryCb
- */
-function getAllUnassigned(cb, retryCb) {
-    getIssuesByLabel(null, 'none', cb, retryCb);
-}
-
-/**
  * Gets the issues for web that are open and should be worked on
  *
  * @param {Function} cb
@@ -700,7 +660,6 @@ export {
     getEngineeringIssues,
     getIntegrationsIssues,
     getAllAssigned,
-    getAllUnassigned,
     getPullsAssigned,
     getPullsReviewing,
     getPullsAuthored,

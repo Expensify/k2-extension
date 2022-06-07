@@ -4,12 +4,10 @@ import * as prefs from '../../lib/prefs';
 import Filters from './Filters';
 import Tabs from '../../component/tabs/Tabs';
 
-import StoreIssueAssigned from '../../store/issue.all.assigned';
 import StorePullAssigned from '../../store/pull.assigned';
 import StorePullReviewing from '../../store/pull.reviewing';
 import StoreDailyImprovements from '../../store/dailyimprovements';
 
-import ActionsIssueAssigned from '../../action/issue.all.assigned';
 import ActionsPullAssigned from '../../action/pull.assigned';
 import ActionsPullReviewing from '../../action/pull.reviewing';
 import ActionsDailyImprovements from '../../action/dailyimprovements';
@@ -127,8 +125,6 @@ class ListIssues extends React.Component {
 
                 <ListIssuesAssigned
                     pollInterval={this.props.pollInterval}
-                    action={ActionsIssueAssigned}
-                    store={StoreIssueAssigned}
                 />
 
                 <br />

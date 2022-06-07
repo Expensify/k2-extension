@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Title from '../panel-title/Title';
 import ListRaw from '../list/ListRaw';
+import IssuePropTypes from '../list-item/IssuePropTypes';
 
 const propTypes = {
     /** A CSS class to add to this panel to give it some color */
@@ -14,7 +15,7 @@ const propTypes = {
     item: PropTypes.oneOf(['issue', 'pull', 'review', 'form']).isRequired,
 
     /** The data that will be displayed in the list */
-    data: PropTypes.arrayOf(PropTypes.object).isRequired,
+    data: PropTypes.arrayOf(IssuePropTypes).isRequired,
 };
 
 const PanelListRaw = props => (
@@ -28,5 +29,5 @@ const PanelListRaw = props => (
 );
 
 PanelListRaw.propTypes = propTypes;
-PanelListRaw.displayName = 'ListRaw';
+PanelListRaw.displayName = 'PanelListRaw';
 export default PanelListRaw;
