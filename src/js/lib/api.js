@@ -153,19 +153,62 @@ function getMilestones(view, cb) {
  * @param {Boolean} getReviews wether or not to make extra API requests to get the review data
  */
 function getPullsByType(type, cb, getReviews) {
-    let query = '?q=';
+    let query = '';
 
     // Get the PRs assigned to me
-    query += '+state:open';
-    query += '+type:pr';
+    query += ' state:open';
+    query += ' type:pr';
 
-    // query += '+user:expensify';
-    query += '+org:expensify';
-    query += `+${type}:${getCurrentUser()}`;
+    query += ' org:expensify';
+    query += ` ${type}:${getCurrentUser()}`;
 
-    query += '&sort=updated';
+    query += ' sort:updated';
 
-    const url = `${baseUrl}/search/issues${query}`;
+    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
+
+    const graphQLQuery = `
+        query {
+            search(
+                query: "${query}"
+                type: ISSUE
+                first: 100
+            ) {
+                edges {
+                    node {
+                        ... on PullRequest {
+                            title
+                            id
+                            url
+                        }
+                    }
+                }
+            }
+        }
+    `;
+    console.log(graphQLQuery)
+
+    return octokit.graphql(graphQLQuery)
+        .then((data) => {
+            console.log(data);
+            // Put the data into a format that the rest of the app will use to remove things like edges and nodes
+            const results = _.reduce(data.search.edges, (finalResults, searchEdge) => {
+                finalResults.push({
+                    ...searchEdge.node,
+                    labels: _.reduce(searchEdge.node.labels.edges, (finalLabels, labelEdge) => {
+                        finalLabels.push({
+                            ...labelEdge.node,
+                        });
+                        return finalLabels;
+                    }, []),
+                });
+                return finalResults;
+            }, []);
+            console.log(results);
+
+            return results;
+        });
+
+    return;
     $.ajax({
         url,
         headers: {
