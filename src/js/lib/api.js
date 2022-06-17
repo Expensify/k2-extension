@@ -168,42 +168,48 @@ function getPullsByType(type, cb, getReviews) {
 
     const graphQLQuery = `
         query {
-            search(
-                query: "${query}"
-                type: ISSUE
-                first: 100
-            ) {
-                edges {
-                    node {
-                        ... on PullRequest {
-                            title
-                            id
-                            url
-                        }
-                    }
+  search(query: "${query}", type: ISSUE, first: 100) {
+    edges {
+      node {
+        ... on PullRequest {
+          title
+          id
+          url
+          checksResourcePath
+          reviews(first: 100) {
+            edges {
+              node {
+                author {
+                  login
                 }
+                state
+              }
             }
+          }
         }
+      }
+    }
+  }
+}
     `;
-    console.log(graphQLQuery)
 
     return octokit.graphql(graphQLQuery)
         .then((data) => {
-            console.log(data);
             // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-            const results = _.reduce(data.search.edges, (finalResults, searchEdge) => {
-                finalResults.push({
+            const results = _.reduce(data.search.edges, (pullRequests, searchEdge) => {
+                pullRequests.push({
                     ...searchEdge.node,
-                    labels: _.reduce(searchEdge.node.labels.edges, (finalLabels, labelEdge) => {
-                        finalLabels.push({
-                            ...labelEdge.node,
+                    reviews: _.reduce(searchEdge.node.reviews.edges, (reviews, reviewsEdge) => {
+                        reviews.push({
+                            ...reviewsEdge.node,
                         });
-                        return finalLabels;
+                        return reviews;
                     }, []),
                 });
-                return finalResults;
+                return pullRequests;
             }, []);
-            console.log(results);
+
+            // @TODO get the check-runs from the REST API (it's not available in graphQL yet)
 
             return results;
         });
