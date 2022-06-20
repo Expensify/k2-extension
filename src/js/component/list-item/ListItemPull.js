@@ -12,7 +12,7 @@ const propTypes = {
 const defaultProps = {
     data: null,
     pr: null,
-}
+};
 
 const ListItemPull = (props) => {
     const pr = props.pr || props.data;

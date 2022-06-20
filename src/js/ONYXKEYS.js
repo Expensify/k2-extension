@@ -11,6 +11,6 @@ export default {
     },
 
     ISSUES: {
-        ASSIGNED: 'issueAssigned'
+        ASSIGNED: 'issueAssigned',
     },
 };

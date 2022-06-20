@@ -21,6 +21,7 @@ function getReviewing() {
             ...values[0],
             ...values[1],
         };
+
         // Always use set() here because there is no way to remove issues from Onyx
         // that get closed and are no longer assigned
         ReactNativeOnyx.set(ONYXKEYS.PRS.REVIEWING, allPRs);

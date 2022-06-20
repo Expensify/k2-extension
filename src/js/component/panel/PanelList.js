@@ -19,7 +19,6 @@ const propTypes = {
 
 const defaultProps = {
     children: null,
-    extraClass: '',
     pollInterval: null,
 };
 
@@ -59,7 +58,7 @@ class PanelList extends React.Component {
 
     render() {
         return (
-            <div className={`panel mb-3`}>
+            <div className="panel mb-3">
                 <Title text={this.props.title} />
                 <List
                     ref={el => this.list = el}
