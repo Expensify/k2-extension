@@ -28,9 +28,6 @@ export default PropTypes.shape({
         totalCount: PropTypes.number,
     }),
 
-    /** Whether or not the user is done reviewing */
-    userIsFinishedReviewing: PropTypes.bool,
-
     /** Info about reviews on the PR */
     reviews: PropTypes.shape({
         /** The number of comments on the PR */
