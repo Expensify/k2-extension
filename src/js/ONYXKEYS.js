@@ -7,7 +7,6 @@ export default {
 
     PRS: {
         ASSIGNED: 'prsAssigned',
-        AUTHORED: 'prsAuthored',
         REVIEWING: 'prsReviewing',
     },
 

@@ -11,15 +11,6 @@ function getAssigned() {
         });
 }
 
-function getAuthored() {
-    API.getPullsByType('author')
-        .then((prs) => {
-            // Always use set() here because there is no way to remove issues from Onyx
-            // that get closed and are no longer assigned
-            ReactNativeOnyx.set(ONYXKEYS.PRS.AUTHORED, prs);
-        });
-}
-
 function getReviewing() {
     const promises = [];
     promises.push(API.getPullsByType('review-requested'));
@@ -38,6 +29,5 @@ function getReviewing() {
 
 export {
     getAssigned,
-    getAuthored,
     getReviewing,
 };

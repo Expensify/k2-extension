@@ -4,12 +4,8 @@ import * as prefs from '../../lib/prefs';
 import Filters from './Filters';
 import Tabs from '../../component/tabs/Tabs';
 
-import StorePullAssigned from '../../store/pull.assigned';
-import StorePullReviewing from '../../store/pull.reviewing';
 import StoreDailyImprovements from '../../store/dailyimprovements';
 
-import ActionsPullAssigned from '../../action/pull.assigned';
-import ActionsPullReviewing from '../../action/pull.reviewing';
 import ActionsDailyImprovements from '../../action/dailyimprovements';
 import PanelList from '../../component/panel/PanelList';
 import ListIssuesAssigned from './ListIssuesAssigned';
