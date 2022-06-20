@@ -13,6 +13,7 @@ function getAuthored() {
 function getReviewing() {
     // @TODO also need to combine this with reviewed-by
     API.getPullsByType('review-requested');
+    API.getPullsByType('reviewed-by');
 }
 
 export {

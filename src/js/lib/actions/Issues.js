@@ -7,7 +7,7 @@ function getAllAssigned() {
         .then((issues) => {
             // Always use set() here because there is no way to remove issues from Onyx
             // that get closed and are no longer assigned
-            ReactNativeOnyx.set(ONYXKEYS.ASSIGNED_ISSUES, issues);
+            ReactNativeOnyx.set(ONYXKEYS.ISSUES.ASSIGNED, issues);
         });
 }
 

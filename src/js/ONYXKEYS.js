@@ -7,4 +7,14 @@ export default {
 
     // Holds all the issues assigned to the user
     ASSIGNED_ISSUES: 'assignedIssues',
+
+    PRS: {
+        ASSIGNED: 'prsAssigned',
+        AUTHORED: 'prsAuthord',
+        REVIEWING: 'prsReviewing',
+    },
+
+    ISSUES: {
+        ASSIGNED: 'issueAssigned'
+    },
 };

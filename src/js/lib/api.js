@@ -212,7 +212,8 @@ function getPullsByType(type, cb, getReviews) {
 
             // @TODO get the check-runs from the REST API (it's not available in graphQL yet)
 
-            return results;
+            // Index the results by their ID so they are easier to access as a collection
+            return _.indexBy(results, 'id');
         });
 
     return;
@@ -396,7 +397,8 @@ function getIssuesAssigned() {
                 return finalResults;
             }, []);
 
-            return results;
+            // Index the results by their ID so they are easier to access as a collection
+            return _.indexBy(results, 'id');
         });
 }
 
