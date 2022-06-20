@@ -167,30 +167,36 @@ function getPullsByType(type, cb, getReviews) {
     const octokit = new Octokit({auth: Preferences.getGitHubToken()});
 
     const graphQLQuery = `
-        query {
-  search(query: "${query}", type: ISSUE, first: 100) {
-    edges {
-      node {
-        ... on PullRequest {
-          checksResourcePath
-          id
-          title
-          url
-          updatedAt
-          reviews(first: 100) {
-            edges {
-              node {
-                author {
-                  login
+query {
+    search(query: "${query}", type: ISSUE, first: 100) {
+        edges {
+            node {
+                ... on PullRequest {
+                    checksResourcePath
+                    id
+                    isDraft
+                    mergeable
+                    reviewDecision
+                    title
+                    url
+                    updatedAt
+                    comments {
+                        totalCount
+                    }
+                    reviews(first: 100) {
+                        edges {
+                            node {
+                                author {
+                                    login
+                                }
+                                state
+                            }
+                        }
+                    }
                 }
-                state
-              }
             }
-          }
         }
-      }
     }
-  }
 }
     `;
 

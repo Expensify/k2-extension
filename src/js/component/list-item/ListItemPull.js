@@ -6,31 +6,37 @@ const propTypes = {
     /** Data about the pull request being displayed */
     data: PropTypes.shape({
         /** The date that the PR was updated */
-        updated_at: PropTypes.string.isRequired,
+        updatedAt: PropTypes.string.isRequired,
 
         /** The title of the PR */
         title: PropTypes.string.isRequired,
 
         /** The URL to the PR */
-        html_url: PropTypes.string.isRequired,
+        url: PropTypes.string.isRequired,
+
+        /** Whether or not the PR is a draft */
+        isDraft: PropTypes.bool.isRequired,
+
+        /** The current state of the PR merge */
+        mergable: PropTypes.oneOf(['MERGEABLE', 'CONFLICTING', 'UNKNOWN']).isRequired,
 
         /** The user login of the person assigned to the PR */
         login: PropTypes.string,
 
-        /** The number of comments on the PR */
-        comments: PropTypes.number.isRequired,
+        /** The status of PR reviews */
+        reviewDecision: PropTypes.oneOf(['CHANGES_REQUESTED', 'APPROVED', 'REVIEW_REQUIRED']).isRequired,
+
+        /** Info about comments on the PR */
+        comments: PropTypes.shape({
+            /** The number of comments on the PR */
+            totalCount: PropTypes.number,
+        }),
 
         /** Whether or not the user is done reviewing */
         userIsFinishedReviewing: PropTypes.bool,
 
         /** Information about the PR from GitHub */
         pr: PropTypes.shape({
-            /** Whether or not the PR is merged */
-            merged: PropTypes.bool.isRequired,
-
-            /** The current state of the PR merge */
-            mergeable_state: PropTypes.string.isRequired,
-
             /** Travis Status of the PR */
             status: PropTypes.arrayOf(PropTypes.shape({
                 /** Current state of the travis tests */
@@ -50,7 +56,7 @@ const ListItemPull = (props) => {
         const days = 7;
 
         // See if it's overdue
-        const isOverdue = moment(props.data.updated_at).isBefore(today.subtract(days, 'days'), 'day');
+        const isOverdue = moment(props.data.updatedAt).isBefore(today.subtract(days, 'days'), 'day');
 
         if (isOverdue) {
             className += ' overdue';
@@ -64,43 +70,33 @@ const ListItemPull = (props) => {
         return className;
     }
 
-    if (!props.data.pr || props.data.pr.merged) {
-        // This should not be reached unless there is a GitHub API error. Since we
-        // have seen some such errors, filter out already-merged PRs or PRs with
-        // missing data.
-        return null;
-    }
-
-    const mergeableState = props.data.pr.mergeable_state || 'unknown';
     let mergeability = '';
 
-    switch (mergeableState) {
-        case 'dirty':
-            mergeability = 'Merge Conflicts';
-            break;
-        case 'blocked':
-            if (!props.data.reviews || !props.data.reviews.length) {
-                mergeability = 'Needs Review';
-            } else {
-                mergeability = 'Changes Requested';
-            }
-            break;
-        case 'behind':
-            mergeability = 'Branch Behind';
-            break;
-        case 'unstable':
-            mergeability = 'Merge With Caution';
-            break;
-        case 'has_hooks':
-        case 'clean':
+    switch (props.data.mergable) {
+        case 'MERGEABLE':
             mergeability = 'Approved';
             break;
-        case 'draft':
-            mergeability = 'Draft';
+        case 'CONFLICTING':
+            mergeability = 'Merge Conflicts';
             break;
-        case 'unknown':
+        case 'UNKNOWN':
         default:
             mergeability = 'Mergeability Unknown';
+    }
+
+    switch (props.data.reviewDecision) {
+        case 'CHANGES_REQUESTED':
+            mergeability = 'Changes Requested';
+            break;
+        case 'REVIEW_REQUIRED':
+            mergeability = 'Needs Review';
+            break;
+        default:
+            break;
+    }
+
+    if (props.data.isDraft) {
+        mergeability = 'Draft';
     }
 
     return (
@@ -109,13 +105,14 @@ const ListItemPull = (props) => {
             <span className="panel-item-meta">
                 <span className="age">
                     Updated:
-                    {moment(props.data.updated_at).fromNow()}
+                    {' '}
+                    {moment(props.data.updatedAt).fromNow()}
                 </span>
 
                 <span className="comments">
                     Comments:
                     {' '}
-                    {props.data.comments}
+                    {props.data.comments.totalCount}
                 </span>
 
                 <span className="comments">
@@ -124,7 +121,8 @@ const ListItemPull = (props) => {
                     {props.data.reviews.length}
                 </span>
 
-                {props.data.pr.status && props.data.pr.status.length && props.data.pr.status[0].state
+                {/* @TODO get the status for Travis and put it here */}
+                {false && props.data.pr.status && props.data.pr.status.length && props.data.pr.status[0].state
                     ? (
                         <span className={`travis-status ${props.data.pr.status[0].state}`}>
                             Travis:
@@ -136,13 +134,13 @@ const ListItemPull = (props) => {
                     : null}
 
                 {mergeability && (
-                    <span className={`mergeable-state ${mergeableState}`}>
+                    <span className={`mergeable-state ${props.data.mergable} ${mergeability === 'Draft' && 'DRAFT'}`}>
                         {mergeability}
                     </span>
                 )}
             </span>
 
-            <a href={props.data.html_url} className={getClassName()} target="_blank" rel="noreferrer noopener">
+            <a href={props.data.url} className={getClassName()} target="_blank" rel="noreferrer noopener">
                 <span className="octicon octicon-alert" />
                 {props.data.title}
                 {' '}
@@ -155,9 +153,7 @@ const ListItemPull = (props) => {
                 </span>
             ) : null}
 
-            {mergeableState === 'draft' ? (
-                <span className="Counter">draft</span>
-            ) : null}
+            {mergeability === 'Draft' && <span className="Counter">draft</span>}
         </div>
     );
 };

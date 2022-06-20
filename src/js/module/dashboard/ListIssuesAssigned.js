@@ -12,7 +12,7 @@ const propTypes = {
     pollInterval: PropTypes.number.isRequired,
 
     /** All the GH issues assigned to the current user */
-    issues: PropTypes.arrayOf(IssuePropTypes),
+    issues: PropTypes.objectOf(IssuePropTypes),
 };
 const defaultProps = {
     issues: null,
