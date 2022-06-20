@@ -172,10 +172,11 @@ function getPullsByType(type, cb, getReviews) {
     edges {
       node {
         ... on PullRequest {
-          title
-          id
-          url
           checksResourcePath
+          id
+          title
+          url
+          updatedAt
           reviews(first: 100) {
             edges {
               node {
@@ -603,13 +604,9 @@ function getIntegrationsIssues(cb, retryCb) {
 
 /**
  * Get all the pull requests assigned to the current user
- *
- * @date 2015-06-07
- *
- * @param {Function} cb [description]
  */
-function getPullsAssigned(cb) {
-    getPullsByType('assignee', cb, true);
+function getPullsAssigned() {
+    return getPullsByType('assignee');
 }
 
 /**
@@ -620,40 +617,44 @@ function getPullsAssigned(cb) {
  * @param {Function} cb [description]
  */
 function getPullsReviewing(cb) {
-    let result = [];
-    const done = _.after(2, () => {
-        cb(null, _.chain(result)
-            .filter((pr) => {
-                // If there is no assignee, ensure reviewers still see the PR so it does not get lost
-                if (!pr.assignee) {
-                    return true;
-                }
-                return pr.assignee.login !== getCurrentUser();
-            })
-            .sortBy('userIsFinishedReviewing')
-            .value()
-            .reverse());
-    });
+    // @TODO refactor to use promises
+    cb(null, []);
+    return;
 
-    getPullsByType('review-requested', (err, data) => {
-        if (err) {
-            console.error(err);
-            done();
-            return;
-        }
-        result = result.concat(data);
-        done();
-    }, true);
-
-    getPullsByType('reviewed-by', (err, data) => {
-        if (err) {
-            console.error(err);
-            done();
-            return;
-        }
-        result = result.concat(data);
-        done();
-    }, true);
+    // let result = [];
+    // const done = _.after(2, () => {
+    //     cb(null, _.chain(result)
+    //         .filter((pr) => {
+    //             // If there is no assignee, ensure reviewers still see the PR so it does not get lost
+    //             if (!pr.assignee) {
+    //                 return true;
+    //             }
+    //             return pr.assignee.login !== getCurrentUser();
+    //         })
+    //         .sortBy('userIsFinishedReviewing')
+    //         .value()
+    //         .reverse());
+    // });
+    //
+    // getPullsByType('review-requested', (err, data) => {
+    //     if (err) {
+    //         console.error(err);
+    //         done();
+    //         return;
+    //     }
+    //     result = result.concat(data);
+    //     done();
+    // }, true);
+    //
+    // getPullsByType('reviewed-by', (err, data) => {
+    //     if (err) {
+    //         console.error(err);
+    //         done();
+    //         return;
+    //     }
+    //     result = result.concat(data);
+    //     done();
+    // }, true);
 }
 
 /**

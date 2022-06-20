@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 
 export default PropTypes.shape({
     /** The GH generated ID of the issue */
-    id: PropTypes.string.isRequired,
+    id: PropTypes.number.isRequired,
 
     /** The URL to the issue in GH */
     url: PropTypes.string.isRequired,

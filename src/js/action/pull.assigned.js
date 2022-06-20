@@ -13,13 +13,8 @@ class Action {
     fetch() {
         this.dispatch();
 
-        API.getPullsAssigned((err, data) => {
-            if (err) {
-                return this.actions.failed(err);
-            }
-
-            this.actions.update(data);
-        });
+        API.getPullsAssigned()
+            .then(data => this.actions.update(data));
     }
 }
 
