@@ -115,6 +115,6 @@ ListIssuesAssigned.defaultProps = defaultProps;
 
 export default withOnyx({
     issues: {
-        key: ONYXKEYS.ASSIGNED_ISSUES,
+        key: ONYXKEYS.ISSUES.ASSIGNED,
     },
 })(ListIssuesAssigned);
