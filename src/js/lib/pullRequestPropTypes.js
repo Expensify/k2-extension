@@ -19,9 +19,6 @@ export default PropTypes.shape({
     /** The current state of the PR merge */
     mergable: PropTypes.oneOf(['MERGEABLE', 'CONFLICTING', 'UNKNOWN']),
 
-    /** The user login of the person assigned to the PR */
-    login: PropTypes.string,
-
     /** The status of PR reviews */
     reviewDecision: PropTypes.oneOf(['CHANGES_REQUESTED', 'APPROVED', 'REVIEW_REQUIRED']).isRequired,
 
@@ -34,15 +31,9 @@ export default PropTypes.shape({
     /** Whether or not the user is done reviewing */
     userIsFinishedReviewing: PropTypes.bool,
 
-    /** Information about the PR from GitHub */
-    pr: PropTypes.shape({
-        /** Travis Status of the PR */
-        status: PropTypes.arrayOf(PropTypes.shape({
-            /** Current state of the travis tests */
-            state: PropTypes.string.isRequired,
-        })).isRequired,
+    /** Info about reviews on the PR */
+    reviews: PropTypes.shape({
+        /** The number of comments on the PR */
+        totalCount: PropTypes.number,
     }),
-
-    /** Information about review on the PR */
-    reviews: PropTypes.arrayOf(PropTypes.object),
 });

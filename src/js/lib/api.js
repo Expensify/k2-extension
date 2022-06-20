@@ -180,15 +180,8 @@ query {
                     repository {
                         name
                     }
-                    reviews(first: 100) {
-                        edges {
-                            node {
-                                author {
-                                    login
-                                }
-                                state
-                            }
-                        }
+                    reviews {
+                        totalCount
                     }
                 }
             }
@@ -203,12 +196,6 @@ query {
             const results = _.reduce(data.search.edges, (pullRequests, searchEdge) => {
                 pullRequests.push({
                     ...searchEdge.node,
-                    reviews: _.reduce(searchEdge.node.reviews.edges, (reviews, reviewsEdge) => {
-                        reviews.push({
-                            ...reviewsEdge.node,
-                        });
-                        return reviews;
-                    }, []),
                 });
                 return pullRequests;
             }, []);

@@ -39,7 +39,7 @@ const ListItemPull = (props) => {
         return className;
     }
 
-    let mergeability = '';
+    let mergeability = 'Done reviewing';
 
     switch (pr.mergable) {
         case 'MERGEABLE':
@@ -49,8 +49,10 @@ const ListItemPull = (props) => {
             mergeability = 'Merge Conflicts';
             break;
         case 'UNKNOWN':
-        default:
             mergeability = 'Mergeability Unknown';
+            break;
+        default:
+            break;
     }
 
     switch (pr.reviewDecision) {
@@ -87,7 +89,7 @@ const ListItemPull = (props) => {
                 <span className="comments">
                     Reviews:
                     {' '}
-                    {pr.reviews.length}
+                    {pr.reviews.totalCount}
                 </span>
 
                 {pr.checkConclusion && (
@@ -111,13 +113,6 @@ const ListItemPull = (props) => {
                 {pr.title}
                 {' '}
             </a>
-
-            {pr.userIsFinishedReviewing ? (
-                <span>
-                    <span className="Counter">done reviewing</span>
-                    {' '}
-                </span>
-            ) : null}
 
             {mergeability === 'Draft' && <span className="Counter">draft</span>}
         </div>
