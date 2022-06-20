@@ -3,7 +3,9 @@ import moment from 'moment';
 import pullRequestPropTypes from '../../lib/pullRequestPropTypes';
 
 const propTypes = {
-    /** Data about the pull request being displayed */
+    /** Data about the pull request being displayed. The `data` and `pr` props are the same and can come from multiple
+     * sources. The new refactored code users `pr` because it's more semantically correct, but old data uses `data`.
+     * Once all the refactoring is done to move all this data to Onyx, then `data` can be removed. */
     data: pullRequestPropTypes,
 
     /** Data about the pull request being displayed */
