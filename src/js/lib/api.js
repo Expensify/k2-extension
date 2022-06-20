@@ -333,7 +333,7 @@ function getPullsByType(type, cb, getReviews) {
  *
  * @returns {Promise}
  */
-function getAllAssigned() {
+function getIssuesAssigned() {
     let query = '';
 
     // Get the PRs assigned to me
@@ -643,7 +643,7 @@ function getDailyImprovements(cb) {
 export {
     getEngineeringIssues,
     getIntegrationsIssues,
-    getAllAssigned,
+    getIssuesAssigned,
     getDailyImprovements,
     addLabels,
     removeLabel,
