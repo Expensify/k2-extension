@@ -88,17 +88,14 @@ const ListItemPull = (props) => {
                     {pr.reviews.length}
                 </span>
 
-                {/* @TODO get the status for Travis and put it here */}
-                {false && pr.pr.status && pr.pr.status.length && pr.pr.status[0].state
-                    ? (
-                        <span className={`travis-status ${pr.pr.status[0].state}`}>
-                            Travis:
-                            {' '}
-                            {pr.pr.status[0].state}
-                            ,
-                        </span>
-                    )
-                    : null}
+                {pr.checkConclusion && (
+                    <span className={`travis-status ${pr.checkConclusion}`}>
+                        Travis:
+                        {' '}
+                        {pr.checkConclusion}
+                        ,
+                    </span>
+                )}
 
                 {mergeability && (
                     <span className={`mergeable-state ${pr.mergable} ${mergeability === 'Draft' && 'DRAFT'}`}>

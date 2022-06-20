@@ -1,6 +1,9 @@
 import PropTypes from 'prop-types';
 
 export default PropTypes.shape({
+    /** The conclusion of any */
+    checkConclusion: PropTypes.string,
+
     /** The date that the PR was updated */
     updatedAt: PropTypes.string.isRequired,
 
