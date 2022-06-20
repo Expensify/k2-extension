@@ -66,8 +66,7 @@ class ListPRsAssigned extends React.Component {
                     .sortBy('updatedAt')
                     .map(pr => <ListItemPull key={pr.id} pr={pr} />)
                     .value()
-                    .reverse()
-                }
+                    .reverse()}
             </div>
         );
     }

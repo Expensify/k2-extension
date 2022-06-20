@@ -15,7 +15,7 @@ function getChecks(prs) {
                 },
             });
         });
-    })
+    });
 }
 
 function getAssigned() {
@@ -43,7 +43,7 @@ function getReviewing() {
         ReactNativeOnyx.set(ONYXKEYS.PRS.REVIEWING, allPRs);
 
         // Get the check-runs for each PR and then merge that information into the PR information in Onyx.
-        getChecks(allPRs)
+        getChecks(allPRs);
     });
 }
 

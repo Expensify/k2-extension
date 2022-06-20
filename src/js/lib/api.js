@@ -145,14 +145,10 @@ function getMilestones(view, cb) {
  * Get all the pull requests where the current user is either assigned
  * or the author
  *
- * @date 2015-06-07
- * @private
- *
  * @param {string} type 'assignee' or 'author'
- * @param {Function} cb [description]
- * @param {Boolean} getReviews wether or not to make extra API requests to get the review data
+ * @returns {Promise}
  */
-function getPullsByType(type, cb, getReviews) {
+function getPullsByType(type) {
     let query = '';
 
     // Get the PRs assigned to me
@@ -220,8 +216,6 @@ query {
             // Index the results by their ID so they are easier to access as a collection
             return _.indexBy(results, 'id');
         });
-
-    return;
 }
 
 function getCheckRuns(repo, headSHA) {
@@ -231,7 +225,7 @@ function getCheckRuns(repo, headSHA) {
             Authorization: `Bearer ${Preferences.getGitHubToken()}`,
             Accept: 'application/vnd.github.v3+json',
         },
-    })
+    });
 }
 
 /**
