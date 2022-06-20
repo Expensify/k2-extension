@@ -162,8 +162,6 @@ function getPullsByType(type, cb, getReviews) {
     query += ' org:expensify';
     query += ` ${type}:${getCurrentUser()}`;
 
-    query += ' sort:updated';
-
     const octokit = new Octokit({auth: Preferences.getGitHubToken()});
 
     const graphQLQuery = `

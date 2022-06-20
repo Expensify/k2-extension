@@ -62,7 +62,12 @@ class ListPRsReviewing extends React.Component {
                     </div>
                 )}
 
-                {_.map(this.props.prs, pr => <ListItemPull key={pr.id} data={pr} />)}
+                {_.chain(this.props.prs)
+                    .sortBy('updatedAt')
+                    .map(pr => <ListItemPull key={pr.id} pr={pr} />)
+                    .value()
+                    .reverse()
+                }
             </div>
         );
     }
