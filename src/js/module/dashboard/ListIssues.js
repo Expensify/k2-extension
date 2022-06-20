@@ -5,7 +5,6 @@ import Filters from './Filters';
 import Tabs from '../../component/tabs/Tabs';
 
 import StoreDailyImprovements from '../../store/dailyimprovements';
-
 import ActionsDailyImprovements from '../../action/dailyimprovements';
 import PanelList from '../../component/panel/PanelList';
 import ListIssuesAssigned from './ListIssuesAssigned';
@@ -135,19 +134,11 @@ class ListIssues extends React.Component {
                         pollInterval={this.props.pollInterval * 1.6}
                     />
                 </div>
-                <br />
-                <div>
-                    <ListPRsAssigned
-                        pollInterval={this.props.pollInterval * 2.5}
-                    />
-                </div>
-                <br />
-                <div>
-                    <ListPRsReviewing
-                        pollInterval={this.props.pollInterval * 2.5}
-                    />
-                </div>
-                <br />
+
+                <ListPRsAssigned pollInterval={this.props.pollInterval * 2.5} />
+
+                <ListPRsReviewing pollInterval={this.props.pollInterval * 2.5} />
+
                 <Filters onChange={this.filterIssues} />
                 <br />
                 <div>

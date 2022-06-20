@@ -8,9 +8,6 @@ const propTypes = {
     /** The number of milliseconds to refresh the data */
     pollInterval: PropTypes.number,
 
-    /** And extra CSS class to apply to the panel container */
-    extraClass: PropTypes.string,
-
     /** The title of the panel to be displayed */
     title: PropTypes.string.isRequired,
 
@@ -56,17 +53,13 @@ class PanelList extends React.Component {
         }
     }
 
-    getPanelClass() {
-        return `panel ${this.props.extraClass}`;
-    }
-
     fetch() {
         this.list.fetch();
     }
 
     render() {
         return (
-            <div className={this.getPanelClass()}>
+            <div className={`panel mb-3`}>
                 <Title text={this.props.title} />
                 <List
                     ref={el => this.list = el}

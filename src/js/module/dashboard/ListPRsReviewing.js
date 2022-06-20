@@ -47,10 +47,8 @@ class ListPRsReviewing extends React.Component {
     }
 
     render() {
-        console.log(this.props.prs);
-
         return (
-            <div className="panel">
+            <div className="panel mb-3">
                 <Title text="Review Requests - You need to finish reviewing" />
 
                 {!this.props.prs && (
