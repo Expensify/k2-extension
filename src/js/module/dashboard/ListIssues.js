@@ -15,6 +15,7 @@ import PanelList from '../../component/panel/PanelList';
 import ListIssuesAssigned from './ListIssuesAssigned';
 import * as Preferences from '../../lib/actions/Preferences';
 import ListPRsAssigned from './ListPRsAssigned';
+import ListPRsReviewing from './ListPRsReviewing';
 
 const propTypes = {
     /** The number of seconds to refresh the list of issues */
@@ -141,16 +142,12 @@ class ListIssues extends React.Component {
                 <br />
                 <div>
                     <ListPRsAssigned
-                        pollInterval={this.props.pollInterval}
+                        pollInterval={this.props.pollInterval * 2.5}
                     />
                 </div>
                 <br />
                 <div>
-                    <PanelList
-                        title="Review Requests - You need to finish reviewing"
-                        action={ActionsPullReviewing}
-                        store={StorePullReviewing}
-                        item="pull"
+                    <ListPRsReviewing
                         pollInterval={this.props.pollInterval * 2.5}
                     />
                 </div>

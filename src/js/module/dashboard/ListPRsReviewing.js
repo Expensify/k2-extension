@@ -7,6 +7,7 @@ import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import Title from '../../component/panel-title/Title';
 import ListItemPull from '../../component/list-item/ListItemPull';
 import * as PullRequests from '../../lib/actions/PullRequests';
+import {getReviewing} from '../../lib/actions/PullRequests';
 
 const propTypes = {
     /** The number of milliseconds to refresh the data */
@@ -19,7 +20,7 @@ const defaultProps = {
     prs: null,
 };
 
-class ListPRsAssigned extends React.Component {
+class ListPRsReviewing extends React.Component {
     constructor(props) {
         super(props);
 
@@ -38,7 +39,7 @@ class ListPRsAssigned extends React.Component {
     }
 
     fetch() {
-        PullRequests.getAssigned();
+        PullRequests.getReviewing();
 
         if (this.props.pollInterval && !this.interval) {
             this.interval = setInterval(this.fetch, this.props.pollInterval);
@@ -46,9 +47,11 @@ class ListPRsAssigned extends React.Component {
     }
 
     render() {
+        console.log(this.props.prs);
+
         return (
             <div className="panel">
-                <Title text="Your Pull Requests" />
+                <Title text="Review Requests - You need to finish reviewing" />
 
                 {!this.props.prs && (
                     <div className="blankslate capped clean-background">
@@ -62,17 +65,17 @@ class ListPRsAssigned extends React.Component {
                     </div>
                 )}
 
-                {_.map(this.props.prs, pr => <ListItemPull key={pr.id} pr={pr} />)}
+                {_.map(this.props.prs, pr => <ListItemPull key={pr.id} data={pr} />)}
             </div>
         );
     }
 }
 
-ListPRsAssigned.propTypes = propTypes;
-ListPRsAssigned.defaultProps = defaultProps;
+ListPRsReviewing.propTypes = propTypes;
+ListPRsReviewing.defaultProps = defaultProps;
 
 export default withOnyx({
     prs: {
-        key: ONYXKEYS.PRS.ASSIGNED,
+        key: ONYXKEYS.PRS.REVIEWING,
     },
-})(ListPRsAssigned);
+})(ListPRsReviewing);

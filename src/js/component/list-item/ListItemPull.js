@@ -1,69 +1,36 @@
 import React from 'react';
 import moment from 'moment';
-import PropTypes from 'prop-types';
+import pullRequestPropTypes from '../../lib/pullRequestPropTypes';
 
 const propTypes = {
     /** Data about the pull request being displayed */
-    data: PropTypes.shape({
-        /** The date that the PR was updated */
-        updatedAt: PropTypes.string.isRequired,
+    data: pullRequestPropTypes,
 
-        /** The title of the PR */
-        title: PropTypes.string.isRequired,
-
-        /** The URL to the PR */
-        url: PropTypes.string.isRequired,
-
-        /** Whether or not the PR is a draft */
-        isDraft: PropTypes.bool.isRequired,
-
-        /** The current state of the PR merge */
-        mergable: PropTypes.oneOf(['MERGEABLE', 'CONFLICTING', 'UNKNOWN']).isRequired,
-
-        /** The user login of the person assigned to the PR */
-        login: PropTypes.string,
-
-        /** The status of PR reviews */
-        reviewDecision: PropTypes.oneOf(['CHANGES_REQUESTED', 'APPROVED', 'REVIEW_REQUIRED']).isRequired,
-
-        /** Info about comments on the PR */
-        comments: PropTypes.shape({
-            /** The number of comments on the PR */
-            totalCount: PropTypes.number,
-        }),
-
-        /** Whether or not the user is done reviewing */
-        userIsFinishedReviewing: PropTypes.bool,
-
-        /** Information about the PR from GitHub */
-        pr: PropTypes.shape({
-            /** Travis Status of the PR */
-            status: PropTypes.arrayOf(PropTypes.shape({
-                /** Current state of the travis tests */
-                state: PropTypes.string.isRequired,
-            })).isRequired,
-        }),
-
-        /** Information about review on the PR */
-        reviews: PropTypes.arrayOf(PropTypes.object),
-    }).isRequired,
+    /** Data about the pull request being displayed */
+    pr: pullRequestPropTypes,
 };
+const defaultProps = {
+    data: null,
+    pr: null,
+}
 
 const ListItemPull = (props) => {
+    const pr = props.pr || props.data;
+
     function getClassName() {
         let className = 'issue';
         const today = moment();
         const days = 7;
 
         // See if it's overdue
-        const isOverdue = moment(props.data.updatedAt).isBefore(today.subtract(days, 'days'), 'day');
+        const isOverdue = moment(pr.updatedAt).isBefore(today.subtract(days, 'days'), 'day');
 
         if (isOverdue) {
             className += ' overdue';
         }
 
-        if (props.data.title.indexOf('[HOLD') > -1
-            || props.data.title.indexOf('[WIP') > -1) {
+        if (pr.title.indexOf('[HOLD') > -1
+            || pr.title.indexOf('[WIP') > -1) {
             className += ' hold';
         }
 
@@ -72,7 +39,7 @@ const ListItemPull = (props) => {
 
     let mergeability = '';
 
-    switch (props.data.mergable) {
+    switch (pr.mergable) {
         case 'MERGEABLE':
             mergeability = 'Approved';
             break;
@@ -84,7 +51,7 @@ const ListItemPull = (props) => {
             mergeability = 'Mergeability Unknown';
     }
 
-    switch (props.data.reviewDecision) {
+    switch (pr.reviewDecision) {
         case 'CHANGES_REQUESTED':
             mergeability = 'Changes Requested';
             break;
@@ -95,7 +62,7 @@ const ListItemPull = (props) => {
             break;
     }
 
-    if (props.data.isDraft) {
+    if (pr.isDraft) {
         mergeability = 'Draft';
     }
 
@@ -106,47 +73,47 @@ const ListItemPull = (props) => {
                 <span className="age">
                     Updated:
                     {' '}
-                    {moment(props.data.updatedAt).fromNow()}
+                    {moment(pr.updatedAt).fromNow()}
                 </span>
 
                 <span className="comments">
                     Comments:
                     {' '}
-                    {props.data.comments.totalCount}
+                    {pr.comments.totalCount}
                 </span>
 
                 <span className="comments">
                     Reviews:
                     {' '}
-                    {props.data.reviews.length}
+                    {pr.reviews.length}
                 </span>
 
                 {/* @TODO get the status for Travis and put it here */}
-                {false && props.data.pr.status && props.data.pr.status.length && props.data.pr.status[0].state
+                {false && pr.pr.status && pr.pr.status.length && pr.pr.status[0].state
                     ? (
-                        <span className={`travis-status ${props.data.pr.status[0].state}`}>
+                        <span className={`travis-status ${pr.pr.status[0].state}`}>
                             Travis:
                             {' '}
-                            {props.data.pr.status[0].state}
+                            {pr.pr.status[0].state}
                             ,
                         </span>
                     )
                     : null}
 
                 {mergeability && (
-                    <span className={`mergeable-state ${props.data.mergable} ${mergeability === 'Draft' && 'DRAFT'}`}>
+                    <span className={`mergeable-state ${pr.mergable} ${mergeability === 'Draft' && 'DRAFT'}`}>
                         {mergeability}
                     </span>
                 )}
             </span>
 
-            <a href={props.data.url} className={getClassName()} target="_blank" rel="noreferrer noopener">
+            <a href={pr.url} className={getClassName()} target="_blank" rel="noreferrer noopener">
                 <span className="octicon octicon-alert" />
-                {props.data.title}
+                {pr.title}
                 {' '}
             </a>
 
-            {props.data.userIsFinishedReviewing ? (
+            {pr.userIsFinishedReviewing ? (
                 <span>
                     <span className="Counter">done reviewing</span>
                     {' '}
@@ -159,5 +126,7 @@ const ListItemPull = (props) => {
 };
 
 ListItemPull.propTypes = propTypes;
+ListItemPull.defaultProps = defaultProps;
+ListItemPull.displayName = 'ListItemPull';
 
 export default ListItemPull;

@@ -21,14 +21,19 @@ function getAuthored() {
 }
 
 function getReviewing() {
-    // @TODO also need to combine this with reviewed-by
-    API.getPullsByType('review-requested');
-    API.getPullsByType('reviewed-by')
-        .then((prs) => {
-            // Always use set() here because there is no way to remove issues from Onyx
-            // that get closed and are no longer assigned
-            ReactNativeOnyx.set(ONYXKEYS.PRS.REVIEWING, prs);
-        });
+    const promises = [];
+    promises.push(API.getPullsByType('review-requested'));
+    promises.push(API.getPullsByType('reviewed-by'));
+
+    Promise.all(promises).then((values) => {
+        const allPRs = {
+            ...values[0],
+            ...values[1],
+        };
+        // Always use set() here because there is no way to remove issues from Onyx
+        // that get closed and are no longer assigned
+        ReactNativeOnyx.set(ONYXKEYS.PRS.REVIEWING, allPRs);
+    });
 }
 
 export {
