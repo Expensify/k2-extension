@@ -603,72 +603,6 @@ function getIntegrationsIssues(cb, retryCb) {
 }
 
 /**
- * Get all the pull requests assigned to the current user
- */
-function getPullsAssigned() {
-    return getPullsByType('assignee');
-}
-
-/**
- * Get all the pull requests the user is currently reviewing
- *
- * @date 2015-06-07
- *
- * @param {Function} cb [description]
- */
-function getPullsReviewing(cb) {
-    // @TODO refactor to use promises
-    cb(null, []);
-    return;
-
-    // let result = [];
-    // const done = _.after(2, () => {
-    //     cb(null, _.chain(result)
-    //         .filter((pr) => {
-    //             // If there is no assignee, ensure reviewers still see the PR so it does not get lost
-    //             if (!pr.assignee) {
-    //                 return true;
-    //             }
-    //             return pr.assignee.login !== getCurrentUser();
-    //         })
-    //         .sortBy('userIsFinishedReviewing')
-    //         .value()
-    //         .reverse());
-    // });
-    //
-    // getPullsByType('review-requested', (err, data) => {
-    //     if (err) {
-    //         console.error(err);
-    //         done();
-    //         return;
-    //     }
-    //     result = result.concat(data);
-    //     done();
-    // }, true);
-    //
-    // getPullsByType('reviewed-by', (err, data) => {
-    //     if (err) {
-    //         console.error(err);
-    //         done();
-    //         return;
-    //     }
-    //     result = result.concat(data);
-    //     done();
-    // }, true);
-}
-
-/**
- * Get all the pull requests assigned to the current user
- *
- * @date 2015-06-07
- *
- * @param {Function} cb
- */
-function getPullsAuthored(cb) {
-    getPullsByType('author', cb);
-}
-
-/**
  * Get all the improvements that are not assigned and are dailys
  *
  * @date 2015-06-07
@@ -710,12 +644,10 @@ export {
     getEngineeringIssues,
     getIntegrationsIssues,
     getAllAssigned,
-    getPullsAssigned,
-    getPullsReviewing,
-    getPullsAuthored,
     getDailyImprovements,
     addLabels,
     removeLabel,
     getMilestones,
     getCurrentUser,
+    getPullsByType,
 };
