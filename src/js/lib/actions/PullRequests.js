@@ -6,12 +6,12 @@ import ONYXKEYS from '../../ONYXKEYS';
 function getChecks(prs) {
     _.each(prs, (pr) => {
         API.getCheckRuns(pr.repository.name, pr.headRefOid).then((response) => {
-            if (!response.check_runs || !response.check_runs.length) {
+            if (!response.data.check_runs || !response.data.check_runs.length) {
                 return;
             }
             ReactNativeOnyx.merge(ONYXKEYS.PRS.REVIEWING, {
                 [pr.id]: {
-                    checkConclusion: response.check_runs[0].conclusion,
+                    checkConclusion: response.data.check_runs[0].conclusion,
                 },
             });
         });

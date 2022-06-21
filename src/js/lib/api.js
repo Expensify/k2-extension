@@ -206,12 +206,11 @@ query {
 }
 
 function getCheckRuns(repo, headSHA) {
-    return $.ajax({
-        url: `${baseUrl}/repos/${getOwner()}/${repo}/commits/${headSHA}/check-runs`,
-        headers: {
-            Authorization: `Bearer ${Preferences.getGitHubToken()}`,
-            Accept: 'application/vnd.github.v3+json',
-        },
+    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
+    return octokit.rest.checks.listForRef({
+        owner: getOwner(),
+        repo,
+        ref: headSHA,
     });
 }
 
