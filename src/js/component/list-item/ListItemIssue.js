@@ -49,7 +49,7 @@ class ListItemIssue extends React.Component {
         this.parseIssue();
         return (
             <a
-                href={this.props.data.html_url}
+                href={this.props.data.url}
                 className={this.getClassName()}
                 target="_blank"
                 rel="noopener noreferrer"
