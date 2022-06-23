@@ -174,6 +174,9 @@ query {
                     title
                     url
                     updatedAt
+                    author {
+                        login
+                    }
                     comments {
                         totalCount
                     }
