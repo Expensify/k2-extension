@@ -145,137 +145,76 @@ function getMilestones(view, cb) {
  * Get all the pull requests where the current user is either assigned
  * or the author
  *
- * @date 2015-06-07
- * @private
- *
  * @param {string} type 'assignee' or 'author'
- * @param {Function} cb [description]
- * @param {Boolean} getReviews wether or not to make extra API requests to get the review data
+ * @returns {Promise}
  */
-function getPullsByType(type, cb, getReviews) {
-    let query = '?q=';
+function getPullsByType(type) {
+    let query = '';
 
     // Get the PRs assigned to me
-    query += '+state:open';
-    query += '+type:pr';
+    query += ' state:open';
+    query += ' type:pr';
 
-    // query += '+user:expensify';
-    query += '+org:expensify';
-    query += `+${type}:${getCurrentUser()}`;
+    query += ' org:expensify';
+    query += ` ${type}:${getCurrentUser()}`;
 
-    query += '&sort=updated';
+    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
 
-    const url = `${baseUrl}/search/issues${query}`;
-    $.ajax({
-        url,
-        headers: {
-            Authorization: `Bearer ${Preferences.getGitHubToken()}`,
-        },
-    })
-        .done((data) => {
-            const modifiedData = {...data};
-            if (!data.items || !data.items.length) {
-                return cb(null, []);
+    const graphQLQuery = `
+query {
+    search(query: "${query}", type: ISSUE, first: 100) {
+        edges {
+            node {
+                ... on PullRequest {
+                    headRefOid
+                    id
+                    isDraft
+                    mergeable
+                    reviewDecision
+                    title
+                    url
+                    updatedAt
+                    author {
+                        login
+                    }
+                    comments {
+                        totalCount
+                    }
+                    repository {
+                        name
+                    }
+                    reviews {
+                        totalCount
+                    }
+                }
             }
+        }
+    }
+}
+    `;
 
-            // Filter out closed issues, as the search query does not do this correctly,
-            // even though we are specifying `state:open`
-            modifiedData.items = _.filter(modifiedData.items, item => item.state === 'open');
-
-            const done = _.after(modifiedData.items.length, () => {
-                cb(null, modifiedData.items);
-            });
-
-            // Get the detailed PR info for each PR
-            _.each(modifiedData.items, (item) => {
-                const repoArray = item.repository_url.split('/');
-                const owner = repoArray[repoArray.length - 2];
-                const repo = repoArray[repoArray.length - 1];
-                const url2 = `${baseUrl}/repos/${owner}/${repo}/pulls/${item.number}`;
-
-                // eslint-disable-next-line no-param-reassign
-                item.prType = type;
-
-                $.ajax({
-                    url: url2,
-                    headers: {
-                        Authorization: `Bearer ${Preferences.getGitHubToken()}`,
-                    },
-                }).done((data2) => {
-                    // eslint-disable-next-line no-param-reassign
-                    item.pr = data2;
-
-                    // Now get the PR check runs
-                    $.ajax({
-                        url: `${baseUrl}/repos/${owner}/${repo}/commits/${data2.head.sha}/check-runs`,
-                        headers: {
-                            Authorization: `Bearer ${Preferences.getGitHubToken()}`,
-                            Accept: 'application/vnd.github.antiope-preview+json',
-                        },
-                    }).done((data3) => {
-                        // Filter out non-travis check-runs
-                        const check_runs = _.filter((data3.check_runs || []), run => run.app.slug === 'travis-ci');
-                        const maybeGetReviews = function () {
-                            // Stop here if we aren't getting reviewers
-                            if (!getReviews) {
-                                return done();
-                            }
-
-                            // Now get the PR reviews
-                            $.ajax({
-                                url: `${baseUrl}/repos/${owner}/${repo}/pulls/${item.number}/reviews`,
-                                headers: {
-                                    Authorization: `Bearer ${Preferences.getGitHubToken()}`,
-                                    Accept: 'application/vnd.github.black-cat-preview+json',
-                                },
-                            }).done((data4) => {
-                                // eslint-disable-next-line no-param-reassign
-                                item.reviews = data4;
-                                const reviewsByUser = _.filter(data4, r => r.user.login === getCurrentUser());
-                                const approved = _.findWhere(reviewsByUser, {state: 'APPROVED'});
-                                const commented = _.findWhere(reviewsByUser, {state: 'COMMENTED'});
-                                const reviewDismissed = _.findWhere(reviewsByUser, {state: 'DISMISSED'});
-                                const changesRequested = _.findWhere(reviewsByUser, {state: 'CHANGES_REQUESTED'});
-                                // eslint-disable-next-line no-param-reassign
-                                item.userIsFinishedReviewing = Boolean(!reviewDismissed && ((commented && !changesRequested) || approved));
-                                return done();
-                            });
-                        };
-
-                        // If there are no valid Travis check-runs, it is either because
-                        // there are no tests running on Travis OR because the repo is using the
-                        // older Travis CI OAuth App instead of the new GitHub App. In that case,
-                        // try the old statuses url
-                        if (check_runs.length === 0) {
-                            $.ajax({
-                                // eslint-disable-next-line no-underscore-dangle
-                                url: data2._links.statuses.href,
-                                headers: {
-                                    Authorization: `Bearer ${Preferences.getGitHubToken()}`,
-                                },
-                            }).done((statusesData) => {
-                                // Filter out non-travis statuses (i.e. musedev)
-                                // eslint-disable-next-line no-param-reassign
-                                item.pr.status = _.filter(statusesData, status => status.context === 'continuous-integration/travis-ci/pr');
-                                return maybeGetReviews();
-                            });
-                        } else {
-                            // Check-runs endpoint uses .conclusion instead of .state - map it
-                            // back to .state in order not to change the view
-                            // eslint-disable-next-line no-param-reassign
-                            item.pr.status = _.map(check_runs, (status) => {
-                                const state = ((status.conclusion ? status.conclusion : status.status) || '').replace(/_/g, ' ');
-                                return {state, ...status};
-                            });
-                            return maybeGetReviews();
-                        }
-                    });
+    return octokit.graphql(graphQLQuery)
+        .then((data) => {
+            // Put the data into a format that the rest of the app will use to remove things like edges and nodes
+            const results = _.reduce(data.search.edges, (pullRequests, searchEdge) => {
+                pullRequests.push({
+                    ...searchEdge.node,
                 });
-            });
-        })
-        .fail((err) => {
-            cb(err);
+                return pullRequests;
+            }, []);
+
+            // Index the results by their ID so they are easier to access as a collection
+            return _.indexBy(results, 'id');
         });
+}
+
+function getCheckRuns(repo, headSHA) {
+    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
+    return octokit.rest.checks.listForRef({
+        owner: getOwner(),
+        repo,
+        ref: headSHA,
+    });
 }
 
 /**
@@ -283,7 +222,7 @@ function getPullsByType(type, cb, getReviews) {
  *
  * @returns {Promise}
  */
-function getAllAssigned() {
+function getIssuesAssigned() {
     let query = '';
 
     // Get the PRs assigned to me
@@ -346,7 +285,8 @@ function getAllAssigned() {
                 return finalResults;
             }, []);
 
-            return results;
+            // Index the results by their ID so they are easier to access as a collection
+            return _.indexBy(results, 'id');
         });
 }
 
@@ -553,72 +493,6 @@ function getIntegrationsIssues(cb, retryCb) {
 }
 
 /**
- * Get all the pull requests assigned to the current user
- *
- * @date 2015-06-07
- *
- * @param {Function} cb [description]
- */
-function getPullsAssigned(cb) {
-    getPullsByType('assignee', cb, true);
-}
-
-/**
- * Get all the pull requests the user is currently reviewing
- *
- * @date 2015-06-07
- *
- * @param {Function} cb [description]
- */
-function getPullsReviewing(cb) {
-    let result = [];
-    const done = _.after(2, () => {
-        cb(null, _.chain(result)
-            .filter((pr) => {
-                // If there is no assignee, ensure reviewers still see the PR so it does not get lost
-                if (!pr.assignee) {
-                    return true;
-                }
-                return pr.assignee.login !== getCurrentUser();
-            })
-            .sortBy('userIsFinishedReviewing')
-            .value()
-            .reverse());
-    });
-
-    getPullsByType('review-requested', (err, data) => {
-        if (err) {
-            console.error(err);
-            done();
-            return;
-        }
-        result = result.concat(data);
-        done();
-    }, true);
-
-    getPullsByType('reviewed-by', (err, data) => {
-        if (err) {
-            console.error(err);
-            done();
-            return;
-        }
-        result = result.concat(data);
-        done();
-    }, true);
-}
-
-/**
- * Get all the pull requests assigned to the current user
- *
- * @date 2015-06-07
- *
- * @param {Function} cb
- */
-function getPullsAuthored(cb) {
-    getPullsByType('author', cb);
-}
-
-/**
  * Get all the improvements that are not assigned and are dailys
  *
  * @date 2015-06-07
@@ -657,15 +531,14 @@ function getDailyImprovements(cb) {
 }
 
 export {
+    getCheckRuns,
     getEngineeringIssues,
     getIntegrationsIssues,
-    getAllAssigned,
-    getPullsAssigned,
-    getPullsReviewing,
-    getPullsAuthored,
+    getIssuesAssigned,
     getDailyImprovements,
     addLabels,
     removeLabel,
     getMilestones,
     getCurrentUser,
+    getPullsByType,
 };

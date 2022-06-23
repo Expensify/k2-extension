@@ -287,15 +287,15 @@ $color-dark-yellow: #DAA520;
 .mergeable-state {
   color: $color-dark-yellow;
 
-  &.dirty, &.blocked, &.behind {
+  &.CONFLICTING {
     color: $color-alert;
   }
 
-  &.has_hooks, &.clean {
+  &.MERGEABLE {
     color: $color-darker-green;
   }
 
-  &.draft {
+  &.DRAFT {
     color: $color-neutral;
   }
 }

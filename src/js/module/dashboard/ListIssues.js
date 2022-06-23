@@ -4,16 +4,13 @@ import * as prefs from '../../lib/prefs';
 import Filters from './Filters';
 import Tabs from '../../component/tabs/Tabs';
 
-import StorePullAssigned from '../../store/pull.assigned';
-import StorePullReviewing from '../../store/pull.reviewing';
 import StoreDailyImprovements from '../../store/dailyimprovements';
-
-import ActionsPullAssigned from '../../action/pull.assigned';
-import ActionsPullReviewing from '../../action/pull.reviewing';
 import ActionsDailyImprovements from '../../action/dailyimprovements';
 import PanelList from '../../component/panel/PanelList';
 import ListIssuesAssigned from './ListIssuesAssigned';
 import * as Preferences from '../../lib/actions/Preferences';
+import ListPRsAssigned from './ListPRsAssigned';
+import ListPRsReviewing from './ListPRsReviewing';
 
 const propTypes = {
     /** The number of seconds to refresh the list of issues */
@@ -137,27 +134,11 @@ class ListIssues extends React.Component {
                         pollInterval={this.props.pollInterval * 1.6}
                     />
                 </div>
-                <br />
-                <div>
-                    <PanelList
-                        title="Your Pull Requests"
-                        action={ActionsPullAssigned}
-                        store={StorePullAssigned}
-                        item="pull"
-                        pollInterval={this.props.pollInterval * 2}
-                    />
-                </div>
-                <br />
-                <div>
-                    <PanelList
-                        title="Review Requests - You need to finish reviewing"
-                        action={ActionsPullReviewing}
-                        store={StorePullReviewing}
-                        item="pull"
-                        pollInterval={this.props.pollInterval * 2.5}
-                    />
-                </div>
-                <br />
+
+                <ListPRsAssigned pollInterval={this.props.pollInterval * 2.5} />
+
+                <ListPRsReviewing pollInterval={this.props.pollInterval * 2.5} />
+
                 <Filters onChange={this.filterIssues} />
                 <br />
                 <div>
