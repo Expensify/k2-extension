@@ -4,7 +4,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
 import * as prefs from '../../lib/prefs';
-import * as API from '../../lib/api';
 import * as Milestones from '../../lib/actions/Milestones';
 import ONYXKEYS from '../../ONYXKEYS';
 
@@ -21,6 +20,9 @@ const propTypes = {
     /** A callback that is triggered when a filter has changed */
     onChange: PropTypes.func.isRequired,
 };
+const defaultProps = {
+    milestones: {},
+};
 
 class Filters extends React.Component {
     constructor(props) {
@@ -33,10 +35,11 @@ class Filters extends React.Component {
         Milestones.get();
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.props.milestones !== prevProps.milestones) {
-            this.updateFilterFields();
+    componentDidUpdate(prevProps) {
+        if (this.props.milestones === prevProps.milestones) {
+            return;
         }
+        this.updateFilterFields();
     }
 
     updateFilterFields() {
@@ -122,6 +125,7 @@ class Filters extends React.Component {
 }
 
 Filters.propTypes = propTypes;
+Filters.defaultProps = defaultProps;
 
 export default withOnyx({
     milestones: {

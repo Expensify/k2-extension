@@ -3,7 +3,6 @@ import _ from 'underscore';
 import moment from 'moment';
 import {Octokit} from 'octokit';
 import * as Preferences from './actions/Preferences';
-import * as GistDB from './gistdb';
 
 const baseUrl = 'https://api.github.com';
 
@@ -61,10 +60,9 @@ function parse_link_header(header) {
 /**
  * Return all of our milestone data
  *
- * @param {String}   view
- * @param {Function} cb
+ * @returns {Promise}
  */
-function getMilestones(view, cb) {
+function getMilestones() {
     const octokit = new Octokit({auth: Preferences.getGitHubToken()});
     const graphQLQuery = `
 {

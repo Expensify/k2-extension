@@ -1,5 +1,5 @@
-import * as API from '../api';
 import ReactNativeOnyx from 'react-native-onyx';
+import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
 
 function get() {
@@ -13,4 +13,4 @@ function get() {
 export {
     // eslint-disable-next-line import/prefer-default-export
     get,
-}
+};
