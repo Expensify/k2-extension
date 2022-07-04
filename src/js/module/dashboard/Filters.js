@@ -4,6 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as prefs from '../../lib/prefs';
 import * as API from '../../lib/api';
+import * as Milestones from '../../lib/actions/Milestones';
 
 const propTypes = {
     /** A callback that is triggered when a filter has changed */
@@ -22,6 +23,8 @@ class Filters extends React.Component {
     }
 
     componentDidMount() {
+        Milestones.get();
+        return;
         API.getMilestones('all', (err, milestones) => {
             if (err) {
                 return;
