@@ -434,7 +434,7 @@ function removeLabel(label, cb, issueNumber, repoName) {
  * @param {Function} retryCb called each time we attempting to retry the API call
  */
 function getEngineeringIssues(cb, retryCb) {
-    // getIssuesByArea('engineering', cb, retryCb);
+    getIssuesByArea('engineering', cb, retryCb);
 }
 
 /**
@@ -444,7 +444,7 @@ function getEngineeringIssues(cb, retryCb) {
  * @param {Function} retryCb called each time we attempting to retry the API call
  */
 function getIntegrationsIssues(cb, retryCb) {
-    // getIssuesByArea('"integration+server"', cb, retryCb);
+    getIssuesByArea('"integration+server"', cb, retryCb);
 }
 
 /**
