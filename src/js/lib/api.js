@@ -475,7 +475,7 @@ function getDailyImprovements(cb) {
         },
     })
         .done((data) => {
-            cb(null, data.items);
+            cb(null, _.map(data.items, item => ({...item, url: item.html_url})));
         })
         .fail((err) => {
             console.error(err);
