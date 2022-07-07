@@ -27,6 +27,10 @@ class ListIssuesAssigned extends React.Component {
 
     componentDidMount() {
         this.fetch();
+
+        if (this.props.pollInterval && !this.interval) {
+            this.interval = setInterval(this.fetch, this.props.pollInterval);
+        }
     }
 
     componentWillUnmount() {
@@ -38,10 +42,6 @@ class ListIssuesAssigned extends React.Component {
 
     fetch() {
         Issues.getAllAssigned();
-
-        if (this.props.pollInterval && !this.interval) {
-            this.interval = setInterval(this.fetch, this.props.pollInterval);
-        }
     }
 
     render() {

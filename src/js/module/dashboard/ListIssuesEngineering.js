@@ -27,6 +27,10 @@ class ListIssuesEngineering extends React.Component {
 
     componentDidMount() {
         this.fetch();
+
+        if (this.props.pollInterval && !this.interval) {
+            this.interval = setInterval(this.fetch, this.props.pollInterval);
+        }
     }
 
     componentWillUnmount() {
@@ -38,10 +42,6 @@ class ListIssuesEngineering extends React.Component {
 
     fetch() {
         Issues.getEngineering();
-
-        if (this.props.pollInterval && !this.interval) {
-            this.interval = setInterval(this.fetch, this.props.pollInterval);
-        }
     }
 
     render() {
