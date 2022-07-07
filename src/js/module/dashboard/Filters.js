@@ -78,7 +78,7 @@ class Filters extends React.Component {
 
     render() {
         return (
-            <div className="">
+            <div className="mb-3">
                 <form className="form-inline" onSubmit={this.saveFilters}>
                     Filter by:
                     <div className="checkbox">
