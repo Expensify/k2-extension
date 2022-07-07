@@ -178,32 +178,83 @@ function getIssues(assignee = 'none', label) {
 
     const octokit = new Octokit({auth: Preferences.getGitHubToken()});
 
-    return octokit.graphql(`
-        query {
+    const graphQLQuery = `
+        query($cursor:String) {
             search(
                 query: "${query}"
                 type: ISSUE
                 first: 100
+                after:$cursor
             ) {
-                edges {
-                    node {
-                        ... on Issue {
-                            title
-                            id
-                            url
-                            labels(first: 100) {
-                                edges {
-                                    node {
-                                        name
-                                    }
-                                }
+                pageInfo {
+                    endCursor
+                    hasNextPage
+                }
+                nodes {
+                    ... on Issue {
+                        title
+                        id
+                        url
+                        labels(first: 100) {
+                            nodes {
+                                name
                             }
                         }
                     }
                 }
             }
         }
-    `)
+    `;
+
+    return new Promise(resolve => {
+        const results = [];
+        function fetchPageOfIssues(cursor) {
+            octokit.graphql(graphQLQuery, {cursor})
+                .then(queryResults => {
+                    console.log(queryResults.search)
+                    // // Put the data into a format that the rest of the app will use to remove things like edges and nodes
+                    // const searchResults = _.reduce(queryResults.search.nodes, (finalResults, searchNode) => {
+                    //     finalResults.push({
+                    //         ...searchNode,
+                    //         labels: _.reduce(searchNode.labels.nodes, (finalLabels, labelNode) => {
+                    //             finalLabels.push({
+                    //                 ...labelNode,
+                    //             });
+                    //             return finalLabels;
+                    //         }, []),
+                    //     });
+                    //     return finalResults;
+                    // }, []);
+                    //
+                    // results.push(...searchResults);
+
+                    if (queryResults.search.pageInfo.hasNextPage) {
+                        fetchPageOfIssues(queryResults.search.pageInfo.endCursor);
+                        return;
+                    }
+
+                    console.log(results);
+                    resolve(results);
+                });
+        }
+        fetchPageOfIssues();
+    });
+
+
+    // async function fetchPageOfIssues (octokit, { results, cursor } = { results: [] }) {
+    //     const { repository: { search } } = await octokit.graphql(graphQLQuery, { cursor });
+    //     results.push(...search.edges);
+    //
+    //     if (search.pageInfo.hasNextPage) {
+    //         await fetchPageOfIssues(octokit, { results, cursor: search.pageInfo.endCursor });
+    //     }
+    //
+    //     return results;
+    // }
+
+    return fetchPageOfIssues(octokit);
+
+    return octokit.graphql(graphQLQuery)
         .then((data) => {
             // Put the data into a format that the rest of the app will use to remove things like edges and nodes
             const results = _.reduce(data.search.edges, (finalResults, searchEdge) => {
