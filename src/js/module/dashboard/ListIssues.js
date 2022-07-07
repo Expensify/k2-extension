@@ -141,7 +141,9 @@ class ListIssues extends React.Component {
 
                 <Filters onChange={this.filterIssues} />
 
-                <ListIssuesEngineering />
+                <ListIssuesEngineering
+                    pollInterval={this.props.pollInterval}
+                />
             </div>
         );
     }
