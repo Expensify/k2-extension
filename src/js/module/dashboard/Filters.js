@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
 import * as prefs from '../../lib/prefs';
 import * as Milestones from '../../lib/actions/Milestones';
+import * as Issues from '../../lib/actions/Issues';
 import ONYXKEYS from '../../ONYXKEYS';
 
 const propTypes = {
@@ -16,9 +17,6 @@ const propTypes = {
         /** The title of the milestone */
         title: PropTypes.string.isRequired,
     })),
-
-    /** A callback that is triggered when a filter has changed */
-    onChange: PropTypes.func.isRequired,
 };
 const defaultProps = {
     milestones: {},
@@ -55,25 +53,19 @@ class Filters extends React.Component {
     }
 
     /**
-     * Handle the form being submitted
+     * Save the filters when the apply button is clicked
      *
      * @param {SyntheticEvent} e
      */
     saveFilters(e) {
         e.preventDefault();
 
-        // Get our filter values
-        const newFilters = {
+        Issues.saveFilters({
             improvement: this.fieldImprovement.checked,
             task: this.fieldTask.checked,
             feature: this.fieldFeature.checked,
             milestone: this.fieldMilestone.value,
-        };
-
-        prefs.set('issueFilters', newFilters);
-
-        // Trigger our filter callback
-        this.props.onChange(newFilters);
+        });
     }
 
     render() {
@@ -130,5 +122,8 @@ Filters.defaultProps = defaultProps;
 export default withOnyx({
     milestones: {
         key: ONYXKEYS.MILESTONES,
+    },
+    filters: {
+        key: ONYXKEYS.ISSUES.FILTER,
     },
 })(Filters);

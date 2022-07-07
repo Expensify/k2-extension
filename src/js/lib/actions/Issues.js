@@ -66,7 +66,19 @@ function getEngineering() {
     });
 }
 
+/**
+ * @param {Object} filters
+ * @param {String} filters.milestone
+ * @param {String} filters.improvement
+ * @param {String} filters.task
+ * @param {String} filters.feature
+ */
+function saveFilters(filters) {
+    ReactNativeOnyx.merge(ONYXKEYS.ISSUES.FILTER, filters);
+}
+
 export {
     getAllAssigned,
     getEngineering,
+    saveFilters,
 };
