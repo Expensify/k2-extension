@@ -204,13 +204,13 @@ function getIssues(assignee = 'none', label) {
         }
     `;
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         const results = [];
 
         // This does all the pagination on the graphQL query
         function fetchPageOfIssues(cursor) {
             octokit.graphql(graphQLQuery, {cursor})
-                .then(queryResults => {
+                .then((queryResults) => {
                     // Put the data into a format that the rest of the app will use to remove things like edges and nodes
                     const searchResults = _.reduce(queryResults.search.nodes, (cleanSearchResults, searchNode) => {
                         cleanSearchResults.push({
