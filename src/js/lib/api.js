@@ -436,16 +436,6 @@ function getEngineeringIssues(cb, retryCb) {
 }
 
 /**
- * Gets the issues for integrations that are open and should be worked on
- *
- * @param {Function} cb
- * @param {Function} retryCb called each time we attempting to retry the API call
- */
-function getIntegrationsIssues(cb, retryCb) {
-    getIssuesByArea('"integration+server"', cb, retryCb);
-}
-
-/**
  * Get all the improvements that are not assigned and are dailys
  *
  * @date 2015-06-07
@@ -486,7 +476,6 @@ function getDailyImprovements(cb) {
 export {
     getCheckRuns,
     getEngineeringIssues,
-    getIntegrationsIssues,
     getIssuesAssigned,
     getDailyImprovements,
     addLabels,
