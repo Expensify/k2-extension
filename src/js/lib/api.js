@@ -148,23 +148,27 @@ function getCheckRuns(repo, headSHA) {
 }
 
 /**
- * Get all issues assigned to the current user
+ * Get all open issue for a particular area depending on who is assigned and what label it has
  *
+ * @param {String} assignee
+ * @param {String} [label]
  * @returns {Promise}
  */
-function getIssuesAssigned() {
+function getIssues(assignee = 'none', label) {
     let query = '';
 
     // Get the PRs assigned to me
     query += ' state:open';
     query += ' is:issue';
+
+    if (label) {
+        query += ` label:${label}`;
+    }
     query += ' repo:Expensify/Expensify';
     query += ' repo:Expensify/App';
-    query += ' repo:Expensify/Insiders';
     query += ' repo:Expensify/VendorTasks';
+    query += ' repo:Expensify/Insiders';
     query += ' repo:Expensify/Expensify-Guides';
-
-    const assignee = getCurrentUser();
 
     if (assignee === 'none') {
         query += ' no:assignee';
@@ -221,78 +225,21 @@ function getIssuesAssigned() {
 }
 
 /**
- * Get all open issue for a particular area
+ * Get all issues assigned to the current user
+ *
+ * @returns {Promise}
+ */
+function getIssuesAssigned() {
+    return getIssues(getCurrentUser());
+}
+
+/**
+ * Get all unassigned engineering issues
  *
  * @returns {Promise}
  */
 function getEngineeringIssues() {
-    let query = '';
-
-    // Get the PRs assigned to me
-    query += ' state:open';
-    query += ' is:issue';
-    query += ' label:engineering';
-    query += ' no:assignee';
-    query += ' repo:Expensify/Expensify';
-    query += ' repo:Expensify/App';
-    query += ' repo:Expensify/VendorTasks';
-    query += ' repo:Expensify/Insiders';
-    query += ' repo:Expensify/Expensify-Guides';
-
-    const assignee = getCurrentUser();
-
-    if (assignee === 'none') {
-        query += ' no:assignee';
-    } else if (assignee) {
-        query += ` assignee:${assignee}`;
-    }
-
-    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
-
-    return octokit.graphql(`
-        query {
-            search(
-                query: "${query}"
-                type: ISSUE
-                first: 100
-            ) {
-                edges {
-                    node {
-                        ... on Issue {
-                            title
-                            id
-                            url
-                            labels(first: 100) {
-                                edges {
-                                    node {
-                                        name
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    `)
-        .then((data) => {
-            // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-            const results = _.reduce(data.search.edges, (finalResults, searchEdge) => {
-                finalResults.push({
-                    ...searchEdge.node,
-                    labels: _.reduce(searchEdge.node.labels.edges, (finalLabels, labelEdge) => {
-                        finalLabels.push({
-                            ...labelEdge.node,
-                        });
-                        return finalLabels;
-                    }, []),
-                });
-                return finalResults;
-            }, []);
-
-            // Index the results by their ID so they are easier to access as a collection
-            return _.indexBy(results, 'id');
-        });
+    return getIssues('none', 'engineering');
 }
 
 /**
