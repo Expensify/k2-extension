@@ -11,8 +11,6 @@ class ListIssuesEngineering extends React.Component {
     }
 
     render() {
-        console.log(this.props.issues);
-        return null;
         if (!this.props.issues) {
             return (
                 <div className="blankslate capped clean-background">

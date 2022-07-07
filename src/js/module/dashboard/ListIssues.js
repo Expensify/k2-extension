@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as prefs from '../../lib/prefs';
 import Filters from './Filters';
-import Tabs from '../../component/tabs/Tabs';
 
 import StoreDailyImprovements from '../../store/dailyimprovements';
 import ActionsDailyImprovements from '../../action/dailyimprovements';
@@ -143,27 +142,6 @@ class ListIssues extends React.Component {
                 <Filters onChange={this.filterIssues} />
 
                 <ListIssuesEngineering />
-
-                <br />
-                <div>
-                    <Tabs
-                        ref={el => this.tabs = el}
-                        pollInterval={this.props.pollInterval * 3}
-                        type="issue"
-                        items={[
-                            {
-                                title: 'Engineering',
-                                id: 'engineering',
-                                apiMethod: 'getEngineeringIssues',
-                            },
-                            {
-                                title: 'Integrations',
-                                id: 'integrations',
-                                apiMethod: 'getIntegrationsIssues',
-                            },
-                        ]}
-                    />
-                </div>
             </div>
         );
     }
