@@ -12,6 +12,7 @@ export default {
 
     ISSUES: {
         ASSIGNED: 'issueAssigned',
+        ENGINEERING: 'issueEngineering',
     },
 
     MILESTONES: 'milestones',
