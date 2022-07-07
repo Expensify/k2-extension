@@ -208,30 +208,35 @@ function getIssues(assignee = 'none', label) {
 
     return new Promise(resolve => {
         const results = [];
+
+        // This does all the pagination on the graphQL query
         function fetchPageOfIssues(cursor) {
             octokit.graphql(graphQLQuery, {cursor})
                 .then(queryResults => {
                     // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-                    const searchResults = _.reduce(queryResults.search.nodes, (finalResults, searchNode) => {
-                        finalResults.push({
+                    const searchResults = _.reduce(queryResults.search.nodes, (cleanSearchResults, searchNode) => {
+                        cleanSearchResults.push({
                             ...searchNode,
-                            labels: _.reduce(searchNode.labels.nodes, (finalLabels, labelNode) => {
-                                finalLabels.push({
+                            labels: _.reduce(searchNode.labels.nodes, (cleanLabels, labelNode) => {
+                                cleanLabels.push({
                                     ...labelNode,
                                 });
-                                return finalLabels;
+                                return cleanLabels;
                             }, []),
                         });
-                        return finalResults;
+                        return cleanSearchResults;
                     }, []);
 
                     results.push(...searchResults);
 
+                    // When there is another page, this function needs to be called recursively
                     if (queryResults.search.pageInfo.hasNextPage) {
                         fetchPageOfIssues(queryResults.search.pageInfo.endCursor);
                         return;
                     }
 
+                    // When there are no more pages, then we can resolve the final promise with all our results
+                    // indexed by ID so that they can be accessed in the collection easier
                     resolve(_.indexBy(results, 'id'));
                 });
         }
