@@ -211,68 +211,32 @@ function getIssues(assignee = 'none', label) {
         function fetchPageOfIssues(cursor) {
             octokit.graphql(graphQLQuery, {cursor})
                 .then(queryResults => {
-                    console.log(queryResults.search)
-                    // // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-                    // const searchResults = _.reduce(queryResults.search.nodes, (finalResults, searchNode) => {
-                    //     finalResults.push({
-                    //         ...searchNode,
-                    //         labels: _.reduce(searchNode.labels.nodes, (finalLabels, labelNode) => {
-                    //             finalLabels.push({
-                    //                 ...labelNode,
-                    //             });
-                    //             return finalLabels;
-                    //         }, []),
-                    //     });
-                    //     return finalResults;
-                    // }, []);
-                    //
-                    // results.push(...searchResults);
+                    // Put the data into a format that the rest of the app will use to remove things like edges and nodes
+                    const searchResults = _.reduce(queryResults.search.nodes, (finalResults, searchNode) => {
+                        finalResults.push({
+                            ...searchNode,
+                            labels: _.reduce(searchNode.labels.nodes, (finalLabels, labelNode) => {
+                                finalLabels.push({
+                                    ...labelNode,
+                                });
+                                return finalLabels;
+                            }, []),
+                        });
+                        return finalResults;
+                    }, []);
+
+                    results.push(...searchResults);
 
                     if (queryResults.search.pageInfo.hasNextPage) {
                         fetchPageOfIssues(queryResults.search.pageInfo.endCursor);
                         return;
                     }
 
-                    console.log(results);
-                    resolve(results);
+                    resolve(_.indexBy(results, 'id'));
                 });
         }
         fetchPageOfIssues();
     });
-
-
-    // async function fetchPageOfIssues (octokit, { results, cursor } = { results: [] }) {
-    //     const { repository: { search } } = await octokit.graphql(graphQLQuery, { cursor });
-    //     results.push(...search.edges);
-    //
-    //     if (search.pageInfo.hasNextPage) {
-    //         await fetchPageOfIssues(octokit, { results, cursor: search.pageInfo.endCursor });
-    //     }
-    //
-    //     return results;
-    // }
-
-    return fetchPageOfIssues(octokit);
-
-    return octokit.graphql(graphQLQuery)
-        .then((data) => {
-            // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-            const results = _.reduce(data.search.edges, (finalResults, searchEdge) => {
-                finalResults.push({
-                    ...searchEdge.node,
-                    labels: _.reduce(searchEdge.node.labels.edges, (finalLabels, labelEdge) => {
-                        finalLabels.push({
-                            ...labelEdge.node,
-                        });
-                        return finalLabels;
-                    }, []),
-                });
-                return finalResults;
-            }, []);
-
-            // Index the results by their ID so they are easier to access as a collection
-            return _.indexBy(results, 'id');
-        });
 }
 
 /**
