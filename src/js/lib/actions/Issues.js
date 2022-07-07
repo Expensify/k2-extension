@@ -12,15 +12,11 @@ function getAllAssigned() {
 }
 
 function getEngineering() {
-    API.getEngineeringIssues((err, issues) => {
-        if (err) {
-            return;
-        }
-
+    API.getEngineeringIssues().then(issues => {
         // Always use set() here because there is no way to remove issues from Onyx
         // that have the engineering label removed
         ReactNativeOnyx.set(ONYXKEYS.ISSUES.ENGINEERING, issues);
-    }, () => {});
+    })
 }
 
 export {
