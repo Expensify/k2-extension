@@ -42,9 +42,7 @@ function getReviewing() {
         };
 
         const prsAuthoredByOtherUsers = _.chain(allPRs)
-            .reject((pr) => {
-                return pr.author.login === API.getCurrentUser();
-            })
+            .reject(pr => pr.author.login === API.getCurrentUser())
             .indexBy('id')
             .value();
 

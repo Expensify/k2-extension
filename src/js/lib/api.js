@@ -3,7 +3,6 @@ import _ from 'underscore';
 import moment from 'moment';
 import {Octokit} from 'octokit';
 import * as Preferences from './actions/Preferences';
-import * as GistDB from './gistdb';
 
 const baseUrl = 'https://api.github.com';
 
@@ -61,84 +60,38 @@ function parse_link_header(header) {
 /**
  * Return all of our milestone data
  *
- * @param {String}   view
- * @param {Function} cb
+ * @returns {Promise}
  */
-function getMilestones(view, cb) {
-    let query = '?per_page=300&q=';
-    let url;
-    let result = [];
-
-    // Make sure we are checking the hidden settings of the proper view
-    const currentView = view || 'all';
-
-    // Mark our milestones if they are hidden or not
-    GistDB.get(`${currentView}.milestones`, (err, gistDataMilestones) => {
-        if (err) {
-            return;
-        }
-
-        function handleData(data, status, xhr) {
-            // Combine our data with some of our gist data
-            const enhancedData = _.map(data, (item) => {
-                const gistDataMilestone = _.findWhere(gistDataMilestones, {id: item.id});
-                const percentComplete = item.open_issues || item.closed_issues
-                    ? Math.round((item.closed_issues / (item.open_issues + item.closed_issues)) * 100)
-                    : 0;
-                return {
-                    ...item,
-                    hidden: gistDataMilestone && gistDataMilestone.hidden,
-                    percentComplete,
-                };
-            });
-            result = result.concat(enhancedData);
-
-            // If we have a next link, then we do some recursive pagination
-            const responseHeaderLink = xhr.getResponseHeader('Link');
-            if (responseHeaderLink) {
-                const links = parse_link_header(responseHeaderLink);
-                if (links.next) {
-                    /* eslint-disable no-use-before-define */
-                    makeRequest(links.next);
-                    /* eslint-enable no-use-before-define */
-                    return;
+function getMilestones() {
+    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
+    const graphQLQuery = `
+{
+    repository(name: "expensify", owner: "expensify") {
+        milestones(first: 100, states: OPEN) {
+            edges {
+                node {
+                    title
+                    id
                 }
             }
-
-            // Now put everything in the same order as our gist data
-            const orderedResult = [];
-            const newUnorderedMilestones = [];
-            _.each(result, (m) => {
-                const index = _.findIndex(gistDataMilestones, {id: m.id});
-                if (index < 0) {
-                    newUnorderedMilestones.push(m);
-                } else {
-                    orderedResult[index] = m;
-                }
-            });
-
-            result = newUnorderedMilestones.concat(orderedResult);
-
-            cb(null, _.compact(result));
         }
+    }
+}
+    `;
 
-        function makeRequest(overwriteUrl) {
-            // Get the open milestones
-            query += '+state:open';
+    return octokit.graphql(graphQLQuery)
+        .then((data) => {
+            // Put the data into a format that the rest of the app will use to remove things like edges and nodes
+            const results = _.reduce(data.repository.milestones.edges, (milestones, milestonesEdge) => {
+                milestones.push({
+                    ...milestonesEdge.node,
+                });
+                return milestones;
+            }, []);
 
-            url = `${baseUrl}/repos/expensify/expensify/milestones${query}`;
-            $.ajax({
-                url: overwriteUrl || url,
-                headers: {
-                    Authorization: `Bearer ${Preferences.getGitHubToken()}`,
-                },
-            })
-                .done(handleData)
-                .fail(cb);
-        }
-
-        makeRequest();
-    });
+            // Index the results by their ID so they are easier to access as a collection
+            return _.indexBy(results, 'id');
+        });
 }
 
 /**
@@ -522,7 +475,7 @@ function getDailyImprovements(cb) {
         },
     })
         .done((data) => {
-            cb(null, data.items);
+            cb(null, _.map(data.items, item => ({...item, url: item.html_url})));
         })
         .fail((err) => {
             console.error(err);

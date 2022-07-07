@@ -2,12 +2,26 @@ import $ from 'jquery';
 import _ from 'underscore';
 import React from 'react';
 import PropTypes from 'prop-types';
+import {withOnyx} from 'react-native-onyx';
 import * as prefs from '../../lib/prefs';
-import * as API from '../../lib/api';
+import * as Milestones from '../../lib/actions/Milestones';
+import ONYXKEYS from '../../ONYXKEYS';
 
 const propTypes = {
+    /** Data for milestones in GH */
+    milestones: PropTypes.objectOf(PropTypes.shape({
+        /** The GH ID of the milestone */
+        id: PropTypes.string.isRequired,
+
+        /** The title of the milestone */
+        title: PropTypes.string.isRequired,
+    })),
+
     /** A callback that is triggered when a filter has changed */
     onChange: PropTypes.func.isRequired,
+};
+const defaultProps = {
+    milestones: {},
 };
 
 class Filters extends React.Component {
@@ -15,31 +29,17 @@ class Filters extends React.Component {
         super(props);
 
         this.saveFilters = this.saveFilters.bind(this);
-
-        this.state = {
-            milestones: [],
-        };
     }
 
     componentDidMount() {
-        API.getMilestones('all', (err, milestones) => {
-            if (err) {
-                return;
-            }
+        Milestones.get();
+    }
 
-            const newState = {
-                milestones: _.chain(milestones)
-                    .sortBy('title')
-                    .map(milestone => ({
-                        text: milestone.title,
-                        value: milestone.id,
-                    }))
-                    .unshift({text: '-All Milestones-', value: ''})
-                    .value(),
-            };
-
-            this.setState(newState, this.updateFilterFields);
-        });
+    componentDidUpdate(prevProps) {
+        if (this.props.milestones === prevProps.milestones) {
+            return;
+        }
+        this.updateFilterFields();
     }
 
     updateFilterFields() {
@@ -110,8 +110,9 @@ class Filters extends React.Component {
                             Milestone:&nbsp;
                         </label>
                         <select id="milestone" name="milestone" ref={el => this.fieldMilestone = el}>
-                            {_.map(this.state.milestones, option => (
-                                <option value={option.value} key={option.value}>{option.text}</option>
+                            <option value="">-All Milestones-</option>
+                            {_.map(this.props.milestones, option => (
+                                <option value={option.id} key={option.id}>{option.title}</option>
                             ))}
                         </select>
                     </div>
@@ -124,5 +125,10 @@ class Filters extends React.Component {
 }
 
 Filters.propTypes = propTypes;
+Filters.defaultProps = defaultProps;
 
-export default Filters;
+export default withOnyx({
+    milestones: {
+        key: ONYXKEYS.MILESTONES,
+    },
+})(Filters);
