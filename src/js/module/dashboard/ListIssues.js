@@ -11,6 +11,7 @@ import ListIssuesAssigned from './ListIssuesAssigned';
 import * as Preferences from '../../lib/actions/Preferences';
 import ListPRsAssigned from './ListPRsAssigned';
 import ListPRsReviewing from './ListPRsReviewing';
+import ListIssuesEngineering from './ListIssuesEngineering';
 
 const propTypes = {
     /** The number of seconds to refresh the list of issues */
@@ -140,6 +141,9 @@ class ListIssues extends React.Component {
                 <ListPRsReviewing pollInterval={this.props.pollInterval * 2.5} />
 
                 <Filters onChange={this.filterIssues} />
+
+                <ListIssuesEngineering />
+
                 <br />
                 <div>
                     <Tabs
