@@ -11,7 +11,7 @@ function getAllAssigned() {
         });
 }
 
-function getEngineeringIssues() {
+function getEngineering() {
     API.getEngineeringIssues('engineering', (err, issues) => {
         if (err) {
             return;
@@ -24,5 +24,5 @@ function getEngineeringIssues() {
 
 export {
     getAllAssigned,
-    getEngineeringIssues,
+    getEngineering,
 };
