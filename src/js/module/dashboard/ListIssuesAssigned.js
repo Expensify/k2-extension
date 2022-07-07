@@ -69,7 +69,7 @@ class ListIssuesAssigned extends React.Component {
                             title="Hourly"
                             extraClass="hourly"
                             item="issue"
-                            data={_.filter(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Hourly'}))}
+                            data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Hourly'}))}
                         />
                     </div>
                     <div className="col-3 pr-4">
@@ -77,7 +77,7 @@ class ListIssuesAssigned extends React.Component {
                             title="Daily"
                             extraClass="daily"
                             item="issue"
-                            data={_.filter(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Daily'}))}
+                            data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Daily'}))}
                         />
                     </div>
                     <div className="col-3 pr-4">
@@ -85,7 +85,7 @@ class ListIssuesAssigned extends React.Component {
                             title="Weekly"
                             extraClass="weekly"
                             item="issue"
-                            data={_.filter(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Weekly'}))}
+                            data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Weekly'}))}
                         />
                     </div>
                     <div className="col-3">
@@ -93,7 +93,7 @@ class ListIssuesAssigned extends React.Component {
                             title="Monthly"
                             extraClass="monthly"
                             item="issue"
-                            data={_.filter(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Monthly'}))}
+                            data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Monthly'}))}
                         />
                     </div>
                 </div>
@@ -102,7 +102,8 @@ class ListIssuesAssigned extends React.Component {
                         title="None"
                         extraClass="none"
                         item="issue"
-                        data={_.filter(this.props.issues, issue => _.intersection(_.map(issue.labels, label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0)}
+                        // eslint-disable-next-line max-len
+                        data={_.pick(this.props.issues, issue => _.intersection(_.map(issue.labels, label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0)}
                     />
                 </div>
             </div>

@@ -15,7 +15,7 @@ const propTypes = {
     item: PropTypes.oneOf(['issue', 'pull', 'review', 'form']).isRequired,
 
     /** The data that will be displayed in the list */
-    data: PropTypes.arrayOf(IssuePropTypes).isRequired,
+    data: PropTypes.objectOf(IssuePropTypes).isRequired,
 };
 
 const PanelListRaw = props => (

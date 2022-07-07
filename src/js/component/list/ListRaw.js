@@ -11,11 +11,11 @@ const propTypes = {
     type: PropTypes.oneOf(['issue', 'pull', 'review', 'form']).isRequired,
 
     /** The data that will be displayed */
-    data: PropTypes.arrayOf(IssuePropTypes).isRequired,
+    data: PropTypes.objectOf(IssuePropTypes).isRequired,
 };
 
 const ListRaw = (props) => {
-    if (!props.data.length) {
+    if (!_.size(props.data)) {
         return (
             <div className="blankslate capped clean-background">
                 No items
