@@ -11,9 +11,6 @@ const propTypes = {
     /** The title of the panel */
     title: PropTypes.string.isRequired,
 
-    /** The type of data being displayed in the list */
-    item: PropTypes.oneOf(['issue', 'pull', 'review', 'form']).isRequired,
-
     /** The data that will be displayed in the list */
     data: PropTypes.objectOf(IssuePropTypes).isRequired,
 };
@@ -22,7 +19,6 @@ const PanelListRaw = props => (
     <div className={`panel ${props.extraClass}`}>
         <Title text={props.title} />
         <ListRaw
-            type={props.item}
             data={props.data}
         />
     </div>

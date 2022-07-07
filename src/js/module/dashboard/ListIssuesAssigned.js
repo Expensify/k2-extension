@@ -68,7 +68,6 @@ class ListIssuesAssigned extends React.Component {
                         <PanelListRaw
                             title="Hourly"
                             extraClass="hourly"
-                            item="issue"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Hourly'}))}
                         />
                     </div>
@@ -76,7 +75,6 @@ class ListIssuesAssigned extends React.Component {
                         <PanelListRaw
                             title="Daily"
                             extraClass="daily"
-                            item="issue"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Daily'}))}
                         />
                     </div>
@@ -84,7 +82,6 @@ class ListIssuesAssigned extends React.Component {
                         <PanelListRaw
                             title="Weekly"
                             extraClass="weekly"
-                            item="issue"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Weekly'}))}
                         />
                     </div>
@@ -92,7 +89,6 @@ class ListIssuesAssigned extends React.Component {
                         <PanelListRaw
                             title="Monthly"
                             extraClass="monthly"
-                            item="issue"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Monthly'}))}
                         />
                     </div>
@@ -101,7 +97,6 @@ class ListIssuesAssigned extends React.Component {
                     <PanelListRaw
                         title="None"
                         extraClass="none"
-                        item="issue"
                         // eslint-disable-next-line max-len
                         data={_.pick(this.props.issues, issue => _.intersection(_.map(issue.labels, label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0)}
                     />
