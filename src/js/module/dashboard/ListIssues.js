@@ -22,7 +22,6 @@ class ListIssues extends React.Component {
         super(props);
 
         this.signOut = this.signOut.bind(this);
-        this.filterIssues = this.filterIssues.bind(this);
     }
 
     /**
