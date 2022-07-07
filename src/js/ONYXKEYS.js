@@ -11,6 +11,7 @@ export default {
     },
 
     ISSUES: {
+        FILTER: 'issueFilter',
         ASSIGNED: 'issueAssigned',
         ENGINEERING: 'issueEngineering',
     },

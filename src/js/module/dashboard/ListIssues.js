@@ -5,6 +5,7 @@ import Filters from './Filters';
 
 import StoreDailyImprovements from '../../store/dailyimprovements';
 import ActionsDailyImprovements from '../../action/dailyimprovements';
+import * as FiltersAction from '../../lib/actions/Filters';
 import PanelList from '../../component/panel/PanelList';
 import ListIssuesAssigned from './ListIssuesAssigned';
 import * as Preferences from '../../lib/actions/Preferences';
@@ -32,10 +33,6 @@ class ListIssues extends React.Component {
         prefs.clear('ghToken');
         Preferences.setGitHubToken('');
         window.location.reload(true);
-    }
-
-    filterIssues(filters) {
-        this.tabs.refreshWithFilters(filters);
     }
 
     render() {
@@ -139,7 +136,7 @@ class ListIssues extends React.Component {
 
                 <ListPRsReviewing pollInterval={this.props.pollInterval * 2.5} />
 
-                <Filters onChange={this.filterIssues} />
+                <Filters onChange={FiltersAction.save} />
 
                 <ListIssuesEngineering
                     pollInterval={this.props.pollInterval}
