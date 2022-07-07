@@ -6,6 +6,7 @@ import {withOnyx} from 'react-native-onyx';
 import * as Milestones from '../../lib/actions/Milestones';
 import * as Issues from '../../lib/actions/Issues';
 import ONYXKEYS from '../../ONYXKEYS';
+import filterPropTypes from '../../lib/filterPropTypes';
 
 const propTypes = {
     /** Data for milestones in GH */
@@ -18,19 +19,7 @@ const propTypes = {
     })),
 
     /** The filters to apply to the GH issues */
-    filters: PropTypes.shape({
-        /** Should improvements be included? */
-        improvement: PropTypes.bool,
-
-        /** Should tasks be included? */
-        task: PropTypes.bool,
-
-        /** Should features be included? */
-        feature: PropTypes.bool,
-
-        /** A milestone the issues should belong to */
-        milestone: PropTypes.string,
-    }),
+    filters: filterPropTypes,
 };
 const defaultProps = {
     milestones: {},

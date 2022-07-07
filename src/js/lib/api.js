@@ -196,6 +196,9 @@ function getIssues(assignee = 'none', label) {
                                 name
                             }
                         }
+                        milestone {
+                            id
+                        }
                     }
                 }
             }
