@@ -93,29 +93,27 @@ function getPullsByType(type) {
     const graphQLQuery = `
 query {
     search(query: "${query}", type: ISSUE, first: 100) {
-        edges {
-            node {
-                ... on PullRequest {
-                    headRefOid
-                    id
-                    isDraft
-                    mergeable
-                    reviewDecision
-                    title
-                    url
-                    updatedAt
-                    author {
-                        login
-                    }
-                    comments {
-                        totalCount
-                    }
-                    repository {
-                        name
-                    }
-                    reviews {
-                        totalCount
-                    }
+        nodes {
+            ... on PullRequest {
+                headRefOid
+                id
+                isDraft
+                mergeable
+                reviewDecision
+                title
+                url
+                updatedAt
+                author {
+                    login
+                }
+                comments {
+                    totalCount
+                }
+                repository {
+                    name
+                }
+                reviews {
+                    totalCount
                 }
             }
         }
@@ -126,9 +124,9 @@ query {
     return octokit.graphql(graphQLQuery)
         .then((data) => {
             // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-            const results = _.reduce(data.search.edges, (pullRequests, searchEdge) => {
+            const results = _.reduce(data.search.nodes, (pullRequests, searchNodes) => {
                 pullRequests.push({
-                    ...searchEdge.node,
+                    ...searchNodes,
                 });
                 return pullRequests;
             }, []);
