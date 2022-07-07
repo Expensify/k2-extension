@@ -11,7 +11,13 @@ function getAllAssigned() {
         });
 }
 
+function getEngineeringIssues() {
+    API.getEngineeringIssues('engineering', (data) => {
+
+    }, () => {});
+}
+
 export {
-    // eslint-disable-next-line import/prefer-default-export
     getAllAssigned,
+    getEngineeringIssues,
 };
