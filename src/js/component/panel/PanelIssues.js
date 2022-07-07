@@ -16,7 +16,7 @@ const propTypes = {
     data: PropTypes.objectOf(IssuePropTypes).isRequired,
 };
 
-const PanelListRaw = props => (
+const PanelIssues = props => (
     <div className={`panel ${props.extraClass}`}>
         <Title text={props.title} />
 
@@ -32,6 +32,7 @@ const PanelListRaw = props => (
     </div>
 );
 
-PanelListRaw.propTypes = propTypes;
-PanelListRaw.displayName = 'PanelListRaw';
-export default PanelListRaw;
+PanelIssues.propTypes = propTypes;
+PanelIssues.displayName = 'PanelIssues';
+
+export default PanelIssues;

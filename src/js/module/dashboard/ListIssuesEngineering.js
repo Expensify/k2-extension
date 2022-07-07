@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
 import * as Issues from '../../lib/actions/Issues';
 import ONYXKEYS from '../../ONYXKEYS';
-import PanelListRaw from '../../component/panel/PanelListRaw';
+import PanelIssues from '../../component/panel/PanelIssues';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 
 const propTypes = {
@@ -62,7 +62,7 @@ class ListIssuesEngineering extends React.Component {
         }
 
         return (
-            <PanelListRaw
+            <PanelIssues
                 title="Engineering"
                 extraClass="none"
                 item="issue"

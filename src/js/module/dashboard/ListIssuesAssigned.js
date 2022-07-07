@@ -3,7 +3,7 @@ import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
 import * as Issues from '../../lib/actions/Issues';
-import PanelListRaw from '../../component/panel/PanelListRaw';
+import PanelIssues from '../../component/panel/PanelIssues';
 import ONYXKEYS from '../../ONYXKEYS';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 
@@ -65,28 +65,28 @@ class ListIssuesAssigned extends React.Component {
             <div>
                 <div className="d-flex flex-row">
                     <div className="col-3 pr-4">
-                        <PanelListRaw
+                        <PanelIssues
                             title="Hourly"
                             extraClass="hourly"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Hourly'}))}
                         />
                     </div>
                     <div className="col-3 pr-4">
-                        <PanelListRaw
+                        <PanelIssues
                             title="Daily"
                             extraClass="daily"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Daily'}))}
                         />
                     </div>
                     <div className="col-3 pr-4">
-                        <PanelListRaw
+                        <PanelIssues
                             title="Weekly"
                             extraClass="weekly"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Weekly'}))}
                         />
                     </div>
                     <div className="col-3">
-                        <PanelListRaw
+                        <PanelIssues
                             title="Monthly"
                             extraClass="monthly"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Monthly'}))}
@@ -94,7 +94,7 @@ class ListIssuesAssigned extends React.Component {
                     </div>
                 </div>
                 <div className="pt-4">
-                    <PanelListRaw
+                    <PanelIssues
                         title="None"
                         extraClass="none"
                         // eslint-disable-next-line max-len
