@@ -3,7 +3,6 @@ import _ from 'underscore';
 import React from 'react';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
-import * as prefs from '../../lib/prefs';
 import * as Milestones from '../../lib/actions/Milestones';
 import * as Issues from '../../lib/actions/Issues';
 import ONYXKEYS from '../../ONYXKEYS';
@@ -17,9 +16,25 @@ const propTypes = {
         /** The title of the milestone */
         title: PropTypes.string.isRequired,
     })),
+
+    /** The filters to apply to the GH issues */
+    filters: PropTypes.shape({
+        /** Should improvements be included? */
+        improvement: PropTypes.bool,
+
+        /** Should tasks be included? */
+        task: PropTypes.bool,
+
+        /** Should features be included? */
+        feature: PropTypes.bool,
+
+        /** A milestone the issues should belong to */
+        milestone: PropTypes.string,
+    }),
 };
 const defaultProps = {
     milestones: {},
+    filters: {},
 };
 
 class Filters extends React.Component {
@@ -37,19 +52,15 @@ class Filters extends React.Component {
         if (this.props.milestones === prevProps.milestones) {
             return;
         }
-        this.updateFilterFields();
-    }
 
-    updateFilterFields() {
-        prefs.get('issueFilters', (issueFilters) => {
-            if (!issueFilters || _.isEmpty(issueFilters)) {
-                return;
-            }
-            this.fieldImprovement.checked = issueFilters.improvement;
-            this.fieldTask.checked = issueFilters.task;
-            this.fieldFeature.checked = issueFilters.feature;
-            $(this.fieldMilestone).val(issueFilters.milestone);
-        });
+        if (!this.props.filters || _.isEmpty(this.props.filters)) {
+            return;
+        }
+
+        this.fieldImprovement.checked = this.props.filters.improvement;
+        this.fieldTask.checked = this.props.filters.task;
+        this.fieldFeature.checked = this.props.filters.feature;
+        $(this.fieldMilestone).val(this.props.filters.milestone);
     }
 
     /**
