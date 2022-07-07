@@ -45,11 +45,9 @@ function getMilestones() {
 {
     repository(name: "expensify", owner: "expensify") {
         milestones(first: 100, states: OPEN) {
-            edges {
-                node {
-                    title
-                    id
-                }
+            nodes {
+                title
+                id
             }
         }
     }
@@ -59,9 +57,9 @@ function getMilestones() {
     return octokit.graphql(graphQLQuery)
         .then((data) => {
             // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-            const results = _.reduce(data.repository.milestones.edges, (milestones, milestonesEdge) => {
+            const results = _.reduce(data.repository.milestones.nodes, (milestones, milestonesNode) => {
                 milestones.push({
-                    ...milestonesEdge.node,
+                    ...milestonesNode,
                 });
                 return milestones;
             }, []);
