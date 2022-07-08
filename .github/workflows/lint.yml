@@ -31,4 +31,4 @@ jobs:
                   max_attempts: 5
                   command: npm ci
 
-            - run: npx eslint --max-warnings=0 $(git diff --name-only origin/main '**/*.js' | xargs)
+            - run: npx eslint --max-warnings=0 $(git diff --diff-filter=ACM --name-only origin/main '**/*.js' | xargs)
