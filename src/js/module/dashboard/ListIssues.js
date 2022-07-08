@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as prefs from '../../lib/prefs';
 import Filters from './Filters';
-import Tabs from '../../component/tabs/Tabs';
 
 import StoreDailyImprovements from '../../store/dailyimprovements';
 import ActionsDailyImprovements from '../../action/dailyimprovements';
@@ -11,6 +10,7 @@ import ListIssuesAssigned from './ListIssuesAssigned';
 import * as Preferences from '../../lib/actions/Preferences';
 import ListPRsAssigned from './ListPRsAssigned';
 import ListPRsReviewing from './ListPRsReviewing';
+import ListIssuesEngineering from './ListIssuesEngineering';
 
 const propTypes = {
     /** The number of seconds to refresh the list of issues */
@@ -22,7 +22,6 @@ class ListIssues extends React.Component {
         super(props);
 
         this.signOut = this.signOut.bind(this);
-        this.filterIssues = this.filterIssues.bind(this);
     }
 
     /**
@@ -32,10 +31,6 @@ class ListIssues extends React.Component {
         prefs.clear('ghToken');
         Preferences.setGitHubToken('');
         window.location.reload(true);
-    }
-
-    filterIssues(filters) {
-        this.tabs.refreshWithFilters(filters);
     }
 
     render() {
@@ -139,27 +134,11 @@ class ListIssues extends React.Component {
 
                 <ListPRsReviewing pollInterval={this.props.pollInterval * 2.5} />
 
-                <Filters onChange={this.filterIssues} />
-                <br />
-                <div>
-                    <Tabs
-                        ref={el => this.tabs = el}
-                        pollInterval={this.props.pollInterval * 3}
-                        type="issue"
-                        items={[
-                            {
-                                title: 'Engineering',
-                                id: 'engineering',
-                                apiMethod: 'getEngineeringIssues',
-                            },
-                            {
-                                title: 'Integrations',
-                                id: 'integrations',
-                                apiMethod: 'getIntegrationsIssues',
-                            },
-                        ]}
-                    />
-                </div>
+                <Filters />
+
+                <ListIssuesEngineering
+                    pollInterval={this.props.pollInterval}
+                />
             </div>
         );
     }

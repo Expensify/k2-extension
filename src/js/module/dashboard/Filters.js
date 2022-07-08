@@ -3,9 +3,10 @@ import _ from 'underscore';
 import React from 'react';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
-import * as prefs from '../../lib/prefs';
 import * as Milestones from '../../lib/actions/Milestones';
+import * as Issues from '../../lib/actions/Issues';
 import ONYXKEYS from '../../ONYXKEYS';
+import filterPropTypes from '../../lib/filterPropTypes';
 
 const propTypes = {
     /** Data for milestones in GH */
@@ -17,11 +18,12 @@ const propTypes = {
         title: PropTypes.string.isRequired,
     })),
 
-    /** A callback that is triggered when a filter has changed */
-    onChange: PropTypes.func.isRequired,
+    /** The filters to apply to the GH issues */
+    filters: filterPropTypes,
 };
 const defaultProps = {
     milestones: {},
+    filters: {},
 };
 
 class Filters extends React.Component {
@@ -39,46 +41,36 @@ class Filters extends React.Component {
         if (this.props.milestones === prevProps.milestones) {
             return;
         }
-        this.updateFilterFields();
-    }
 
-    updateFilterFields() {
-        prefs.get('issueFilters', (issueFilters) => {
-            if (!issueFilters || _.isEmpty(issueFilters)) {
-                return;
-            }
-            this.fieldImprovement.checked = issueFilters.improvement;
-            this.fieldTask.checked = issueFilters.task;
-            this.fieldFeature.checked = issueFilters.feature;
-            $(this.fieldMilestone).val(issueFilters.milestone);
-        });
+        if (!this.props.filters || _.isEmpty(this.props.filters)) {
+            return;
+        }
+
+        this.fieldImprovement.checked = this.props.filters.improvement;
+        this.fieldTask.checked = this.props.filters.task;
+        this.fieldFeature.checked = this.props.filters.feature;
+        $(this.fieldMilestone).val(this.props.filters.milestone);
     }
 
     /**
-     * Handle the form being submitted
+     * Save the filters when the apply button is clicked
      *
      * @param {SyntheticEvent} e
      */
     saveFilters(e) {
         e.preventDefault();
 
-        // Get our filter values
-        const newFilters = {
+        Issues.saveFilters({
             improvement: this.fieldImprovement.checked,
             task: this.fieldTask.checked,
             feature: this.fieldFeature.checked,
             milestone: this.fieldMilestone.value,
-        };
-
-        prefs.set('issueFilters', newFilters);
-
-        // Trigger our filter callback
-        this.props.onChange(newFilters);
+        });
     }
 
     render() {
         return (
-            <div className="">
+            <div className="mb-3">
                 <form className="form-inline" onSubmit={this.saveFilters}>
                     Filter by:
                     <div className="checkbox">
@@ -130,5 +122,8 @@ Filters.defaultProps = defaultProps;
 export default withOnyx({
     milestones: {
         key: ONYXKEYS.MILESTONES,
+    },
+    filters: {
+        key: ONYXKEYS.ISSUES.FILTER,
     },
 })(Filters);
