@@ -55,7 +55,6 @@ class List extends React.Component {
             switch (type) {
                 case 'issue': result = (<ListItemIssue key={`issue_${item.id}`} issue={item} />); break;
                 case 'pull': result = (<ListItemPull key={`pull_${item.id}`} pr={item} />); break;
-                case 'review': result = (<ListItemPull key={`review_${item.id}`} pr={item} />); break;
                 default: result = null;
             }
             return result;

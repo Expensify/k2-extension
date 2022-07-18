@@ -79,7 +79,7 @@ class K2PickertypePicker extends React.Component {
                         return;
                     }
                     API.removeLabel(previousLabel);
-             });
+                });
         } else {
             API.removeLabel(label);
         }
