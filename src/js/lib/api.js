@@ -294,9 +294,6 @@ function addLabel(label) {
 /**
  * Remove a label from a github issue
  * @param {String} label
- * @param {Function} [cb]
- * @param {Number} [issueNumber] an issue number to use if we don't want to default to the currently open issue
- * @param {String} [repoName] a repository to use if we don't want to use the one on the current page
  * @returns {Promise}
  */
 function removeLabel(label) {
