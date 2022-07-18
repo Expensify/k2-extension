@@ -3,9 +3,11 @@ import _ from 'underscore';
 import {Octokit} from 'octokit';
 import * as Preferences from './actions/Preferences';
 
-const baseUrl = 'https://api.github.com';
 let octokit;
 
+/**
+ * @returns {Octokit}
+ */
 function getOctokit() {
     if (!octokit) {
         octokit = new Octokit({auth: Preferences.getGitHubToken()});
@@ -48,7 +50,7 @@ function getOwner() {
  * @returns {String}
  */
 function getIssueNumber() {
-    $('.gh-header-number').first().text().replace('#', '')
+    return $('.gh-header-number').first().text().replace('#', '');
 }
 
 /**
@@ -281,13 +283,10 @@ function getEngineeringIssues() {
  * @returns {Promise}
  */
 function addLabel(label) {
-    const repo = repoName || getRepo();
-    const owner = getOwner();
-    const issueNum = getIssueNumber();
     return getOctokit().rest.issues.addLabels({
-        repo,
-        owner,
-        issue_number: issueNum,
+        repo: getRepo(),
+        owner: getOwner(),
+        issue_number: getIssueNumber(),
         labels: [label],
     });
 }
@@ -298,15 +297,13 @@ function addLabel(label) {
  * @param {Function} [cb]
  * @param {Number} [issueNumber] an issue number to use if we don't want to default to the currently open issue
  * @param {String} [repoName] a repository to use if we don't want to use the one on the current page
+ * @returns {Promise}
  */
-function removeLabel(label, cb, issueNumber, repoName) {
-    const repo = repoName || getRepo();
-    const owner = getOwner();
-    const issueNum = issueNumber || getIssueNumber();
+function removeLabel(label) {
     return getOctokit().rest.issues.removeLabel({
-        repo,
-        owner,
-        issue_number: issueNum,
+        repo: getRepo(),
+        owner: getOwner(),
+        issue_number: getIssueNumber(),
         name: label,
     });
 }
