@@ -12,7 +12,6 @@
     "web": "webpack --progress --config webpack.dev.js"
   },
   "dependencies": {
-    "alt": "^0.17.8",
     "dotenv": "^8.2.0",
     "eslint-loader": "^4.0.2",
     "expensify-common": "git+https://github.com/Expensify/expensify-common.git#5fb22bd4a3619eb9fe9e2a9c0dc25e291863a2a2",
