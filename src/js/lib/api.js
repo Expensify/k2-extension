@@ -266,34 +266,20 @@ function getEngineeringIssues() {
 
 /**
  * Add labels to a github issue
- * @param {String[]} labels
- * @param {Function} [cb]
+ * @param {String} label
+ * @returns {Promise}
  */
-function addLabels(labels, cb) {
-    const repo = getRepo();
+function addLabel(label) {
+    const repo = repoName || getRepo();
     const owner = getOwner();
     const issueNum = $('.gh-header-number').first().text().replace('#', '');
-    const url = `${baseUrl}/repos/${owner}/${repo}/issues/${issueNum}/labels`;
-    $.ajax({
-        url,
-        method: 'post',
-        data: JSON.stringify(labels),
-        headers: {
-            Authorization: `Bearer ${Preferences.getGitHubToken()}`,
-        },
-    })
-        .done((data) => {
-            if (!cb) {
-                return;
-            }
-            cb(null, data);
-        })
-        .fail((err) => {
-            if (!cb) {
-                return;
-            }
-            cb(err);
-        });
+    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
+    return octokit.rest.issues.addLabels({
+        repo,
+        owner,
+        issue_number: issueNum,
+        labels: [label]
+    });
 }
 
 /**
@@ -341,7 +327,7 @@ export {
     getEngineeringIssues,
     getIssuesAssigned,
     getDailyImprovements,
-    addLabels,
+    addLabel,
     removeLabel,
     getMilestones,
     getCurrentUser,

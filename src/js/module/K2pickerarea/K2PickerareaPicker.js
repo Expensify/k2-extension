@@ -60,7 +60,7 @@ class K2PickerareaPicker extends React.Component {
 
         if (newState[label].className.search('inactive') > -1) {
             newState[label].className = newState[label].className.replace('inactive', 'active');
-            API.addLabels([label]);
+            API.addLabel(label);
         } else {
             newState[label].className = newState[label].className.replace('active', 'inactive');
             API.removeLabel(label);
