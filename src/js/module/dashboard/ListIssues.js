@@ -1,10 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import * as prefs from '../../lib/prefs';
 import Filters from './Filters';
 
 import ListIssuesAssigned from './ListIssuesAssigned';
-import * as Preferences from '../../lib/actions/Preferences';
 import ListPRsAssigned from './ListPRsAssigned';
 import ListPRsReviewing from './ListPRsReviewing';
 import ListIssuesEngineering from './ListIssuesEngineering';
@@ -16,42 +14,23 @@ const propTypes = {
     pollInterval: PropTypes.number.isRequired,
 };
 
-class ListIssues extends React.Component {
-    constructor(props) {
-        super(props);
+const ListIssues = props => (
+    <div className="issueList">
+        <Legend />
 
-        this.signOut = this.signOut.bind(this);
-    }
+        <ListIssuesAssigned pollInterval={props.pollInterval} />
 
-    /**
-     * Sign out the user so they are prompted for their API token again
-     */
-    signOut() {
-        prefs.clear('ghToken');
-        Preferences.setGitHubToken('');
-        window.location.reload();
-    }
+        <ListIssuesDailyImprovements pollInterval={props.pollInterval * 2.5} />
 
-    render() {
-        return (
-            <div className="issueList">
-                <Legend onSignOut={this.signOut} />
+        <ListPRsAssigned pollInterval={props.pollInterval * 2.5} />
 
-                <ListIssuesAssigned pollInterval={this.props.pollInterval} />
+        <ListPRsReviewing pollInterval={props.pollInterval * 2.5} />
 
-                <ListIssuesDailyImprovements pollInterval={this.props.pollInterval * 2.5} />
+        <Filters />
 
-                <ListPRsAssigned pollInterval={this.props.pollInterval * 2.5} />
-
-                <ListPRsReviewing pollInterval={this.props.pollInterval * 2.5} />
-
-                <Filters />
-
-                <ListIssuesEngineering pollInterval={this.props.pollInterval * 2.5} />
-            </div>
-        );
-    }
-}
+        <ListIssuesEngineering pollInterval={props.pollInterval * 2.5} />
+    </div>
+);
 
 ListIssues.propTypes = propTypes;
 
