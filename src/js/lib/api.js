@@ -147,18 +147,20 @@ function getCheckRuns(repo, headSHA) {
  * Get all open issue for a particular area depending on who is assigned and what label it has
  *
  * @param {String} assignee
- * @param {String} [label]
+ * @param {String[]} [labels]
  * @returns {Promise}
  */
-function getIssues(assignee = 'none', label) {
+function getIssues(assignee = 'none', labels) {
     let query = '';
 
     // Get the PRs assigned to me
     query += ' state:open';
     query += ' is:issue';
 
-    if (label) {
-        query += ` label:${label}`;
+    if (labels && labels.length) {
+        for (let i = 0;i < labels.length; i++) {
+            query += ` label:${labels[i]}`;
+        }
     }
     query += ' repo:Expensify/Expensify';
     query += ' repo:Expensify/App';
@@ -258,7 +260,7 @@ function getIssuesAssigned() {
  * @returns {Promise}
  */
 function getEngineeringIssues() {
-    return getIssues('none', 'engineering');
+    return getIssues('none', ['engineering']);
 }
 
 /**
@@ -327,41 +329,10 @@ function removeLabel(label, cb, issueNumber, repoName) {
 }
 
 /**
- * Get all the improvements that are not assigned and are dailys
- *
- * @date 2015-06-07
- *
- * @param {Function} cb
+ * @returns {Promise}
  */
-function getDailyImprovements(cb) {
-    let query = '?q=';
-
-    // Get all the open issues with no assignees
-    query += '+state:open';
-    query += '+is:issue';
-    query += '+repo:Expensify/Expensify';
-    query += '+repo:Expensify/App';
-    query += '+repo:Expensify/VendorTasks';
-    query += '+repo:Expensify/Insiders';
-    query += '+repo:Expensify/Expensify-Guides';
-    query += '+no:assignee';
-    query += '+label:improvement';
-    query += '+label:daily';
-
-    const url = `${baseUrl}/search/issues${query}`;
-    $.ajax({
-        url,
-        headers: {
-            Authorization: `Bearer ${Preferences.getGitHubToken()}`,
-        },
-    })
-        .done((data) => {
-            cb(null, _.map(data.items, item => ({...item, url: item.html_url})));
-        })
-        .fail((err) => {
-            console.error(err);
-            cb(err);
-        });
+function getDailyImprovements() {
+    return getIssues('none', ['improvement', 'daily']);
 }
 
 export {
