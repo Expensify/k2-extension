@@ -11,9 +11,10 @@ export default {
     },
 
     ISSUES: {
-        FILTER: 'issueFilter',
         ASSIGNED: 'issueAssigned',
+        DAILY_IMPROVEMENTS: 'issueDailyImprovements',
         ENGINEERING: 'issueEngineering',
+        FILTER: 'issueFilter',
     },
 
     MILESTONES: 'milestones',
