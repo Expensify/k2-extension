@@ -4,6 +4,14 @@ import {Octokit} from 'octokit';
 import * as Preferences from './actions/Preferences';
 
 const baseUrl = 'https://api.github.com';
+let octokit;
+
+function getOctokit() {
+    if (!octokit) {
+        octokit = new Octokit({auth: Preferences.getGitHubToken()});
+    }
+    return octokit;
+}
 
 /**
  * Returns the current github user
@@ -35,12 +43,20 @@ function getOwner() {
 }
 
 /**
+ * Returns the issue number that is read off the DOM
+ *
+ * @returns {String}
+ */
+function getIssueNumber() {
+    $('.gh-header-number').first().text().replace('#', '')
+}
+
+/**
  * Return all of our milestone data
  *
  * @returns {Promise}
  */
 function getMilestones() {
-    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
     const graphQLQuery = `
 {
     repository(name: "expensify", owner: "expensify") {
@@ -54,7 +70,7 @@ function getMilestones() {
 }
     `;
 
-    return octokit.graphql(graphQLQuery)
+    return getOctokit().graphql(graphQLQuery)
         .then((data) => {
             // Put the data into a format that the rest of the app will use to remove things like edges and nodes
             const results = _.reduce(data.repository.milestones.nodes, (milestones, milestonesNode) => {
@@ -85,8 +101,6 @@ function getPullsByType(type) {
 
     query += ' org:expensify';
     query += ` ${type}:${getCurrentUser()}`;
-
-    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
 
     const graphQLQuery = `
 query {
@@ -119,7 +133,7 @@ query {
 }
     `;
 
-    return octokit.graphql(graphQLQuery)
+    return getOctokit().graphql(graphQLQuery)
         .then((data) => {
             // Put the data into a format that the rest of the app will use to remove things like edges and nodes
             const results = _.reduce(data.search.nodes, (pullRequests, searchNodes) => {
@@ -135,8 +149,7 @@ query {
 }
 
 function getCheckRuns(repo, headSHA) {
-    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
-    return octokit.rest.checks.listForRef({
+    return getOctokit().rest.checks.listForRef({
         owner: getOwner(),
         repo,
         ref: headSHA,
@@ -175,8 +188,6 @@ function getIssues(assignee = 'none', labels) {
         query += ` assignee:${assignee}`;
     }
 
-    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
-
     const graphQLQuery = `
         query($cursor:String) {
             search(
@@ -213,7 +224,7 @@ function getIssues(assignee = 'none', labels) {
 
         // This does all the pagination on the graphQL query
         function fetchPageOfIssues(cursor) {
-            octokit.graphql(graphQLQuery, {cursor})
+            getOctokit().graphql(graphQLQuery, {cursor})
                 .then((queryResults) => {
                     // Put the data into a format that the rest of the app will use to remove things like edges and nodes
                     const searchResults = _.reduce(queryResults.search.nodes, (cleanSearchResults, searchNode) => {
@@ -272,13 +283,12 @@ function getEngineeringIssues() {
 function addLabel(label) {
     const repo = repoName || getRepo();
     const owner = getOwner();
-    const issueNum = $('.gh-header-number').first().text().replace('#', '');
-    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
-    return octokit.rest.issues.addLabels({
+    const issueNum = getIssueNumber();
+    return getOctokit().rest.issues.addLabels({
         repo,
         owner,
         issue_number: issueNum,
-        labels: [label]
+        labels: [label],
     });
 }
 
@@ -292,27 +302,13 @@ function addLabel(label) {
 function removeLabel(label, cb, issueNumber, repoName) {
     const repo = repoName || getRepo();
     const owner = getOwner();
-    const issueNum = issueNumber || $('.gh-header-number').first().text().replace('#', '');
-    const url = `${baseUrl}/repos/${owner}/${repo}/issues/${issueNum}/labels/${label}`;
-    $.ajax({
-        url,
-        method: 'delete',
-        headers: {
-            Authorization: `Bearer ${Preferences.getGitHubToken()}`,
-        },
-    })
-        .done((data) => {
-            if (!cb) {
-                return;
-            }
-            cb(null, data);
-        })
-        .fail((err) => {
-            if (!cb) {
-                return;
-            }
-            cb(err);
-        });
+    const issueNum = issueNumber || getIssueNumber();
+    return getOctokit().rest.issues.removeLabel({
+        repo,
+        owner,
+        issue_number: issueNum,
+        name: label,
+    });
 }
 
 /**
