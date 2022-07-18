@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import * as prefs from '../../lib/prefs';
 import Filters from './Filters';
 
-import PanelList from '../../component/panel/PanelList';
 import ListIssuesAssigned from './ListIssuesAssigned';
 import * as Preferences from '../../lib/actions/Preferences';
 import ListPRsAssigned from './ListPRsAssigned';
