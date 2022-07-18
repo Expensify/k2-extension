@@ -2,7 +2,6 @@ import React from 'react';
 import _ from 'underscore';
 import ListItemIssue from '../list-item/ListItemIssue';
 import ListItemPull from '../list-item/ListItemPull';
-import ListItemForm from '../list-item/ListItemForm';
 import listPropTypes from './listPropTypes';
 
 const propTypes = {
@@ -57,7 +56,6 @@ class List extends React.Component {
                 case 'issue': result = (<ListItemIssue key={`issue_${item.id}`} issue={item} />); break;
                 case 'pull': result = (<ListItemPull key={`pull_${item.id}`} pr={item} />); break;
                 case 'review': result = (<ListItemPull key={`review_${item.id}`} pr={item} />); break;
-                case 'form': result = (<ListItemForm key={`form_${item.id}`} data={item} />); break;
                 default: result = null;
             }
             return result;

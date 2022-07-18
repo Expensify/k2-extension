@@ -3,10 +3,8 @@ import React from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
-import PanelList from '../../component/panel/PanelList';
 import * as Preferences from '../../lib/actions/Preferences';
 import Title from '../../component/panel-title/Title';
-import FormInput from '../../component/form/FormInput';
 
 const propTypes = {
     /** A callback function that is triggered after the form is submitted */
