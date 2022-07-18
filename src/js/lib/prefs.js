@@ -45,6 +45,10 @@ function get(name, cb) {
  *                      setting, or else we will clear out all settings
  */
 function clear(name) {
+    if (!ksBrowser.storage) {
+        return;
+    }
+
     if (name) {
         ksBrowser.storage.sync.remove(name);
     } else {

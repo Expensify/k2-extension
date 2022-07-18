@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactNativeOnyx from 'react-native-onyx';
 import * as prefs from '../../lib/prefs';
 import * as Preferences from '../../lib/actions/Preferences';
 
@@ -6,6 +7,7 @@ const Legend = () => {
     function signOut() {
         prefs.clear('ghToken');
         Preferences.setGitHubToken('');
+        ReactNativeOnyx.clear();
         window.location.reload();
     }
 
