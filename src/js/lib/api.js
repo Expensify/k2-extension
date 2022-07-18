@@ -158,10 +158,11 @@ function getIssues(assignee = 'none', labels) {
     query += ' is:issue';
 
     if (labels && labels.length) {
-        for (let i = 0;i < labels.length; i++) {
+        for (let i = 0; i < labels.length; i++) {
             query += ` label:${labels[i]}`;
         }
     }
+
     query += ' repo:Expensify/Expensify';
     query += ' repo:Expensify/App';
     query += ' repo:Expensify/VendorTasks';

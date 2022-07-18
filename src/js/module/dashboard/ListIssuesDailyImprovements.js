@@ -16,7 +16,7 @@ const propTypes = {
     issues: PropTypes.objectOf(IssuePropTypes),
 };
 const defaultProps = {
-    prs: null,
+    issues: null,
 };
 
 class ListIssuesDailyImprovements extends React.Component {
@@ -50,13 +50,13 @@ class ListIssuesDailyImprovements extends React.Component {
             <div className="panel mb-3">
                 <Title text="Daily Improvements (All Areas)" />
 
-                {!this.props.prs && (
+                {!this.props.issues && (
                     <div className="blankslate capped clean-background">
                         Loading
                     </div>
                 )}
 
-                {this.props.prs && !_.size(this.props.prs) && (
+                {this.props.issues && !_.size(this.props.issues) && (
                     <div className="blankslate capped clean-background">
                         No items
                     </div>
@@ -64,7 +64,7 @@ class ListIssuesDailyImprovements extends React.Component {
 
                 {_.chain(this.props.issues)
                     .sortBy('updatedAt')
-                    .map(pr => <ListItemIssue key={pr.id} data={issue} />)
+                    .map(issue => <ListItemIssue key={issue.id} issue={issue} />)
                     .value()
                     .reverse()}
             </div>
