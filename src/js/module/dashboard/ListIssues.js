@@ -3,14 +3,13 @@ import PropTypes from 'prop-types';
 import * as prefs from '../../lib/prefs';
 import Filters from './Filters';
 
-import StoreDailyImprovements from '../../store/dailyimprovements';
-import ActionsDailyImprovements from '../../action/dailyimprovements';
 import PanelList from '../../component/panel/PanelList';
 import ListIssuesAssigned from './ListIssuesAssigned';
 import * as Preferences from '../../lib/actions/Preferences';
 import ListPRsAssigned from './ListPRsAssigned';
 import ListPRsReviewing from './ListPRsReviewing';
 import ListIssuesEngineering from './ListIssuesEngineering';
+import ListIssuesDailyImprovements from './ListIssuesDailyImprovements';
 
 const propTypes = {
     /** The number of seconds to refresh the list of issues */
@@ -115,20 +114,9 @@ class ListIssues extends React.Component {
                     </div>
                 </div>
 
-                <ListIssuesAssigned
-                    pollInterval={this.props.pollInterval}
-                />
+                <ListIssuesAssigned pollInterval={this.props.pollInterval} />
 
-                <br />
-                <div>
-                    <PanelList
-                        title="Daily Improvements (All Areas)"
-                        action={ActionsDailyImprovements}
-                        store={StoreDailyImprovements}
-                        item="issue"
-                        pollInterval={this.props.pollInterval * 1.6}
-                    />
-                </div>
+                <ListIssuesDailyImprovements pollInterval={this.props.pollInterval * 2.5} />
 
                 <ListPRsAssigned pollInterval={this.props.pollInterval * 2.5} />
 
@@ -136,9 +124,7 @@ class ListIssues extends React.Component {
 
                 <Filters />
 
-                <ListIssuesEngineering
-                    pollInterval={this.props.pollInterval}
-                />
+                <ListIssuesEngineering pollInterval={this.props.pollInterval} />
             </div>
         );
     }
