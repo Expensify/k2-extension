@@ -3,8 +3,8 @@ import React from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
-import PanelList from '../../component/panel/PanelList';
 import * as Preferences from '../../lib/actions/Preferences';
+import Title from '../../component/panel-title/Title';
 
 const propTypes = {
     /** A callback function that is triggered after the form is submitted */
@@ -19,6 +19,10 @@ class FormPassword extends React.Component {
         super(props);
 
         this.submitForm = this.submitForm.bind(this);
+    }
+
+    componentDidMount() {
+        this.input.focus();
     }
 
     /**
@@ -43,27 +47,33 @@ class FormPassword extends React.Component {
             <div className="columns">
                 <div className="one-third column centered">
                     <form ref={el => this.form = el} onSubmit={this.submitForm}>
-                        <PanelList
-                            title="Enter Credentials"
-                            item="form"
-                            list={[
-                                {
-                                    id: 'password',
-                                    type: 'password',
-                                    label: 'Personal Access Token',
-                                    className: 'input-block',
-                                    hint: 'A personal access token is required to make custom queries against the GitHub.com API.',
-                                    required: true,
-                                    focus: true,
-                                },
-                            ]}
-                        >
-                            <footer className="panel-footer form-actions">
-                                <button className="btn btn-primary" type="submit">
-                                    Submit
-                                </button>
-                            </footer>
-                        </PanelList>
+                        <div className="panel mb-3">
+                            <Title text="Enter Credentials" />
+                            <div>
+                                <div className="panel-item">
+                                    <label htmlFor="password">Personal Access Token</label>
+
+                                    <input
+                                        ref={el => this.input = el}
+                                        type="password"
+                                        htmlid="password"
+                                        name="password"
+                                        className="input-block"
+                                        required
+                                    />
+
+                                    <p>
+                                        A personal access token is required to make custom queries against the GitHub.com API.
+                                    </p>
+                                </div>
+
+                                <footer className="panel-footer form-actions">
+                                    <button className="btn btn-primary" type="submit">
+                                        Submit
+                                    </button>
+                                </footer>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>

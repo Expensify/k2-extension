@@ -57,12 +57,13 @@ class Toggle extends React.Component {
             previousLabel = key;
         });
         if (label !== previousLabel) {
-            API.addLabels([label], () => {
-                if (!previousLabel) {
-                    return;
-                }
-                API.removeLabel(previousLabel);
-            });
+            API.addLabel(label)
+                .then(() => {
+                    if (!previousLabel) {
+                        return;
+                    }
+                    API.removeLabel(previousLabel);
+                });
         } else {
             API.removeLabel(label);
         }

@@ -62,7 +62,7 @@ const PanelIssues = (props) => {
                 </div>
             ) : (
                 <div>
-                    {_.map(filteredData, item => <ListItemIssue key={`issue_raw_${item.id}`} data={item} />)}
+                    {_.map(filteredData, issue => <ListItemIssue key={`issue_raw_${issue.id}`} issue={issue} />)}
                 </div>
             )}
         </div>

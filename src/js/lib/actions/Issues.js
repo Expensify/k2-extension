@@ -4,6 +4,15 @@ import _ from 'underscore';
 import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
 
+function getDailyImprovements() {
+    API.getDailyImprovements()
+        .then((issues) => {
+            // Always use set() here because there is no way to remove issues from Onyx
+            // that get closed and are no longer assigned
+            ReactNativeOnyx.set(ONYXKEYS.ISSUES.DAILY_IMPROVEMENTS, issues);
+        });
+}
+
 function getAllAssigned() {
     API.getIssuesAssigned()
         .then((issues) => {
@@ -80,5 +89,6 @@ function saveFilters(filters) {
 export {
     getAllAssigned,
     getEngineering,
+    getDailyImprovements,
     saveFilters,
 };

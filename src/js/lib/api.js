@@ -3,7 +3,17 @@ import _ from 'underscore';
 import {Octokit} from 'octokit';
 import * as Preferences from './actions/Preferences';
 
-const baseUrl = 'https://api.github.com';
+let octokit;
+
+/**
+ * @returns {Octokit}
+ */
+function getOctokit() {
+    if (!octokit) {
+        octokit = new Octokit({auth: Preferences.getGitHubToken()});
+    }
+    return octokit;
+}
 
 /**
  * Returns the current github user
@@ -35,12 +45,20 @@ function getOwner() {
 }
 
 /**
+ * Returns the issue number that is read off the DOM
+ *
+ * @returns {String}
+ */
+function getIssueNumber() {
+    return $('.gh-header-number').first().text().replace('#', '');
+}
+
+/**
  * Return all of our milestone data
  *
  * @returns {Promise}
  */
 function getMilestones() {
-    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
     const graphQLQuery = `
 {
     repository(name: "expensify", owner: "expensify") {
@@ -54,7 +72,7 @@ function getMilestones() {
 }
     `;
 
-    return octokit.graphql(graphQLQuery)
+    return getOctokit().graphql(graphQLQuery)
         .then((data) => {
             // Put the data into a format that the rest of the app will use to remove things like edges and nodes
             const results = _.reduce(data.repository.milestones.nodes, (milestones, milestonesNode) => {
@@ -85,8 +103,6 @@ function getPullsByType(type) {
 
     query += ' org:expensify';
     query += ` ${type}:${getCurrentUser()}`;
-
-    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
 
     const graphQLQuery = `
 query {
@@ -119,7 +135,7 @@ query {
 }
     `;
 
-    return octokit.graphql(graphQLQuery)
+    return getOctokit().graphql(graphQLQuery)
         .then((data) => {
             // Put the data into a format that the rest of the app will use to remove things like edges and nodes
             const results = _.reduce(data.search.nodes, (pullRequests, searchNodes) => {
@@ -135,8 +151,7 @@ query {
 }
 
 function getCheckRuns(repo, headSHA) {
-    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
-    return octokit.rest.checks.listForRef({
+    return getOctokit().rest.checks.listForRef({
         owner: getOwner(),
         repo,
         ref: headSHA,
@@ -147,19 +162,22 @@ function getCheckRuns(repo, headSHA) {
  * Get all open issue for a particular area depending on who is assigned and what label it has
  *
  * @param {String} assignee
- * @param {String} [label]
+ * @param {String[]} [labels]
  * @returns {Promise}
  */
-function getIssues(assignee = 'none', label) {
+function getIssues(assignee = 'none', labels) {
     let query = '';
 
     // Get the PRs assigned to me
     query += ' state:open';
     query += ' is:issue';
 
-    if (label) {
-        query += ` label:${label}`;
+    if (labels && labels.length) {
+        for (let i = 0; i < labels.length; i++) {
+            query += ` label:${labels[i]}`;
+        }
     }
+
     query += ' repo:Expensify/Expensify';
     query += ' repo:Expensify/App';
     query += ' repo:Expensify/VendorTasks';
@@ -171,8 +189,6 @@ function getIssues(assignee = 'none', label) {
     } else if (assignee) {
         query += ` assignee:${assignee}`;
     }
-
-    const octokit = new Octokit({auth: Preferences.getGitHubToken()});
 
     const graphQLQuery = `
         query($cursor:String) {
@@ -210,7 +226,7 @@ function getIssues(assignee = 'none', label) {
 
         // This does all the pagination on the graphQL query
         function fetchPageOfIssues(cursor) {
-            octokit.graphql(graphQLQuery, {cursor})
+            getOctokit().graphql(graphQLQuery, {cursor})
                 .then((queryResults) => {
                     // Put the data into a format that the rest of the app will use to remove things like edges and nodes
                     const searchResults = _.reduce(queryResults.search.nodes, (cleanSearchResults, searchNode) => {
@@ -258,110 +274,42 @@ function getIssuesAssigned() {
  * @returns {Promise}
  */
 function getEngineeringIssues() {
-    return getIssues('none', 'engineering');
+    return getIssues('none', ['engineering']);
 }
 
 /**
  * Add labels to a github issue
- * @param {String[]} labels
- * @param {Function} [cb]
+ * @param {String} label
+ * @returns {Promise}
  */
-function addLabels(labels, cb) {
-    const repo = getRepo();
-    const owner = getOwner();
-    const issueNum = $('.gh-header-number').first().text().replace('#', '');
-    const url = `${baseUrl}/repos/${owner}/${repo}/issues/${issueNum}/labels`;
-    $.ajax({
-        url,
-        method: 'post',
-        data: JSON.stringify(labels),
-        headers: {
-            Authorization: `Bearer ${Preferences.getGitHubToken()}`,
-        },
-    })
-        .done((data) => {
-            if (!cb) {
-                return;
-            }
-            cb(null, data);
-        })
-        .fail((err) => {
-            if (!cb) {
-                return;
-            }
-            cb(err);
-        });
+function addLabel(label) {
+    return getOctokit().rest.issues.addLabels({
+        repo: getRepo(),
+        owner: getOwner(),
+        issue_number: getIssueNumber(),
+        labels: [label],
+    });
 }
 
 /**
  * Remove a label from a github issue
  * @param {String} label
- * @param {Function} [cb]
- * @param {Number} [issueNumber] an issue number to use if we don't want to default to the currently open issue
- * @param {String} [repoName] a repository to use if we don't want to use the one on the current page
+ * @returns {Promise}
  */
-function removeLabel(label, cb, issueNumber, repoName) {
-    const repo = repoName || getRepo();
-    const owner = getOwner();
-    const issueNum = issueNumber || $('.gh-header-number').first().text().replace('#', '');
-    const url = `${baseUrl}/repos/${owner}/${repo}/issues/${issueNum}/labels/${label}`;
-    $.ajax({
-        url,
-        method: 'delete',
-        headers: {
-            Authorization: `Bearer ${Preferences.getGitHubToken()}`,
-        },
-    })
-        .done((data) => {
-            if (!cb) {
-                return;
-            }
-            cb(null, data);
-        })
-        .fail((err) => {
-            if (!cb) {
-                return;
-            }
-            cb(err);
-        });
+function removeLabel(label) {
+    return getOctokit().rest.issues.removeLabel({
+        repo: getRepo(),
+        owner: getOwner(),
+        issue_number: getIssueNumber(),
+        name: label,
+    });
 }
 
 /**
- * Get all the improvements that are not assigned and are dailys
- *
- * @date 2015-06-07
- *
- * @param {Function} cb
+ * @returns {Promise}
  */
-function getDailyImprovements(cb) {
-    let query = '?q=';
-
-    // Get all the open issues with no assignees
-    query += '+state:open';
-    query += '+is:issue';
-    query += '+repo:Expensify/Expensify';
-    query += '+repo:Expensify/App';
-    query += '+repo:Expensify/VendorTasks';
-    query += '+repo:Expensify/Insiders';
-    query += '+repo:Expensify/Expensify-Guides';
-    query += '+no:assignee';
-    query += '+label:improvement';
-    query += '+label:daily';
-
-    const url = `${baseUrl}/search/issues${query}`;
-    $.ajax({
-        url,
-        headers: {
-            Authorization: `Bearer ${Preferences.getGitHubToken()}`,
-        },
-    })
-        .done((data) => {
-            cb(null, _.map(data.items, item => ({...item, url: item.html_url})));
-        })
-        .fail((err) => {
-            console.error(err);
-            cb(err);
-        });
+function getDailyImprovements() {
+    return getIssues('none', ['improvement', 'daily']);
 }
 
 export {
@@ -369,7 +317,7 @@ export {
     getEngineeringIssues,
     getIssuesAssigned,
     getDailyImprovements,
-    addLabels,
+    addLabel,
     removeLabel,
     getMilestones,
     getCurrentUser,

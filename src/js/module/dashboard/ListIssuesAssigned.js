@@ -62,7 +62,7 @@ class ListIssuesAssigned extends React.Component {
         }
 
         return (
-            <div>
+            <div className="mb-3">
                 <div className="d-flex flex-row">
                     <div className="col-3 pr-4">
                         <PanelIssues

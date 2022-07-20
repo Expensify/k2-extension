@@ -1,3 +1,8 @@
+#1.1.0
+- Removed Alt library
+- Refactored the last things to use Onyx and Octokit
+- Refactored and simplified several of the list and form components
+
 #1.0.1
 - Fix a bug with incorrect scope for fetching new data
 
