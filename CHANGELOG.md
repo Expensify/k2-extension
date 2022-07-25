@@ -1,3 +1,6 @@
+#1.1.1
+- Fixed a null reference error when no preferences exist
+
 #1.1.0
 - Removed Alt library
 - Refactored the last things to use Onyx and Octokit
