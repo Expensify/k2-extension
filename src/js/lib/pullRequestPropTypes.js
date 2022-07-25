@@ -20,7 +20,7 @@ export default PropTypes.shape({
     mergable: PropTypes.oneOf(['MERGEABLE', 'CONFLICTING', 'UNKNOWN']),
 
     /** The status of PR reviews */
-    reviewDecision: PropTypes.oneOf(['CHANGES_REQUESTED', 'APPROVED', 'REVIEW_REQUIRED']).isRequired,
+    reviewDecision: PropTypes.oneOf(['CHANGES_REQUESTED', 'APPROVED', 'REVIEW_REQUIRED']),
 
     /** Info about comments on the PR */
     comments: PropTypes.shape({
