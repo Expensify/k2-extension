@@ -18,6 +18,9 @@ const propTypes = {
     /** The data that will be displayed in the list */
     data: PropTypes.objectOf(IssuePropTypes).isRequired,
 
+    /** For the views at the top of the dashboard, we need to ignore the milestone/ksv2 filters */
+    applyFilters: PropTypes.bool,
+
     /** The filters to apply to the issue data */
     filters: filterPropTypes,
 };
@@ -28,13 +31,14 @@ const defaultProps = {
         feature: true,
         milestone: '',
     },
+    applyFilters: false,
 };
 
 const PanelIssues = (props) => {
     let filteredData = props.data;
 
     // We need to be sure to filter the data if the user has set any filters
-    if (props.filters && !_.isEmpty(props.filters)) {
+    if (props.applyFilters && props.filters && !_.isEmpty(props.filters)) {
         filteredData = _.filter(props.data, (item) => {
             const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
             const isTask = _.findWhere(item.labels, {name: 'Task'});

@@ -67,6 +67,7 @@ class ListIssuesEngineering extends React.Component {
                 extraClass="none"
                 item="issue"
                 data={this.props.issues}
+                applyFilters
             />
         );
     }

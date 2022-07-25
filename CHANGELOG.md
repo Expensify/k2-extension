@@ -1,5 +1,6 @@
 #1.1.1
 - Fixed a null reference error when no preferences exist
+- Fix the assigned issue list to stop showing filtered issues
 
 #1.1.0
 - Removed Alt library
