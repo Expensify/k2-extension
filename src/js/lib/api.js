@@ -165,16 +165,18 @@ function getCheckRuns(repo, headSHA) {
  * @param {String[]} [labels]
  * @returns {Promise}
  */
-function getIssues(assignee = 'none', labels) {
+function getIssues(assignee = 'none', labels, getOpenIssues = true) {
     let query = '';
 
     // Get the PRs assigned to me
-    query += ' state:open';
+    if (getOpenIssues) {
+        query += ' state:open';
+    }
     query += ' is:issue';
 
     if (labels && labels.length) {
         for (let i = 0; i < labels.length; i++) {
-            query += ` label:${labels[i]}`;
+            query += ` label:\\"${labels[i]}\\"`;
         }
     }
 
@@ -186,7 +188,7 @@ function getIssues(assignee = 'none', labels) {
 
     if (assignee === 'none') {
         query += ' no:assignee';
-    } else if (assignee) {
+    } else if (assignee !== 'anyone') {
         query += ` assignee:${assignee}`;
     }
 
@@ -207,6 +209,7 @@ function getIssues(assignee = 'none', labels) {
                         title
                         id
                         url
+                        createdAt
                         labels(first: 100) {
                             nodes {
                                 name
@@ -312,6 +315,13 @@ function getDailyImprovements() {
     return getIssues('none', ['improvement', 'daily']);
 }
 
+/**
+ * @returns {Promise}
+ */
+function getOverdueIssueMeetings() {
+    return getIssues('anyone', ['Overdue Issue Meeting'], false);
+}
+
 export {
     getCheckRuns,
     getEngineeringIssues,
@@ -322,4 +332,5 @@ export {
     getMilestones,
     getCurrentUser,
     getPullsByType,
+    getOverdueIssueMeetings,
 };

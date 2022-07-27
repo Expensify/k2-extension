@@ -30,7 +30,7 @@ function getEngineering() {
                 const modifiedItem = {...item};
                 modifiedItem.type = 'engineering';
 
-                const age = moment().diff(item.created_at, 'days');
+                const age = moment().diff(item.createdAt, 'days');
                 const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
                 const isTask = _.findWhere(item.labels, {name: 'Task'});
                 const isFeature = _.findWhere(item.labels, {name: 'NewFeature'});
@@ -86,9 +86,30 @@ function saveFilters(filters) {
     ReactNativeOnyx.merge(ONYXKEYS.ISSUES.FILTER, filters);
 }
 
+function getAllOverdueIssueMeetings() {
+    API.getOverdueIssueMeetings()
+        .then((data) => {
+            const map = {};
+            _.each(data, (issue) => {
+                const age = moment().diff(issue.createdAt, 'days');
+                const person = issue.title.split('Overdue Issue Meeting for ').pop();
+                if (!map[person]) {
+                    map[person] = {count: 0, last60Days: 0, person};
+                }
+                map[person].count++;
+                if (age <= 60) {
+                    map[person].last60Days++;
+                }
+            });
+            const sortedMap = _.sortBy(map, 'last60Days');
+            console.log(sortedMap);
+        });
+}
+
 export {
     getAllAssigned,
     getEngineering,
     getDailyImprovements,
     saveFilters,
+    getAllOverdueIssueMeetings,
 };
