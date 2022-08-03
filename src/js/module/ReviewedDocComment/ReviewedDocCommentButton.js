@@ -1,6 +1,6 @@
 import React from 'react';
 import BtnGroup from '../../component/BtnGroup';
-import {addComment} from '../../lib/actions/Issues';
+import * as Issues from '../../lib/actions/Issues';
 
 class ReviewedDocCommentButton extends React.Component {
     constructor(props) {
@@ -10,18 +10,18 @@ class ReviewedDocCommentButton extends React.Component {
 
         this.state = {
             shouldShowConfirmationMessage: false,
-        }
+        };
     }
 
     addReviewedDocComment() {
-        addComment('I have read and reviewed this Design Doc!');
+        Issues.addComment('I have read and reviewed this Design Doc!');
 
         // Show the confirmation message for 5 seconds
         this.setState({shouldShowConfirmationMessage: true}, () => {
             setTimeout(() => {
                 this.setState({shouldShowConfirmationMessage: false});
             }, 5000);
-        })
+        });
     }
 
     render() {

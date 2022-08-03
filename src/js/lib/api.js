@@ -313,7 +313,7 @@ function getDailyImprovements() {
 }
 
 /**
- * @params {String} comment
+ * @param {String} comment
  * @returns {Promise}
  */
 function addComment(comment) {
