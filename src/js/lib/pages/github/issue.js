@@ -37,6 +37,8 @@ export default function () {
         }
 
         // This doesn't need to be refreshed with the other pickers in refreshPicker()
+        // @TODO: eventually, we only want to draw this component when there is a label on the issue which indicates
+        // this is a design doc issue
         new ReviewedDocComment().draw();
 
         setTimeout(refreshPicker, 500);
