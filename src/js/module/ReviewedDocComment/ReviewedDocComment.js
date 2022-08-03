@@ -7,7 +7,7 @@ export default function () {
         draw() {
             ReactDOM.render(
                 <ReviewedDocCommentButton />,
-                document.getElementsByClassName('k2togglereviewing-wrapper')[0],
+                document.getElementsByClassName('k2revieweddoccomment-wrapper')[0],
             );
         },
     };
