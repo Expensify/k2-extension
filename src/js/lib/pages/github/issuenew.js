@@ -15,10 +15,10 @@ export default function () {
     IssueNewPage.urlPath = '^(/[\\w-]+/[\\w-]+/issues/new)$';
 
     /**
-     * Add buttons to the page and setup the event handler
+     * Remove all of the sidebar wrappers
      */
     IssueNewPage.setup = function () {
-        $('.K2picker-wrapper, .K2pickerarea-wrapper, .K2pickertype-wrapper, .k2togglereviewing-wrapper').remove();
+        $('.k2picker-wrapper, .k2pickerarea-wrapper, .k2pickertype-wrapper, .k2togglereviewing-wrapper, .k2revieweddoccomment-wrapper').remove();
     };
 
     return IssueNewPage;
