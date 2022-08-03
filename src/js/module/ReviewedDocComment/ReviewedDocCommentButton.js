@@ -1,5 +1,6 @@
 import React from 'react';
 import BtnGroup from '../../component/BtnGroup';
+import {addComment} from '../../lib/actions/Issues';
 
 class ReviewedDocCommentButton extends React.Component {
     constructor(props) {
@@ -9,7 +10,7 @@ class ReviewedDocCommentButton extends React.Component {
     }
 
     addReviewedDocComment() {
-
+        addComment('I have read and reviewed this Design Doc!')
     }
 
     render() {
