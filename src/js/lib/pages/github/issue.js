@@ -10,10 +10,16 @@ import ReviewedDocComment from '../../../module/ReviewedDocComment/ReviewedDocCo
 import ONYXKEYS from '../../../ONYXKEYS';
 
 const refreshPicker = function () {
+    // Add our wrappers to the DOM which all the React components will be rendered into
+    if (!$('.k2picker-wrapper').length) {
+        $('.js-issue-labels').after(sidebarWrapperHTML);
+    }
+
     new K2picker().draw();
     new K2pickerType().draw();
     new K2pickerarea().draw();
     new ToggleReview().draw();
+    new ReviewedDocComment().draw();
 };
 
 /**
@@ -31,16 +37,6 @@ export default function () {
     IssuePage.urlPath = '^(/[\\w-]+/[\\w-.]+/issues/\\d+)$';
 
     IssuePage.setup = function () {
-        // Add our wrappers to the DOM which all the React components will be rendered into
-        if (!$('.k2picker-wrapper').length) {
-            $('.js-issue-labels').after(sidebarWrapperHTML);
-        }
-
-        // This doesn't need to be refreshed with the other pickers in refreshPicker()
-        // @TODO: eventually, we only want to draw this component when there is a label on the issue which indicates
-        // this is a design doc issue
-        new ReviewedDocComment().draw();
-
         setTimeout(refreshPicker, 500);
 
         // Listen for when the sidebar is redrawn, then redraw our pickers
