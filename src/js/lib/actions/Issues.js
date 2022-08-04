@@ -86,7 +86,15 @@ function saveFilters(filters) {
     ReactNativeOnyx.merge(ONYXKEYS.ISSUES.FILTER, filters);
 }
 
+/**
+ * @param {String} comment
+ */
+function addComment(comment) {
+    API.addComment(comment);
+}
+
 export {
+    addComment,
     getAllAssigned,
     getEngineering,
     getDailyImprovements,

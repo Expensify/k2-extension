@@ -1,22 +1,25 @@
 import $ from 'jquery';
+import ReactNativeOnyx from 'react-native-onyx';
 import Base from './_base';
 import sidebarWrapperHTML from '../../../template/sidebar.wrappers.html';
 import K2picker from '../../../module/K2picker/K2picker';
 import K2pickerarea from '../../../module/K2pickerarea/K2pickerarea';
 import K2pickerType from '../../../module/K2pickertype/K2pickertype';
 import ToggleReview from '../../../module/ToggleReview/ToggleReview';
+import ReviewedDocComment from '../../../module/ReviewedDocComment/ReviewedDocComment';
+import ONYXKEYS from '../../../ONYXKEYS';
 
 const refreshPicker = function () {
-    // Return early if the wrappers already exist so that they don't get redrawn unless necessary
-    if ($('.k2picker-wrapper').length) {
-        return;
+    // Add our wrappers to the DOM which all the React components will be rendered into
+    if (!$('.k2picker-wrapper').length) {
+        $('.js-issue-labels').after(sidebarWrapperHTML);
     }
 
-    $('.js-issue-labels').after(sidebarWrapperHTML);
     new K2picker().draw();
     new K2pickerType().draw();
     new K2pickerarea().draw();
     new ToggleReview().draw();
+    new ReviewedDocComment().draw();
 };
 
 /**
@@ -25,6 +28,10 @@ const refreshPicker = function () {
  * @returns {Object}
  */
 export default function () {
+    ReactNativeOnyx.init({
+        keys: ONYXKEYS,
+    });
+
     const IssuePage = new Base();
 
     IssuePage.urlPath = '^(/[\\w-]+/[\\w-.]+/issues/\\d+)$';

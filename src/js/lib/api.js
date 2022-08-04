@@ -312,7 +312,21 @@ function getDailyImprovements() {
     return getIssues('none', ['improvement', 'daily']);
 }
 
+/**
+ * @param {String} comment
+ * @returns {Promise}
+ */
+function addComment(comment) {
+    return getOctokit().rest.issues.createComment({
+        repo: getRepo(),
+        owner: getOwner(),
+        issue_number: getIssueNumber(),
+        body: comment,
+    });
+}
+
 export {
+    addComment,
     getCheckRuns,
     getEngineeringIssues,
     getIssuesAssigned,

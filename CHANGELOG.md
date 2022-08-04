@@ -1,3 +1,6 @@
+#1.1.2
+- Added a button to the issue sidebar for adding the reviewed design doc comment
+
 #1.1.1
 - Fixed a null reference error when no preferences exist
 - Fix the assigned issue list to stop showing filtered issues

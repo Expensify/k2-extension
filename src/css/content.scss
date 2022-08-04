@@ -72,18 +72,21 @@ $color-dark-yellow: #DAA520;
   &.active { background-color: $color-neutral; }
   &.inactive { @extend .k2-inactive; }
 }
+.discussion-sidebar-item h6 {
+    margin-bottom: 8px;
+}
 .discussion-sidebar-item.discussion-sidebar-item.no-border {
-  margin: 0 !important;
-  border: 0 !important;
-  position: relative;
+    margin: 0 !important;
+    border: 0 !important;
+    position: relative;
 
-  label {
-    color: #eee;
-    font-size: 22px;
-    left: 106%;
-    top: 12px;
-    position: absolute;
-  }
+    label {
+        color: #eee;
+        font-size: 22px;
+        left: 106%;
+        top: 12px;
+        position: absolute;
+    }
 }
 .panel {
   border: 1px solid $color-neutral-light;
@@ -480,7 +483,8 @@ $color-dark-yellow: #DAA520;
 
 .k2picker-wrapper,
 .k2pickertype-wrapper,
-.k2togglereviewing-wrapper {
+.k2togglereviewing-wrapper,
+.k2revieweddoccomment-wrapper {
   .btn-group {
     display: flex;
 
