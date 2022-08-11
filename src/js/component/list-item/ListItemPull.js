@@ -18,7 +18,9 @@ const defaultProps = {
 
 const ListItemPull = (props) => {
     const pr = props.pr || props.data;
-
+    if (!pr.id) {
+        return null;
+    }
     function getClassName() {
         let className = 'issue';
         const today = moment();
@@ -83,13 +85,13 @@ const ListItemPull = (props) => {
                 <span className="comments">
                     Comments:
                     {' '}
-                    {pr.comments && pr.comments.totalCount}
+                    {pr.comments.totalCount}
                 </span>
 
                 <span className="comments">
                     Reviews:
                     {' '}
-                    {pr.reviews && pr.reviews.totalCount}
+                    {pr.reviews.totalCount}
                 </span>
 
                 {pr.checkConclusion && (
