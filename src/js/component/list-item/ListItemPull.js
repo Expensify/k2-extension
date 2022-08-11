@@ -18,7 +18,9 @@ const defaultProps = {
 
 const ListItemPull = (props) => {
     const pr = props.pr || props.data;
-
+    if (!pr.id) {
+        return null;
+    }
     function getClassName() {
         let className = 'issue';
         const today = moment();
