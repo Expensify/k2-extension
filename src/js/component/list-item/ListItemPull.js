@@ -83,13 +83,13 @@ const ListItemPull = (props) => {
                 <span className="comments">
                     Comments:
                     {' '}
-                    {pr.comments.totalCount}
+                    {pr.comments && pr.comments.totalCount}
                 </span>
 
                 <span className="comments">
                     Reviews:
                     {' '}
-                    {pr.reviews.totalCount}
+                    {pr.reviews && pr.reviews.totalCount}
                 </span>
 
                 {pr.checkConclusion && (
