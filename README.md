@@ -80,14 +80,14 @@ To publish a new version of this extension, you should follow these steps:
 
 ## Chrome
 1. Go to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/developer/dashboard)
-1. Sign in with the account `apps@expensify.com`. The password/2FA is in the ring3 vault in Password1.
+1. Sign in with the account `apps@expensify.com`. The password/2FA is in the [ring3 vault in Password1](https://expensify.1password.com/vaults/all/allitems/qgxjpcxrhffbpazolqqoxrhxqm).
 1. Click on the **K2 for Github** app.
 1. Click on the **Package** tab.
 1. Click on **Upload New Package**, then choose the `dist.zip` file that was created earlier.
 1. Click on **Upload**
 1. On the **Store Listing** page, copy the new version notes from CHANGELOG.md into the description field and click **Save Draft**
 1. Back on the **Package** tab, verify that the new version number is shown for the _Draft Package_.
-1. Click **Submit for review**.
+1. Back in **Store Listing** page, click **Submit for review**.
 1. Make sure `Publish "K2 for GitHub" automatically after it has passed review` is checked, then hit **Submit for review**.
 1. Done!
 
