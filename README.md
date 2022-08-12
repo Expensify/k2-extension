@@ -87,7 +87,7 @@ To publish a new version of this extension, you should follow these steps:
 1. Click on **Upload**
 1. On the **Store Listing** page, copy the new version notes from CHANGELOG.md into the description field and click **Save Draft**
 1. Back on the **Package** tab, verify that the new version number is shown for the _Draft Package_.
-1. Click **Submit for review**.
+1. Back in **Store Listing** page, click **Submit for review**.
 1. Make sure `Publish "K2 for GitHub" automatically after it has passed review` is checked, then hit **Submit for review**.
 1. Done!
 
