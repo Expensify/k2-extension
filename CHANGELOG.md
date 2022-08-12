@@ -1,3 +1,6 @@
+#1.1.3
+- Fix bug that caused blank screen
+
 #1.1.2
 - Added a button to the issue sidebar for adding the reviewed design doc comment
 
