@@ -80,7 +80,7 @@ To publish a new version of this extension, you should follow these steps:
 
 ## Chrome
 1. Go to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/developer/dashboard)
-1. Sign in with the account `apps@expensify.com`. The password/2FA is in the ring3 vault in Password1.
+1. Sign in with the account `apps@expensify.com`. The password/2FA is in the [ring3 vault in Password1](https://expensify.1password.com/vaults/all/allitems/qgxjpcxrhffbpazolqqoxrhxqm).
 1. Click on the **K2 for Github** app.
 1. Click on the **Package** tab.
 1. Click on **Upload New Package**, then choose the `dist.zip` file that was created earlier.
