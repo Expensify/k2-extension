@@ -34,7 +34,7 @@ class ReviewedDocCommentButton extends React.Component {
                         className="btn btn-sm"
                         onClick={this.addReviewedDocComment}
                     >
-                        Add &quot;Reviewed Doc&quot; Comment
+                        👀 📃 ✅ 👍 Add &quot;Reviewed Doc&quot; Comment
                     </button>
                 </BtnGroup>
 
