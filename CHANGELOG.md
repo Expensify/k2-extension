@@ -1,3 +1,6 @@
+#1.1.5
+- Added emojis to Add Reviewed Doc Comment Button
+
 #1.1.4
 - Same as 1.1.3 but need a new version to upload to mozilla
 
