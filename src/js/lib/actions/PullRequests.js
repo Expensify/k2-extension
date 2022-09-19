@@ -27,7 +27,9 @@ function getAssigned() {
                         if (authorPr.assignees.nodes.length > 0) {
                             return;
                         }
-                        prs[authorPr.key] = authorPr;
+
+                        // eslint-disable-next-line no-param-reassign
+                        prs[authorPr.id] = authorPr;
                     });
 
                     // Always use set() here because there is no way to remove issues from Onyx
