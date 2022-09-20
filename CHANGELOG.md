@@ -1,3 +1,6 @@
+#1.1.6
+- Grey out issues with 'Help wanted' label
+
 #1.1.5
 - Added emojis to Add Reviewed Doc Comment Button
 
