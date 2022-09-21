@@ -120,6 +120,11 @@ query {
                 author {
                     login
                 }
+                assignees(first:1) {
+                    nodes {
+                        login
+                    }
+                }
                 comments {
                     totalCount
                 }

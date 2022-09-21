@@ -21,12 +21,24 @@ function getChecks(prs, onyxKey) {
 function getAssigned() {
     API.getPullsByType('assignee')
         .then((prs) => {
-            // Always use set() here because there is no way to remove issues from Onyx
-            // that get closed and are no longer assigned
-            ReactNativeOnyx.set(ONYXKEYS.PRS.ASSIGNED, prs);
+            API.getPullsByType('author')
+                .then((authorPrs) => {
+                    _.each(authorPrs, (authorPr) => {
+                        if (authorPr.assignees.nodes.length > 0) {
+                            return;
+                        }
 
-            // Get the check-runs for each PR and then merge that information into the PR information in Onyx.
-            getChecks(prs, ONYXKEYS.PRS.ASSIGNED);
+                        // eslint-disable-next-line no-param-reassign
+                        prs[authorPr.id] = authorPr;
+                    });
+
+                    // Always use set() here because there is no way to remove issues from Onyx
+                    // that get closed and are no longer assigned
+                    ReactNativeOnyx.set(ONYXKEYS.PRS.ASSIGNED, prs);
+
+                    // Get the check-runs for each PR and then merge that information into the PR information in Onyx.
+                    getChecks(prs, ONYXKEYS.PRS.ASSIGNED);
+                });
         });
 }
 
