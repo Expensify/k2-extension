@@ -1,3 +1,6 @@
+#1.1.7
+- Display created PRs with no assignees in 'Your Pull Requests'
+
 #1.1.6
 - Grey out issues with 'Help wanted' label
 
