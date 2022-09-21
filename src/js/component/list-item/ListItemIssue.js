@@ -41,8 +41,8 @@ class ListItemIssue extends React.Component {
         this.isWaitingOnCustomer = _.findWhere(this.props.issue.labels, {name: 'Waiting for customer'}) ? ' waiting-for-customer' : '';
         this.isHeld = this.props.issue.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
         this.isChallengeSent = _.findWhere(this.props.issue.labels, {name: 'Take Home Challenge Sent'}) ? ' challenge-sent' : '';
-        this.isHelpWanted = _.findWhere(this.props.issue.labels, {name: 'Help Wanted'}) ? ' help-wanted' : '';
-        this.isContributorAssigned = _.some(this.props.issue.labels, {name: 'Exported'}) && !_.some(this.props.issue.labels, {name: 'Help Wanted'}) ? ' contributor-assigned' : '';
+        this.isHelpWanted = _.some(this.props.issue.labels, {name: 'Help Wanted'}) ? ' help-wanted' : '';
+        this.isContributorAssigned = _.some(this.props.issue.labels, {name: 'Exported'}) && !this.isHelpWanted ? ' contributor-assigned' : '';
         this.isUnderReview = _.find(this.props.issue.labels, label => label.name.toLowerCase() === 'reviewing');
     }
 
