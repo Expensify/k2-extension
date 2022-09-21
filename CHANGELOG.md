@@ -1,6 +1,10 @@
-#1.1.7
+
+#1.1.8
 - ContributorPlus are now assigned via `External` label, not `Exported`
 - Add `.nvmrc` to specify which Node version is needed to install packages in this repo
+
+#1.1.7
+- Display created PRs with no assignees in 'Your Pull Requests'
 
 #1.1.6
 - Grey out issues with 'Help wanted' label
