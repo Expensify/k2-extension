@@ -18,7 +18,7 @@ export default function () {
      * Remove all of the sidebar wrappers
      */
     IssueNewPage.setup = function () {
-        $('.k2picker-wrapper, .k2pickerarea-wrapper, .k2pickertype-wrapper, .k2togglereviewing-wrapper, .k2revieweddoccomment-wrapper').remove();
+        $('.k2picker-wrapper, .k2pickerarea-wrapper, .k2pickertype-wrapper, .k2togglereviewing-wrapper, .k2comments-wrapper').remove();
     };
 
     return IssueNewPage;
