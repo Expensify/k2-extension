@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ReviewedDocCommentButton from './ReviewedDocCommentButton';
+import CommentsButtons from './CommentsButtons';
 
 export default function () {
     return {
         draw() {
             ReactDOM.render(
-                <ReviewedDocCommentButton />,
+                <CommentsButtons />,
                 document.getElementsByClassName('k2comments-wrapper')[0],
             );
         },

@@ -2,12 +2,9 @@ import React from 'react';
 import BtnGroup from '../../component/BtnGroup';
 import * as Issues from '../../lib/actions/Issues';
 
-class ReviewedDocCommentButton extends React.Component {
+class CommentsButtons extends React.Component {
     constructor(props) {
         super(props);
-
-        this.addReviewedDocComment = this.addReviewedDocComment.bind(this);
-        this.addAttendedInterviewComment = this.addAttendedInterviewComment(this);
 
         this.state = {
             shouldShowConfirmationMessage: false,
@@ -44,7 +41,7 @@ class ReviewedDocCommentButton extends React.Component {
                     <button
                         type="button"
                         className="btn btn-sm"
-                        onClick={this.addReviewedDocComment}
+                        onClick={() => this.addReviewedDocComment()}
                     >
                         <span role="img" aria-label="reviewed doc emojis">
                             📃 ✅ Reviewed Doc
@@ -53,7 +50,7 @@ class ReviewedDocCommentButton extends React.Component {
                     <button
                         type="button"
                         className="btn btn-sm"
-                        onClick={this.addAttendedInterviewComment}
+                        onClick={() => this.addAttendedInterviewComment()}
                     >
                         <span role="img" aria-label="reviewed doc emojis">
                             ✋ Attended Interview
@@ -69,4 +66,4 @@ class ReviewedDocCommentButton extends React.Component {
     }
 }
 
-export default ReviewedDocCommentButton;
+export default CommentsButtons;

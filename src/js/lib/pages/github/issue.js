@@ -6,7 +6,7 @@ import K2picker from '../../../module/K2picker/K2picker';
 import K2pickerarea from '../../../module/K2pickerarea/K2pickerarea';
 import K2pickerType from '../../../module/K2pickertype/K2pickertype';
 import ToggleReview from '../../../module/ToggleReview/ToggleReview';
-import ReviewedDocComment from '../../../module/ReviewedDocComment/ReviewedDocComment';
+import K2comments from '../../../module/K2comments/K2comments';
 import ONYXKEYS from '../../../ONYXKEYS';
 
 const refreshPicker = function () {
@@ -19,7 +19,7 @@ const refreshPicker = function () {
     new K2pickerType().draw();
     new K2pickerarea().draw();
     new ToggleReview().draw();
-    new ReviewedDocComment().draw();
+    new K2comments().draw();
 };
 
 /**
