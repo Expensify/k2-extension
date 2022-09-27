@@ -7,6 +7,7 @@ class ReviewedDocCommentButton extends React.Component {
         super(props);
 
         this.addReviewedDocComment = this.addReviewedDocComment.bind(this);
+        this.addAttendedInterviewComment = this.addAttendedInterviewComment(this);
 
         this.state = {
             shouldShowConfirmationMessage: false,
@@ -24,10 +25,21 @@ class ReviewedDocCommentButton extends React.Component {
         });
     }
 
+    addAttendedInterviewComment() {
+        Issues.addComment('I attended this interview!');
+
+        // Show the confirmation message for 5 seconds
+        this.setState({shouldShowConfirmationMessage: true}, () => {
+            setTimeout(() => {
+                this.setState({shouldShowConfirmationMessage: false});
+            }, 5000);
+        });
+    }
+
     render() {
         return (
             <div>
-                <h6>Design Docs</h6>
+                <h6>Comments shortcuts</h6>
                 <BtnGroup>
                     <button
                         type="button"
@@ -35,13 +47,22 @@ class ReviewedDocCommentButton extends React.Component {
                         onClick={this.addReviewedDocComment}
                     >
                         <span role="img" aria-label="reviewed doc emojis">
-                            👀 📃 ✅ 👍 Add &quot;Reviewed Doc&quot; Comment
+                            📃 ✅ Reviewed Doc
+                        </span>
+                    </button>
+                    <button
+                        type="button"
+                        className="btn btn-sm"
+                        onClick={this.addAttendedInterviewComment}
+                    >
+                        <span role="img" aria-label="reviewed doc emojis">
+                            ✋ Attended Interview
                         </span>
                     </button>
                 </BtnGroup>
 
                 {this.state.shouldShowConfirmationMessage && (
-                    <div>Added! Please wait a moment for it to appear</div>
+                    <div>Comment added! Please wait a moment for it to appear</div>
                 )}
             </div>
         );
