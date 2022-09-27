@@ -52,7 +52,7 @@ class CommentsButtons extends React.Component {
                         className="btn btn-sm"
                         onClick={() => this.addAttendedInterviewComment()}
                     >
-                        <span role="img" aria-label="reviewed doc emojis">
+                        <span role="img" aria-label="attended interview emojis">
                             ✋ Attended Interview
                         </span>
                     </button>
