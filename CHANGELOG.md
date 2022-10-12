@@ -1,3 +1,5 @@
+#1.1.9
+- Added button to the issue sidebar for adding the interview attended comment
 
 #1.1.8
 - ContributorPlus are now assigned via `External` label, not `Exported`
