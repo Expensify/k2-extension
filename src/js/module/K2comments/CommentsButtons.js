@@ -11,6 +11,17 @@ class CommentsButtons extends React.Component {
         };
     }
 
+    addReviewedProjectManagerTrackComment() {
+        Issues.addComment('I have read and reviewed this Project Manager Application!');
+
+        // Show the confirmation message for 5 seconds
+        this.setState({shouldShowConfirmationMessage: true}, () => {
+            setTimeout(() => {
+                this.setState({shouldShowConfirmationMessage: false});
+            }, 5000);
+        });
+    }
+
     addReviewedDocComment() {
         Issues.addComment('I have read and reviewed this Design Doc!');
 
@@ -54,6 +65,18 @@ class CommentsButtons extends React.Component {
                     >
                         <span role="img" aria-label="attended interview emojis">
                             ✋ Attended Interview
+                        </span>
+                    </button>
+                </BtnGroup>
+
+                <BtnGroup>
+                    <button
+                        type="button"
+                        className="btn btn-sm"
+                        onClick={() => this.addReviewedProjectManagerTrackComment()}
+                    >
+                        <span role="img" aria-label="reviewed project manager emojis">
+                            🖊️ Reviewed Project Manager Application
                         </span>
                     </button>
                 </BtnGroup>
