@@ -11,19 +11,8 @@ class CommentsButtons extends React.Component {
         };
     }
 
-    addReviewedDocComment() {
-        Issues.addComment('I have read and reviewed this Design Doc!');
-
-        // Show the confirmation message for 5 seconds
-        this.setState({shouldShowConfirmationMessage: true}, () => {
-            setTimeout(() => {
-                this.setState({shouldShowConfirmationMessage: false});
-            }, 5000);
-        });
-    }
-
-    addAttendedInterviewComment() {
-        Issues.addComment('I attended this interview!');
+    addParticipationComment(comment) {
+        Issues.addComment(comment);
 
         // Show the confirmation message for 5 seconds
         this.setState({shouldShowConfirmationMessage: true}, () => {
@@ -41,7 +30,7 @@ class CommentsButtons extends React.Component {
                     <button
                         type="button"
                         className="btn btn-sm"
-                        onClick={() => this.addReviewedDocComment()}
+                        onClick={() => this.addParticipationComment('I have read and reviewed this Design Doc!')}
                     >
                         <span role="img" aria-label="reviewed doc emojis">
                             📃 ✅ Reviewed Doc
@@ -50,10 +39,22 @@ class CommentsButtons extends React.Component {
                     <button
                         type="button"
                         className="btn btn-sm"
-                        onClick={() => this.addAttendedInterviewComment()}
+                        onClick={() => this.addParticipationComment('I attended this interview!')}
                     >
                         <span role="img" aria-label="attended interview emojis">
                             ✋ Attended Interview
+                        </span>
+                    </button>
+                </BtnGroup>
+
+                <BtnGroup>
+                    <button
+                        type="button"
+                        className="btn btn-sm"
+                        onClick={() => this.addParticipationComment('I have read and reviewed this Project Manager Application!')}
+                    >
+                        <span role="img" aria-label="reviewed project manager emojis">
+                            🖊️ Reviewed Project Manager Application
                         </span>
                     </button>
                 </BtnGroup>
