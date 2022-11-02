@@ -44,11 +44,11 @@ const renderCopyChecklistButton = () => {
 
         // When the button template is found, replace it with an HTML button and then put that back into the DOM so someone can click on it
         if (commentHtml && commentHtml.indexOf('you can simply click: [this button]') > -1) {
-            const newHtml = commentHtml.replace('[this button]', '<button id="k2-copy-checklist" type="button" class="btn btn-sm">HERE</button>');
+            const newHtml = commentHtml.replace('[this button]', '<button type="button" class="btn btn-sm k2-copy-checklist">HERE</button>');
             $(el).html(newHtml);
 
             // Now that the button is on the page, add a click handler to it (always remove all handlers first so that we know there will always be one handler attached)
-            $('#k2-copy-checklist').off().on('click', copyReviewerChecklist);
+            $('.k2-copy-checklist').off().on('click', copyReviewerChecklist);
         }
     });
 };
@@ -126,7 +126,7 @@ export default function () {
         setInterval(refreshHold, 1000);
 
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
-        setTimeout(renderCopyChecklistButton, 2000);
+        setInterval(renderCopyChecklistButton, 2000);
     };
 
     return PrPage;
