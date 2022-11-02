@@ -1,5 +1,8 @@
-#1.1.10
+#1.1.11
 - Added a method for quickly copy/pasting the reviewer checklist into an Expensify/App PR comment
+
+#1.1.10
+- Added button to the issue sidebar for adding the project manager application review comment
 
 #1.1.9
 - Added button to the issue sidebar for adding the interview attended comment
