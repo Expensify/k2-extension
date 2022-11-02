@@ -24,7 +24,7 @@ function isSelfMergingAllowed() {
  */
 const copyReviewerChecklist = (e) => {
     e.preventDefault();
-    const pathToChecklist = 'https://raw.githubusercontent.com/Expensify/App/a6eab2323b2460336d658ff33c13d6bae8587bfb/contributingGuides/REVIEWER_CHECKLIST.md';
+    const pathToChecklist = 'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/REVIEWER_CHECKLIST.md';
     $.get(pathToChecklist)
         .done((fileContents) => {
             if (!fileContents) {
