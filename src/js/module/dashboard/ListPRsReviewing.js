@@ -46,6 +46,10 @@ class ListPRsReviewing extends React.Component {
     }
 
     render() {
+        if (this.props.prs && !_.size(this.props.prs)) {
+            return null;
+        }
+
         return (
             <div className="panel mb-3">
                 <Title text="Review Requests - You need to finish reviewing" />
@@ -53,12 +57,6 @@ class ListPRsReviewing extends React.Component {
                 {!this.props.prs && (
                     <div className="blankslate capped clean-background">
                         Loading
-                    </div>
-                )}
-
-                {this.props.prs && !_.size(this.props.prs) && (
-                    <div className="blankslate capped clean-background">
-                        No items
                     </div>
                 )}
 
