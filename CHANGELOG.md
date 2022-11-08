@@ -1,3 +1,6 @@
+#1.1.12
+- Move the list of assigned reviews to the top of the dashboard
+
 #1.1.11
 - Added a method for quickly copy/pasting the reviewer checklist into an Expensify/App PR comment
 
