@@ -43,7 +43,7 @@ const ListItemPull = (props) => {
 
     let mergeability = 'Done reviewing';
 
-    switch (pr.mergable) {
+    switch (pr.mergeable) {
         case 'MERGEABLE':
             mergeability = 'Approved';
             break;
@@ -104,7 +104,7 @@ const ListItemPull = (props) => {
                 )}
 
                 {mergeability && (
-                    <span className={`mergeable-state ${pr.mergable} ${mergeability === 'Draft' && 'DRAFT'}`}>
+                    <span className={`mergeable-state ${pr.reviewDecision} ${pr.mergeable} ${(mergeability === 'Draft' && 'DRAFT') || ''}`}>
                         {mergeability}
                     </span>
                 )}

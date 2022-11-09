@@ -289,6 +289,9 @@ $color-dark-yellow: #DAA520;
   &.failure {
     color: $color-alert;
   }
+  &.unknown {
+    color: $color-neutral;
+  }
 }
 
 .mergeable-state {
@@ -298,7 +301,7 @@ $color-dark-yellow: #DAA520;
     color: $color-alert;
   }
 
-  &.MERGEABLE {
+  &.MERGEABLE:not(.CHANGES_REQUESTED):not(.REVIEW_REQUIRED) {
     color: $color-darker-green;
   }
 
