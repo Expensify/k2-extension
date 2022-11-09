@@ -11,7 +11,37 @@ function getChecks(prs, onyxKey) {
             }
             ReactNativeOnyx.merge(onyxKey, {
                 [pr.id]: {
-                    checkConclusion: response.data.check_runs[0].conclusion,
+                    checkConclusion: _.reduce(
+                        response.data.check_runs,
+                        (previousValue, currentValue) => {
+                            const conclusion = currentValue.conclusion;
+
+                            // If any check runs are failing, mark it failed
+                            if (conclusion === 'failure' || previousValue === 'failure') {
+                                return 'failure';
+                            }
+
+                            // If the current check run is successful, mark it success. If the previous one is
+                            // successful,  this one could only be successful or skipped, and either way, we
+                            // want to mark the whole thing as successful
+                            if (conclusion === 'success' || previousValue === 'success') {
+                                return 'success';
+                            }
+
+                            // If the check is skipped, mark it skipped
+                            if (conclusion === 'skipped') {
+                                return 'skipped';
+                            }
+
+                            // All possible states include: action_required, cancelled, failure, neutral,
+                            // success, skipped, stale, timed_out. We may wish to consider some of these states
+                            // failures, such as "cancelled". If we get here, we have reached a state we have
+                            // not handled above and therefore consider "unknown." In that case, return
+                            // previousValue which should be set to the seed value of 'unknown'
+                            return previousValue;
+                        },
+                        'unknown',
+                    ),
                 },
             });
         });
