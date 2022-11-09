@@ -18,13 +18,13 @@ const ListIssues = props => (
     <div className="issueList">
         <Legend />
 
+        <ListPRsReviewing pollInterval={props.pollInterval * 2.5} />
+
         <ListIssuesAssigned pollInterval={props.pollInterval} />
 
         <ListIssuesDailyImprovements pollInterval={props.pollInterval * 2.5} />
 
         <ListPRsAssigned pollInterval={props.pollInterval * 2.5} />
-
-        <ListPRsReviewing pollInterval={props.pollInterval * 2.5} />
 
         <Filters />
 

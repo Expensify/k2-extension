@@ -108,6 +108,7 @@ $color-dark-yellow: #DAA520;
 
     .panel-title {
       background-color: $color-orange;
+      color: $color-white;
     }
   }
   &.weekly {
@@ -117,6 +118,7 @@ $color-dark-yellow: #DAA520;
 
     .panel-title {
       background-color: $color-green;
+      color: $color-white;
     }
   }
   &.monthly {
@@ -126,6 +128,7 @@ $color-dark-yellow: #DAA520;
 
     .panel-title {
       background-color: $color-purple;
+      color: $color-white;
     }
   }
 }
