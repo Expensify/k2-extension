@@ -104,7 +104,7 @@ const ListItemPull = (props) => {
                 )}
 
                 {mergeability && (
-                    <span className={`mergeable-state ${pr.reviewDecision} ${pr.mergeable} ${mergeability === 'Draft' && 'DRAFT'}`}>
+                    <span className={`mergeable-state ${pr.reviewDecision} ${pr.mergeable} ${(mergeability === 'Draft' && 'DRAFT') || ''}`}>
                         {mergeability}
                     </span>
                 )}
