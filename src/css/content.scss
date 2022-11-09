@@ -295,7 +295,7 @@ $color-dark-yellow: #DAA520;
     color: $color-alert;
   }
 
-  &.MERGEABLE {
+  &.MERGEABLE:not(.CHANGES_REQUESTED):not(.REVIEW_REQUIRED) {
     color: $color-darker-green;
   }
 
