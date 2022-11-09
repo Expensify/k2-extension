@@ -37,7 +37,7 @@ function getChecks(prs, onyxKey) {
                             // success, skipped, stale, timed_out. We may wish to consider some of these states
                             // failures, such as "cancelled". If we get here, we have reached a state we have
                             // not handled above and therefore consider "unknown." In that case, return
-                            // previousValue which should be set to the seed value of 'unknown'
+                            // previousValue which should be set to the seed value of 'unknown'.
                             return previousValue;
                         },
                         'unknown',
