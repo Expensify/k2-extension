@@ -51,8 +51,8 @@ class ListPRsReviewing extends React.Component {
         }
 
         return (
-            <div className="panel mb-3">
-                <Title text="Review Requests - You need to finish reviewing" />
+            <div className="panel mb-3 daily">
+                <Title text="Review these PRs Daily" />
 
                 {!this.props.prs && (
                     <div className="blankslate capped clean-background">
