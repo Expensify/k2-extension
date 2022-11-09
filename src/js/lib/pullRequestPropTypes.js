@@ -17,7 +17,7 @@ export default PropTypes.shape({
     isDraft: PropTypes.bool.isRequired,
 
     /** The current state of the PR merge */
-    mergable: PropTypes.oneOf(['MERGEABLE', 'CONFLICTING', 'UNKNOWN']),
+    mergeable: PropTypes.oneOf(['MERGEABLE', 'CONFLICTING', 'UNKNOWN']),
 
     /** The status of PR reviews */
     reviewDecision: PropTypes.oneOf(['CHANGES_REQUESTED', 'APPROVED', 'REVIEW_REQUIRED']),
