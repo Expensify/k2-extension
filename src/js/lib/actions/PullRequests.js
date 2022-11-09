@@ -22,7 +22,7 @@ function getChecks(prs, onyxKey) {
                             }
 
                             // If the current check run is successful, mark it success. If the previous one is
-                            // successful,  this one could only be successful or skipped, and either way, we
+                            // successful, this one could only be successful or skipped, and either way, we
                             // want to mark the whole thing as successful
                             if (conclusion === 'success' || previousValue === 'success') {
                                 return 'success';
