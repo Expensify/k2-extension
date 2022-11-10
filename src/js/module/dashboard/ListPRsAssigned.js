@@ -46,6 +46,10 @@ class ListPRsAssigned extends React.Component {
     }
 
     render() {
+        if (this.props.prs && !_.size(this.props.prs)) {
+            return null;
+        }
+
         return (
             <div className="panel mb-3">
                 <Title text="Your Pull Requests" />
