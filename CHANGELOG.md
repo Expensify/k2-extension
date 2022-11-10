@@ -1,3 +1,9 @@
+#1.1.13
+* Change title of no priority panel from "None" to "No Priority"
+* Hide "No Priority" panel if empty
+* Move "Your Pull Requests" section above "Daily Improvements"
+* Hide "Your Pull Requests" section if empty
+
 #1.1.12
 - Move the list of assigned reviews to the top of the dashboard
 - Fix bugs with PR mergeability and test status so the correct value is displayed in the expected color
