@@ -1,5 +1,6 @@
 #1.1.12
 - Move the list of assigned reviews to the top of the dashboard
+- Fix bugs with PR mergeability and test status so the correct value is displayed in the expected color
 
 #1.1.11
 - Added a method for quickly copy/pasting the reviewer checklist into an Expensify/App PR comment
