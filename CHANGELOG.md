@@ -49,7 +49,7 @@
 - Update to current version of React
 - Update to use ES6 modules
 - Introduce the first concept of using Onyx
- 
+
 #0.10.10
 - Make the right sidebar on issues sticky
 
@@ -105,7 +105,7 @@
 
 #0.9.27
 - Update to show `VendorTasks` repo issues
- 
+
 #0.9.26
 - Update `Expensify.cash` repo to `App` in api to display e.cash issues
 
