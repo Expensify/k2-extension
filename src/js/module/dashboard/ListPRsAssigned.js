@@ -60,12 +60,6 @@ class ListPRsAssigned extends React.Component {
                     </div>
                 )}
 
-                {this.props.prs && !_.size(this.props.prs) && (
-                    <div className="blankslate capped clean-background">
-                        No items
-                    </div>
-                )}
-
                 {_.chain(this.props.prs)
                     .sortBy('updatedAt')
                     .map(pr => <ListItemPull key={pr.id} pr={pr} />)
