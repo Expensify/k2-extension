@@ -95,8 +95,9 @@ class ListIssuesAssigned extends React.Component {
                 </div>
                 <div className="pt-4">
                     <PanelIssues
-                        title="None"
+                        title="No Priority"
                         extraClass="none"
+                        hideOnEmpty
                         // eslint-disable-next-line max-len
                         data={_.pick(this.props.issues, issue => _.intersection(_.map(issue.labels, label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0)}
                     />

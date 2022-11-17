@@ -22,9 +22,9 @@ const ListIssues = props => (
 
         <ListIssuesAssigned pollInterval={props.pollInterval} />
 
-        <ListIssuesDailyImprovements pollInterval={props.pollInterval * 2.5} />
-
         <ListPRsAssigned pollInterval={props.pollInterval * 2.5} />
+
+        <ListIssuesDailyImprovements pollInterval={props.pollInterval * 2.5} />
 
         <Filters />
 
