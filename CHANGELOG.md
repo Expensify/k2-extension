@@ -1,3 +1,6 @@
+#1.1.14
+- Added react-native-onyx repo to issues query
+
 #1.1.13
 * Change title of no priority panel from "None" to "No Priority"
 * Hide "No Priority" panel if empty
