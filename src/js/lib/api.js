@@ -188,6 +188,7 @@ function getIssues(assignee = 'none', labels) {
     query += ' repo:Expensify/VendorTasks';
     query += ' repo:Expensify/Insiders';
     query += ' repo:Expensify/Expensify-Guides';
+    query += ' repo:Expensify/react-native-onyx';
 
     if (assignee === 'none') {
         query += ' no:assignee';
