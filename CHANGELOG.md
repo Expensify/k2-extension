@@ -1,3 +1,6 @@
+#1.2.0
+- Reworked the dashboard to list WAQ issues
+
 #1.1.14
 - Added react-native-onyx repo to issues query
 
