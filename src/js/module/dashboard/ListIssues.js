@@ -6,7 +6,6 @@ import ListIssuesAssigned from './ListIssuesAssigned';
 import ListPRsAssigned from './ListPRsAssigned';
 import ListPRsReviewing from './ListPRsReviewing';
 import ListIssuesEngineering from './ListIssuesEngineering';
-import ListIssuesDailyImprovements from './ListIssuesDailyImprovements';
 import Legend from './Legend';
 import ListIssuesWAQ from './ListIssuesWAQ';
 
