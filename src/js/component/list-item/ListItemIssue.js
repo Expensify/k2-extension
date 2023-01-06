@@ -1,15 +1,22 @@
 import React from 'react';
 import _ from 'underscore';
+import PropTypes from 'prop-types';
 import IssuePropTypes from './IssuePropTypes';
 
 const propTypes = {
     /** Information about the issue that is being displayed */
     issue: IssuePropTypes.isRequired,
+
+    /** Whether or not the attendees should be shown */
+    showAttendees: PropTypes.bool,
+};
+const defaultProps = {
+    showAttendees: false,
 };
 
 class ListItemIssue extends React.Component {
     getClassName() {
-        let className = 'panel-item issue';
+        let className = 'issue';
 
         // See if it's under review
 
@@ -49,29 +56,59 @@ class ListItemIssue extends React.Component {
     render() {
         this.parseIssue();
         return (
-            <a
-                href={this.props.issue.url}
-                className={this.getClassName()}
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                {this.isHourly}
-                {this.isDaily}
-                {this.isWeekly}
-                {this.isMonthly}
-                {this.isWhatsNext}
-                {this.isNewhire}
-                {this.isWaitingForCustomer}
-                {this.isExternal}
-                {this.isImprovement}
-                {this.isTask}
-                {this.isFeature}
-                {this.props.issue.title}
-            </a>
+            <div className="panel-item">
+                <a
+                    href={this.props.issue.url}
+                    className={this.getClassName()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    {this.isHourly}
+                    {this.isDaily}
+                    {this.isWeekly}
+                    {this.isMonthly}
+                    {this.isWhatsNext}
+                    {this.isNewhire}
+                    {this.isWaitingForCustomer}
+                    {this.isExternal}
+                    {this.isImprovement}
+                    {this.isTask}
+                    {this.isFeature}
+                    {this.props.issue.title}
+                </a>
+
+                {this.props.showAttendees && (
+                    <div className="AvatarStack AvatarStack--right ml-2 flex-1 flex-shrink-0">
+                        <div
+                            className="AvatarStack-body tooltipped tooltipped-sw tooltipped-multiline tooltipped-align-right-1 mt-1"
+                            aria-label={`Assigned to ${_.pluck(this.props.issue.assignees, 'login').join(', ')}`}
+                        >
+
+                            {_.map(this.props.issue.assignees.reverse(), assignee => (
+                                <a
+                                    className="avatar avatar-user"
+                                    aria-label={`${assignee.login}'s assigned issues`}
+                                    href={`/Expensify/App/issues?q=assignee%3A${assignee.login}+is%3Aopen`}
+                                    data-turbo-frame="repo-content-turbo-frame"
+                                >
+                                    <img
+                                        className="from-avatar avatar-user"
+                                        src={assignee.avatarUrl}
+                                        width="20"
+                                        height="20"
+                                        alt={`@${assignee.login}`}
+                                    />
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
         );
     }
 }
 
 ListItemIssue.propTypes = propTypes;
+ListItemIssue.defaultProps = defaultProps;
 
 export default ListItemIssue;

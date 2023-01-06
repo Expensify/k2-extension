@@ -100,42 +100,42 @@ class ListIssuesWAQ extends React.Component {
                         <Title text={`Older than 4 Weeks (${_.size(issuesOlderThanFourWeeks)})`} />
                         {_.chain(issuesOlderThanFourWeeks)
                             .sortBy('updatedAt')
-                            .map(issue => <ListItemIssue key={issue.id} issue={issue} />)
+                            .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
                         <Title text={`4 Weeks Old (${_.size(issuesFourWeeksOld)})`} />
                         {_.chain(issuesFourWeeksOld)
                             .sortBy('updatedAt')
-                            .map(issue => <ListItemIssue key={issue.id} issue={issue} />)
+                            .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
                         <Title text={`3 Weeks Old (${_.size(issuesThreeWeeksOld)})`} />
                         {_.chain(issuesThreeWeeksOld)
                             .sortBy('updatedAt')
-                            .map(issue => <ListItemIssue key={issue.id} issue={issue} />)
+                            .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
                         <Title text={`2 Weeks Old (${_.size(issuesTwoWeeksOld)})`} />
                         {_.chain(issuesTwoWeeksOld)
                             .sortBy('updatedAt')
-                            .map(issue => <ListItemIssue key={issue.id} issue={issue} />)
+                            .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
                         <Title text={`1 Week Old (${_.size(issuesOneWeekOld)})`} />
                         {_.chain(issuesOneWeekOld)
                             .sortBy('updatedAt')
-                            .map(issue => <ListItemIssue key={issue.id} issue={issue} />)
+                            .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
                         <Title text={`Younger than 1 week (${_.size(issuesYoungerThanOneWeek)})`} />
                         {_.chain(issuesYoungerThanOneWeek)
                             .sortBy('updatedAt')
-                            .map(issue => <ListItemIssue key={issue.id} issue={issue} />)
+                            .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 

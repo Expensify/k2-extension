@@ -137,6 +137,12 @@ function formatIssueResults(rawIssueData) {
                 });
                 return cleanLabels;
             }, []),
+            assignees: _.reduce(searchNode.assignees.nodes, (cleanAssignees, assigneeNode) => {
+                cleanAssignees.push({
+                    ...assigneeNode,
+                });
+                return cleanAssignees;
+            }, []),
         });
         return cleanSearchResults;
     }, []);
@@ -176,6 +182,12 @@ function getWAQIssues() {
                         url
                         createdAt
                         updatedAt
+                        assignees(first: 100) {
+                          nodes {
+                            avatarUrl
+                            login
+                          }
+                        }
                         labels(first: 100) {
                             nodes {
                                 name
@@ -320,6 +332,14 @@ function getIssues(assignee = 'none', labels) {
                         title
                         id
                         url
+                        createdAt
+                        updatedAt
+                        assignees(first: 100) {
+                          nodes {
+                            avatarUrl
+                            login
+                          }
+                        }
                         labels(first: 100) {
                             nodes {
                                 name
