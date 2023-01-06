@@ -1,6 +1,5 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import moment from 'moment';
 import {Octokit} from 'octokit';
 import * as Preferences from './actions/Preferences';
 
@@ -88,6 +87,65 @@ function getMilestones() {
         });
 }
 
+/**
+ * A utility method that will run a graphql query and keep paginating the results until
+ * there are no more results to get. This should automatically apply all of GH's best practices
+ * to avoid hitting rate limits.
+ *
+ * @param {String} query
+ * @returns {Promise<Array>}
+ */
+function paginateResults(query) {
+    return new Promise((resolve) => {
+        const results = [];
+
+        // This does all the pagination on the graphQL query
+        function fetchPageOfIssues(cursor) {
+            getOctokit().graphql(query, {cursor})
+                .then((queryResults) => {
+                    results.concat(queryResults);
+
+                    // When there is another page, this function needs to be called recursively to get the next page
+                    if (queryResults.search.pageInfo.hasNextPage) {
+                        fetchPageOfIssues(queryResults.search.pageInfo.endCursor);
+                        return;
+                    }
+
+                    // When there are no more pages, then we can resolve the final promise with all our results
+                    // indexed by ID so that they can be accessed in the collection easier
+                    resolve(results);
+                });
+        }
+        fetchPageOfIssues();
+    });
+}
+
+/**
+ * A utility method that takes the raw GraphQL query results for issues and turns it into a format that
+ * the rest of the app can use. This removes things like "edges" and "nodes" from the data.
+ *
+ * @param {Array<Object>}rawIssueData
+ * @returns {Object}
+ */
+function formatIssueResults(rawIssueData) {
+    return _.reduce(rawIssueData.search.nodes, (cleanSearchResults, searchNode) => {
+        cleanSearchResults.push({
+            ...searchNode,
+            labels: _.reduce(searchNode.labels.nodes, (cleanLabels, labelNode) => {
+                cleanLabels.push({
+                    ...labelNode,
+                });
+                return cleanLabels;
+            }, []),
+        });
+        return cleanSearchResults;
+    }, [])
+
+        // When there are no more pages, then we can resolve the final promise with all our results
+        // indexed by ID so that they can be accessed in the collection easier
+        .then(results => _.indexBy(results, 'id'));
+}
+
 function getWAQIssues() {
     let query = '';
 
@@ -130,42 +188,8 @@ function getWAQIssues() {
         }
     `;
 
-    return new Promise((resolve) => {
-        const results = [];
-
-        // This does all the pagination on the graphQL query
-        function fetchPageOfIssues(cursor) {
-            getOctokit().graphql(graphQLQuery, {cursor})
-                .then((queryResults) => {
-                    // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-                    const searchResults = _.reduce(queryResults.search.nodes, (cleanSearchResults, searchNode) => {
-                        cleanSearchResults.push({
-                            ...searchNode,
-                            labels: _.reduce(searchNode.labels.nodes, (cleanLabels, labelNode) => {
-                                cleanLabels.push({
-                                    ...labelNode,
-                                });
-                                return cleanLabels;
-                            }, []),
-                        });
-                        return cleanSearchResults;
-                    }, []);
-
-                    results.push(...searchResults);
-
-                    // When there is another page, this function needs to be called recursively
-                    if (queryResults.search.pageInfo.hasNextPage) {
-                        fetchPageOfIssues(queryResults.search.pageInfo.endCursor);
-                        return;
-                    }
-
-                    // When there are no more pages, then we can resolve the final promise with all our results
-                    // indexed by ID so that they can be accessed in the collection easier
-                    resolve(_.indexBy(results, 'id'));
-                });
-        }
-        fetchPageOfIssues();
-    });
+    return paginateResults(graphQLQuery)
+        .then(formatIssueResults);
 }
 
 /**
@@ -308,42 +332,8 @@ function getIssues(assignee = 'none', labels) {
         }
     `;
 
-    return new Promise((resolve) => {
-        const results = [];
-
-        // This does all the pagination on the graphQL query
-        function fetchPageOfIssues(cursor) {
-            getOctokit().graphql(graphQLQuery, {cursor})
-                .then((queryResults) => {
-                    // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-                    const searchResults = _.reduce(queryResults.search.nodes, (cleanSearchResults, searchNode) => {
-                        cleanSearchResults.push({
-                            ...searchNode,
-                            labels: _.reduce(searchNode.labels.nodes, (cleanLabels, labelNode) => {
-                                cleanLabels.push({
-                                    ...labelNode,
-                                });
-                                return cleanLabels;
-                            }, []),
-                        });
-                        return cleanSearchResults;
-                    }, []);
-
-                    results.push(...searchResults);
-
-                    // When there is another page, this function needs to be called recursively
-                    if (queryResults.search.pageInfo.hasNextPage) {
-                        fetchPageOfIssues(queryResults.search.pageInfo.endCursor);
-                        return;
-                    }
-
-                    // When there are no more pages, then we can resolve the final promise with all our results
-                    // indexed by ID so that they can be accessed in the collection easier
-                    resolve(_.indexBy(results, 'id'));
-                });
-        }
-        fetchPageOfIssues();
-    });
+    return paginateResults(graphQLQuery)
+        .then(formatIssueResults);
 }
 
 /**
@@ -418,6 +408,7 @@ export {
     getEngineeringIssues,
     getIssuesAssigned,
     getDailyImprovements,
+    getWAQIssues,
     addLabel,
     removeLabel,
     getMilestones,

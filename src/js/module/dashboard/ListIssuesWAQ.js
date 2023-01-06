@@ -38,7 +38,7 @@ class ListIssuesWAQ extends React.Component {
     }
 
     fetch() {
-        Issues.getDailyImprovements();
+        Issues.getWAQ();
 
         if (this.props.pollInterval && !this.interval) {
             this.interval = setInterval(this.fetch, this.props.pollInterval);

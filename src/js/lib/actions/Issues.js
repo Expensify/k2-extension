@@ -5,7 +5,7 @@ import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
 
 function getWAQ() {
-    API.getDailyImprovements()
+    API.getWAQIssues()
         .then((issues) => {
             // Always use set() here because there is no way to remove issues from Onyx
             // that get closed or assigned
