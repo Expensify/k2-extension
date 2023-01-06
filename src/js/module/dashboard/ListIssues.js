@@ -27,8 +27,6 @@ const ListIssues = props => (
 
         <ListIssuesWAQ pollInterval={props.pollInterval * 2.5} />
 
-        <ListIssuesDailyImprovements pollInterval={props.pollInterval * 2.5} />
-
         <Filters />
 
         <ListIssuesEngineering pollInterval={props.pollInterval * 2.5} />
