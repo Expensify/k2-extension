@@ -4,6 +4,15 @@ import _ from 'underscore';
 import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
 
+function getWAQ() {
+    API.getDailyImprovements()
+        .then((issues) => {
+            // Always use set() here because there is no way to remove issues from Onyx
+            // that get closed or assigned
+            ReactNativeOnyx.set(ONYXKEYS.ISSUES.WAQ, issues);
+        });
+}
+
 function getDailyImprovements() {
     API.getDailyImprovements()
         .then((issues) => {
@@ -98,5 +107,6 @@ export {
     getAllAssigned,
     getEngineering,
     getDailyImprovements,
+    getWAQ,
     saveFilters,
 };
