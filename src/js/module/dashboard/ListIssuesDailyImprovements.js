@@ -48,7 +48,7 @@ class ListIssuesDailyImprovements extends React.Component {
     render() {
         return (
             <div className="panel mb-3">
-                <Title text="Daily Improvements (All Areas)" />
+                <Title text="Daily Improvements (OldDot)" />
 
                 {!this.props.issues && (
                     <div className="blankslate capped clean-background">

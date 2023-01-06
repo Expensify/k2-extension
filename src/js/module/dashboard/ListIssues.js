@@ -8,6 +8,7 @@ import ListPRsReviewing from './ListPRsReviewing';
 import ListIssuesEngineering from './ListIssuesEngineering';
 import ListIssuesDailyImprovements from './ListIssuesDailyImprovements';
 import Legend from './Legend';
+import ListIssuesWAQ from './ListIssuesWAQ';
 
 const propTypes = {
     /** The number of seconds to refresh the list of issues */
@@ -23,6 +24,8 @@ const ListIssues = props => (
         <ListIssuesAssigned pollInterval={props.pollInterval} />
 
         <ListPRsAssigned pollInterval={props.pollInterval * 2.5} />
+
+        <ListIssuesWAQ pollInterval={props.pollInterval * 2.5} />
 
         <ListIssuesDailyImprovements pollInterval={props.pollInterval * 2.5} />
 

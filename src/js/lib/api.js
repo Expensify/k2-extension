@@ -155,7 +155,7 @@ function getWAQIssues() {
     query += ' repo:Expensify/App';
     query += ' label:Bug';
     query += ' NOT hold in:title';
-    query += ' -label:"Reviewing"';
+    query += ' -label:Reviewing';
 
     const graphQLQuery = `
         query($cursor:String) {
@@ -174,6 +174,8 @@ function getWAQIssues() {
                         title
                         id
                         url
+                        createdAt
+                        updatedAt
                         labels(first: 100) {
                             nodes {
                                 name

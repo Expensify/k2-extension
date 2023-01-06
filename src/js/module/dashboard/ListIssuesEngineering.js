@@ -56,14 +56,14 @@ class ListIssuesEngineering extends React.Component {
         if (!_.size(this.props.issues)) {
             return (
                 <div className="blankslate capped clean-background">
-                    No engineering issues
+                    No OldDot issues
                 </div>
             );
         }
 
         return (
             <PanelIssues
-                title="Engineering"
+                title="OldDot"
                 extraClass="none"
                 item="issue"
                 data={this.props.issues}
