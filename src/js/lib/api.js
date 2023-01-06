@@ -97,13 +97,13 @@ function getMilestones() {
  */
 function paginateResults(query) {
     return new Promise((resolve) => {
-        const results = [];
+        let results = [];
 
         // This does all the pagination on the graphQL query
         function fetchPageOfIssues(cursor) {
             getOctokit().graphql(query, {cursor})
                 .then((queryResults) => {
-                    results.concat(queryResults);
+                    results = results.concat(queryResults.search.nodes);
 
                     // When there is another page, this function needs to be called recursively to get the next page
                     if (queryResults.search.pageInfo.hasNextPage) {
@@ -128,7 +128,7 @@ function paginateResults(query) {
  * @returns {Object}
  */
 function formatIssueResults(rawIssueData) {
-    return _.reduce(rawIssueData.search.nodes, (cleanSearchResults, searchNode) => {
+    const cleanData = _.reduce(rawIssueData, (cleanSearchResults, searchNode) => {
         cleanSearchResults.push({
             ...searchNode,
             labels: _.reduce(searchNode.labels.nodes, (cleanLabels, labelNode) => {
@@ -139,11 +139,11 @@ function formatIssueResults(rawIssueData) {
             }, []),
         });
         return cleanSearchResults;
-    }, [])
+    }, []);
 
-        // When there are no more pages, then we can resolve the final promise with all our results
-        // indexed by ID so that they can be accessed in the collection easier
-        .then(results => _.indexBy(results, 'id'));
+    // When there are no more pages, then we can resolve the final promise with all our results
+    // indexed by ID so that they can be accessed in the collection easier
+    return _.indexBy(cleanData, 'id');
 }
 
 function getWAQIssues() {
