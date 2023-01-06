@@ -95,7 +95,7 @@ function getMilestones() {
  * @param {String} query
  * @returns {Promise<Array>}
  */
-function paginateResults(query) {
+function getFullResultsUsingPagination(query) {
     return new Promise((resolve) => {
         let results = [];
 
@@ -112,7 +112,6 @@ function paginateResults(query) {
                     }
 
                     // When there are no more pages, then we can resolve the final promise with all our results
-                    // indexed by ID so that they can be accessed in the collection easier
                     resolve(results);
                 });
         }
@@ -147,15 +146,12 @@ function formatIssueResults(rawIssueData) {
         return cleanSearchResults;
     }, []);
 
-    // When there are no more pages, then we can resolve the final promise with all our results
-    // indexed by ID so that they can be accessed in the collection easier
+    // Index the results by ID so that they can be accessed as a collection easier
     return _.indexBy(cleanData, 'id');
 }
 
 function getWAQIssues() {
     let query = '';
-
-    // Get the PRs assigned to me
     query += ' state:open';
     query += ' type:issue';
     query += ' repo:Expensify/App';
@@ -202,7 +198,7 @@ function getWAQIssues() {
         }
     `;
 
-    return paginateResults(graphQLQuery)
+    return getFullResultsUsingPagination(graphQLQuery)
         .then(formatIssueResults);
 }
 
@@ -215,8 +211,6 @@ function getWAQIssues() {
  */
 function getPullsByType(type) {
     let query = '';
-
-    // Get the PRs assigned to me
     query += ' state:open';
     query += ' type:pr';
 
@@ -354,7 +348,7 @@ function getIssues(assignee = 'none', labels) {
         }
     `;
 
-    return paginateResults(graphQLQuery)
+    return getFullResultsUsingPagination(graphQLQuery)
         .then(formatIssueResults);
 }
 
