@@ -88,6 +88,121 @@ function getMilestones() {
 }
 
 /**
+ * A utility method that will run a graphql query and keep paginating the results until
+ * there are no more results to get. This should automatically apply all of GH's best practices
+ * to avoid hitting rate limits.
+ *
+ * @param {String} query
+ * @returns {Promise<Array>}
+ */
+function getFullResultsUsingPagination(query) {
+    return new Promise((resolve) => {
+        let results = [];
+
+        // This does all the pagination on the graphQL query
+        function fetchPageOfIssues(cursor) {
+            getOctokit().graphql(query, {cursor})
+                .then((queryResults) => {
+                    results = results.concat(queryResults.search.nodes);
+
+                    // When there is another page, this function needs to be called recursively to get the next page
+                    if (queryResults.search.pageInfo.hasNextPage) {
+                        fetchPageOfIssues(queryResults.search.pageInfo.endCursor);
+                        return;
+                    }
+
+                    // When there are no more pages, then we can resolve the final promise with all our results
+                    resolve(results);
+                });
+        }
+        fetchPageOfIssues();
+    });
+}
+
+/**
+ * A utility method that takes the raw GraphQL query results for issues and turns it into a format that
+ * the rest of the app can use. This removes things like "edges" and "nodes" from the data.
+ *
+ * @param {Array<Object>}rawIssueData
+ * @returns {Object}
+ */
+function formatIssueResults(rawIssueData) {
+    const cleanData = _.reduce(rawIssueData, (cleanSearchResults, searchNode) => {
+        cleanSearchResults.push({
+            ...searchNode,
+            labels: _.reduce(searchNode.labels.nodes, (cleanLabels, labelNode) => {
+                cleanLabels.push({
+                    ...labelNode,
+                });
+                return cleanLabels;
+            }, []),
+            assignees: _.reduce(searchNode.assignees.nodes, (cleanAssignees, assigneeNode) => {
+                cleanAssignees.push({
+                    ...assigneeNode,
+                });
+                return cleanAssignees;
+            }, []),
+        });
+        return cleanSearchResults;
+    }, []);
+
+    // Index the results by ID so that they can be accessed as a collection easier
+    return _.indexBy(cleanData, 'id');
+}
+
+function getWAQIssues() {
+    let query = '';
+    query += ' state:open';
+    query += ' type:issue';
+    query += ' repo:Expensify/App';
+    query += ' label:Bug';
+    query += ' NOT hold in:title';
+    query += ' -label:Reviewing';
+
+    const graphQLQuery = `
+        query($cursor:String) {
+            search(
+                query: "${query}"
+                type: ISSUE
+                first: 100
+                after:$cursor
+            ) {
+                pageInfo {
+                    endCursor
+                    hasNextPage
+                }
+                nodes {
+                    ... on Issue {
+                        title
+                        id
+                        url
+                        createdAt
+                        updatedAt
+                        assignees(first: 100) {
+                          nodes {
+                            avatarUrl
+                            login
+                          }
+                        }
+                        labels(first: 100) {
+                            nodes {
+                                name
+                            }
+                        }
+                        milestone {
+                            id
+                        }
+                    }
+                }
+            }
+        }
+    `;
+
+    return getFullResultsUsingPagination(graphQLQuery)
+        .then(formatIssueResults);
+}
+
+/**
  * Get all the pull requests where the current user is either assigned
  * or the author
  *
@@ -96,8 +211,6 @@ function getMilestones() {
  */
 function getPullsByType(type) {
     let query = '';
-
-    // Get the PRs assigned to me
     query += ' state:open';
     query += ' type:pr';
 
@@ -213,6 +326,14 @@ function getIssues(assignee = 'none', labels) {
                         title
                         id
                         url
+                        createdAt
+                        updatedAt
+                        assignees(first: 100) {
+                          nodes {
+                            avatarUrl
+                            login
+                          }
+                        }
                         labels(first: 100) {
                             nodes {
                                 name
@@ -227,42 +348,8 @@ function getIssues(assignee = 'none', labels) {
         }
     `;
 
-    return new Promise((resolve) => {
-        const results = [];
-
-        // This does all the pagination on the graphQL query
-        function fetchPageOfIssues(cursor) {
-            getOctokit().graphql(graphQLQuery, {cursor})
-                .then((queryResults) => {
-                    // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-                    const searchResults = _.reduce(queryResults.search.nodes, (cleanSearchResults, searchNode) => {
-                        cleanSearchResults.push({
-                            ...searchNode,
-                            labels: _.reduce(searchNode.labels.nodes, (cleanLabels, labelNode) => {
-                                cleanLabels.push({
-                                    ...labelNode,
-                                });
-                                return cleanLabels;
-                            }, []),
-                        });
-                        return cleanSearchResults;
-                    }, []);
-
-                    results.push(...searchResults);
-
-                    // When there is another page, this function needs to be called recursively
-                    if (queryResults.search.pageInfo.hasNextPage) {
-                        fetchPageOfIssues(queryResults.search.pageInfo.endCursor);
-                        return;
-                    }
-
-                    // When there are no more pages, then we can resolve the final promise with all our results
-                    // indexed by ID so that they can be accessed in the collection easier
-                    resolve(_.indexBy(results, 'id'));
-                });
-        }
-        fetchPageOfIssues();
-    });
+    return getFullResultsUsingPagination(graphQLQuery)
+        .then(formatIssueResults);
 }
 
 /**
@@ -337,6 +424,7 @@ export {
     getEngineeringIssues,
     getIssuesAssigned,
     getDailyImprovements,
+    getWAQIssues,
     addLabel,
     removeLabel,
     getMilestones,
