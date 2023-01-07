@@ -90,6 +90,7 @@ class ListItemIssue extends React.Component {
                                     aria-label={`${assignee.login}'s assigned issues`}
                                     href={`/Expensify/App/issues?q=assignee%3A${assignee.login}+is%3Aopen`}
                                     data-turbo-frame="repo-content-turbo-frame"
+                                    key={assignee.login}
                                 >
                                     <img
                                         className="from-avatar avatar-user"
