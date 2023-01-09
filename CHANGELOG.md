@@ -1,3 +1,7 @@
+#1.2.1
+- Fixed unique key prop warning in ListItemIssue component
+- Removed unused token and file to make k2 public
+
 #1.2.0
 - Reworked the dashboard to list WAQ issues
 
