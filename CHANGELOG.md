@@ -1,3 +1,6 @@
+#1.2.2
+- Updated the graphQL query to only fetch WAQ issues assigned to the current user
+
 #1.2.1
 - Fixed unique key prop warning in ListItemIssue component
 - Removed unused token and file to make k2 public
