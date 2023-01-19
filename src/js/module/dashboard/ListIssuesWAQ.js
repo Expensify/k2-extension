@@ -8,6 +8,7 @@ import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import Title from '../../component/panel-title/Title';
 import ListItemIssue from '../../component/list-item/ListItemIssue';
 import * as Issues from '../../lib/actions/Issues';
+import * as API from '../../lib/api';
 
 const propTypes = {
     /** The number of milliseconds to refresh the data */
@@ -24,7 +25,13 @@ class ListIssuesWAQ extends React.Component {
     constructor(props) {
         super(props);
 
+        // By default show only issues assigned to the current user
+        this.shouldShowAllWAQIssues = {
+            checked: false,
+        };
+
         this.fetch = this.fetch.bind(this);
+        this.filterByCurrentUser = this.filterByCurrentUser.bind(this);
     }
 
     componentDidMount() {
@@ -46,9 +53,13 @@ class ListIssuesWAQ extends React.Component {
         }
     }
 
+    filterByCurrentUser(issue) {
+        return _.findWhere(issue.assignees, {login: `${API.getCurrentUser()}`});
+    }
+
     render() {
         // The WAQ issues need to be grouped according to how old they are
-        const issuesYoungerThanOneWeek = {};
+        let issuesYoungerThanOneWeek = {};
         const issuesOneWeekOld = {};
         const issuesTwoWeeksOld = {};
         const issuesThreeWeeksOld = {};
@@ -80,6 +91,10 @@ class ListIssuesWAQ extends React.Component {
         });
 
         const issueCount = this.props.issues && _.size(this.props.issues);
+
+        if (!this.shouldShowAllWAQIssues.checked) {
+            issuesYoungerThanOneWeek = _.filter(issuesYoungerThanOneWeek, this.filterByCurrentUser);
+        }
 
         return (
             <div className="panel mb-3">
