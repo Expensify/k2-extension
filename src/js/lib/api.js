@@ -158,7 +158,6 @@ function getWAQIssues() {
     query += ' label:Bug';
     query += ' NOT hold in:title';
     query += ' -label:Reviewing';
-    query += ` assignee:${getCurrentUser()}`;
 
     const graphQLQuery = `
         query($cursor:String) {
