@@ -100,14 +100,16 @@ class ListIssuesWAQ extends React.Component {
         return (
             <div className="panel mb-3">
                 <Title text={`WAQ ${issueCount ? `(${issueCount})` : ''}`} />
+                <form className="form-inline">
+                    <div className="checkbox">
+                        <label>
+                            <input type="checkbox" name="shouldShowAllWAQIssues" onChange={this.toggleWAQFilter} />
+                            {' '}
+                            Show All WAQ issues
+                        </label>
+                    </div>
+                </form>
 
-                <div className="checkbox">
-                    <label>
-                        <input type="checkbox" name="shouldShowAllWAQIssues" onChange={this.toggleWAQFilter} />
-                        {' '}
-                        Show All WAQ issues
-                    </label>
-                </div>
                 {!this.props.issues && (
                     <div className="blankslate capped clean-background">
                         Loading
