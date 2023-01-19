@@ -26,12 +26,11 @@ class ListIssuesWAQ extends React.Component {
         super(props);
 
         // By default show only issues assigned to the current user
-        this.shouldShowAllWAQIssues = {
-            checked: false,
-        };
+        this.state = {shouldShowAllWAQIssues: true};
 
         this.fetch = this.fetch.bind(this);
         this.filterByCurrentUser = this.filterByCurrentUser.bind(this);
+        this.toggleWAQFilter = this.toggleWAQFilter.bind(this);
     }
 
     componentDidMount() {
@@ -54,12 +53,16 @@ class ListIssuesWAQ extends React.Component {
     }
 
     filterByCurrentUser(issue) {
-        return _.findWhere(issue.assignees, {login: `${API.getCurrentUser()}`});
+        return !this.state.shouldShowAllWAQIssues && _.findWhere(issue.assignees, {login: `${API.getCurrentUser()}`});
+    }
+
+    toggleWAQFilter() {
+        this.setState(prevState => ({shouldShowAllWAQIssues: !prevState.shouldShowAllWAQIssues}));
     }
 
     render() {
         // The WAQ issues need to be grouped according to how old they are
-        let issuesYoungerThanOneWeek = {};
+        const issuesYoungerThanOneWeek = {};
         const issuesOneWeekOld = {};
         const issuesTwoWeeksOld = {};
         const issuesThreeWeeksOld = {};
@@ -92,17 +95,13 @@ class ListIssuesWAQ extends React.Component {
 
         const issueCount = this.props.issues && _.size(this.props.issues);
 
-        if (!this.shouldShowAllWAQIssues.checked) {
-            issuesYoungerThanOneWeek = _.filter(issuesYoungerThanOneWeek, this.filterByCurrentUser);
-        }
-
         return (
             <div className="panel mb-3">
                 <Title text={`WAQ ${issueCount ? `(${issueCount})` : ''}`} />
 
                 <div className="checkbox">
                     <label>
-                        <input type="checkbox" name="shouldShowAllWAQIssues" ref={el => this.shouldShowAllWAQIssues = el} />
+                        <input type="checkbox" name="shouldShowAllWAQIssues" onChange={this.toggleWAQFilter} />
                         {' '}
                         Show All WAQ issues
                     </label>
@@ -154,8 +153,9 @@ class ListIssuesWAQ extends React.Component {
                             .value()
                             .reverse()}
 
-                        <Title text={`Younger than 1 week (${_.size(issuesYoungerThanOneWeek)})`} />
+                        <Title text={`Younger than 1 week (${_.size(_.filter(issuesYoungerThanOneWeek, this.filterByCurrentUser))})`} />
                         {_.chain(issuesYoungerThanOneWeek)
+                            .filter(this.filterByCurrentUser)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
