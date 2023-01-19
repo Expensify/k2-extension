@@ -85,6 +85,13 @@ class ListIssuesWAQ extends React.Component {
             <div className="panel mb-3">
                 <Title text={`WAQ ${issueCount ? `(${issueCount})` : ''}`} />
 
+                <div className="checkbox">
+                    <label>
+                        <input type="checkbox" name="shouldShowAllWAQIssues" ref={el => this.shouldShowAllWAQIssues = el} />
+                        {' '}
+                        Show All WAQ issues
+                    </label>
+                </div>
                 {!this.props.issues && (
                     <div className="blankslate capped clean-background">
                         Loading
