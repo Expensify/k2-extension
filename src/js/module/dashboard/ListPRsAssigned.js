@@ -51,7 +51,7 @@ class ListPRsAssigned extends React.Component {
         }
 
         return (
-            <div className="panel mb-3">
+            <div className="panel your-pull-requests mb-3">
                 <Title text="Your Pull Requests" />
 
                 {!this.props.prs && (

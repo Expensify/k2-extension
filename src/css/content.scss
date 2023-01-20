@@ -131,7 +131,7 @@ $color-dark-yellow: #DAA520;
       color: $color-white;
     }
   }
-  &.waq {
+  &.no-priority, &.your-pull-requests, &.waq {
     .panel-title {
       color: $color-black;
     }
