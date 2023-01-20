@@ -72,6 +72,9 @@ class ListIssuesWAQ extends React.Component {
         const issuesOlderThanFourWeeks = {};
 
         _.each(this.props.issues, (issue, issueID) => {
+            if (!this.shouldDisplayIssue(issue)) {
+                return;
+            }
             const ageInWeeks = moment().diff(issue.createdAt, 'weeks');
             switch (ageInWeeks) {
                 case 0:
@@ -129,49 +132,43 @@ class ListIssuesWAQ extends React.Component {
                     </div>
                 ) : (
                     <>
-                        <Title text={`Older than 4 Weeks (${_.size(_.filter(issuesOlderThanFourWeeks, this.shouldDisplayIssue))})`} />
+                        <Title text={`Older than 4 Weeks (${_.size(issuesOlderThanFourWeeks)})`} />
                         {_.chain(issuesOlderThanFourWeeks)
-                            .filter(this.shouldDisplayIssue)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
-                        <Title text={`4 Weeks Old (${_.size(_.filter(issuesFourWeeksOld, this.shouldDisplayIssue))})`} />
+                        <Title text={`4 Weeks Old (${_.size(issuesFourWeeksOld)})`} />
                         {_.chain(issuesFourWeeksOld)
-                            .filter(this.shouldDisplayIssue)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
-                        <Title text={`3 Weeks Old (${_.size(_.filter(issuesThreeWeeksOld, this.shouldDisplayIssue))})`} />
+                        <Title text={`3 Weeks Old (${_.size(issuesThreeWeeksOld)})`} />
                         {_.chain(issuesThreeWeeksOld)
-                            .filter(this.shouldDisplayIssue)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
-                        <Title text={`2 Weeks Old (${_.size(_.filter(issuesTwoWeeksOld, this.shouldDisplayIssue))})`} />
+                        <Title text={`2 Weeks Old (${_.size(issuesTwoWeeksOld)})`} />
                         {_.chain(issuesTwoWeeksOld)
-                            .filter(this.shouldDisplayIssue)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
-                        <Title text={`1 Week Old (${_.size(_.filter(issuesOneWeekOld, this.shouldDisplayIssue))})`} />
+                        <Title text={`1 Week Old (${_.size(issuesOneWeekOld)})`} />
                         {_.chain(issuesOneWeekOld)
-                            .filter(this.shouldDisplayIssue)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
-                        <Title text={`Younger than 1 week (${_.size(_.filter(issuesYoungerThanOneWeek, this.shouldDisplayIssue))})`} />
+                        <Title text={`Younger than 1 week (${_.size(issuesYoungerThanOneWeek)})`} />
                         {_.chain(issuesYoungerThanOneWeek)
-                            .filter(this.shouldDisplayIssue)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
