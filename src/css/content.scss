@@ -131,6 +131,11 @@ $color-dark-yellow: #DAA520;
       color: $color-white;
     }
   }
+  &.waq {
+    .panel-title {
+      color: $color-black;
+    }
+  }
 }
 .label {
   margin-right: $gutter;

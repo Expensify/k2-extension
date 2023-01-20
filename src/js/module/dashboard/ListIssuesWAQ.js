@@ -103,7 +103,7 @@ class ListIssuesWAQ extends React.Component {
         const waqPanelTitle = this.state.shouldShowAllWAQIssues ? 'AlL WAQ' : 'WAQ assigned to me';
 
         return (
-            <div className="panel mb-3">
+            <div className="panel waq mb-3">
                 <div className="d-flex flex-row">
                     <div className="col-6">
                         <h3 className="panel-title">{`${waqPanelTitle} ${issueCount ? `(${issueCount})` : ''}`}</h3>
