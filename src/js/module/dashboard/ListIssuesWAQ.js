@@ -98,7 +98,8 @@ class ListIssuesWAQ extends React.Component {
             }
         });
 
-        const issueCount = this.props.issues && _.size(this.props.issues);
+        // eslint-disable-next-line max-len
+        const issueCount = _.size(issuesYoungerThanOneWeek) + _.size(issuesOneWeekOld) + _.size(issuesTwoWeeksOld) + _.size(issuesThreeWeeksOld) + _.size(issuesFourWeeksOld) + _.size(issuesOlderThanFourWeeks);
         const waqPanelTitle = this.state.shouldShowAllWAQIssues ? 'AlL WAQ' : 'WAQ assigned to me';
 
         return (
