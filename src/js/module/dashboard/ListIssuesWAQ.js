@@ -100,7 +100,7 @@ class ListIssuesWAQ extends React.Component {
             }
         });
 
-        const waqPanelTitle = this.state.shouldShowAllWAQIssues ? 'AlL WAQ' : 'WAQ assigned to me';
+        const waqPanelTitle = this.state.shouldShowAllWAQIssues ? 'All WAQ' : 'WAQ assigned to me';
 
         return (
             <div className="panel waq mb-3">
