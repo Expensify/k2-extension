@@ -70,11 +70,13 @@ class ListIssuesWAQ extends React.Component {
         const issuesThreeWeeksOld = {};
         const issuesFourWeeksOld = {};
         const issuesOlderThanFourWeeks = {};
+        let issueCount = 0;
 
         _.each(this.props.issues, (issue, issueID) => {
             if (!this.shouldDisplayIssue(issue)) {
                 return;
             }
+            issueCount++;
             const ageInWeeks = moment().diff(issue.createdAt, 'weeks');
             switch (ageInWeeks) {
                 case 0:
@@ -98,8 +100,6 @@ class ListIssuesWAQ extends React.Component {
             }
         });
 
-        // eslint-disable-next-line max-len
-        const issueCount = _.size(issuesYoungerThanOneWeek) + _.size(issuesOneWeekOld) + _.size(issuesTwoWeeksOld) + _.size(issuesThreeWeeksOld) + _.size(issuesFourWeeksOld) + _.size(issuesOlderThanFourWeeks);
         const waqPanelTitle = this.state.shouldShowAllWAQIssues ? 'AlL WAQ' : 'WAQ assigned to me';
 
         return (
