@@ -1,3 +1,7 @@
+#1.2.2
+- Updated to show WAQ issues assigned to the current user by default
+- Added a checkbox in the WAQ panel to toggle between displaying all WAQ issues and those assigned to the current user
+
 #1.2.1
 - Fixed unique key prop warning in ListItemIssue component
 - Removed unused token and file to make k2 public

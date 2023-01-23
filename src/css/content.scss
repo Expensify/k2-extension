@@ -131,6 +131,11 @@ $color-dark-yellow: #DAA520;
       color: $color-white;
     }
   }
+  &.no-priority, &.your-pull-requests, &.waq {
+    .panel-title {
+      color: $color-black;
+    }
+  }
 }
 .label {
   margin-right: $gutter;
@@ -436,6 +441,10 @@ $color-dark-yellow: #DAA520;
   .checkbox {
     display: inline;
     margin: 0 10px;
+
+    input[type=checkbox] {
+      margin-right: 4px;
+    }
   }
 }
 

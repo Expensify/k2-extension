@@ -76,7 +76,6 @@ class Filters extends React.Component {
                     <div className="checkbox">
                         <label>
                             <input type="checkbox" name="improvement" ref={el => this.fieldImprovement = el} />
-                            {' '}
                             Improvement
                         </label>
                     </div>
@@ -84,7 +83,6 @@ class Filters extends React.Component {
                     <div className="checkbox">
                         <label>
                             <input type="checkbox" name="task" ref={el => this.fieldTask = el} />
-                            {' '}
                             Task
                         </label>
                     </div>
@@ -92,7 +90,6 @@ class Filters extends React.Component {
                     <div className="checkbox">
                         <label>
                             <input type="checkbox" name="feature" ref={el => this.fieldFeature = el} />
-                            {' '}
                             New Feature
                         </label>
                     </div>

@@ -8,6 +8,7 @@ import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import Title from '../../component/panel-title/Title';
 import ListItemIssue from '../../component/list-item/ListItemIssue';
 import * as Issues from '../../lib/actions/Issues';
+import * as API from '../../lib/api';
 
 const propTypes = {
     /** The number of milliseconds to refresh the data */
@@ -24,7 +25,11 @@ class ListIssuesWAQ extends React.Component {
     constructor(props) {
         super(props);
 
+        // By default show only issues assigned to the current user
+        this.state = {shouldShowAllWAQIssues: false};
         this.fetch = this.fetch.bind(this);
+        this.shouldDisplayIssue = this.shouldDisplayIssue.bind(this);
+        this.toggleWAQFilter = this.toggleWAQFilter.bind(this);
     }
 
     componentDidMount() {
@@ -46,6 +51,17 @@ class ListIssuesWAQ extends React.Component {
         }
     }
 
+    shouldDisplayIssue(issue) {
+        if (this.state.shouldShowAllWAQIssues) {
+            return true;
+        }
+        return _.findWhere(issue.assignees, {login: `${API.getCurrentUser()}`});
+    }
+
+    toggleWAQFilter() {
+        this.setState(prevState => ({shouldShowAllWAQIssues: !prevState.shouldShowAllWAQIssues}));
+    }
+
     render() {
         // The WAQ issues need to be grouped according to how old they are
         const issuesYoungerThanOneWeek = {};
@@ -54,8 +70,13 @@ class ListIssuesWAQ extends React.Component {
         const issuesThreeWeeksOld = {};
         const issuesFourWeeksOld = {};
         const issuesOlderThanFourWeeks = {};
+        let issueCount = 0;
 
         _.each(this.props.issues, (issue, issueID) => {
+            if (!this.shouldDisplayIssue(issue)) {
+                return;
+            }
+            issueCount++;
             const ageInWeeks = moment().diff(issue.createdAt, 'weeks');
             switch (ageInWeeks) {
                 case 0:
@@ -79,11 +100,25 @@ class ListIssuesWAQ extends React.Component {
             }
         });
 
-        const issueCount = this.props.issues && _.size(this.props.issues);
+        const waqPanelTitle = this.state.shouldShowAllWAQIssues ? 'All WAQ' : 'WAQ assigned to me';
 
         return (
-            <div className="panel mb-3">
-                <Title text={`WAQ ${issueCount ? `(${issueCount})` : ''}`} />
+            <div className="panel waq mb-3">
+                <div className="d-flex flex-row">
+                    <div className="col-6">
+                        <h3 className="panel-title">{`${waqPanelTitle} ${issueCount ? `(${issueCount})` : ''}`}</h3>
+                    </div>
+                    <div className="col-6 panel-title">
+                        <form className="form-inline">
+                            <div className="checkbox">
+                                <label>
+                                    <input type="checkbox" name="shouldShowAllWAQIssues" id="shouldShowAllWAQIssues" onChange={this.toggleWAQFilter} />
+                                    Show All WAQ issues
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
                 {!this.props.issues && (
                     <div className="blankslate capped clean-background">
