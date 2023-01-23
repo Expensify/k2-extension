@@ -112,8 +112,7 @@ class ListIssuesWAQ extends React.Component {
                         <form className="form-inline">
                             <div className="checkbox">
                                 <label>
-                                    <input type="checkbox" name="shouldShowAllWAQIssues" onChange={this.toggleWAQFilter} />
-                                    {' '}
+                                    <input type="checkbox" name="shouldShowAllWAQIssues" id="shouldShowAllWAQIssues" onChange={this.toggleWAQFilter} />
                                     Show All WAQ issues
                                 </label>
                             </div>

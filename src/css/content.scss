@@ -441,6 +441,10 @@ $color-dark-yellow: #DAA520;
   .checkbox {
     display: inline;
     margin: 0 10px;
+
+    input[type=checkbox] {
+      margin-right: 4px;
+    }
   }
 }
 
