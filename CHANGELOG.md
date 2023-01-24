@@ -1,5 +1,5 @@
 #1.2.3
-- Remove demolition shortcut
+- Removed demolition shortcut
 
 #1.2.2
 - Updated to show WAQ issues assigned to the current user by default
