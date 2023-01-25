@@ -34,10 +34,6 @@ class K2PickerareaPicker extends React.Component {
                 className: `${defaultBtnClass} inactive k2-external`,
                 shortName: '👥 External',
             },
-            Demolition: {
-                className: `${defaultBtnClass} inactive k2-demolition`,
-                shortName: '💣 Demolition',
-            },
         };
         // eslint-disable-next-line rulesdir/prefer-underscore-method
         $('.js-issue-labels .IssueLabel').each((i, el) => {
