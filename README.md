@@ -4,22 +4,22 @@ KS Browser Extension
 GitHub UI integration for KS - Kernel Scheduling Method
 
 # Installing the Chrome Extension
-## Easy (auto-updating)
+## Easy (auto-updating), only for internal employees
 1. Download the extension from [here](https://chrome.google.com/webstore/detail/k2-for-github/hmhoemhekchomabhoccbidjnoenbphno?hl=en-US)
 1. Click on 'Add to Chrome'
 
-## From the Source Code for development
+## From the Source Code (for development or for external contributors)
 1. Go to `chrome://extensions`
 1. Make sure you have _Developer Mode_ enabled at the top
 1. Click _Load Unpacked Extension_
 1. Navigate to the `dist` folder and select it
-    - Note: Do this after running `npm i` then `npm run web`
+    - Note: Do this after running `npm i` then `npm run web` or `npm run build`
 
 # Installing on Firefox
 ## The "published" version
 1. https://stackoverflow.com/c/expensify/questions/7053/7054#7054
 
-## From the Source Code for development
+## From the Source Code (for development or for external contributors)
 1. Open up this page in firefox: `about:debugging#/runtime/this-firefox`
 1. Click **Load temporary add-on**
 1. Select the `dist/manifest.json` file in this repo (really any file within the dist should work) [more info](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#Trying_it_out)
