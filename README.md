@@ -23,7 +23,7 @@ GitHub UI integration for KS - Kernel Scheduling Method
 1. Open up this page in firefox: `about:debugging#/runtime/this-firefox`
 1. Click **Load temporary add-on**
 1. Select the `dist/manifest.json` file in this repo (really any file within the dist should work) [more info](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#Trying_it_out)
-1. go to https://github.com/Expensify/App#k2
+1. Go to https://github.com/Expensify/App#k2
     Note: If this doesn't load you may need to run `npm run build` within the root of the repo to ensure all files have been generated properly (we don't save all of the dist directory to the repo).
 
 ## NOTE: It Requires a Personal Access token
