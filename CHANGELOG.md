@@ -1,3 +1,7 @@
+#1.2.4
+- Updated the instructions to open the K2 dashboard in the App repo
+- Added link to the PAT instructions in the FormPassword form
+
 #1.2.3
 - Removed demolition shortcut
 

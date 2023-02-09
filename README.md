@@ -4,26 +4,26 @@ KS Browser Extension
 GitHub UI integration for KS - Kernel Scheduling Method
 
 # Installing the Chrome Extension
-## Easy (auto-updating)
+## Easy (auto-updating), only for internal employees
 1. Download the extension from [here](https://chrome.google.com/webstore/detail/k2-for-github/hmhoemhekchomabhoccbidjnoenbphno?hl=en-US)
 1. Click on 'Add to Chrome'
 
-## From the Source Code for development
+## From the Source Code (for development or for external contributors)
 1. Go to `chrome://extensions`
 1. Make sure you have _Developer Mode_ enabled at the top
 1. Click _Load Unpacked Extension_
 1. Navigate to the `dist` folder and select it
-    - Note: Do this after running `npm i` then `npm run web`
+    - Note: Do this after running `npm i` then `npm run web` or `npm run build`
 
 # Installing on Firefox
 ## The "published" version
 1. https://stackoverflow.com/c/expensify/questions/7053/7054#7054
 
-## From the Source Code for development
+## From the Source Code (for development or for external contributors)
 1. Open up this page in firefox: `about:debugging#/runtime/this-firefox`
 1. Click **Load temporary add-on**
 1. Select the `dist/manifest.json` file in this repo (really any file within the dist should work) [more info](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#Trying_it_out)
-1. go to https://github.com/Expensify/Expensify#k2
+1. Go to https://github.com/Expensify/App#k2
     Note: If this doesn't load you may need to run `npm run build` within the root of the repo to ensure all files have been generated properly (we don't save all of the dist directory to the repo).
 
 ## NOTE: It Requires a Personal Access token
@@ -56,7 +56,7 @@ In order to test your changes, you need to have the extension loaded into Chrome
 1. Click on **Load Unpacked Extension**
 1. Select the `dist` folder in this repo
 1. Now the extension should be installed and enabled
-1. Go to https://github.com/Expensify/Expensify#k2 and you should see the extension working
+1. Go to https://github.com/Expensify/App#k2 and you should see the extension working
 
 ### Caution When Using the Publicly Installed Extension
 Sometimes it is necessary to install and enable the public version of the extension. You want to take care not to have both the public extension and the local extension enabled at the same time. It will make everything run twice and you'll get a lot of DOM conflicts, plus API calls will run twice so you'll hit rate limits faster.

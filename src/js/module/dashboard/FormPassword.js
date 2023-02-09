@@ -63,7 +63,13 @@ class FormPassword extends React.Component {
                                     />
 
                                     <p>
-                                        A personal access token is required to make custom queries against the GitHub.com API.
+                                        A
+                                        {' '}
+                                        <a href="https://github.com/Expensify/k2-extension/#note-it-requires-a-personal-access-token" target="_blank" rel="noopener noreferrer">
+                                            Personal Access Token
+                                        </a>
+                                        {' '}
+                                        is required to make custom queries against the GitHub.com API.
                                     </p>
                                 </div>
 
