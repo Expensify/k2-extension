@@ -1,3 +1,6 @@
+#1.2.5
+- Fixing error when trying to update Labels. GitHub now uses spaces on the components we used to get the repository name
+
 #1.2.4
 - Updated the instructions to open the K2 dashboard in the App repo
 - Added link to the PAT instructions in the FormPassword form

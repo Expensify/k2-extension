@@ -32,7 +32,7 @@ function getCurrentUser() {
  * @returns {String}
  */
 function getRepo() {
-    return $('#repository-container-header strong a').text();
+    return $('#repository-container-header strong a').text().trim();
 }
 
 /**
@@ -41,7 +41,7 @@ function getRepo() {
  * @returns {String}
  */
 function getOwner() {
-    return $('#repository-container-header .author a').text();
+    return $('#repository-container-header .author a').text().trim();
 }
 
 /**
