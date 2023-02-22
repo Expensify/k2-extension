@@ -18,6 +18,8 @@ const defaultProps = {
 
 const ListItemPull = (props) => {
     const pr = props.pr || props.data;
+    const repoPrefix = pr.repository ? `[${pr.repository.name}]` : '';
+
     if (!pr.id) {
         return null;
     }
@@ -74,7 +76,6 @@ const ListItemPull = (props) => {
 
     return (
         <div className="panel-item">
-
             <span className="panel-item-meta">
                 <span className="age">
                     Updated:
@@ -112,7 +113,7 @@ const ListItemPull = (props) => {
 
             <a href={pr.url} className={getClassName()} target="_blank" rel="noreferrer noopener">
                 <span className="octicon octicon-alert" />
-                {pr.title}
+                {`${repoPrefix} ${pr.title}`}
                 {' '}
             </a>
 

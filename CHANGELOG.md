@@ -1,3 +1,6 @@
+#1.2.6
+- Adding repo name prefix to PRs.
+
 #1.2.5
 - Fixing error when trying to update Labels. GitHub now uses spaces on the components we used to get the repository name
 
