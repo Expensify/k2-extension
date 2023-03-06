@@ -18,9 +18,9 @@ const Title = props => (
         <h3 className="panel-title">
             {props.text}
             {props.count !== null && (
-                <span>
+                <>
                     {` (${props.count})`}
-                </span>
+                </>
             )}
         </h3>
     </div>
