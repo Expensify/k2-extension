@@ -52,7 +52,10 @@ class ListPRsReviewing extends React.Component {
 
         return (
             <div className="panel mb-3 daily">
-                <Title text="Review these PRs Daily" />
+                <Title
+                    text="Review these PRs Daily"
+                    count={_.size(this.props.prs) || 0}
+                />
 
                 {!this.props.prs && (
                     <div className="blankslate capped clean-background">
