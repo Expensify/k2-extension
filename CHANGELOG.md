@@ -1,3 +1,6 @@
+#1.2.7
+- Added a count of items for each header.
+
 #1.2.6
 - Adding repo name prefix to PRs.
 
