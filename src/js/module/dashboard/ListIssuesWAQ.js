@@ -106,7 +106,7 @@ class ListIssuesWAQ extends React.Component {
             <div className="panel waq mb-3">
                 <div className="d-flex flex-row">
                     <div className="col-6">
-                        <h3 className="panel-title">{`${waqPanelTitle} ${issueCount ? `(${issueCount})` : ''}`}</h3>
+                        <h3 className="panel-title">{`${waqPanelTitle} ${issueCount ? ` (${issueCount})` : ''}`}</h3>
                     </div>
                     <div className="col-6 panel-title">
                         <form className="form-inline">

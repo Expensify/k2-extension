@@ -52,7 +52,10 @@ class ListPRsAssigned extends React.Component {
 
         return (
             <div className="panel your-pull-requests mb-3">
-                <Title text="Your Pull Requests" />
+                <Title
+                    text="Your Pull Requests"
+                    count={_.size(this.props.prs) || 0}
+                />
 
                 {!this.props.prs && (
                     <div className="blankslate capped clean-background">

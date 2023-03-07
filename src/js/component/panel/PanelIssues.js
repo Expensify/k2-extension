@@ -66,7 +66,10 @@ const PanelIssues = (props) => {
 
     return (
         <div className={`panel ${props.extraClass}`}>
-            <Title text={props.title} />
+            <Title
+                text={props.title}
+                count={_.size(filteredData) || 0}
+            />
 
             {!_.size(props.data) ? (
                 <div className="blankslate capped clean-background">
