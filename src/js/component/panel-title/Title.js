@@ -16,12 +16,7 @@ const defaultProps = {
 const Title = props => (
     <div>
         <h3 className="panel-title">
-            {props.text}
-            {props.count !== null && (
-                <>
-                    {` (${props.count})`}
-                </>
-            )}
+            {`${props.text} (${props.count !== null ? props.count : ''})`}
         </h3>
     </div>
 );
