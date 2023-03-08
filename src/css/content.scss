@@ -129,9 +129,10 @@ $color-dark-yellow: #DAA520;
       color: $color-white;
     }
   }
-  &.no-priority, &.your-pull-requests, &.waq {
+  &.no-priority, &.your-pull-requests, &.waq, &.prs-reviewing {
     .panel-title {
-      color: $color-black;
+        background-color: $color-black;
+        color: $color-white;
     }
   }
 }

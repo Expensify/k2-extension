@@ -18,7 +18,7 @@ const defaultProps = {
 
 const ListItemPull = (props) => {
     const pr = props.pr || props.data;
-    const repoPrefix = pr.repository ? `[${pr.repository.name}]` : '';
+    const repoPrefix = pr.repository ? `${pr.repository.name}` : '';
 
     if (!pr.id) {
         return null;
@@ -70,10 +70,6 @@ const ListItemPull = (props) => {
             break;
     }
 
-    if (pr.isDraft) {
-        mergeability = 'Draft';
-    }
-
     return (
         <div className="panel-item">
             <span className="panel-item-meta">
@@ -109,15 +105,17 @@ const ListItemPull = (props) => {
                         {mergeability}
                     </span>
                 )}
+
+                <span className={'repository'}>Repo: {`${repoPrefix}` }</span>
             </span>
 
             <a href={pr.url} className={getClassName()} target="_blank" rel="noreferrer noopener">
                 <span className="octicon octicon-alert" />
-                {`${repoPrefix} ${pr.title}`}
+                {`${pr.title}`}
                 {' '}
             </a>
 
-            {mergeability === 'Draft' && <span className="Counter">draft</span>}
+            {pr.isDraft && <span className="Counter">draft</span>}
         </div>
     );
 };

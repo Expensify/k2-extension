@@ -46,14 +46,11 @@ class ListPRsReviewing extends React.Component {
     }
 
     render() {
-        if (this.props.prs && !_.size(this.props.prs)) {
-            return null;
-        }
 
         return (
-            <div className="panel mb-3 daily">
+            <div className="panel prs-reviewing mb-3">
                 <Title
-                    text="Review these PRs Daily"
+                    text="Pull Requests to Review"
                     count={_.size(this.props.prs) || 0}
                 />
 
