@@ -106,7 +106,7 @@ class ListIssuesWAQ extends React.Component {
             <div className="panel waq mb-3">
                 <div className="d-flex flex-row">
                     <div className="col-6">
-                        <h3 className="panel-title">{`${waqPanelTitle} ${issueCount ? ` (${issueCount})` : ''}`}</h3>
+                        <h3 className="panel-title">{`${waqPanelTitle} ${issueCount ? ` (${issueCount})` : '(0)'}`}</h3>
                     </div>
                     <div className="col-6 panel-title">
                         <form className="form-inline">
@@ -132,42 +132,42 @@ class ListIssuesWAQ extends React.Component {
                     </div>
                 ) : (
                     <>
-                        <Title text={`Older than 4 Weeks (${_.size(issuesOlderThanFourWeeks)})`} />
+                        <Title text="Older than 4 Weeks" count={_.size(issuesOlderThanFourWeeks)} />
                         {_.chain(issuesOlderThanFourWeeks)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
-                        <Title text={`4 Weeks Old (${_.size(issuesFourWeeksOld)})`} />
+                        <Title text="4 Weeks Old" count={_.size(issuesFourWeeksOld)} />
                         {_.chain(issuesFourWeeksOld)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
-                        <Title text={`3 Weeks Old (${_.size(issuesThreeWeeksOld)})`} />
+                        <Title text="3 Weeks Old" count={_.size(issuesThreeWeeksOld)} />
                         {_.chain(issuesThreeWeeksOld)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
-                        <Title text={`2 Weeks Old (${_.size(issuesTwoWeeksOld)})`} />
+                        <Title text="2 Weeks Old" count={_.size(issuesTwoWeeksOld)} />
                         {_.chain(issuesTwoWeeksOld)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
-                        <Title text={`1 Week Old (${_.size(issuesOneWeekOld)})`} />
+                        <Title text="1 Week Old" count={_.size(issuesOneWeekOld)} />
                         {_.chain(issuesOneWeekOld)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
-                        <Title text={`Younger than 1 week (${_.size(issuesYoungerThanOneWeek)})`} />
+                        <Title text="Younger than 1 week" count={_.size(issuesYoungerThanOneWeek)} />
                         {_.chain(issuesYoungerThanOneWeek)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
