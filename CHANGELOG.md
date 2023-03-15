@@ -1,5 +1,5 @@
 #1.2.7
-- Fixed duplicate count items in WAQ section.
+- Fixed duplicate item count in WAQ section.
 - Bumped package versions to fix security vulnerabilities.
 
 #1.2.7
