@@ -1,4 +1,4 @@
-#1.2.7
+#1.2.8
 - Fixed duplicate item count in WAQ section.
 - Bumped package versions to fix security vulnerabilities.
 
