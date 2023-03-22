@@ -68,7 +68,6 @@ class ListIssuesWAQ extends React.Component {
         const issuesYoungerThanTwoWeeks = {};
         const issuesYoungerThanThreeWeeks = {};
         const issuesYoungerThanFourWeeks = {};
-        const issuesFourWeeksOld = {};
         const issuesOlderThanFourWeeks = {};
         let issueCount = 0;
 
@@ -90,9 +89,6 @@ class ListIssuesWAQ extends React.Component {
                     break;
                 case 3:
                     issuesYoungerThanFourWeeks[issueID] = issue;
-                    break;
-                case 4:
-                    issuesFourWeeksOld[issueID] = issue;
                     break;
                 default:
                     issuesOlderThanFourWeeks[issueID] = issue;
@@ -132,15 +128,8 @@ class ListIssuesWAQ extends React.Component {
                     </div>
                 ) : (
                     <>
-                        <Title text="Older than 4 Weeks" count={_.size(issuesOlderThanFourWeeks)} />
+                        <Title text=":red_circle:" count={_.size(issuesOlderThanFourWeeks)} />
                         {_.chain(issuesOlderThanFourWeeks)
-                            .sortBy('updatedAt')
-                            .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
-                            .value()
-                            .reverse()}
-
-                        <Title text="4 Weeks Old" count={_.size(issuesFourWeeksOld)} />
-                        {_.chain(issuesFourWeeksOld)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
