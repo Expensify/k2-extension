@@ -128,7 +128,7 @@ class ListIssuesWAQ extends React.Component {
                     </div>
                 ) : (
                     <>
-                        <Title text=":red_circle:" count={_.size(issuesOlderThanFourWeeks)} />
+                        <Title text="🔴 Older than 4 weeks" count={_.size(issuesOlderThanFourWeeks)} />
                         {_.chain(issuesOlderThanFourWeeks)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
