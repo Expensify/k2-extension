@@ -65,9 +65,9 @@ class ListIssuesWAQ extends React.Component {
     render() {
         // The WAQ issues need to be grouped according to how old they are
         const issuesYoungerThanOneWeek = {};
-        const issuesOneWeekOld = {};
-        const issuesTwoWeeksOld = {};
-        const issuesThreeWeeksOld = {};
+        const issuesYoungerThanTwoWeeks = {};
+        const issuesYoungerThanThreeWeeks = {};
+        const issuesYoungerThanFourWeeks = {};
         const issuesFourWeeksOld = {};
         const issuesOlderThanFourWeeks = {};
         let issueCount = 0;
@@ -83,13 +83,13 @@ class ListIssuesWAQ extends React.Component {
                     issuesYoungerThanOneWeek[issueID] = issue;
                     break;
                 case 1:
-                    issuesOneWeekOld[issueID] = issue;
+                    issuesYoungerThanTwoWeeks[issueID] = issue;
                     break;
                 case 2:
-                    issuesTwoWeeksOld[issueID] = issue;
+                    issuesYoungerThanThreeWeeks[issueID] = issue;
                     break;
                 case 3:
-                    issuesThreeWeeksOld[issueID] = issue;
+                    issuesYoungerThanFourWeeks[issueID] = issue;
                     break;
                 case 4:
                     issuesFourWeeksOld[issueID] = issue;
@@ -146,22 +146,22 @@ class ListIssuesWAQ extends React.Component {
                             .value()
                             .reverse()}
 
-                        <Title text="3 Weeks Old" count={_.size(issuesThreeWeeksOld)} />
-                        {_.chain(issuesThreeWeeksOld)
+                        <Title text="Younger than 4 weeks" count={_.size(issuesYoungerThanFourWeeks)} />
+                        {_.chain(issuesYoungerThanFourWeeks)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
-                        <Title text="2 Weeks Old" count={_.size(issuesTwoWeeksOld)} />
-                        {_.chain(issuesTwoWeeksOld)
+                        <Title text="Younger than 3 weeks" count={_.size(issuesYoungerThanThreeWeeks)} />
+                        {_.chain(issuesYoungerThanThreeWeeks)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
                             .reverse()}
 
-                        <Title text="1 Week Old" count={_.size(issuesOneWeekOld)} />
-                        {_.chain(issuesOneWeekOld)
+                        <Title text="Younger than 2 weeks" count={_.size(issuesYoungerThanTwoWeeks)} />
+                        {_.chain(issuesYoungerThanTwoWeeks)
                             .sortBy('updatedAt')
                             .map(issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)
                             .value()
