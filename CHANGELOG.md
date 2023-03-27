@@ -1,3 +1,10 @@
+#1.2.9
+- Updated logic for WAQ groupings
+
+#1.2.8
+- Fixed duplicate item count in WAQ section.
+- Bumped package versions to fix security vulnerabilities.
+
 #1.2.7
 - Added a count of items for each header.
 

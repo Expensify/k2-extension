@@ -1,0 +1,17 @@
+name: Review Snyk Pull Requests
+
+on:
+  pull_request:
+    types:
+      - opened
+
+jobs:
+  run_if:
+    if: startsWith(github.head_ref, 'snyk-')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assign PullerBear for Snyk PR reviews
+        uses: nikosmoum/auto-assign-reviewer-team@v0.5
+        with:
+          teamName: "pullerbear"
+          githubToken: ${{ secrets.MELVIN_GH_TOKEN }}
