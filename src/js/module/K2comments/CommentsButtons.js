@@ -59,6 +59,18 @@ class CommentsButtons extends React.Component {
                     </button>
                 </BtnGroup>
 
+                <BtnGroup>
+                    <button
+                        type="button"
+                        className="btn btn-sm"
+                        onClick={() => this.addParticipationComment('I have read and reviewed this Product Manager Application!')}
+                    >
+                        <span role="img" aria-label="reviewed product manager emojis">
+                            📝 Reviewed Product Manager Application
+                        </span>
+                    </button>
+                </BtnGroup>
+
                 {this.state.shouldShowConfirmationMessage && (
                     <div>Comment added! Please wait a moment for it to appear</div>
                 )}
