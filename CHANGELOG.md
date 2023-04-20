@@ -1,3 +1,6 @@
+#1.2.10
+- Added button to the issue sidebar for adding the product manager application review comment
+
 #1.2.9
 - Updated logic for WAQ groupings
 
