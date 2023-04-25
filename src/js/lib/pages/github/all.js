@@ -21,7 +21,7 @@ export default function () {
     AllPages.setup = function () {
         // Hardcode because it doesn't change, and depending on GitHub markup means
         // it breaks every so often
-        const currentUrl = '/Expensify/Expensify';
+        const currentUrl = '/Expensify/App';
 
         // Insert the kernel button right after the pull request button in the
         // navigation if it's there. Also make sure to not show it multiple times
