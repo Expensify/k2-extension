@@ -3,8 +3,7 @@ import _ from 'underscore';
 import BtnGroup from '../../component/BtnGroup';
 import * as Issues from '../../lib/actions/Issues';
 
-// eslint-disable-next-line no-unused-vars
-const buttonData = [
+const participationButtons = [
     {
         title: '📃 ✅ Reviewed Doc',
         ariaLabel: 'reviewed doc emojis',
@@ -79,14 +78,14 @@ class CommentsButtons extends React.Component {
                     )}
                     {(!this.state.hasSelectedButton && this.state.isOpen) && (
                         <>
-                            {_.map(buttonData, participationButton => (
+                            {_.map(participationButtons, button => (
                                 <button
                                     type="button"
                                     className="btn btn-sm"
-                                    onClick={() => this.setState({participationComment: participationButton.comment, hasSelectedButton: true, selectedButton: participationButton})}
+                                    onClick={() => this.setState({participationComment: button.comment, hasSelectedButton: true, selectedButton: button})}
                                 >
-                                    <span role="img" aria-label={participationButton.ariaLabel}>
-                                        {participationButton.title}
+                                    <span role="img" aria-label={button.ariaLabel}>
+                                        {button.title}
                                     </span>
                                 </button>
                             ))}
@@ -104,7 +103,6 @@ class CommentsButtons extends React.Component {
                         </span>
                     </button>
                 )}
-
                 {this.state.shouldShowConfirmationMessage && (
                     <div className="send center-text">
                         Comment added!
