@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
@@ -7,6 +7,8 @@ import IssuePropTypes from '../list-item/IssuePropTypes';
 import ListItemIssue from '../list-item/ListItemIssue';
 import ONYXKEYS from '../../ONYXKEYS';
 import filterPropTypes from '../../lib/filterPropTypes';
+// eslint-disable-next-line rulesdir/prefer-import-module-contents
+import {togglePanel} from '../../lib/actions/dashboard';
 
 const propTypes = {
     /** A CSS class to add to this panel to give it some color */
@@ -26,6 +28,10 @@ const propTypes = {
 
     /** If there are no issues to list in the panel, hide the panel entirely */
     hideOnEmpty: PropTypes.bool,
+
+    // eslint-disable-next-line react/forbid-prop-types
+    panel: PropTypes.object,
+    panelID: PropTypes.string.isRequired,
 };
 const defaultProps = {
     filters: {
@@ -36,10 +42,15 @@ const defaultProps = {
     },
     applyFilters: false,
     hideOnEmpty: false,
+    panel: {},
 };
 
 const PanelIssues = (props) => {
     let filteredData = props.data;
+
+    const collapseContent = useCallback(() => {
+        togglePanel(props.panelID, !props.panel.isHidden);
+    }, [props.panel]);
 
     // We need to be sure to filter the data if the user has set any filters
     if (props.applyFilters && props.filters && !_.isEmpty(props.filters)) {
@@ -69,17 +80,20 @@ const PanelIssues = (props) => {
             <Title
                 text={props.title}
                 count={_.size(filteredData) || 0}
+                onClick={collapseContent}
             />
-
-            {!_.size(props.data) ? (
-                <div className="blankslate capped clean-background">
+            <div className={`collapse ${props.panel.isHidden ? 'hidden' : ''}`}>
+                {!_.size(props.data) ? (
+                    <div className="blankslate capped clean-background">
                     No items
-                </div>
-            ) : (
-                <div>
-                    {_.map(filteredData, issue => <ListItemIssue key={`issue_raw_${issue.id}`} issue={issue} />)}
-                </div>
-            )}
+                    </div>
+                ) : (
+                    <div>
+                        {_.map(filteredData, issue => <ListItemIssue key={`issue_raw_${issue.id}`} issue={issue} />)}
+                    </div>
+                )}
+            </div>
+
         </div>
     );
 };
@@ -91,5 +105,8 @@ PanelIssues.displayName = 'PanelIssues';
 export default withOnyx({
     filters: {
         key: ONYXKEYS.ISSUES.FILTER,
+    },
+    panel: {
+        key: ({panelID}) => `${ONYXKEYS.PANEL}${panelID}`,
     },
 })(PanelIssues);

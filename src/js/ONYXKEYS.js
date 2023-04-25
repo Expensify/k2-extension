@@ -19,4 +19,6 @@ export default {
     },
 
     MILESTONES: 'milestones',
+
+    PANEL: 'panel_',
 };
