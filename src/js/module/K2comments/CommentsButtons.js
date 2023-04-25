@@ -93,7 +93,7 @@ class CommentsButtons extends React.Component {
                         </>
                     )}
                 </BtnGroup>
-                {(this.state.hasSelectedButton && this.state.isOpen) && (
+                {(this.state.hasSelectedButton && !this.state.shouldShowConfirmationMessage && this.state.isOpen) && (
                     <button
                         type="button"
                         className="btn btn-sm send"
