@@ -31,9 +31,9 @@ class CommentsButtons extends React.Component {
         super(props);
 
         this.state = {
-            shouldShowConfirmationMessage: false,
             isOpen: false,
             isButtonSelected: false,
+            shouldShowConfirmationMessage: false,
             participationComment: '',
             selectedButton: {},
         };
@@ -98,7 +98,7 @@ class CommentsButtons extends React.Component {
                 {(this.state.isOpen && this.state.isButtonSelected && !this.state.shouldShowConfirmationMessage) && (
                     <button
                         type="button"
-                        className="btn btn-sm send"
+                        className="btn btn-sm btn-primary mt-4"
                         onClick={() => this.addParticipationComment(this.state.participationComment)}
                     >
                         <span role="img" aria-label="Send Message">
@@ -107,7 +107,7 @@ class CommentsButtons extends React.Component {
                     </button>
                 )}
                 {this.state.shouldShowConfirmationMessage && (
-                    <div className="send center-text">
+                    <div className="send text-center">
                         Comment added!
                         <br />
                         Please wait a moment for it to appear
