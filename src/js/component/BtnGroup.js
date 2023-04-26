@@ -4,15 +4,17 @@ import PropTypes from 'prop-types';
 const propTypes = {
     /** The things to display inside the btn-group */
     children: PropTypes.node.isRequired,
-    isDropdown: PropTypes.bool,
+
+    /** Whether this button group should be stacked vertically */
+    isVertical: PropTypes.bool,
 };
 
 const defaultProps = {
-    isDropdown: false,
+    isVertical: false,
 };
 
 const BtnGroup = props => (
-    <div className={props.isDropdown ? 'btn-group-dropdown' : 'btn-group'}>
+    <div className={props.isVertical ? 'btn-group-vertical' : 'btn-group'}>
         {props.children}
     </div>
 );

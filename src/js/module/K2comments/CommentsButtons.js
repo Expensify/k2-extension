@@ -53,7 +53,7 @@ class CommentsButtons extends React.Component {
     render() {
         return (
             <div>
-                <BtnGroup isDropdown>
+                <BtnGroup isVertical>
                     <button
                         type="button"
                         className={this.state.isOpen ? 'btn btn-sm selected' : 'btn btn-sm'}
@@ -107,7 +107,7 @@ class CommentsButtons extends React.Component {
                     </button>
                 )}
                 {this.state.shouldShowConfirmationMessage && (
-                    <div className="send text-center">
+                    <div className="mt-4 text-center">
                         Comment added!
                         <br />
                         Please wait a moment for it to appear
