@@ -1,13 +1,41 @@
 import React from 'react';
+import _ from 'underscore';
 import BtnGroup from '../../component/BtnGroup';
 import * as Issues from '../../lib/actions/Issues';
+
+const participationButtons = [
+    {
+        title: '📃 ✅ Reviewed Doc',
+        ariaLabel: 'reviewed doc emojis',
+        comment: 'I have read and reviewed this Design Doc!',
+    },
+    {
+        title: '✋ Attended Interview',
+        ariaLabel: 'attended interview emojis',
+        comment: 'I attended this interview!',
+    },
+    {
+        title: '🖊️ Reviewed Project Manager Application',
+        ariaLabel: 'reviewed project manager emojis',
+        comment: 'I have read and reviewed this Project Manager Application!',
+    },
+    {
+        title: '📱 Reviewed Product Manager Application',
+        ariaLabel: 'reviewed product manager emojis',
+        comment: 'I have read and reviewed this Product Manager Application!',
+    },
+];
 
 class CommentsButtons extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
+            isOpen: false,
+            isButtonSelected: false,
             shouldShowConfirmationMessage: false,
+            participationComment: '',
+            selectedButton: {},
         };
     }
 
@@ -17,7 +45,7 @@ class CommentsButtons extends React.Component {
         // Show the confirmation message for 5 seconds
         this.setState({shouldShowConfirmationMessage: true}, () => {
             setTimeout(() => {
-                this.setState({shouldShowConfirmationMessage: false});
+                this.setState({shouldShowConfirmationMessage: false, isButtonSelected: false});
             }, 5000);
         });
     }
@@ -25,42 +53,67 @@ class CommentsButtons extends React.Component {
     render() {
         return (
             <div>
-                <h6>Comments shortcuts</h6>
-                <BtnGroup>
+                <BtnGroup isVertical>
                     <button
                         type="button"
-                        className="btn btn-sm"
-                        onClick={() => this.addParticipationComment('I have read and reviewed this Design Doc!')}
+                        className={(this.state.isOpen || this.state.isButtonSelected) ? 'btn btn-sm selected' : 'btn btn-sm'}
+                        onClick={() => this.setState(prevState => ({isOpen: !prevState.isOpen, isButtonSelected: false}))}
                     >
                         <span role="img" aria-label="reviewed doc emojis">
-                            📃 ✅ Reviewed Doc
+                            {`${this.state.isButtonSelected ? this.state.selectedButton.title : 'Comments Shortcuts'}  ${this.state.isOpen ? '⬆️' : '⬇️'}`}
                         </span>
                     </button>
+                    {this.state.isOpen && (
+                        <>
+                            {this.state.isButtonSelected ? (
+                                <>
+                                    <button
+                                        type="button"
+                                        className="btn btn-sm"
+                                        onClick={() => this.setState({participationComment: '', isButtonSelected: false, selectedButton: {}})}
+                                    >
+                                        <span role="img" aria-label={this.state.selectedButton.ariaLabel}>
+                                            {this.state.selectedButton.title}
+                                        </span>
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    {_.map(participationButtons, participationButton => (
+                                        <button
+                                            type="button"
+                                            className="btn btn-sm"
+                                            onClick={() => this.setState({
+                                                participationComment: participationButton.comment, isButtonSelected: true, selectedButton: participationButton, isOpen: false,
+                                            })}
+                                        >
+                                            <span role="img" aria-label={participationButton.ariaLabel}>
+                                                {participationButton.title}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </>
+                            )}
+                        </>
+                    )}
+                </BtnGroup>
+                {(this.state.isButtonSelected && !this.state.shouldShowConfirmationMessage) && (
                     <button
                         type="button"
-                        className="btn btn-sm"
-                        onClick={() => this.addParticipationComment('I attended this interview!')}
+                        className="btn btn-sm btn-primary mt-3"
+                        onClick={() => this.addParticipationComment(this.state.participationComment)}
                     >
-                        <span role="img" aria-label="attended interview emojis">
-                            ✋ Attended Interview
+                        <span role="img" aria-label="Send Message">
+                            Send Message
                         </span>
                     </button>
-                </BtnGroup>
-
-                <BtnGroup>
-                    <button
-                        type="button"
-                        className="btn btn-sm"
-                        onClick={() => this.addParticipationComment('I have read and reviewed this Project Manager Application!')}
-                    >
-                        <span role="img" aria-label="reviewed project manager emojis">
-                            🖊️ Reviewed Project Manager Application
-                        </span>
-                    </button>
-                </BtnGroup>
-
+                )}
                 {this.state.shouldShowConfirmationMessage && (
-                    <div>Comment added! Please wait a moment for it to appear</div>
+                    <div className="mt-3 text-center">
+                        Comment added!
+                        <br />
+                        Please wait a moment for it to appear
+                    </div>
                 )}
             </div>
         );
