@@ -56,11 +56,11 @@ class CommentsButtons extends React.Component {
                 <BtnGroup isVertical>
                     <button
                         type="button"
-                        className={this.state.isOpen ? 'btn btn-sm selected' : 'btn btn-sm'}
-                        onClick={() => this.setState(prevState => ({isOpen: !prevState.isOpen}))}
+                        className={(this.state.isOpen || this.state.isButtonSelected) ? 'btn btn-sm selected' : 'btn btn-sm'}
+                        onClick={() => this.setState(prevState => ({isOpen: !prevState.isOpen, isButtonSelected: false}))}
                     >
                         <span role="img" aria-label="reviewed doc emojis">
-                            {`Comments Shortcuts ${this.state.isOpen ? '⬆️' : '⬇️'}`}
+                            {`${this.state.isButtonSelected ? this.state.selectedButton.title : 'Comments Shortcuts'}  ${this.state.isOpen ? '⬆️' : '⬇️'}`}
                         </span>
                     </button>
                     {this.state.isOpen && (
@@ -83,7 +83,9 @@ class CommentsButtons extends React.Component {
                                         <button
                                             type="button"
                                             className="btn btn-sm"
-                                            onClick={() => this.setState({participationComment: participationButton.comment, isButtonSelected: true, selectedButton: participationButton})}
+                                            onClick={() => this.setState({
+                                                participationComment: participationButton.comment, isButtonSelected: true, selectedButton: participationButton, isOpen: false,
+                                            })}
                                         >
                                             <span role="img" aria-label={participationButton.ariaLabel}>
                                                 {participationButton.title}
@@ -95,10 +97,10 @@ class CommentsButtons extends React.Component {
                         </>
                     )}
                 </BtnGroup>
-                {(this.state.isOpen && this.state.isButtonSelected && !this.state.shouldShowConfirmationMessage) && (
+                {(this.state.isButtonSelected && !this.state.shouldShowConfirmationMessage) && (
                     <button
                         type="button"
-                        className="btn btn-sm btn-primary mt-4"
+                        className="btn btn-sm btn-primary mt-3"
                         onClick={() => this.addParticipationComment(this.state.participationComment)}
                     >
                         <span role="img" aria-label="Send Message">
@@ -107,7 +109,7 @@ class CommentsButtons extends React.Component {
                     </button>
                 )}
                 {this.state.shouldShowConfirmationMessage && (
-                    <div className="mt-4 text-center">
+                    <div className="mt-3 text-center">
                         Comment added!
                         <br />
                         Please wait a moment for it to appear
