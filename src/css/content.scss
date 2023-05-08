@@ -518,3 +518,9 @@ $color-dark-yellow: #DAA520;
   position: sticky;
   top: 60px;
 }
+
+.collapse{
+  &.hidden{
+    display: none;
+  }
+}

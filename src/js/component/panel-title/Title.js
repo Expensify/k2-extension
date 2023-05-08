@@ -7,14 +7,17 @@ const propTypes = {
 
     /** Number of panel issues */
     count: PropTypes.number,
+
+    onClick: PropTypes.func,
 };
 
 const defaultProps = {
     count: null,
+    onClick: () => {},
 };
 
 const Title = props => (
-    <div>
+    <div tabIndex="0" role="button" onClick={props.onClick}>
         <h3 className="panel-title">
             {`${props.text} ${props.count !== null ? `(${props.count})` : ''}`}
         </h3>

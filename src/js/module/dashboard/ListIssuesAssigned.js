@@ -66,6 +66,7 @@ class ListIssuesAssigned extends React.Component {
                 <div className="d-flex flex-row">
                     <div className="col-3 pr-4">
                         <PanelIssues
+                            panelID="Hourly"
                             title="Hourly"
                             extraClass="hourly"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Hourly'}))}
@@ -73,6 +74,7 @@ class ListIssuesAssigned extends React.Component {
                     </div>
                     <div className="col-3 pr-4">
                         <PanelIssues
+                            panelID="Daily"
                             title="Daily"
                             extraClass="daily"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Daily'}))}
@@ -80,6 +82,7 @@ class ListIssuesAssigned extends React.Component {
                     </div>
                     <div className="col-3 pr-4">
                         <PanelIssues
+                            panelID="Weekly"
                             title="Weekly"
                             extraClass="weekly"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Weekly'}))}
@@ -87,6 +90,7 @@ class ListIssuesAssigned extends React.Component {
                     </div>
                     <div className="col-3">
                         <PanelIssues
+                            panelID="Monthly"
                             title="Monthly"
                             extraClass="monthly"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Monthly'}))}
@@ -95,6 +99,7 @@ class ListIssuesAssigned extends React.Component {
                 </div>
                 <div className="pt-4">
                     <PanelIssues
+                        panelID="no-priority"
                         title="No Priority"
                         extraClass="no-priority"
                         hideOnEmpty
