@@ -8,17 +8,19 @@ import ListPRsReviewing from './ListPRsReviewing';
 import ListIssuesEngineering from './ListIssuesEngineering';
 import Legend from './Legend';
 import ListIssuesWAQ from './ListIssuesWAQ';
+import BudgetPlanner from './BudgetPlanner';
 
 const propTypes = {
     /** The number of seconds to refresh the list of issues */
     pollInterval: PropTypes.number.isRequired,
 };
 
-const ListIssues = props => (
+const Dashboard = props => (
     <div className="issueList">
         <Legend />
 
         <ListPRsReviewing pollInterval={props.pollInterval * 2.5} />
+        <BudgetPlanner />
 
         <ListIssuesAssigned pollInterval={props.pollInterval} />
 
@@ -32,6 +34,6 @@ const ListIssues = props => (
     </div>
 );
 
-ListIssues.propTypes = propTypes;
+Dashboard.propTypes = propTypes;
 
-export default ListIssues;
+export default Dashboard;

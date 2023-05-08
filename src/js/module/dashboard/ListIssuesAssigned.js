@@ -3,7 +3,7 @@ import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
 import * as Issues from '../../lib/actions/Issues';
-import PanelIssues from '../../component/panel/PanelIssues';
+import PanelIssues from '../../component/Panel/PanelIssues';
 import ONYXKEYS from '../../ONYXKEYS';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 

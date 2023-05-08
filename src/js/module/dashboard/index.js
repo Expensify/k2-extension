@@ -2,7 +2,7 @@ import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactNativeOnyx from 'react-native-onyx';
-import ListIssues from './ListIssues';
+import Dashboard from './Dashboard';
 import FormPassword from './FormPassword';
 import ONYXKEYS from '../../ONYXKEYS';
 
@@ -15,7 +15,7 @@ function showDashboard() {
         $('.repository-content').append('<div class="k2dashboard">');
     }
     ReactDOM.render(
-        <ListIssues pollInterval={60000} />,
+        <Dashboard pollInterval={60000} />,
         $('.k2dashboard').show()[0],
     );
 }
