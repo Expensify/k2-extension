@@ -9,6 +9,7 @@ import ListIssuesEngineering from './ListIssuesEngineering';
 import Legend from './Legend';
 import ListIssuesWAQ from './ListIssuesWAQ';
 import BudgetPlanner from './BudgetPlanner';
+import MainFilters from './MainFilters';
 
 const propTypes = {
     /** The number of seconds to refresh the list of issues */
@@ -18,7 +19,7 @@ const propTypes = {
 const Dashboard = props => (
     <div className="issueList">
         <Legend />
-
+        <MainFilters />
         <ListPRsReviewing pollInterval={props.pollInterval * 2.5} />
         <BudgetPlanner />
 
