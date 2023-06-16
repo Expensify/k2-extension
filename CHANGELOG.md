@@ -1,3 +1,6 @@
+#1.2.11
+- Updated getCurrentUser() to retrieve the user's Github username from the meta tag instead of the header avatar
+
 #1.2.10
 - Added button to the issue sidebar for adding the product manager application review comment
 - Added a confirmation button for sending participation comments

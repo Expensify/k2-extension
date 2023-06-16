@@ -22,7 +22,7 @@ function getOctokit() {
  */
 function getCurrentUser() {
     const params = new URLSearchParams(window.location.search);
-    const currentUser = params.get('currentUser') ? params.get('currentUser') : $('.Header-link .avatar').attr('alt');
+    const currentUser = params.get('currentUser') ? params.get('currentUser') : $('meta[name=user-login]').attr('content');
     return currentUser.replace('@', '');
 }
 
