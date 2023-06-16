@@ -20,8 +20,6 @@
 
   "permissions": [
     "*://api.github.com/*",
-    "storage",
-    "cookies",
     "webNavigation",
     "tabs"
   ],
