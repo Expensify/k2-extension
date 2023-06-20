@@ -287,7 +287,7 @@ query {
 
 function getCheckRuns(repo, headSHA) {
     return getOctokit().rest.checks.listForRef({
-        owner: getOwner(),
+        owner: getRequestParams().owner,
         repo,
         ref: headSHA,
     });
@@ -393,9 +393,7 @@ function getEngineeringIssues() {
  * @returns {Promise}
  */
 function addLabel(label) {
-    const params = getRequestParams();
-    params.labels = [label];
-    return getOctokit().rest.issues.addLabels(params);
+    return getOctokit().rest.issues.addLabels(_.assign(getRequestParams(), {labels: [label]}));
 }
 
 /**
@@ -404,12 +402,7 @@ function addLabel(label) {
  * @returns {Promise}
  */
 function removeLabel(label) {
-    return getOctokit().rest.issues.removeLabel({
-        repo: getRepo(),
-        owner: getOwner(),
-        issue_number: getIssueNumber(),
-        name: label,
-    });
+    return getOctokit().rest.issues.removeLabel(_.assign(getRequestParams(), {name: label}));
 }
 
 /**
@@ -424,12 +417,7 @@ function getDailyImprovements() {
  * @returns {Promise}
  */
 function addComment(comment) {
-    return getOctokit().rest.issues.createComment({
-        repo: getRepo(),
-        owner: getOwner(),
-        issue_number: getIssueNumber(),
-        body: comment,
-    });
+    return getOctokit().rest.issues.createComment(_.assign(getRequestParams(), {body: comment}));
 }
 
 export {
