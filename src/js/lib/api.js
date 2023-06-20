@@ -366,7 +366,7 @@ function getEngineeringIssues() {
  * @returns {Promise}
  */
 function addLabel(label) {
-    return getOctokit().rest.issues.addLabels(_.assign(getRequestParams(), {labels: [label]}));
+    return getOctokit().rest.issues.addLabels({...getRequestParams(), labels: [label]});
 }
 
 /**
@@ -375,7 +375,7 @@ function addLabel(label) {
  * @returns {Promise}
  */
 function removeLabel(label) {
-    return getOctokit().rest.issues.removeLabel(_.assign(getRequestParams(), {name: label}));
+    return getOctokit().rest.issues.removeLabel({...getRequestParams(), name: label});
 }
 
 /**
@@ -390,7 +390,7 @@ function getDailyImprovements() {
  * @returns {Promise}
  */
 function addComment(comment) {
-    return getOctokit().rest.issues.createComment(_.assign(getRequestParams(), {body: comment}));
+    return getOctokit().rest.issues.createComment({...getRequestParams(), body: comment});
 }
 
 export {
