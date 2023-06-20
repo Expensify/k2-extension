@@ -27,34 +27,7 @@ function getCurrentUser() {
 }
 
 /**
- * Returns the name of the current repo
- *
- * @returns {String}
- */
-function getRepo() {
-    return $('#repository-container-header strong a').text().trim();
-}
-
-/**
- * Returns the name of the current repo owner
- *
- * @returns {String}
- */
-function getOwner() {
-    return $('#repository-container-header .author a').text().trim();
-}
-
-/**
- * Returns the issue number that is read off the DOM
- *
- * @returns {String}
- */
-function getIssueNumber() {
-    return $('.gh-header-number').first().text().replace('#', '');
-}
-
-/**
- * Returns the repo name, repo owner and issue number for calls to the Github API
+ * Returns the name of the repository, the repo owner and the issue number from the current url for calls to the Github API
  *
  * @returns {Object}
  */
