@@ -1,3 +1,6 @@
+#1.2.12
+- Fetch repository name, owner and issue number from URL instead of relying on the DOM
+
 #1.2.11
 - Updated getCurrentUser() to retrieve the user's Github username from the meta tag instead of the header avatar
 
