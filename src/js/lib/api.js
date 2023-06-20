@@ -54,6 +54,23 @@ function getIssueNumber() {
 }
 
 /**
+ * Returns the repo name, repo owner and issue number for calls to the Github API
+ *
+ * @returns {Object}
+ */
+function getRequestParams() {
+    const url = window.location.href;
+    const regex = /github.com\/(\w*)\/(\w*)\/issues\/(\d*)/;
+    const matches = url.match(regex);
+
+    return {
+        owner: matches[1],
+        repo: matches[2],
+        issue_number: matches[3],
+    };
+}
+
+/**
  * Return all of our milestone data
  *
  * @returns {Promise}
@@ -376,12 +393,9 @@ function getEngineeringIssues() {
  * @returns {Promise}
  */
 function addLabel(label) {
-    return getOctokit().rest.issues.addLabels({
-        repo: getRepo(),
-        owner: getOwner(),
-        issue_number: getIssueNumber(),
-        labels: [label],
-    });
+    const params = getRequestParams();
+    params.labels = [label];
+    return getOctokit().rest.issues.addLabels(params);
 }
 
 /**
