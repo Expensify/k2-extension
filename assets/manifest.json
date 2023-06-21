@@ -2,7 +2,7 @@
   "manifest_version": 2,
 
   "name": "K2 for GitHub",
-  "version": "1.2.9",
+  "version": "1.2.12",
   "description": "Manage your Kernel Scheduling from directly inside GitHub",
 
   "browser_specific_settings": {
@@ -20,8 +20,6 @@
 
   "permissions": [
     "*://api.github.com/*",
-    "storage",
-    "cookies",
     "webNavigation",
     "tabs"
   ],

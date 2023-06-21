@@ -1,3 +1,14 @@
+#1.2.12
+- Fetch repository name, owner and issue number from URL instead of relying on the DOM
+
+#1.2.11
+- Updated getCurrentUser() to retrieve the user's Github username from the meta tag instead of the header avatar
+
+#1.2.10
+- Added button to the issue sidebar for adding the product manager application review comment
+- Added a confirmation button for sending participation comments
+- Updated UI to hide / show participation comments
+
 #1.2.9
 - Updated logic for WAQ groupings
 
