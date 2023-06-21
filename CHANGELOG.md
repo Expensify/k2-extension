@@ -1,3 +1,6 @@
+#1.2.13
+- Improve the regex that fetches the repository name, owner and issue number from the current URL work for pull requests as well
+
 #1.2.12
 - Fetch repository name, owner and issue number from URL instead of relying on the DOM
 
