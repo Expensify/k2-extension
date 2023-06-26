@@ -22,35 +22,27 @@ function getOctokit() {
  */
 function getCurrentUser() {
     const params = new URLSearchParams(window.location.search);
-    const currentUser = params.get('currentUser') ? params.get('currentUser') : $('.Header-link .avatar').attr('alt');
+    const currentUser = params.get('currentUser') ? params.get('currentUser') : $('meta[name=user-login]').attr('content');
     return currentUser.replace('@', '');
 }
 
 /**
- * Returns the name of the current repo
+ * Returns the name of the repository, the repo owner and the issue number from the current url for calls to the Github API
+ * Issue URLs are in the format: github.com/<repoName>/<owner>/issues/<issue-number> Example: https://github.com/Expensify/App/issues/16640
+ * PR URLs are in the format: github.com/<repoName>/<owner>/pulls/<issue-number> Example: https://github.com/Expensify/App/pull/21242
  *
- * @returns {String}
+ * @returns {Object}
  */
-function getRepo() {
-    return $('#repository-container-header strong a').text().trim();
-}
+function getRequestParams() {
+    const url = window.location.href;
+    const regex = /github.com\/(\w*)\/(\w*)\/(?:issues|pull)\/(\d*)/;
+    const matches = url.match(regex);
 
-/**
- * Returns the name of the current repo owner
- *
- * @returns {String}
- */
-function getOwner() {
-    return $('#repository-container-header .author a').text().trim();
-}
-
-/**
- * Returns the issue number that is read off the DOM
- *
- * @returns {String}
- */
-function getIssueNumber() {
-    return $('.gh-header-number').first().text().replace('#', '');
+    return {
+        owner: matches[1],
+        repo: matches[2],
+        issue_number: matches[3],
+    };
 }
 
 /**
@@ -270,7 +262,7 @@ query {
 
 function getCheckRuns(repo, headSHA) {
     return getOctokit().rest.checks.listForRef({
-        owner: getOwner(),
+        owner: getRequestParams().owner,
         repo,
         ref: headSHA,
     });
@@ -376,12 +368,7 @@ function getEngineeringIssues() {
  * @returns {Promise}
  */
 function addLabel(label) {
-    return getOctokit().rest.issues.addLabels({
-        repo: getRepo(),
-        owner: getOwner(),
-        issue_number: getIssueNumber(),
-        labels: [label],
-    });
+    return getOctokit().rest.issues.addLabels({...getRequestParams(), labels: [label]});
 }
 
 /**
@@ -390,12 +377,7 @@ function addLabel(label) {
  * @returns {Promise}
  */
 function removeLabel(label) {
-    return getOctokit().rest.issues.removeLabel({
-        repo: getRepo(),
-        owner: getOwner(),
-        issue_number: getIssueNumber(),
-        name: label,
-    });
+    return getOctokit().rest.issues.removeLabel({...getRequestParams(), name: label});
 }
 
 /**
@@ -410,12 +392,7 @@ function getDailyImprovements() {
  * @returns {Promise}
  */
 function addComment(comment) {
-    return getOctokit().rest.issues.createComment({
-        repo: getRepo(),
-        owner: getOwner(),
-        issue_number: getIssueNumber(),
-        body: comment,
-    });
+    return getOctokit().rest.issues.createComment({...getRequestParams(), body: comment});
 }
 
 export {
