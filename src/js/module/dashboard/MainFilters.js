@@ -20,24 +20,17 @@ class Filters extends React.Component {
         this.saveFilters = this.saveFilters.bind(this);
     }
 
-    componentDidUpdate() {
-        if (!this.props.filters || _.isEmpty(this.props.filters)) {
-            return;
-        }
-
-        // this.hideHold.checked = this.props.filters.hideHold;
-    }
-
     /**
      * Save the filters when the apply button is clicked
      *
      * @param {SyntheticEvent} e
      */
     saveFilters(e) {
-        e.preventDefault();
-
         Issues.saveFilters({
             hideHold: this.hideHold.checked,
+            hideCPlusReviewed: this.hideCPlusReviewed.checked,
+            pushCPlusDown: this.pushCPlusDown.checked,
+
         });
     }
 
@@ -47,11 +40,28 @@ class Filters extends React.Component {
                 <form className="form-inline" onChange={this.saveFilters}>
                     <div className="checkbox">
                         <label>
-                            <input type="checkbox" name="hideHold" ref={el => this.hideHold = el} checked={this.props.filters.hideHold} />
+                            <input type="checkbox" name="hideHold" ref={el => this.hideHold = el} defaultChecked={this.props.filters.hideHold} />
                             Hide Hold issues/PRs
                         </label>
                     </div>
-
+                    <div className="checkbox">
+                        <label>
+                            <input type="checkbox" name="hideCPlusReviewed" ref={el => this.hideCPlusReviewed = el} defaultChecked={this.props.filters.hideCPlusReviewed} />
+                            Hide
+                            {' '}
+                            <span className="Counter ml-1" role="img" aria-label="C+ reviewed">C+🎀</span>
+                        </label>
+                    </div>
+                    <div className="checkbox">
+                        <label>
+                            <input type="checkbox" name="pushCPlusDown" ref={el => this.pushCPlusDown = el} defaultChecked={this.props.filters.pushCPlusDown} />
+                            Move
+                            {' '}
+                            <span className="Counter ml-1" role="img" aria-label="C+ reviewed">C+🎀</span>
+                            {' '}
+                            to the end
+                        </label>
+                    </div>
                 </form>
             </div>
         );
