@@ -5,8 +5,19 @@ import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
 
 function getWAQ() {
-    API.getWAQIssues()
-        .then((issues) => {
+    Promise.all([
+        API.getWAQIssues(),
+        API.getCPlusApprovedIssues(API.getCurrentUser()),
+    ])
+        .then(([issues, approvedIssues]) => {
+            _.each(_.keys(issues), (issueId) => {
+                if (!_.has(approvedIssues, issueId)) {
+                    return;
+                }
+                // eslint-disable-next-line no-param-reassign
+                issues[issueId].isCPlusApproved = true;
+            });
+
             // Always use set() here because there is no way to remove issues from Onyx
             // that get closed or assigned
             ReactNativeOnyx.set(ONYXKEYS.ISSUES.WAQ, issues);
@@ -23,8 +34,19 @@ function getDailyImprovements() {
 }
 
 function getAllAssigned() {
-    API.getIssuesAssigned()
-        .then((issues) => {
+    Promise.all([
+        API.getIssuesAssigned(),
+        API.getCPlusApprovedIssues(API.getCurrentUser()),
+    ])
+        .then(([issues, approvedIssues]) => {
+            _.each(_.keys(issues), (issueId) => {
+                if (!_.has(approvedIssues, issueId)) {
+                    return;
+                }
+                // eslint-disable-next-line no-param-reassign
+                issues[issueId].isCPlusApproved = true;
+            });
+
             // Always use set() here because there is no way to remove issues from Onyx
             // that get closed and are no longer assigned
             ReactNativeOnyx.set(ONYXKEYS.ISSUES.ASSIGNED, issues);

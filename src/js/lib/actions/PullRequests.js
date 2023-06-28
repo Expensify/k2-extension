@@ -76,6 +76,7 @@ function getReviewing() {
     const promises = [];
     promises.push(API.getPullsByType('review-requested'));
     promises.push(API.getPullsByType('reviewed-by'));
+    promises.push(API.getCPlusApprovedPr(API.getCurrentUser()));
 
     Promise.all(promises).then((values) => {
         const allPRs = {
@@ -85,6 +86,13 @@ function getReviewing() {
 
         const prsAuthoredByOtherUsers = _.chain(allPRs)
             .reject(pr => pr.author.login === API.getCurrentUser())
+            .each((pr) => {
+                if (!_.has(values[2], pr.id)) {
+                    return;
+                }
+                // eslint-disable-next-line no-param-reassign
+                pr.isCPlusApproved = true;
+            })
             .indexBy('id')
             .value();
 

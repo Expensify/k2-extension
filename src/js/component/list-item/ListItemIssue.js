@@ -51,6 +51,7 @@ class ListItemIssue extends React.Component {
         this.isHelpWanted = _.some(this.props.issue.labels, {name: 'Help Wanted'}) ? ' help-wanted' : '';
         this.isContributorAssigned = this.isExternal && !this.isHelpWanted ? ' contributor-assigned' : '';
         this.isUnderReview = _.find(this.props.issue.labels, label => label.name.toLowerCase() === 'reviewing');
+        this.isCPlusApproved = this.props.issue.isCPlusApproved ? <span className="Counter ml-1" role="img" aria-label="C+ reviewed">C+🎀</span> : '';
     }
 
     render() {
@@ -75,6 +76,7 @@ class ListItemIssue extends React.Component {
                     {this.isTask}
                     {this.isFeature}
                     {this.props.issue.title}
+                    {this.isCPlusApproved}
                 </a>
 
                 {this.props.showAttendees && (

@@ -122,13 +122,15 @@ function formatIssueResults(rawIssueData) {
     const cleanData = _.reduce(rawIssueData, (cleanSearchResults, searchNode) => {
         cleanSearchResults.push({
             ...searchNode,
-            labels: _.reduce(searchNode.labels.nodes, (cleanLabels, labelNode) => {
+            // eslint-disable-next-line es/no-optional-chaining
+            labels: _.reduce(searchNode?.labels?.nodes, (cleanLabels, labelNode) => {
                 cleanLabels.push({
                     ...labelNode,
                 });
                 return cleanLabels;
             }, []),
-            assignees: _.reduce(searchNode.assignees.nodes, (cleanAssignees, assigneeNode) => {
+            // eslint-disable-next-line es/no-optional-chaining
+            assignees: _.reduce(searchNode?.assignees?.nodes, (cleanAssignees, assigneeNode) => {
                 cleanAssignees.push({
                     ...assigneeNode,
                 });
@@ -395,6 +397,86 @@ function addComment(comment) {
     return getOctokit().rest.issues.createComment({...getRequestParams(), body: comment});
 }
 
+function getCPlusApprovedIssues(approver) {
+    let query = '';
+
+    // Get the PRs assigned to me
+    query += ' state:open';
+    query += ' is:issue';
+    query += ' repo:Expensify/App';
+    query += ' repo:Expensify/VendorTasks';
+    query += ' repo:Expensify/Insiders';
+    query += ' repo:Expensify/Expensify-Guides';
+    query += ' repo:Expensify/react-native-onyx';
+    query += ` assignee:${approver}`;
+    query += " ':ribbon: :eyes: :ribbon:' in:comments";
+
+    const graphQLQuery = `
+        query($cursor:String) {
+            search(
+                query: "${query}"
+                type: ISSUE
+                first: 100
+                after:$cursor
+            ) {
+                pageInfo {
+                    endCursor
+                    hasNextPage
+                }
+                nodes {
+                    ... on Issue {
+                        id
+                        url
+                    }
+                }
+            }
+        }
+    `;
+
+    return getFullResultsUsingPagination(graphQLQuery)
+        .then(formatIssueResults);
+}
+
+function getCPlusApprovedPr(approver) {
+    let query = '';
+
+    // Get the PRs assigned to me
+    query += ' state:open';
+    query += ' is:pr';
+    query += ' repo:Expensify/App';
+    query += ' repo:Expensify/VendorTasks';
+    query += ' repo:Expensify/Insiders';
+    query += ' repo:Expensify/Expensify-Guides';
+    query += ' repo:Expensify/react-native-onyx';
+    query += ` reviewed-by:${approver}`;
+    query += " ':ribbon: :eyes: :ribbon:' in:comments";
+
+    const graphQLQuery = `
+        query($cursor:String) {
+            search(
+                query: "${query}"
+                type: ISSUE
+                first: 100
+                after:$cursor
+            ) {
+                pageInfo {
+                    endCursor
+                    hasNextPage
+                }
+                nodes {
+                    ... on PullRequest {
+                        id
+                        url
+                    }
+                }
+            }
+        }
+    `;
+
+    return getFullResultsUsingPagination(graphQLQuery)
+        .then(formatIssueResults);
+}
+
 export {
     addComment,
     getCheckRuns,
@@ -407,4 +489,6 @@ export {
     getMilestones,
     getCurrentUser,
     getPullsByType,
+    getCPlusApprovedPr,
+    getCPlusApprovedIssues,
 };

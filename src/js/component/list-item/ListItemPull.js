@@ -118,6 +118,7 @@ const ListItemPull = (props) => {
             </a>
 
             {mergeability === 'Draft' && <span className="Counter">draft</span>}
+            {pr.isCPlusApproved && <span className="Counter ml-1" role="img" aria-label="C+ reviewed">C+🎀</span>}
         </div>
     );
 };
