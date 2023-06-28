@@ -7,6 +7,7 @@ import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import Title from '../../component/panel-title/Title';
 import ListItemPull from '../../component/list-item/ListItemPull';
 import * as PullRequests from '../../lib/actions/PullRequests';
+import filterPropTypes from '../../lib/filterPropTypes';
 
 const propTypes = {
     /** The number of milliseconds to refresh the data */
@@ -14,9 +15,13 @@ const propTypes = {
 
     /** All the PRs assigned to the current user */
     prs: PropTypes.objectOf(IssuePropTypes),
+
+    /** The filters to apply to the GH issues */
+    filters: filterPropTypes,
 };
 const defaultProps = {
     prs: null,
+    filters: {},
 };
 
 class ListPRsReviewing extends React.Component {
@@ -45,8 +50,33 @@ class ListPRsReviewing extends React.Component {
         }
     }
 
+    filterPR(prs) {
+        let filteredPRs = _.chain(prs)
+            .sortBy('updatedAt')
+            .value()
+            .reverse();
+
+        if (this.props.filters.hideHold) {
+            filteredPRs = _.filter(prs, (pr) => {
+                const regExp = /^\[.*Hold.*\]/ig;
+                return !regExp.exec(pr.title);
+            });
+        }
+
+        if (this.props.filters.hideCPlusReviewed) {
+            filteredPRs = _.filter(filteredPRs, pr => !pr.isCPlusApproved);
+        }
+
+        if (this.props.filters.pushCPlusDown) {
+            filteredPRs = _.sortBy(filteredPRs, pr => (pr.isCPlusApproved ? 1 : 0));
+        }
+
+        return filteredPRs;
+    }
+
     render() {
-        if (this.props.prs && !_.size(this.props.prs)) {
+        const prs = this.filterPR(this.props.prs);
+        if (prs && !_.size(prs)) {
             return null;
         }
 
@@ -54,7 +84,7 @@ class ListPRsReviewing extends React.Component {
             <div className="panel mb-3 daily">
                 <Title
                     text="Review these PRs Daily"
-                    count={_.size(this.props.prs) || 0}
+                    count={_.size(prs) || 0}
                 />
 
                 {!this.props.prs && (
@@ -63,11 +93,7 @@ class ListPRsReviewing extends React.Component {
                     </div>
                 )}
 
-                {_.chain(this.props.prs)
-                    .sortBy('updatedAt')
-                    .map(pr => <ListItemPull key={pr.id} pr={pr} />)
-                    .value()
-                    .reverse()}
+                {_.map(prs, pr => <ListItemPull key={pr.id} pr={pr} />)}
             </div>
         );
     }
@@ -79,5 +105,8 @@ ListPRsReviewing.defaultProps = defaultProps;
 export default withOnyx({
     prs: {
         key: ONYXKEYS.PRS.REVIEWING,
+    },
+    filters: {
+        key: ONYXKEYS.ISSUES.FILTER,
     },
 })(ListPRsReviewing);

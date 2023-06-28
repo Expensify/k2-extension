@@ -59,6 +59,14 @@ class ListIssuesAssigned extends React.Component {
             });
         }
 
+        if (this.props.filters.hideCPlusReviewed) {
+            filteredIssues = _.filter(filteredIssues, issue => !issue.isCPlusApproved);
+        }
+
+        if (this.props.filters.pushCPlusDown) {
+            filteredIssues = _.sortBy(filteredIssues, issue => (issue.isCPlusApproved ? 1 : 0));
+        }
+
         return filteredIssues;
     }
 
