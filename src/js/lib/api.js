@@ -28,12 +28,14 @@ function getCurrentUser() {
 
 /**
  * Returns the name of the repository, the repo owner and the issue number from the current url for calls to the Github API
+ * Issue URLs are in the format: github.com/<repoName>/<owner>/issues/<issue-number> Example: https://github.com/Expensify/App/issues/16640
+ * PR URLs are in the format: github.com/<repoName>/<owner>/pulls/<issue-number> Example: https://github.com/Expensify/App/pull/21242
  *
  * @returns {Object}
  */
 function getRequestParams() {
     const url = window.location.href;
-    const regex = /github.com\/(\w*)\/(\w*)\/issues\/(\d*)/;
+    const regex = /github.com\/(\w*)\/(\w*)\/(?:issues|pull)\/(\d*)/;
     const matches = url.match(regex);
 
     return {
