@@ -29,6 +29,10 @@ export default function () {
             $('nav.js-repo-nav *[data-selected-links*="repo_pulls"]')
                 .parent().after(k2Button({url: currentUrl}));
         }
+        if (!$('#global-nav .k2-extension').length) {
+            $('#global-nav')
+                .append(k2Button({url: currentUrl, global: true}));
+        }
     };
 
     return AllPages;
