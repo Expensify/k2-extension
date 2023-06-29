@@ -27,11 +27,11 @@ export default function () {
         // navigation if it's there. Also make sure to not show it multiple times
         if (!$('nav.js-repo-nav li.k2-extension').length) {
             $('nav.js-repo-nav *[data-selected-links*="repo_pulls"]')
-                .parent().after(k2Button({url: currentUrl}));
+                .parent().after(k2Button({url: currentUrl, globalNav: false}));
         }
         if (!$('#global-nav .k2-extension').length) {
             $('#global-nav')
-                .append(k2Button({url: currentUrl, global: true}));
+                .append(k2Button({url: currentUrl, globalNav: true}));
         }
     };
 
