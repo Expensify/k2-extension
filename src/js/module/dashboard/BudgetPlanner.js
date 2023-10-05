@@ -8,11 +8,17 @@ import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 
 const propTypes = {
     issues: PropTypes.objectOf(IssuePropTypes),
+    // eslint-disable-next-line react/forbid-prop-types
+    cPlusStatus: PropTypes.any,
 };
 const defaultProps = {
     issues: {},
+    cPlusStatus: {},
 };
 
+function getIDfromCollectionkey(collection, key) {
+    return key.replace(collection, '');
+}
 class BudgetPlanner extends React.Component {
     constructor(props) {
         super(props);
@@ -75,24 +81,64 @@ class BudgetPlanner extends React.Component {
                             panelID="budget"
                             title="Budget Planner"
                         >
-                            <div className="d-flex flex-row p-4">
-                                <div className="col-3 pr-4">
-                                    <div>
-                                        <h5>Pending Amount</h5>
-                                        <p className="amount">
+                            <div className="p-4">
+                                <div className="d-flex flex-row ">
+                                    <div className="col-3 pr-4">
+                                        <div>
+                                            <h5>Pending Amount</h5>
+                                            <p className="amount">
 $
-                                            {this.state.pendingAmount}
-                                        </p>
-                                    </div>
+                                                {this.state.pendingAmount}
+                                            </p>
+                                        </div>
 
-                                </div>
-                                <div className="col-3 pr-4">
-                                    <div>
-                                        <h5>Future Amount</h5>
-                                        <p className="amount">
+                                    </div>
+                                    <div className="col-3 pr-4">
+                                        <div>
+                                            <h5>Future Amount</h5>
+                                            <p className="amount">
 $
-                                            {this.state.futureAmount}
-                                        </p>
+                                                {this.state.futureAmount}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="d-flex flex-row">
+                                    <div className="col-5 pr-4">
+                                        <div>
+                                            <h5>Pending Requests</h5>
+                                            {_.chain(this.props.cPlusStatus)
+                                                .keys()
+                                                .filter(key => this.props.cPlusStatus[key] === 'Pending Payment')
+                                                .map((key) => {
+                                                    const id = getIDfromCollectionkey(ONYXKEYS.COLLECTION.C_PLUS_PAYMENT_STATUS, key);
+                                                    return (
+                                                        <a href={`https://github.com/Expensify/App/issues/${id}`}>
+                                                            #
+                                                            {id}
+                                                        </a>
+                                                    );
+                                                })
+                                                .value()}
+                                        </div>
+                                    </div>
+                                    <div className="col-5 pr-4">
+                                        <div>
+                                            <h5>Requested</h5>
+                                            {_.chain(this.props.cPlusStatus)
+                                                .keys()
+                                                .filter(key => this.props.cPlusStatus[key] === 'Requested')
+                                                .map((key) => {
+                                                    const id = getIDfromCollectionkey(ONYXKEYS.COLLECTION.C_PLUS_PAYMENT_STATUS, key);
+                                                    return (
+                                                        <a href={`https://github.com/Expensify/App/issues/${id}`}>
+                                                            #
+                                                            {id}
+                                                        </a>
+                                                    );
+                                                })
+                                                .value()}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -111,5 +157,8 @@ BudgetPlanner.defaultProps = defaultProps;
 export default withOnyx({
     issues: {
         key: ONYXKEYS.ISSUES.ASSIGNED,
+    },
+    cPlusStatus: {
+        key: ONYXKEYS.COLLECTION.C_PLUS_PAYMENT_STATUS,
     },
 })(BudgetPlanner);

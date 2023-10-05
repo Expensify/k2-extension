@@ -233,6 +233,6 @@ Request.propTypes = propTypes;
 
 export default withOnyx({
     cPlusPaymentStatus: {
-        key: ({issueID}) => `${ONYXKEYS.ISSUES.C_PLUS_PAYMENT_STATUS}${issueID}`,
+        key: ({issueID}) => `${ONYXKEYS.COLLECTION.C_PLUS_PAYMENT_STATUS}${issueID}`,
     },
 })(Request);

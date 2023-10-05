@@ -12,7 +12,6 @@ export default {
 
     ISSUES: {
         ASSIGNED: 'issueAssigned',
-        C_PLUS_PAYMENT_STATUS: 'cpluspaymentstatus_',
         DAILY_IMPROVEMENTS: 'issueDailyImprovements',
         ENGINEERING: 'issueEngineering',
         FILTER: 'issueFilter',
@@ -22,4 +21,8 @@ export default {
     MILESTONES: 'milestones',
 
     PANEL: 'panel_',
+
+    COLLECTION: {
+        C_PLUS_PAYMENT_STATUS: 'cpluspaymentstatus_',
+    },
 };
