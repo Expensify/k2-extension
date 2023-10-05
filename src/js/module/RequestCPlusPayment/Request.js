@@ -37,7 +37,11 @@ const defaultBtnClass = 'btn btn-sm tooltipped tooltipped-n typepicker';
 
 const propTypes = {
     issueID: PropTypes.string.isRequired,
-    cPlusPaymentStatus: PropTypes.string.isRequired,
+    cPlusPaymentStatus: PropTypes.string,
+};
+
+const defaultProps = {
+    cPlusPaymentStatus: '',
 };
 
 class Request extends React.Component {
@@ -94,19 +98,17 @@ class Request extends React.Component {
         if (!this.props.cPlusPaymentStatus) {
             return;
         }
-        this.setActiveLabel(this.props.cPlusPaymentStatus);
+        this.setActiveLabel(this.props.cPlusPaymentStatus, () => {}, () => {});
     }
 
-    /**
-     * @param {String} label
-     */
-    setActiveLabel(label) {
+    setActiveLabel(label, onActive, onInactive) {
         let newState = {};
 
         // If that label is already active, then set everything back
         // to the default (which removes all labels)
         if (this.state[label].indexOf(' active') > -1) {
             this.setState(this.labels);
+            onInactive();
             return;
         }
 
@@ -115,14 +117,20 @@ class Request extends React.Component {
             ? `${defaultBtnClass} k2-${key.toLowerCase().replace(' ', '-')} active`
             : `${defaultBtnClass} k2-${key.toLowerCase().replace(' ', '-')} inactive`));
         this.setState(newState);
+        onActive();
     }
 
     /**
      * @param {String} label
      */
     clickNSave(label) {
-        RequestPayment.saveCPlusPaymentSatus(this.props.issueID, label);
-        this.setActiveLabel(label);
+        this.setActiveLabel(label,
+            () => {
+                RequestPayment.saveCPlusPaymentSatus(this.props.issueID, label);
+            },
+            () => {
+                RequestPayment.saveCPlusPaymentSatus(this.props.issueID, null);
+            });
     }
 
     render() {
@@ -230,6 +238,7 @@ class Request extends React.Component {
 }
 
 Request.propTypes = propTypes;
+Request.defaultProps = defaultProps;
 
 export default withOnyx({
     cPlusPaymentStatus: {

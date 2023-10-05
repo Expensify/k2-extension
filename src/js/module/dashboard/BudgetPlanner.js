@@ -105,15 +105,15 @@ $
                                 </div>
                                 <div className="d-flex flex-row">
                                     <div className="col-5 pr-4">
-                                        <div>
-                                            <h5>Pending Requests</h5>
+                                        <div className="border p-3 rounded">
+                                            <h5 className="h4 mb-2 text-light">Pending Requests</h5>
                                             {_.chain(this.props.cPlusStatus)
                                                 .keys()
                                                 .filter(key => this.props.cPlusStatus[key] === 'Pending Payment')
                                                 .map((key) => {
                                                     const id = getIDfromCollectionkey(ONYXKEYS.COLLECTION.C_PLUS_PAYMENT_STATUS, key);
                                                     return (
-                                                        <a href={`https://github.com/Expensify/App/issues/${id}`}>
+                                                        <a className="IssueLabel color-bg-severe-emphasis color-fg-on-emphasis" href={`https://github.com/Expensify/App/issues/${id}`}>
                                                             #
                                                             {id}
                                                         </a>
@@ -123,15 +123,15 @@ $
                                         </div>
                                     </div>
                                     <div className="col-5 pr-4">
-                                        <div>
-                                            <h5>Requested</h5>
+                                        <div className="border p-3 rounded">
+                                            <h5 className="h4 mb-2 text-light">Requested</h5>
                                             {_.chain(this.props.cPlusStatus)
                                                 .keys()
                                                 .filter(key => this.props.cPlusStatus[key] === 'Requested')
                                                 .map((key) => {
                                                     const id = getIDfromCollectionkey(ONYXKEYS.COLLECTION.C_PLUS_PAYMENT_STATUS, key);
                                                     return (
-                                                        <a href={`https://github.com/Expensify/App/issues/${id}`}>
+                                                        <a className="IssueLabel color-bg-open-emphasis color-fg-on-emphasis" href={`https://github.com/Expensify/App/issues/${id}`}>
                                                             #
                                                             {id}
                                                         </a>
