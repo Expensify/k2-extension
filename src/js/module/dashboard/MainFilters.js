@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import React from 'react';
 import {withOnyx} from 'react-native-onyx';
 import * as Issues from '../../lib/actions/Issues';
@@ -25,7 +24,7 @@ class Filters extends React.Component {
      *
      * @param {SyntheticEvent} e
      */
-    saveFilters(e) {
+    saveFilters() {
         Issues.saveFilters({
             hideHold: this.hideHold.checked,
             hideCPlusReviewed: this.hideCPlusReviewed.checked,

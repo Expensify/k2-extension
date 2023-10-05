@@ -8,6 +8,7 @@ import K2pickerType from '../../../module/K2pickertype/K2pickertype';
 import ToggleReview from '../../../module/ToggleReview/ToggleReview';
 import K2comments from '../../../module/K2comments/K2comments';
 import ONYXKEYS from '../../../ONYXKEYS';
+import RequestMenu from '../../../module/RequestCPlusPayment/RequestMenu';
 
 const refreshPicker = function () {
     // Add our wrappers to the DOM which all the React components will be rendered into
@@ -20,6 +21,7 @@ const refreshPicker = function () {
     new K2pickerarea().draw();
     new ToggleReview().draw();
     new K2comments().draw();
+    new RequestMenu().draw();
 };
 
 /**

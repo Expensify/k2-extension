@@ -12,6 +12,7 @@ export default {
 
     ISSUES: {
         ASSIGNED: 'issueAssigned',
+        C_PLUS_PAYMENT_STATUS: 'cpluspaymentstatus_',
         DAILY_IMPROVEMENTS: 'issueDailyImprovements',
         ENGINEERING: 'issueEngineering',
         FILTER: 'issueFilter',

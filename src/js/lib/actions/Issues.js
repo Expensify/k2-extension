@@ -123,6 +123,20 @@ function saveFilters(filters) {
 function addComment(comment) {
     API.addComment(comment);
 }
+function getCurrentIssueDetails() {
+    const url = window.location.href;
+    const regex = /github.com\/(\w*)\/(\w*)\/(?:issues|pull)\/(\d*)/;
+    const matches = url.match(regex);
+
+    const titleNode = document.querySelector('meta[property^="og:title"]');
+
+    return {
+        owner: matches[1],
+        repo: matches[2],
+        issue_number: matches[3],
+        title: titleNode.textContent,
+    };
+}
 
 export {
     addComment,
@@ -131,4 +145,5 @@ export {
     getDailyImprovements,
     getWAQ,
     saveFilters,
+    getCurrentIssueDetails,
 };
