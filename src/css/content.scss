@@ -80,7 +80,7 @@ $color-dark-yellow: #daa520;
     background-color: #00a4d3 !important;
     color: white;
 }
-.k2-ops.active {
+.k2-ops.active, .k2-requested.active {
     background-color: #37916c !important;
     color: white;
 }
@@ -92,7 +92,7 @@ $color-dark-yellow: #daa520;
     background-color: #604c8d !important;
     color: white;
 }
-.k2-task.active {
+.k2-task.active, .k2-pending-payment.active{
     background-color: #9c5959 !important;
     color: white;
 }
@@ -116,7 +116,7 @@ $color-dark-yellow: #daa520;
 .discussion-sidebar-item h6 {
     margin-bottom: 8px;
 }
-.discussion-sidebar-item.discussion-sidebar-item.no-border {
+.discussion-sidebar-item.discussion-sidebar-item.no-border{
     margin: 0 !important;
     border: 0 !important;
     position: relative;
@@ -128,6 +128,14 @@ $color-dark-yellow: #daa520;
         top: 12px;
         position: absolute;
     }
+}
+.sidebar-floated-label{
+    color: #eee;
+    font-size: 22px;
+    left: 106%;
+    top: 0px;
+    position: absolute;
+    width: 100%;
 }
 .panel {
     border: 1px solid $color-neutral-light;
@@ -571,7 +579,8 @@ $color-dark-yellow: #daa520;
 .k2picker-wrapper,
 .k2pickertype-wrapper,
 .k2togglereviewing-wrapper,
-.k2comments-wrapper {
+.k2comments-wrapper,
+.flex-btns {
     .btn-group {
         display: flex;
 

@@ -21,4 +21,8 @@ export default {
     MILESTONES: 'milestones',
 
     PANEL: 'panel_',
+
+    COLLECTION: {
+        C_PLUS_PAYMENT_STATUS: 'cpluspaymentstatus_',
+    },
 };
