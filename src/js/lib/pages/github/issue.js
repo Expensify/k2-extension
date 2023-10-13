@@ -9,6 +9,36 @@ import ToggleReview from '../../../module/ToggleReview/ToggleReview';
 import K2comments from '../../../module/K2comments/K2comments';
 import ONYXKEYS from '../../../ONYXKEYS';
 
+/**
+ * This method is all about adding the "issue owner" functionality which melvin will use to see who should be providing ksv2 updates to an issue.
+ */
+const refreshAssignees = () => {
+    // Do nothing if there is only one person assigned
+    if ($('.js-issue-assignees > p > span').length <= 1) {
+        return;
+    }
+
+    /* eslint-disable rulesdir/prefer-underscore-method */
+    $('.js-issue-assignees > p > span').each((i, el) => {
+        // If the button was already drawn, exit early
+        if ($(el).find('.k2button').length) {
+            return;
+        }
+
+        // Check if there is an owner already
+        const ghDescription = $('.comment-body').text();
+        const issueOwner = ghDescription.match(/Current Issue Owner:\s(@\S+)/gi);
+
+        console.log(issueOwner)
+
+        $(el).append(`
+            <button type="button" class="Button Button--secondary Button--small flex-md-order-2 m-0 k2button">
+                Make owner
+            </button>
+        `);
+    });
+};
+
 const refreshPicker = function () {
     // Add our wrappers to the DOM which all the React components will be rendered into
     if (!$('.k2picker-wrapper').length) {
@@ -38,6 +68,7 @@ export default function () {
 
     IssuePage.setup = function () {
         setTimeout(refreshPicker, 500);
+        setTimeout(refreshAssignees, 500);
 
         // Listen for when the sidebar is redrawn, then redraw our pickers
         $(document).bind('DOMNodeRemoved', (e) => {
@@ -45,6 +76,7 @@ export default function () {
                 return;
             }
             setTimeout(refreshPicker, 500);
+            setTimeout(refreshAssignees, 500);
         });
     };
 
