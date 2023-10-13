@@ -14,7 +14,6 @@ import ONYXKEYS from '../../../ONYXKEYS';
  * This method is all about adding the "issue owner" functionality which melvin will use to see who should be providing ksv2 updates to an issue.
  */
 const refreshAssignees = () => {
-    console.log('refreshAssignees');
     // Always start by erasing whatever was drawn before (so it always starts from a clean slate)
     $('.js-issue-assignees .k2-element').remove();
 
@@ -30,20 +29,33 @@ const refreshAssignees = () => {
 
     $('.js-issue-assignees > p > span').each((i, el) => {
         const assignee = $(el).find('.assignee span').text();
-        console.log(assignee, currentOwner);
         if (assignee === currentOwner) {
             $(el).append(`
-                <button type="button" class="Button Button--secondary Button--small flex-md-order-2 m-0 k2-element k2-button">
-                    Remove owner
+                <button type="button" class="Button flex-md-order-2 m-0 k2-element k2-button k2-button-remove-owner" data-owner="${currentOwner}">
+                    ★
                 </button>
             `);
         } else {
             $(el).append(`
-                <button type="button" class="Button Button--secondary Button--small flex-md-order-2 m-0 k2-element k2-button">
-                    Make owner
+                <button type="button" class="Button flex-md-order-2 m-0 k2-element k2-button k2-button-make-owner" data-owner="${assignee}">
+                    ☆
                 </button>
             `);
         }
+    });
+
+    $('.k2-button-remove-owner').off('click').on('click', (e) => {
+        e.preventDefault();
+        const owner = $(e.target).data('owner');
+        console.log('remove owner', owner);
+        return false;
+    });
+
+    $('.k2-button-make-owner').off('click').on('click', (e) => {
+        e.preventDefault();
+        const owner = $(e.target).data('owner');
+        console.log('make owner', owner);
+        return false;
     });
 };
 
