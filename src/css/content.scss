@@ -545,3 +545,9 @@ $color-dark-yellow: #DAA520;
   position: absolute;
   left: 106%;
 }
+
+.alert {
+  color: $color-alert;
+  font-weight: bold;
+  margin: 8px 16px;
+}

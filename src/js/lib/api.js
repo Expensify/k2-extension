@@ -10,7 +10,12 @@ let octokit;
  */
 function getOctokit() {
     if (!octokit) {
-        octokit = new Octokit({auth: Preferences.getGitHubToken()});
+        /* eslint-disable-next-line no-console */
+        console.log('authenticate with auth token', Preferences.getGitHubToken());
+        octokit = new Octokit({
+            auth: Preferences.getGitHubToken(),
+            userAgent: 'expensify-k2-extension',
+        });
     }
     return octokit;
 }
@@ -395,6 +400,21 @@ function addComment(comment) {
     return getOctokit().rest.issues.createComment({...getRequestParams(), body: comment});
 }
 
+/**
+ * @returns {Promise}
+ */
+function getCurrentIssueDescription() {
+    return getOctokit().rest.issues.get({...getRequestParams()});
+}
+
+/**
+ * @param {String} body
+ * @returns {Promise}
+ */
+function setCurrentIssueBody(body) {
+    return getOctokit().rest.issues.update({...getRequestParams(), body});
+}
+
 export {
     addComment,
     getCheckRuns,
@@ -407,4 +427,6 @@ export {
     getMilestones,
     getCurrentUser,
     getPullsByType,
+    getCurrentIssueDescription,
+    setCurrentIssueBody,
 };

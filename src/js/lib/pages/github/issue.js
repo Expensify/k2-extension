@@ -9,6 +9,63 @@ import K2pickerType from '../../../module/K2pickertype/K2pickertype';
 import ToggleReview from '../../../module/ToggleReview/ToggleReview';
 import K2comments from '../../../module/K2comments/K2comments';
 import ONYXKEYS from '../../../ONYXKEYS';
+import * as API from '../../api';
+
+let clearErrorTimeoutID;
+function catchError(e) {
+    $('.gh-header-actions .k2-element').remove();
+    $('.gh-header-actions').append('<span class="alert k2-element">OOPS!</span>');
+    console.error(e);
+    clearTimeout(clearErrorTimeoutID);
+    clearErrorTimeoutID = setTimeout(() => {
+        $('.gh-header-actions .k2-element').remove();
+    }, 30000);
+}
+
+/**
+ * Sets the owner of an issue when it doesn't have an owner yet
+ * @param {String} owner to set
+ */
+function setOwner(owner) {
+    API.getCurrentIssueDescription()
+        .then((response) => {
+            const ghDescription = response.data.body;
+            const newDescription = `${ghDescription}
+
+Current Issue Owner: @${owner}`;
+            API.setCurrentIssueBody(newDescription);
+        })
+        .catch(catchError);
+}
+
+/**
+ * Removes the existing owner of an issue
+ * @param {String} owner to remove
+ */
+function removeOwner(owner) {
+    API.getCurrentIssueDescription()
+        .then((response) => {
+            const ghDescription = response.data.body;
+            const newDescription = ghDescription.replace(`Current Issue Owner: @${owner}`, '');
+            API.setCurrentIssueBody(newDescription);
+        })
+        .catch(catchError);
+}
+
+/**
+ * Replaces the existing issue owner with a different owner
+ * @param {String} oldOwner
+ * @param {String} newOwner
+ */
+function replaceOwner(oldOwner, newOwner) {
+    API.getCurrentIssueDescription()
+        .then((response) => {
+            const ghDescription = response.data.body;
+            const newDescription = ghDescription.replace(`Current Issue Owner: @${oldOwner}`, `Current Issue Owner: @${newOwner}`);
+            API.setCurrentIssueBody(newDescription);
+        })
+        .catch(catchError);
+}
 
 /**
  * This method is all about adding the "issue owner" functionality which melvin will use to see who should be providing ksv2 updates to an issue.
@@ -27,6 +84,7 @@ const refreshAssignees = () => {
     const regexResult = ghDescription.match(/Current Issue Owner:\s@(?<owner>\S+)/i);
     const currentOwner = regexResult && regexResult.groups && regexResult.groups.owner;
 
+    // Add buttons to each assignee
     $('.js-issue-assignees > p > span').each((i, el) => {
         const assignee = $(el).find('.assignee span').text();
         if (assignee === currentOwner) {
@@ -38,23 +96,29 @@ const refreshAssignees = () => {
         } else {
             $(el).append(`
                 <button type="button" class="Button flex-md-order-2 m-0 k2-element k2-button k2-button-make-owner" data-owner="${assignee}">
-                    ☆
+                    ☼
                 </button>
             `);
         }
     });
 
+    // Remove the owner with this button is clicked
     $('.k2-button-remove-owner').off('click').on('click', (e) => {
         e.preventDefault();
         const owner = $(e.target).data('owner');
-        console.log('remove owner', owner);
+        removeOwner(owner);
         return false;
     });
 
+    // Make a new owner when this button is clicked
     $('.k2-button-make-owner').off('click').on('click', (e) => {
         e.preventDefault();
-        const owner = $(e.target).data('owner');
-        console.log('make owner', owner);
+        const newOwner = $(e.target).data('owner');
+        if (currentOwner) {
+            replaceOwner(currentOwner, newOwner);
+        } else {
+            setOwner(newOwner);
+        }
         return false;
     });
 };
