@@ -325,6 +325,7 @@ function getIssues(assignee = 'none', labels) {
                         url
                         createdAt
                         updatedAt
+                        body
                         assignees(first: 100) {
                           nodes {
                             avatarUrl

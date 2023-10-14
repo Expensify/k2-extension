@@ -20,6 +20,10 @@ $color-light-blue: #12a4d5;
 $color-darker-green: #2cb528;
 $color-dark-yellow: #DAA520;
 
+.owner {
+  color: $color-dark-yellow;
+}
+
 .k2dashboard,
 .passwordform {
     max-width: 1680px;
