@@ -21,7 +21,7 @@ $color-darker-green: #2cb528;
 $color-dark-yellow: #DAA520;
 
 .owner {
-  color: $color-dark-yellow;
+  color: $color-dark-yellow !important;
 }
 
 .k2dashboard,

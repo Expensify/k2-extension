@@ -74,9 +74,10 @@ const refreshAssignees = () => {
     // Always start by erasing whatever was drawn before (so it always starts from a clean slate)
     $('.js-issue-assignees .k2-element').remove();
 
-    // Do nothing if there is only one person assigned
+    // Do nothing if there is only one person assigned. Owners can only be set when there are
+    // multiple assignees
     if ($('.js-issue-assignees > p > span').length <= 1) {
-        // return;
+        return;
     }
 
     // Check if there is an owner for the issue
@@ -89,7 +90,7 @@ const refreshAssignees = () => {
         const assignee = $(el).find('.assignee span').text();
         if (assignee === currentOwner) {
             $(el).append(`
-                <button type="button" class="Button flex-md-order-2 m-0 k2-element k2-button k2-button-remove-owner" data-owner="${currentOwner}">
+                <button type="button" class="Button flex-md-order-2 m-0 owner k2-element k2-button k2-button-remove-owner" data-owner="${currentOwner}">
                     ★
                 </button>
             `);
