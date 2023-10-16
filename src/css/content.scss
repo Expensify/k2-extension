@@ -547,7 +547,8 @@ $color-dark-yellow: #DAA520;
 
 .js-issue-assignees .k2-button {
   position: absolute;
-  left: 106%;
+  right: -12px;
+  margin-top: -5px !important;
 }
 
 .alert {

@@ -32,7 +32,7 @@ function setOwner(owner) {
             const ghDescription = response.data.body;
             const newDescription = `${ghDescription}
 
-Current Issue Owner: @${owner}`;
+<details><summary>Issue Owner</summary>Current Issue Owner: @${owner}</details>`;
             API.setCurrentIssueBody(newDescription);
         })
         .catch(catchError);
@@ -46,7 +46,7 @@ function removeOwner(owner) {
     API.getCurrentIssueDescription()
         .then((response) => {
             const ghDescription = response.data.body;
-            const newDescription = ghDescription.replace(`Current Issue Owner: @${owner}`, '');
+            const newDescription = ghDescription.replace(`<details><summary>Issue Owner</summary>Current Issue Owner: @${owner}</details>`, '');
             API.setCurrentIssueBody(newDescription);
         })
         .catch(catchError);
