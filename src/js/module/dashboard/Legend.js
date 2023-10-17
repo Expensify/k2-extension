@@ -41,6 +41,11 @@ const Legend = () => {
                 {' '}
                 External
             </div>
+            <div>
+                <span className="owner">★</span>
+                {' '}
+                Issue owner
+            </div>
             <div className="issue">
                 <sup>I</sup>
                 {' '}
