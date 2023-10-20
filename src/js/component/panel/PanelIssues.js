@@ -26,6 +26,10 @@ const propTypes = {
 
     /** If there are no issues to list in the panel, hide the panel entirely */
     hideOnEmpty: PropTypes.bool,
+
+    hideIfHeld: PropTypes.bool,
+
+    hideIfUnderReview: PropTypes.bool,
 };
 const defaultProps = {
     filters: {
@@ -36,6 +40,8 @@ const defaultProps = {
     },
     applyFilters: false,
     hideOnEmpty: false,
+    hideIfHeld: false,
+    hideIfUnderReview: false,
 };
 
 const PanelIssues = (props) => {
@@ -80,7 +86,7 @@ const PanelIssues = (props) => {
                 </div>
             ) : (
                 <div>
-                    {_.map(sortedData, issue => <ListItemIssue key={`issue_raw_${issue.id}`} issue={issue} />)}
+                    {_.map(sortedData, issue => <ListItemIssue key={`issue_raw_${issue.id}`} issue={issue} hideIfHeld={props.hideIfHeld} hideIfUnderReview={props.hideIfUnderReview} />)}
                 </div>
             )}
         </div>
