@@ -10,7 +10,12 @@ let octokit;
  */
 function getOctokit() {
     if (!octokit) {
-        octokit = new Octokit({auth: Preferences.getGitHubToken()});
+        /* eslint-disable-next-line no-console */
+        console.log('authenticate with auth token', Preferences.getGitHubToken());
+        octokit = new Octokit({
+            auth: Preferences.getGitHubToken(),
+            userAgent: 'expensify-k2-extension',
+        });
     }
     return octokit;
 }
@@ -322,6 +327,7 @@ function getIssues(assignee = 'none', labels) {
                         url
                         createdAt
                         updatedAt
+                        body
                         assignees(first: 100) {
                           nodes {
                             avatarUrl
@@ -475,6 +481,20 @@ function getCPlusApprovedPr(approver) {
 
     return getFullResultsUsingPagination(graphQLQuery)
         .then(formatIssueResults);
+    }
+/**
+ * @returns {Promise}
+ */
+function getCurrentIssueDescription() {
+    return getOctokit().rest.issues.get({...getRequestParams()});
+}
+
+/**
+ * @param {String} body
+ * @returns {Promise}
+ */
+function setCurrentIssueBody(body) {
+    return getOctokit().rest.issues.update({...getRequestParams(), body});
 }
 
 export {
@@ -491,4 +511,6 @@ export {
     getPullsByType,
     getCPlusApprovedPr,
     getCPlusApprovedIssues,
+    getCurrentIssueDescription,
+    setCurrentIssueBody,
 };

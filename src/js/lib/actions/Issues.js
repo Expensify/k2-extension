@@ -39,17 +39,30 @@ function getAllAssigned() {
         API.getCPlusApprovedIssues(API.getCurrentUser()),
     ])
         .then(([issues, approvedIssues]) => {
-            _.each(_.keys(issues), (issueId) => {
-                if (!_.has(approvedIssues, issueId)) {
-                    return;
+            const currentUser = API.getCurrentUser();
+            const issuesMarkedWithOwner = _.reduce(issues, (finalObject, issue) => {
+                const regexResult = issue.body.match(/Current Issue Owner:\s@(?<owner>\S+)/i);
+                const currentOwner = regexResult && regexResult.groups && regexResult.groups.owner;
+                if (!currentOwner || currentOwner !== currentUser) {
+                    return {
+                        ...finalObject,
+                        [issue.id]: issue,
+                    };
                 }
-                // eslint-disable-next-line no-param-reassign
-                issues[issueId].isCPlusApproved = true;
-            });
+
+                return {
+                    ...finalObject,
+                    [issue.id]: {
+                        ...issue,
+                        currentUserIsOwner: true,
+                        isCPlusApproved: _.has(approvedIssues, issue.id),
+                    },
+                };
+            }, {});
 
             // Always use set() here because there is no way to remove issues from Onyx
             // that get closed and are no longer assigned
-            ReactNativeOnyx.set(ONYXKEYS.ISSUES.ASSIGNED, issues);
+            ReactNativeOnyx.set(ONYXKEYS.ISSUES.ASSIGNED, issuesMarkedWithOwner);
         });
 }
 

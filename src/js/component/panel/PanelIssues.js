@@ -75,6 +75,9 @@ const PanelIssues = (props) => {
         return null;
     }
 
+    // Put the issues owned by the current user at the top of the list
+    const sortedData = _.sortBy(filteredData, 'currentUserIsOwner');
+
     return (
         <div className={`panel ${props.extraClass}`}>
             <Title
@@ -89,7 +92,7 @@ const PanelIssues = (props) => {
                     </div>
                 ) : (
                     <div>
-                        {_.map(filteredData, issue => <ListItemIssue key={`issue_raw_${issue.id}`} issue={issue} />)}
+                        {_.map(sortedData, issue => <ListItemIssue key={`issue_raw_${issue.id}`} issue={issue} />)}
                     </div>
                 )}
             </div>

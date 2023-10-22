@@ -20,6 +20,10 @@ $color-light-blue: #12a4d5;
 $color-darker-green: #2cb528;
 $color-dark-yellow: #daa520;
 
+.owner {
+  color: $color-dark-yellow !important;
+}
+
 .k2dashboard,
 .passwordform {
     max-width: 1680px;
@@ -615,4 +619,16 @@ $color-dark-yellow: #daa520;
         font-size: 38px;
         font-family: "Seogue UI";
     }
+}
+
+.js-issue-assignees .k2-button {
+  position: absolute;
+  right: -12px;
+  margin-top: -5px !important;
+}
+
+.alert {
+  color: $color-alert;
+  font-weight: bold;
+  margin: 8px 16px;
 }
