@@ -1,6 +1,9 @@
 #1.3.0
 - Add filters for held and under review issues in the assigned issues sections
 
+#1.2.14
+- Bumped package versions to fix security vulnerabilities.
+
 #1.2.13
 - Improve the regex that fetches the repository name, owner and issue number from the current URL work for pull requests as well
 
