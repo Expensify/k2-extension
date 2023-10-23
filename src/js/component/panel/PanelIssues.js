@@ -47,6 +47,23 @@ const defaultProps = {
 const PanelIssues = (props) => {
     let filteredData = props.data;
 
+    if (props.hideIfHeld || props.hideIfUnderReview) {
+        filteredData = _.filter(props.data, (item) => {
+            const isHeld = item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
+            const isUnderReview = _.find(item.labels, label => label.name.toLowerCase() === 'reviewing');
+
+            if (isHeld && props.hideIfHeld) {
+                return false;
+            }
+
+            if (isUnderReview && props.hideIfUnderReview) {
+                return false;
+            }
+
+            return true;
+        });
+    }
+
     // We need to be sure to filter the data if the user has set any filters
     if (props.applyFilters && props.filters && !_.isEmpty(props.filters)) {
         filteredData = _.filter(props.data, (item) => {
@@ -86,7 +103,7 @@ const PanelIssues = (props) => {
                 </div>
             ) : (
                 <div>
-                    {_.map(sortedData, issue => <ListItemIssue key={`issue_raw_${issue.id}`} issue={issue} hideIfHeld={props.hideIfHeld} hideIfUnderReview={props.hideIfUnderReview} />)}
+                    {_.map(sortedData, issue => <ListItemIssue key={`issue_raw_${issue.id}`} issue={issue} />)}
                 </div>
             )}
         </div>

@@ -77,16 +77,17 @@ class ListIssuesAssigned extends React.Component {
             <div className="mb-3">
                 <div className="panel-title">
                     <form className="form-inline">
+                        <strong>Hide:</strong>
                         <div className="checkbox">
                             <label>
                                 <input type="checkbox" name="shouldHideIfHeld" id="shouldHideIfHeld" onChange={this.toggleHeldFilter} />
-                                Hide Issues on Hold
+                                On Hold
                             </label>
                         </div>
                         <div className="checkbox">
                             <label>
                                 <input type="checkbox" name="shouldHideIfUnderReview" id="shouldHideIfUnderReview" onChange={this.toggleUnderReviewFilter} />
-                                Hide Issues Under Review
+                                Under Review
                             </label>
                         </div>
                     </form>

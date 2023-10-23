@@ -9,15 +9,10 @@ const propTypes = {
 
     /** Whether or not the attendees should be shown */
     showAttendees: PropTypes.bool,
-
-    hideIfHeld: PropTypes.bool,
-
-    hideIfUnderReview: PropTypes.bool,
 };
+
 const defaultProps = {
     showAttendees: false,
-    hideIfHeld: false,
-    hideIfUnderReview: false,
 };
 
 class ListItemIssue extends React.Component {
@@ -62,10 +57,6 @@ class ListItemIssue extends React.Component {
 
     render() {
         this.parseIssue();
-
-        if ((this.props.hideIfHeld && this.isHeld) || (this.props.hideIfUnderReview && this.isUnderReview)) {
-            return null;
-        }
 
         return (
             <div className="panel-item">
