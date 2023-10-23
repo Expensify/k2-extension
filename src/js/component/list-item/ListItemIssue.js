@@ -10,7 +10,6 @@ const propTypes = {
     /** Whether or not the attendees should be shown */
     showAttendees: PropTypes.bool,
 };
-
 const defaultProps = {
     showAttendees: false,
 };
@@ -57,7 +56,6 @@ class ListItemIssue extends React.Component {
 
     render() {
         this.parseIssue();
-
         return (
             <div className="panel-item">
                 {this.isCurrentUserOwner && (
