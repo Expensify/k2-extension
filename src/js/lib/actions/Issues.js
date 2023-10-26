@@ -27,7 +27,7 @@ function getAllAssigned() {
         .then((issues) => {
             const currentUser = API.getCurrentUser();
             const issuesMarkedWithOwner = _.reduce(issues, (finalObject, issue) => {
-                const regexResult = issue.body.match(/Current Issue Owner:\s@(?<owner>\S+)/i);
+                const regexResult = issue.body.match(/Current Issue Owner:\s@(?<owner>[a-z0-9-]+)/i);
                 const currentOwner = regexResult && regexResult.groups && regexResult.groups.owner;
                 if (!currentOwner || currentOwner !== currentUser) {
                     return {
