@@ -25,9 +25,29 @@ function getDailyImprovements() {
 function getAllAssigned() {
     API.getIssuesAssigned()
         .then((issues) => {
+            const currentUser = API.getCurrentUser();
+            const issuesMarkedWithOwner = _.reduce(issues, (finalObject, issue) => {
+                const regexResult = issue.body.match(/Current Issue Owner:\s@(?<owner>[a-z0-9-]+)/i);
+                const currentOwner = regexResult && regexResult.groups && regexResult.groups.owner;
+                if (!currentOwner || currentOwner !== currentUser) {
+                    return {
+                        ...finalObject,
+                        [issue.id]: issue,
+                    };
+                }
+
+                return {
+                    ...finalObject,
+                    [issue.id]: {
+                        ...issue,
+                        currentUserIsOwner: true,
+                    },
+                };
+            }, {});
+
             // Always use set() here because there is no way to remove issues from Onyx
             // that get closed and are no longer assigned
-            ReactNativeOnyx.set(ONYXKEYS.ISSUES.ASSIGNED, issues);
+            ReactNativeOnyx.set(ONYXKEYS.ISSUES.ASSIGNED, issuesMarkedWithOwner);
         });
 }
 
