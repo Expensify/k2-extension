@@ -1,3 +1,6 @@
+#1.2.15
+- Added issue owner functionality
+
 #1.2.14
 - Bumped package versions to fix security vulnerabilities.
 
