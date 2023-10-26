@@ -1,6 +1,9 @@
 #1.3.0
 - Add filters for held and under review issues in the assigned issues sections
 
+#1.2.15
+- Added issue owner functionality
+
 #1.2.14
 - Bumped package versions to fix security vulnerabilities.
 
