@@ -1,3 +1,6 @@
+#1.3.1
+- Upgrade to Node v20
+
 #1.3.0
 - Add filters for held and under review issues in the assigned issues sections
 
