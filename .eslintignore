@@ -2,3 +2,4 @@ node_modules/**
 vendor/**
 webpack.*.js
 babel.config.js
+dist/**
