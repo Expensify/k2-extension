@@ -1,11 +1,12 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const propTypes = {
     /** The GitHub URL for the assignee */
-    html_url: React.PropTypes.string.isRequired,
+    html_url: PropTypes.string.isRequired,
 
     /** The login of the assignee */
-    login: React.PropTypes.string.isRequired,
+    login: PropTypes.string.isRequired,
 };
 
 function Assignee(props) {
