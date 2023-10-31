@@ -1,14 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import {createRoot} from 'react-dom/client';
 import Picker from './K2PickerareaPicker';
 
 export default function () {
     return {
         draw() {
-            ReactDOM.render(
-                <Picker />,
-                document.getElementsByClassName('k2pickerarea-wrapper')[0],
-            );
+            const root = createRoot(document.getElementsByClassName('k2pickerarea-wrapper')[0]);
+            root.render(<Picker />);
         },
     };
 }
