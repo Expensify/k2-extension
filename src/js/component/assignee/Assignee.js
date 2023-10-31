@@ -8,12 +8,14 @@ const propTypes = {
     login: React.PropTypes.string.isRequired,
 };
 
-const Assignee = props => (
-    <a className="assignee" href={props.html_url} target="_blank" rel="noreferrer">
-        <span className="octicon octicon-person" />
-        {props.login}
-    </a>
-);
+function Assignee(props) {
+    return (
+        <a className="assignee" href={props.html_url} target="_blank" rel="noreferrer">
+            <span className="octicon octicon-person" />
+            {props.login}
+        </a>
+    );
+}
 
 Assignee.propTypes = propTypes;
 Assignee.displayName = 'Assignee';

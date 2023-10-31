@@ -13,11 +13,13 @@ const defaultProps = {
     isVertical: false,
 };
 
-const BtnGroup = props => (
-    <div className={props.isVertical ? 'btn-group-vertical' : 'btn-group'}>
-        {props.children}
-    </div>
-);
+function BtnGroup(props) {
+    return (
+        <div className={props.isVertical ? 'btn-group-vertical' : 'btn-group'}>
+            {props.children}
+        </div>
+    );
+}
 
 BtnGroup.propTypes = propTypes;
 BtnGroup.defaultProps = defaultProps;
