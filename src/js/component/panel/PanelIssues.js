@@ -26,6 +26,10 @@ const propTypes = {
 
     /** If there are no issues to list in the panel, hide the panel entirely */
     hideOnEmpty: PropTypes.bool,
+
+    hideIfHeld: PropTypes.bool,
+
+    hideIfUnderReview: PropTypes.bool,
 };
 const defaultProps = {
     filters: {
@@ -36,10 +40,29 @@ const defaultProps = {
     },
     applyFilters: false,
     hideOnEmpty: false,
+    hideIfHeld: false,
+    hideIfUnderReview: false,
 };
 
 const PanelIssues = (props) => {
     let filteredData = props.data;
+
+    if (props.hideIfHeld || props.hideIfUnderReview) {
+        filteredData = _.filter(props.data, (item) => {
+            const isHeld = item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
+            const isUnderReview = _.find(item.labels, label => label.name.toLowerCase() === 'reviewing');
+
+            if (isHeld && props.hideIfHeld) {
+                return false;
+            }
+
+            if (isUnderReview && props.hideIfUnderReview) {
+                return false;
+            }
+
+            return true;
+        });
+    }
 
     // We need to be sure to filter the data if the user has set any filters
     if (props.applyFilters && props.filters && !_.isEmpty(props.filters)) {

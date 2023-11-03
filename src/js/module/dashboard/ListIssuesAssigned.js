@@ -22,7 +22,11 @@ class ListIssuesAssigned extends React.Component {
     constructor(props) {
         super(props);
 
+        this.state = {shouldHideHeldIssues: false};
+        this.state = {shouldHideUnderReviewIssues: false};
         this.fetch = this.fetch.bind(this);
+        this.toggleHeldFilter = this.toggleHeldFilter.bind(this);
+        this.toggleUnderReviewFilter = this.toggleUnderReviewFilter.bind(this);
     }
 
     componentDidMount() {
@@ -44,6 +48,14 @@ class ListIssuesAssigned extends React.Component {
         Issues.getAllAssigned();
     }
 
+    toggleHeldFilter() {
+        this.setState(prevState => ({shouldHideHeldIssues: !prevState.shouldHideHeldIssues}));
+    }
+
+    toggleUnderReviewFilter() {
+        this.setState(prevState => ({shouldHideUnderReviewIssues: !prevState.shouldHideUnderReviewIssues}));
+    }
+
     render() {
         if (!this.props.issues) {
             return (
@@ -63,12 +75,31 @@ class ListIssuesAssigned extends React.Component {
 
         return (
             <div className="mb-3">
+                <div className="panel-title issue-filter">
+                    <form className="form-inline">
+                        <strong>Hide:</strong>
+                        <div className="checkbox">
+                            <label>
+                                <input type="checkbox" name="shouldHideIfHeld" id="shouldHideIfHeld" onChange={this.toggleHeldFilter} />
+                                On Hold
+                            </label>
+                        </div>
+                        <div className="checkbox">
+                            <label>
+                                <input type="checkbox" name="shouldHideIfUnderReview" id="shouldHideIfUnderReview" onChange={this.toggleUnderReviewFilter} />
+                                Under Review
+                            </label>
+                        </div>
+                    </form>
+                </div>
                 <div className="d-flex flex-row">
                     <div className="col-3 pr-4">
                         <PanelIssues
                             title="Hourly"
                             extraClass="hourly"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Hourly'}))}
+                            hideIfHeld={this.state.shouldHideHeldIssues}
+                            hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
                         />
                     </div>
                     <div className="col-3 pr-4">
@@ -76,6 +107,8 @@ class ListIssuesAssigned extends React.Component {
                             title="Daily"
                             extraClass="daily"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Daily'}))}
+                            hideIfHeld={this.state.shouldHideHeldIssues}
+                            hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
                         />
                     </div>
                     <div className="col-3 pr-4">
@@ -83,6 +116,8 @@ class ListIssuesAssigned extends React.Component {
                             title="Weekly"
                             extraClass="weekly"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Weekly'}))}
+                            hideIfHeld={this.state.shouldHideHeldIssues}
+                            hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
                         />
                     </div>
                     <div className="col-3">
@@ -90,6 +125,8 @@ class ListIssuesAssigned extends React.Component {
                             title="Monthly"
                             extraClass="monthly"
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Monthly'}))}
+                            hideIfHeld={this.state.shouldHideHeldIssues}
+                            hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
                         />
                     </div>
                 </div>
@@ -100,6 +137,8 @@ class ListIssuesAssigned extends React.Component {
                         hideOnEmpty
                         // eslint-disable-next-line max-len
                         data={_.pick(this.props.issues, issue => _.intersection(_.map(issue.labels, label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0)}
+                        hideIfHeld={this.state.shouldHideHeldIssues}
+                        hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
                     />
                 </div>
             </div>

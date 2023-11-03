@@ -1,3 +1,9 @@
+#1.3.1
+- Made new filter work in dark mode
+
+#1.3.0
+- Add filters for held and under review issues in the assigned issues sections
+
 #1.2.15
 - Added issue owner functionality
 
