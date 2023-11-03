@@ -46,7 +46,6 @@ class ListPRsReviewing extends React.Component {
     }
 
     render() {
-
         return (
             <div className="panel prs-reviewing mb-3">
                 <Title

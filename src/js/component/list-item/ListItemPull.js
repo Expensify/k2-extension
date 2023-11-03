@@ -106,7 +106,10 @@ const ListItemPull = (props) => {
                     </span>
                 )}
 
-                <span className={'repository'}>Repo: {`${repoPrefix}` }</span>
+                <span className="repository">
+                    Repo:
+                    {`${repoPrefix}`}
+                </span>
             </span>
 
             <a href={pr.url} className={getClassName()} target="_blank" rel="noreferrer noopener">

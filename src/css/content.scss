@@ -180,7 +180,7 @@ $color-dark-yellow: #DAA520;
 }
 
 .panel-title {
-  background: $color-neutral-lighter;
+  background: $color-black;
   font-size: 14px;
   margin: 0px;
   padding: $gutter ($gutter * 2);
@@ -559,5 +559,5 @@ $color-dark-yellow: #DAA520;
 }
 
 .issue-filter {
-  color: $color-black;
+  color: $color-white;
 }
