@@ -108,6 +108,7 @@ const ListItemPull = (props) => {
 
                 <span className="repository">
                     Repo:
+                    {' '}
                     {`${repoPrefix}`}
                 </span>
             </span>
