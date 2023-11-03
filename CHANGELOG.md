@@ -1,3 +1,6 @@
+#1.3.2
+- Updated the octokit client to fix throttling
+
 #1.3.1
 - Made new filter work in dark mode
 
