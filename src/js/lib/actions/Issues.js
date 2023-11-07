@@ -29,18 +29,13 @@ function getAllAssigned() {
             const issuesMarkedWithOwner = _.reduce(issues, (finalObject, issue) => {
                 const regexResult = issue.body.match(/Current Issue Owner:\s@(?<owner>[a-z0-9-]+)/i);
                 const currentOwner = regexResult && regexResult.groups && regexResult.groups.owner;
-                if (!currentOwner || currentOwner !== currentUser) {
-                    return {
-                        ...finalObject,
-                        [issue.id]: issue,
-                    };
-                }
 
                 return {
                     ...finalObject,
                     [issue.id]: {
                         ...issue,
-                        currentUserIsOwner: true,
+                        issueHasOwner: Boolean(currentOwner),
+                        currentUserIsOwner: currentOwner && currentOwner === currentUser,
                     },
                 };
             }, {});
