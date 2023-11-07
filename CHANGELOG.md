@@ -1,3 +1,6 @@
+#1.3.3
+- Change the color of non-issue owners to be grey
+
 #1.3.2
 - Updated the octokit client to fix throttling
 

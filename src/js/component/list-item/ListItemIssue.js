@@ -27,7 +27,7 @@ class ListItemIssue extends React.Component {
             className += ' overdue';
         }
 
-        if (!this.isCurrentUserOwner) {
+        if (this.issueHasOwner && !this.isCurrentUserOwner) {
             className += ' nonowner';
         }
 
@@ -54,6 +54,7 @@ class ListItemIssue extends React.Component {
         this.isHelpWanted = _.some(this.props.issue.labels, {name: 'Help Wanted'}) ? ' help-wanted' : '';
         this.isContributorAssigned = this.isExternal && !this.isHelpWanted ? ' contributor-assigned' : '';
         this.isUnderReview = _.find(this.props.issue.labels, label => label.name.toLowerCase() === 'reviewing');
+        this.issueHasOwner = this.props.issue.issueHasOwner;
         this.isCurrentUserOwner = this.props.issue.currentUserIsOwner;
     }
 
