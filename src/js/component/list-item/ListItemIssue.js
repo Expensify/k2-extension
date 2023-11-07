@@ -19,13 +19,16 @@ class ListItemIssue extends React.Component {
         let className = 'issue';
 
         // See if it's under review
-
         if (this.isUnderReview) {
             className += ' reviewing';
         }
 
         if (this.isOverdue) {
             className += ' overdue';
+        }
+
+        if (!this.isCurrentUserOwner) {
+            className += ' nonowner';
         }
 
         return className + this.isPlanning + this.isWaitingOnCustomer + this.isHeld + this.isChallengeSent + this.isHelpWanted + this.isContributorAssigned;

@@ -167,7 +167,8 @@ $color-dark-yellow: #DAA520;
   &.underreview,
   &.waiting,
   &.planning,
-  &.hold {
+  &.hold
+  &.nonowner {
     background-color: $color-neutral-light !important;
   }
   &.whatsnext {
