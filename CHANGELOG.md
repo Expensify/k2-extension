@@ -1,5 +1,14 @@
-#1.3.1
+#1.3.4
 - Upgrade to Node v20
+
+#1.3.3
+- Change the color of non-issue owners to be grey
+
+#1.3.2
+- Updated the octokit client to fix throttling
+
+#1.3.1
+- Made new filter work in dark mode
 
 #1.3.0
 - Add filters for held and under review issues in the assigned issues sections

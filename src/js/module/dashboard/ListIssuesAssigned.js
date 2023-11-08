@@ -75,7 +75,7 @@ class ListIssuesAssigned extends React.Component {
 
         return (
             <div className="mb-3">
-                <div className="panel-title">
+                <div className="panel-title issue-filter">
                     <form className="form-inline">
                         <strong>Hide:</strong>
                         <div className="checkbox">

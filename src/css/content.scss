@@ -222,7 +222,8 @@ $color-dark-yellow: #DAA520;
   // issue erosion still happens for "held issues"
   &.help-wanted,
   &.challenge-sent,
-  &.hold {
+  &.hold,
+  &.nonowner {
     color: darken($color-neutral-light, 20%) !important;
     .issue-link {
       color: darken($color-neutral-light, 20%) !important;
@@ -555,4 +556,8 @@ $color-dark-yellow: #DAA520;
   color: $color-alert;
   font-weight: bold;
   margin: 8px 16px;
+}
+
+.issue-filter {
+  color: $color-black;
 }
