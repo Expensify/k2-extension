@@ -40,13 +40,13 @@ function getCurrentUser() {
  */
 function getRequestParams() {
     const url = window.location.href;
-    const regex = /github.com\/(\w*)\/(\w*)\/(?:issues|pull)\/(\d*)/;
+    const regex = /github.com\/(?<owner>\w*)\/(?<repo>\w*)(?:\/(?:issues|pull)\/(?<issue_number>\d*))?/;
     const matches = url.match(regex);
 
     return {
-        owner: matches[1],
-        repo: matches[2],
-        issue_number: matches[3],
+        owner: (matches && matches.groups && matches.groups.owner) || '',
+        repo: (matches && matches.groups && matches.groups.repo) || '',
+        issue_number: (matches && matches.groups && matches.groups.issue_number) || '',
     };
 }
 
