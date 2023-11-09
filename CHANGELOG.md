@@ -1,3 +1,6 @@
+#1.3.4
+- Fix console error for regex on dashboard page
+
 #1.3.3
 - Change the color of non-issue owners to be grey
 

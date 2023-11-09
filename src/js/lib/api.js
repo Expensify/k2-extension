@@ -40,7 +40,7 @@ function getCurrentUser() {
  */
 function getRequestParams() {
     const url = window.location.href;
-    const regex = /github.com\/(\w*)\/(\w*)\/(?:issues|pull)\/(\d*)/;
+    const regex = /github.com\/(\w*)\/(\w*)(?:\/(?:issues|pull)\/(\d*))?/;
     const matches = url.match(regex);
 
     return {
