@@ -20,8 +20,7 @@
 
   "permissions": [
     "*://api.github.com/*",
-    "webNavigation",
-    "tabs"
+    "webNavigation"
   ],
 
   "content_scripts": [{
