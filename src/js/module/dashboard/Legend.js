@@ -2,7 +2,7 @@ import React from 'react';
 import ReactNativeOnyx from 'react-native-onyx';
 import * as Preferences from '../../lib/actions/Preferences';
 
-const Legend = () => {
+function Legend() {
     function signOut() {
         Preferences.setGitHubToken('');
         ReactNativeOnyx.clear();
@@ -93,7 +93,7 @@ const Legend = () => {
             </div>
         </div>
     );
-};
+}
 
 Legend.displayName = 'Legend';
 

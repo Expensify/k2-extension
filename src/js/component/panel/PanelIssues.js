@@ -44,7 +44,7 @@ const defaultProps = {
     hideIfUnderReview: false,
 };
 
-const PanelIssues = (props) => {
+function PanelIssues(props) {
     let filteredData = props.data;
 
     if (props.hideIfHeld || props.hideIfUnderReview) {
@@ -108,7 +108,7 @@ const PanelIssues = (props) => {
             )}
         </div>
     );
-};
+}
 
 PanelIssues.propTypes = propTypes;
 PanelIssues.defaultProps = defaultProps;
