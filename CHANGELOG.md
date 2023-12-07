@@ -1,3 +1,6 @@
+#1.3.6
+- Add manual throttling to GH API Calls to protect against unnecessary re-renders
+
 #1.3.5
 - Upgrade to Node v20
 
