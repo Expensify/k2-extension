@@ -4,12 +4,27 @@ import _ from 'underscore';
 import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
 
+const minPollInterval = 60000; // 1 minute
+let currentlyFetchingWAQ = false;
+let lastFetchWAQTimestamp = null;
 function getWAQ() {
+    const msSinceLastFetch = Date.now() - lastFetchWAQTimestamp;
+    if (currentlyFetchingWAQ || msSinceLastFetch < minPollInterval) {
+        return;
+    }
+    currentlyFetchingWAQ = true;
+
     API.getWAQIssues()
         .then((issues) => {
             // Always use set() here because there is no way to remove issues from Onyx
             // that get closed or assigned
             ReactNativeOnyx.set(ONYXKEYS.ISSUES.WAQ, issues);
+            lastFetchWAQTimestamp = Date.now();
+            currentlyFetchingWAQ = false;
+        })
+        .catch(() => {
+            lastFetchWAQTimestamp = Date.now();
+            currentlyFetchingWAQ = false;
         });
 }
 

@@ -27,7 +27,6 @@ class ListPRsReviewing extends React.Component {
     }
 
     componentDidMount() {
-        console.log('[tim', 'ListPRsReviewing mount()', '====')
         this.fetch();
     }
 
@@ -42,10 +41,7 @@ class ListPRsReviewing extends React.Component {
         PullRequests.getReviewing();
 
         if (this.props.pollInterval && !this.interval) {
-            this.interval = setInterval(() => {
-                console.log('[tim', 'ListPRsReviewing interval()', '==')
-                this.fetch();
-            }, this.props.pollInterval);
+            this.interval = setInterval(this.fetch, this.props.pollInterval);
         }
     }
 

@@ -2,12 +2,7 @@ import _ from 'underscore';
 import ReactNativeOnyx from 'react-native-onyx';
 import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
-
-const minPollInterval = 60000; // 1 minute
-let currentlyFetchingReviewing = false;
-let currentlyFetchingAssigned = false;
-let lastFetchReviewingTimestamp = null;
-let lastFetchAssignedTimestamp = null;
+import ActionThrottle from '../ActionThrottle';
 
 function getChecks(prs, onyxKey) {
     const checkRunPromises = _.reduce(prs, (finalPromiseArray, pr) => {
@@ -59,77 +54,55 @@ function getChecks(prs, onyxKey) {
 }
 
 function getAssigned() {
-    const msSinceLastFetchAssigned = Date.now() - lastFetchAssignedTimestamp;
-    if (currentlyFetchingAssigned || msSinceLastFetchAssigned < minPollInterval) {
-        return;
-    }
-    currentlyFetchingAssigned = true;
+    ActionThrottle('getAssigned', () => (
+        API.getPullsByType('assignee')
+            .then(prs => (
+                API.getPullsByType('author')
+                    .then((authorPrs) => {
+                        _.each(authorPrs, (authorPr) => {
+                            if (authorPr.assignees.nodes.length > 0) {
+                                return;
+                            }
 
-    API.getPullsByType('assignee')
-        .then((prs) => {
-            API.getPullsByType('author')
-                .then((authorPrs) => {
-                    _.each(authorPrs, (authorPr) => {
-                        if (authorPr.assignees.nodes.length > 0) {
-                            return;
-                        }
+                            // eslint-disable-next-line no-param-reassign
+                            prs[authorPr.id] = authorPr;
+                        });
 
-                        // eslint-disable-next-line no-param-reassign
-                        prs[authorPr.id] = authorPr;
-                    });
+                        // Always use set() here because there is no way to remove issues from Onyx
+                        // that get closed and are no longer assigned
+                        ReactNativeOnyx.set(ONYXKEYS.PRS.ASSIGNED, prs);
 
-                    // Always use set() here because there is no way to remove issues from Onyx
-                    // that get closed and are no longer assigned
-                    ReactNativeOnyx.set(ONYXKEYS.PRS.ASSIGNED, prs);
-
-                    // Get the check-runs for each PR and then merge that information into the PR information in Onyx.
-                    getChecks(prs, ONYXKEYS.PRS.ASSIGNED).then(() => {
-                        lastFetchAssignedTimestamp = Date.now();
-                        currentlyFetchingAssigned = false;
-                    });
-                });
-        })
-        .catch(() => {
-            lastFetchAssignedTimestamp = Date.now();
-            currentlyFetchingAssigned = false;
-        });
+                        // Get the check-runs for each PR and then merge that information into the PR information in Onyx.
+                        return getChecks(prs, ONYXKEYS.PRS.ASSIGNED);
+                    })
+            ))
+    ));
 }
 
 function getReviewing() {
-    const msSinceLastFetchReviewing = Date.now() - lastFetchReviewingTimestamp;
-    if (currentlyFetchingReviewing || msSinceLastFetchReviewing < minPollInterval) {
-        return;
-    }
-    currentlyFetchingReviewing = true;
+    ActionThrottle('getReviewing', () => {
+        const promises = [];
+        promises.push(API.getPullsByType('review-requested'));
+        promises.push(API.getPullsByType('reviewed-by'));
 
-    const promises = [];
-    promises.push(API.getPullsByType('review-requested'));
-    promises.push(API.getPullsByType('reviewed-by'));
+        return Promise.all(promises).then((values) => {
+            const allPRs = {
+                ...values[0],
+                ...values[1],
+            };
 
-    Promise.all(promises).then((values) => {
-        const allPRs = {
-            ...values[0],
-            ...values[1],
-        };
+            const prsAuthoredByOtherUsers = _.chain(allPRs)
+                .reject(pr => pr.author.login === API.getCurrentUser())
+                .indexBy('id')
+                .value();
 
-        const prsAuthoredByOtherUsers = _.chain(allPRs)
-            .reject(pr => pr.author.login === API.getCurrentUser())
-            .indexBy('id')
-            .value();
+            // Always use set() here because there is no way to remove issues from Onyx
+            // that get closed and are no longer assigned
+            ReactNativeOnyx.set(ONYXKEYS.PRS.REVIEWING, prsAuthoredByOtherUsers);
 
-        // Always use set() here because there is no way to remove issues from Onyx
-        // that get closed and are no longer assigned
-        ReactNativeOnyx.set(ONYXKEYS.PRS.REVIEWING, prsAuthoredByOtherUsers);
-
-        // // Get the check-runs for each PR and then merge that information into the PR information in Onyx.
-        getChecks(prsAuthoredByOtherUsers, ONYXKEYS.PRS.REVIEWING).then(() => {
-            lastFetchReviewingTimestamp = Date.now();
-            currentlyFetchingReviewing = false;
+            // Get the check-runs for each PR and then merge that information into the PR information in Onyx.
+            return getChecks(prsAuthoredByOtherUsers, ONYXKEYS.PRS.REVIEWING);
         });
-    })
-    .catch(() => {
-        lastFetchReviewingTimestamp = Date.now();
-        currentlyFetchingReviewing = false;
     });
 }
 
