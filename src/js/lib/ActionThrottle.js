@@ -10,7 +10,6 @@ const lastFetchTimestamps = {};
  *
  * @param {String} commandName must be a unique name for each action method that fetches data from the GH API and stores the results in Onyx
  * @param {Function} methodThatReturnsAPromise
- * @returns
  */
 function ActionThrottle(commandName, methodThatReturnsAPromise) {
     const msSinceLastFetch = Date.now() - (lastFetchTimestamps[commandName] || null);
@@ -20,11 +19,7 @@ function ActionThrottle(commandName, methodThatReturnsAPromise) {
     currentlyFetching[commandName] = true;
 
     methodThatReturnsAPromise()
-        .then(() => {
-            lastFetchTimestamps[commandName] = Date.now();
-            currentlyFetching[commandName] = false;
-        })
-        .catch(() => {
+        .finally(() => {
             lastFetchTimestamps[commandName] = Date.now();
             currentlyFetching[commandName] = false;
         });
