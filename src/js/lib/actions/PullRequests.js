@@ -3,6 +3,12 @@ import ReactNativeOnyx from 'react-native-onyx';
 import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
 
+const minPollInterval = 60000; // 1 minute
+let currentlyFetchingReviewing = false;
+let currentlyFetchingAssigned = false;
+let lastFetchReviewingTimestamp = null;
+let lastFetchAssignedTimestamp = null;
+
 function getChecks(prs, onyxKey) {
     _.each(prs, (pr) => {
         API.getCheckRuns(pr.repository.name, pr.headRefOid).then((response) => {
@@ -49,10 +55,19 @@ function getChecks(prs, onyxKey) {
 }
 
 function getAssigned() {
+    const msSinceLastFetchAssigned = Date.now() - lastFetchAssignedTimestamp;
+    if (currentlyFetchingAssigned || msSinceLastFetchAssigned < minPollInterval) {
+        return;
+    }
+    currentlyFetchingAssigned = true;
+
     API.getPullsByType('assignee')
         .then((prs) => {
             API.getPullsByType('author')
                 .then((authorPrs) => {
+                    lastFetchAssignedTimestamp = Date.now();
+                    currentlyFetchingAssigned = false;
+
                     _.each(authorPrs, (authorPr) => {
                         if (authorPr.assignees.nodes.length > 0) {
                             return;
@@ -73,11 +88,20 @@ function getAssigned() {
 }
 
 function getReviewing() {
+    const msSinceLastFetchReviewing = Date.now() - lastFetchReviewingTimestamp;
+    if (currentlyFetchingReviewing || msSinceLastFetchReviewing < minPollInterval) {
+        return;
+    }
+    currentlyFetchingReviewing = true;
+
     const promises = [];
     promises.push(API.getPullsByType('review-requested'));
     promises.push(API.getPullsByType('reviewed-by'));
 
     Promise.all(promises).then((values) => {
+        lastFetchReviewingTimestamp = Date.now();
+        currentlyFetchingReviewing = false;
+
         const allPRs = {
             ...values[0],
             ...values[1],

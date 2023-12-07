@@ -15,6 +15,7 @@ const propTypes = {
 };
 
 function ListIssues(props) {
+    console.log('[tim', 'ListIssues render()', '===========')
     return (
         <div className="issueList">
             <Legend />
