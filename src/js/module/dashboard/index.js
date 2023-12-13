@@ -10,7 +10,6 @@ import ONYXKEYS from '../../ONYXKEYS';
  * Display our dashboard with the list of issues
  */
 function showDashboard() {
-    $('.repository-content').children().hide();
     if (!$('.repository-content').children('.k2dashboard').length) {
         $('.repository-content').append('<div class="k2dashboard">');
     }
@@ -25,7 +24,6 @@ function showDashboard() {
  * @date 2015-06-14
  */
 function showPasswordForm() {
-    $('.repository-content').children().remove();
     if (!$('.repository-content').children('.passwordform').length) {
         $('.repository-content').append('<div class="passwordform">');
     }
@@ -36,6 +34,11 @@ function showPasswordForm() {
 
 export default () => ({
     draw() {
+        const passwordFormWasDrawn = $('.repository-content').children('.passwordform').length;
+        const dashboardWasDrawn = $('.repository-content').children('.k2dashboard').length;
+        if (passwordFormWasDrawn || dashboardWasDrawn) {
+            return;
+        }
         $('.repository-content').children().remove();
         ReactNativeOnyx.init({
             keys: ONYXKEYS,
