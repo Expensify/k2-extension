@@ -64,6 +64,16 @@ class BudgetPlanner extends React.Component {
         this.setState({futureAmount, pendingAmount});
     }
 
+    checkStatus(cplusstatus, matchWith) {
+        if (!cplusstatus) {
+            return false;
+        }
+        if (typeof cplusstatus === 'string') {
+            return cplusstatus === matchWith;
+        }
+        return cplusstatus.status === matchWith;
+    }
+
     render() {
         if (!this.props.issues) {
             return (
@@ -72,6 +82,14 @@ class BudgetPlanner extends React.Component {
                 </div>
             );
         }
+
+        const pendingRequests = _.chain(this.props.cPlusStatus)
+            .keys()
+            .filter(key => this.checkStatus(this.props.cPlusStatus[key], 'Pending Payment')).value() || [];
+
+        const requestedRequests = _.chain(this.props.cPlusStatus)
+            .keys()
+            .filter(key => this.checkStatus(this.props.cPlusStatus[key], 'Requested')).value() || [];
 
         return (
             <div className="mb-3">
@@ -85,7 +103,7 @@ class BudgetPlanner extends React.Component {
                                 <div className="d-flex flex-row ">
                                     <div className="col-3 pr-4">
                                         <div>
-                                            <h5>Pending Amount</h5>
+                                            <h5>Pending Jobs&apos;</h5>
                                             <p className="amount">
 $
                                                 {this.state.pendingAmount}
@@ -95,10 +113,28 @@ $
                                     </div>
                                     <div className="col-3 pr-4">
                                         <div>
-                                            <h5>Future Amount</h5>
+                                            <h5>Future Jobs&apos;</h5>
                                             <p className="amount">
 $
                                                 {this.state.futureAmount}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="col-3 pr-4">
+                                        <div>
+                                            <h5>Pending Finished Jobs&apos;</h5>
+                                            <p className="amount">
+                                                $
+                                                {_.reduce(pendingRequests, (total, key) => parseInt(this.props.cPlusStatus[key].amount, 10) + total, 0)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="col-3 pr-4">
+                                        <div>
+                                            <h5>Requested Finished Jobs&apos;</h5>
+                                            <p className="amount">
+                                                $
+                                                {_.reduce(requestedRequests, (total, key) => parseInt(this.props.cPlusStatus[key].amount, 10) + total, 0)}
                                             </p>
                                         </div>
                                     </div>
@@ -106,38 +142,36 @@ $
                                 <div className="d-flex flex-row">
                                     <div className="col-5 pr-4">
                                         <div className="border p-3 rounded">
-                                            <h5 className="h4 mb-2 text-light">Pending Requests</h5>
-                                            {_.chain(this.props.cPlusStatus)
-                                                .keys()
-                                                .filter(key => this.props.cPlusStatus[key] === 'Pending Payment')
-                                                .map((key) => {
-                                                    const id = getIDfromCollectionkey(ONYXKEYS.COLLECTION.C_PLUS_PAYMENT_STATUS, key);
-                                                    return (
-                                                        <a className="IssueLabel color-bg-severe-emphasis color-fg-on-emphasis" href={`https://github.com/Expensify/App/issues/${id}`}>
+                                            <h5 className="h4 mb-2 text-light">
+Pending Requests
+                                            </h5>
+                                            {_.map(pendingRequests, (key) => {
+                                                const id = getIDfromCollectionkey(ONYXKEYS.COLLECTION.C_PLUS_PAYMENT_STATUS, key);
+                                                return (
+                                                    <a className="IssueLabel color-bg-severe-emphasis color-fg-on-emphasis" href={`https://github.com/Expensify/App/issues/${id}`}>
                                                             #
-                                                            {id}
-                                                        </a>
-                                                    );
-                                                })
-                                                .value()}
+                                                        {id}
+                                                        <span className="IssueLabel IssueAmountLabel color-bg-subtle color-fg-severe">{this.props.cPlusStatus[key]?.amount}</span>
+                                                    </a>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                     <div className="col-5 pr-4">
                                         <div className="border p-3 rounded">
-                                            <h5 className="h4 mb-2 text-light">Requested</h5>
-                                            {_.chain(this.props.cPlusStatus)
-                                                .keys()
-                                                .filter(key => this.props.cPlusStatus[key] === 'Requested')
-                                                .map((key) => {
-                                                    const id = getIDfromCollectionkey(ONYXKEYS.COLLECTION.C_PLUS_PAYMENT_STATUS, key);
-                                                    return (
-                                                        <a className="IssueLabel color-bg-open-emphasis color-fg-on-emphasis" href={`https://github.com/Expensify/App/issues/${id}`}>
+                                            <h5 className="h4 mb-2 text-light">
+Requested
+                                            </h5>
+                                            {_.map(requestedRequests, (key) => {
+                                                const id = getIDfromCollectionkey(ONYXKEYS.COLLECTION.C_PLUS_PAYMENT_STATUS, key);
+                                                return (
+                                                    <a className="IssueLabel color-bg-open-emphasis color-fg-on-emphasis" href={`https://github.com/Expensify/App/issues/${id}`}>
                                                             #
-                                                            {id}
-                                                        </a>
-                                                    );
-                                                })
-                                                .value()}
+                                                        {id}
+                                                        <span className="IssueLabel IssueAmountLabel color-bg-subtle color-fg-emphasis">{this.props.cPlusStatus[key]?.amount}</span>
+                                                    </a>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 </div>

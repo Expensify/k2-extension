@@ -37,11 +37,12 @@ const defaultBtnClass = 'btn btn-sm tooltipped tooltipped-n typepicker';
 
 const propTypes = {
     issueID: PropTypes.string.isRequired,
-    cPlusPaymentStatus: PropTypes.string,
+    // eslint-disable-next-line react/forbid-prop-types
+    cPlusPaymentStatus: PropTypes.any,
 };
 
 const defaultProps = {
-    cPlusPaymentStatus: '',
+    cPlusPaymentStatus: {},
 };
 
 class Request extends React.Component {
@@ -98,7 +99,13 @@ class Request extends React.Component {
         if (!this.props.cPlusPaymentStatus) {
             return;
         }
-        this.setActiveLabel(this.props.cPlusPaymentStatus, () => {}, () => {});
+        if (typeof this.props.cPlusPaymentStatus === 'string') {
+            this.setState({amount: ''});
+            this.setActiveLabel(this.props.cPlusPaymentStatus, () => {}, () => {});
+        } else {
+            this.setState({amount: this.props.cPlusPaymentStatus.amount});
+            this.setActiveLabel(this.props.cPlusPaymentStatus.status, () => {}, () => {});
+        }
     }
 
     setActiveLabel(label, onActive, onInactive) {
@@ -126,10 +133,10 @@ class Request extends React.Component {
     clickNSave(label) {
         this.setActiveLabel(label,
             () => {
-                RequestPayment.saveCPlusPaymentSatus(this.props.issueID, label);
+                RequestPayment.saveCPlusPaymentSatus(this.props.issueID, label, this.state.amount);
             },
             () => {
-                RequestPayment.saveCPlusPaymentSatus(this.props.issueID, null);
+                RequestPayment.removeCPlusPaymentSatus(this.props.issueID);
             });
     }
 
@@ -213,6 +220,16 @@ class Request extends React.Component {
                 <div className="position-relative mt-3 flex-btns">
                     {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                     <label className="sidebar-floated-label">Track C+ Payment</label>
+                    <input
+                        ref={el => this.input = el}
+                        type="text"
+                        htmlid="amount"
+                        name="amount"
+                        value={this.state.amount}
+                        onChange={e => this.setState({amount: e.target.value})}
+                        className="input-block form-control mb-2"
+                        placeholder="Enter payment amount"
+                    />
                     <BtnGroup className="d-flex">
                         <button
                             type="button"

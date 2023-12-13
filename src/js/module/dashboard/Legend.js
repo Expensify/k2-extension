@@ -5,7 +5,7 @@ import * as Preferences from '../../lib/actions/Preferences';
 const Legend = () => {
     function signOut() {
         Preferences.setGitHubToken('');
-        ReactNativeOnyx.clear();
+        // ReactNativeOnyx.clear();
         window.location.reload();
     }
 

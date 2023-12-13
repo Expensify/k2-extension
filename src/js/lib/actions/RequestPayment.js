@@ -5,10 +5,14 @@ import ONYXKEYS from '../../ONYXKEYS';
 
 // }
 
-function saveCPlusPaymentSatus(issueID, status) {
-    ReactNativeOnyx.set(`${ONYXKEYS.COLLECTION.C_PLUS_PAYMENT_STATUS}${issueID}`, status);
+function saveCPlusPaymentSatus(issueID, status, amount) {
+    ReactNativeOnyx.set(`${ONYXKEYS.COLLECTION.C_PLUS_PAYMENT_STATUS}${issueID}`, {status, amount});
+}
+function removeCPlusPaymentSatus(issueID) {
+    ReactNativeOnyx.set(`${ONYXKEYS.COLLECTION.C_PLUS_PAYMENT_STATUS}${issueID}`, null);
 }
 
 export default {
     saveCPlusPaymentSatus,
+    removeCPlusPaymentSatus,
 };

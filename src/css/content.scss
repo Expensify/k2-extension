@@ -619,6 +619,14 @@ $color-dark-yellow: #daa520;
         font-size: 38px;
         font-family: "Seogue UI";
     }
+    .IssueAmountLabel {
+        font-size: 9px;
+        line-height: 12px;
+        display: inline-block;
+        vertical-align: text-bottom;
+        margin-left: 4px;
+        margin-right: -4px;
+    }
 }
 
 .js-issue-assignees .k2-button {
