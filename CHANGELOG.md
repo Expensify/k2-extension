@@ -1,3 +1,6 @@
+#1.3.61
+- Bumped package versions to fix security vulnerabilities.
+
 #1.3.6
 - Add manual throttling to GH API Calls to protect against unnecessary re-renders
 
