@@ -92,7 +92,8 @@ $color-dark-yellow: #DAA520;
 }
 .panel {
   border: 1px solid $color-neutral-light;
-  border-radius: 3px;
+  border-radius: 8px;
+  overflow: hidden;
   &.hourly {
     .label {
       display: none;
@@ -188,7 +189,7 @@ $color-dark-yellow: #DAA520;
 .panel-item {
   border-top: 1px solid $color-neutral-light;
   display: block;
-  padding: $gutter;
+  padding: 4px 8px;
     .AvatarStack {
         display: inline-block !important;
         float: right !important;
@@ -559,5 +560,8 @@ $color-dark-yellow: #DAA520;
 }
 
 .issue-filter {
-  color: $color-black;
+  border-radius: 8px;
+  background: none;
+  margin-bottom: 8px;
+  border: 1px solid rgb(221, 221, 221);
 }
