@@ -562,6 +562,14 @@ $color-dark-yellow: #DAA520;
 .issue-filter {
   border-radius: 8px;
   background: none;
-  margin-bottom: 8px;
   border: 1px solid rgb(221, 221, 221);
+}
+
+@media (prefers-color-scheme: dark) {
+  .panel, .panel-item, .issue-filter {
+     border-color: rgb(48, 54, 61);
+  }
+  .issue-filter {
+     color: rgb(230, 237, 243)
+  }
 }
