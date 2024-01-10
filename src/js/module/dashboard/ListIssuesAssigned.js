@@ -75,9 +75,9 @@ class ListIssuesAssigned extends React.Component {
 
         return (
             <div className="mb-3">
-                <div className="panel-title issue-filter">
+                <div className="panel-title issue-filter mb-2">
                     <form className="form-inline">
-                        <strong>Hide:</strong>
+                        Hide:
                         <div className="checkbox">
                             <label>
                                 <input type="checkbox" name="shouldHideIfHeld" id="shouldHideIfHeld" onChange={this.toggleHeldFilter} />
@@ -93,7 +93,7 @@ class ListIssuesAssigned extends React.Component {
                     </form>
                 </div>
                 <div className="d-flex flex-row">
-                    <div className="col-3 pr-4">
+                    <div className="col-3 pr-3">
                         <PanelIssues
                             title="Hourly"
                             extraClass="hourly"
@@ -102,7 +102,7 @@ class ListIssuesAssigned extends React.Component {
                             hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
                         />
                     </div>
-                    <div className="col-3 pr-4">
+                    <div className="col-3 pr-3">
                         <PanelIssues
                             title="Daily"
                             extraClass="daily"
@@ -111,7 +111,7 @@ class ListIssuesAssigned extends React.Component {
                             hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
                         />
                     </div>
-                    <div className="col-3 pr-4">
+                    <div className="col-3 pr-3">
                         <PanelIssues
                             title="Weekly"
                             extraClass="weekly"

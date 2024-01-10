@@ -1,3 +1,6 @@
+#1.3.7
+- Design improvements for light and dark mode.
+
 #1.3.61
 - Bumped package versions to fix security vulnerabilities.
 
