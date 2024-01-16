@@ -1,4 +1,4 @@
-#1.3.7
+#1.3.62
 - Design improvements for light and dark mode.
 
 #1.3.61
