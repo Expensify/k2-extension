@@ -14,23 +14,25 @@ const propTypes = {
     pollInterval: PropTypes.number.isRequired,
 };
 
-const ListIssues = props => (
-    <div className="issueList">
-        <Legend />
+function ListIssues(props) {
+    return (
+        <div className="issueList">
+            <Legend />
 
-        <ListPRsReviewing pollInterval={props.pollInterval * 2.5} />
+            <ListPRsReviewing pollInterval={props.pollInterval * 2.5} />
 
-        <ListPRsAssigned pollInterval={props.pollInterval * 2.5} />
+            <ListPRsAssigned pollInterval={props.pollInterval * 2.5} />
 
-        <ListIssuesAssigned pollInterval={props.pollInterval} />
+            <ListIssuesAssigned pollInterval={props.pollInterval} />
 
-        <ListIssuesWAQ pollInterval={props.pollInterval * 2.5} />
+            <ListIssuesWAQ pollInterval={props.pollInterval * 2.5} />
 
-        <Filters />
+            <Filters />
 
-        <ListIssuesEngineering pollInterval={props.pollInterval * 2.5} />
-    </div>
-);
+            <ListIssuesEngineering pollInterval={props.pollInterval * 2.5} />
+        </div>
+    );
+}
 
 ListIssues.propTypes = propTypes;
 

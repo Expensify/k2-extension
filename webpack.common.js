@@ -3,6 +3,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const {IgnorePlugin} = require('webpack');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 module.exports = {
     context: path.resolve(__dirname, '.'),
@@ -27,6 +28,12 @@ module.exports = {
         // https://webpack.js.org/plugins/ignore-plugin/#example-of-ignoring-moment-locales
         new IgnorePlugin({
             resourceRegExp: /^\.\/locale$/,
+        }),
+
+        new ESLintPlugin({
+            cache: false,
+            emitWarning: true,
+            overrideConfigFile: path.resolve(__dirname, '.eslintrc.js'),
         }),
 
         // Copies icons and manifest file into our dist folder
@@ -78,18 +85,6 @@ module.exports = {
                     // Compiles Sass to CSS
                     'sass-loader',
                 ],
-            },
-            {
-                test: /\.js$/,
-                loader: 'eslint-loader',
-                exclude: [
-                    path.resolve(__dirname, 'node_modules'),
-                ],
-                options: {
-                    cache: false,
-                    emitWarning: true,
-                    configFile: path.resolve(__dirname, '.eslintrc.js'),
-                },
             },
         ]
     },

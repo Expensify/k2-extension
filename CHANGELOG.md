@@ -1,3 +1,18 @@
+#1.3.62
+- Design improvements for light and dark mode.
+
+#1.3.61
+- Bumped package versions to fix security vulnerabilities.
+
+#1.3.6
+- Add manual throttling to GH API Calls to protect against unnecessary re-renders
+
+#1.3.5
+- Upgrade to Node v20
+
+#1.3.4
+- Fix console error for regex on dashboard page
+
 #1.3.3
 - Change the color of non-issue owners to be grey
 
