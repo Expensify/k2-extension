@@ -43,7 +43,7 @@
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^10.2.0",
     "css-loader": "^6.8.1",
-    "eslint-config-expensify": "^2.0.42",
+    "eslint-config-expensify": "^2.0.44",
     "eslint-plugin-jsx-a11y": "^6.8.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-webpack-plugin": "^4.0.1",
