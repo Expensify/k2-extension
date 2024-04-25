@@ -74,12 +74,6 @@ const refreshAssignees = () => {
     // Always start by erasing whatever was drawn before (so it always starts from a clean slate)
     $('.js-issue-assignees .k2-element').remove();
 
-    // Do nothing if there is only one person assigned. Owners can only be set when there are
-    // multiple assignees
-    if ($('.js-issue-assignees > p > span').length <= 1) {
-        return;
-    }
-
     // Check if there is an owner for the issue
     const ghDescription = $('.comment-body').text();
     const regexResult = ghDescription.match(/Current Issue Owner:\s@(?<owner>\S+)/i);
