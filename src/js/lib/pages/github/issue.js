@@ -91,7 +91,7 @@ const refreshAssignees = () => {
         } else {
             $(el).append(`
                 <button type="button" class="Button flex-md-order-2 m-0 k2-element k2-button k2-button-make-owner" data-owner="${assignee}">
-                    ○
+                    ☆
                 </button>
             `);
         }

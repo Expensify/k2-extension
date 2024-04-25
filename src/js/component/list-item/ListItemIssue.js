@@ -67,6 +67,11 @@ class ListItemIssue extends React.Component {
                         {'★ '}
                     </span>
                 )}
+                {this.issueHasOwner && !this.isCurrentUserOwner && (
+                    <span>
+                        {'☆ '}
+                    </span>
+                )}
                 <a
                     href={this.props.issue.url}
                     className={this.getClassName()}
