@@ -1,3 +1,8 @@
+#1.3.63
+- Allow for code owners to be assigned when there is only one person assigned
+- Show on the K2 dashboard if an issue has an owner, and you're not the owner
+- Add a filter for issues not owned by you
+
 #1.3.62
 - Design improvements for light and dark mode.
 
