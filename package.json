@@ -23,7 +23,7 @@
     "react": "18.2.0",
     "react-dom": "18.1.0",
     "react-native-config": "^1.4.5",
-    "react-native-onyx": "1.0.122",
+    "react-native-onyx": "2.0.46",
     "react-router-dom": "^5.3.4",
     "underscore": "^1.13.2"
   },
