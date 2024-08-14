@@ -153,27 +153,19 @@ export default function () {
         }
         allreadySetup = true;
 
-        let refreshPickerTimeoutID;
-        let refreshAssigneesTimeoutID;
+        // Draw them once when the page is loaded
         setTimeout(refreshPicker, 500);
         setTimeout(refreshAssignees, 500);
 
-        // Listen for when the sidebar is redrawn, then redraw our pickers
-        $(document).bind('DOMNodeRemoved', (e) => {
-            if ($(e.target).hasClass('sidebar-assignee')) {
-                // Make sure that only one setTimeout runs at a time
-                clearTimeout(refreshAssigneesTimeoutID);
-                refreshAssigneesTimeoutID = setTimeout(refreshAssignees, 500);
+        // Every second, check to see if the pickers are still there, and if not, redraw them
+        setInterval(() => {
+            if (!$('.k2picker-wrapper').length) {
+                refreshPicker();
             }
-
-            if ($(e.target).is('#partial-discussion-sidebar')) {
-                // Make sure that only one setTimeout runs at a time
-                clearTimeout(refreshPickerTimeoutID);
-                refreshPickerTimeoutID = setTimeout(refreshPicker, 500);
-                clearTimeout(refreshAssigneesTimeoutID);
-                refreshAssigneesTimeoutID = setTimeout(refreshAssignees, 500);
+            if (!$('.js-issue-assignees .k2-element').length) {
+                refreshAssignees();
             }
-        });
+        }, 1000);
     };
 
     return IssuePage;
