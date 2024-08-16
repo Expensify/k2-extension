@@ -1,3 +1,6 @@
+#1.3.64
+- Fix the sidebar not redrawing when looking at GH issues
+
 #1.3.63
 - Allow for code owners to be assigned when there is only one person assigned
 - Show on the K2 dashboard if an issue has an owner, and you're not the owner
