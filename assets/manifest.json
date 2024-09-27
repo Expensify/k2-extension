@@ -33,7 +33,7 @@
   }],
 
   "background": {
-    "persistent": false,
-    "scripts": ["events.js"]
+    "service_worker": "events.js",
+    "type": "module"
   }
 }
