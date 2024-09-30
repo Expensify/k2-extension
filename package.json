@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "preinstall": "./tools/checkRuntimeVersions.sh",
-    "build": "webpack --progress --config webpack.prod.js",
+    "build": "npm run build:chrome",
     "build:chrome": "webpack --progress --config webpack.prod.js --env platform=chrome",
     "build:firefox": "webpack --progress --config webpack.prod.js --env platform=firefox",
     "package": "cd dist && zip -r -X ../dist.zip *",
