@@ -1,3 +1,9 @@
+#1.3.66
+- Added Firefox build script for Manifest V3 compatibility
+
+#1.3.65
+- Changed manifest.json to comply with Manifest V3
+
 #1.3.64
 - Fix the sidebar not redrawing when looking at GH issues
 
