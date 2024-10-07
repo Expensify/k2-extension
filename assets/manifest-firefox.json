@@ -8,7 +8,7 @@
   "browser_specific_settings": {
     "gecko": {
         "id": "ksv2@expensify.com",
-        "strict_min_version": "42.0"
+        "strict_min_version": "48.0"
       }
   },
 
@@ -33,7 +33,7 @@
   }],
 
   "background": {
-    "persistent": "false",
-    "scripts": ["events.js"]
+    "scripts": ["events.js"],
+    "type": "module"
   }
 }

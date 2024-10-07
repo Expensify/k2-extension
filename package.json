@@ -11,6 +11,7 @@
     "package": "cd dist && zip -r -X ../dist.zip *",
     "lint": "eslint . --max-warnings=0",
     "lintfix": "eslint . --fix",
+    "lint:firefox": "npm run build:firefox && web-ext lint -s ./dist",
     "web": "webpack --progress --config webpack.dev.js"
   },
   "dependencies": {
@@ -27,14 +28,15 @@
     "react-native-config": "^1.4.5",
     "react-native-onyx": "2.0.46",
     "react-router-dom": "^5.3.4",
-    "underscore": "^1.13.2"
+    "underscore": "^1.13.2",
+    "web-ext": "^8.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.16.7",
     "@babel/eslint-parser": "^7.16.5",
     "@babel/plugin-proposal-class-properties": "^7.16.7",
     "@babel/plugin-transform-runtime": "^7.16.8",
-    "@babel/preset-env": "^7.16.8",
+    "@babel/preset-env": "^7.22.6",
     "@babel/preset-flow": "^7.16.7",
     "@babel/preset-react": "^7.16.7",
     "@lwc/eslint-plugin-lwc": "^1.6.4",
