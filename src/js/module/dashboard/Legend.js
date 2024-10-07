@@ -2,7 +2,7 @@ import React from 'react';
 import ReactNativeOnyx from 'react-native-onyx';
 import * as Preferences from '../../lib/actions/Preferences';
 
-const Legend = () => {
+function Legend() {
     function signOut() {
         Preferences.setGitHubToken('');
         ReactNativeOnyx.clear();
@@ -40,6 +40,16 @@ const Legend = () => {
                 <sup>E</sup>
                 {' '}
                 External
+            </div>
+            <div>
+                <span className="owner">★</span>
+                {' '}
+                Issue owner
+            </div>
+            <div>
+                <span>☆</span>
+                {' '}
+                Issue is owned by someone else
             </div>
             <div className="issue">
                 <sup>I</sup>
@@ -88,7 +98,7 @@ const Legend = () => {
             </div>
         </div>
     );
-};
+}
 
 Legend.displayName = 'Legend';
 

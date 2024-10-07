@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import {createRoot} from 'react-dom/client';
 import ReactNativeOnyx from 'react-native-onyx';
 import ListIssues from './ListIssues';
 import FormPassword from './FormPassword';
@@ -10,14 +10,12 @@ import ONYXKEYS from '../../ONYXKEYS';
  * Display our dashboard with the list of issues
  */
 function showDashboard() {
-    $('.repository-content').children().hide();
     if (!$('.repository-content').children('.k2dashboard').length) {
         $('.repository-content').append('<div class="k2dashboard">');
     }
-    ReactDOM.render(
-        <ListIssues pollInterval={60000} />,
-        $('.k2dashboard').show()[0],
-    );
+
+    const root = createRoot($('.k2dashboard').show()[0]);
+    root.render(<ListIssues pollInterval={60000} />);
 }
 
 /**
@@ -26,18 +24,21 @@ function showDashboard() {
  * @date 2015-06-14
  */
 function showPasswordForm() {
-    $('.repository-content').children().remove();
     if (!$('.repository-content').children('.passwordform').length) {
         $('.repository-content').append('<div class="passwordform">');
     }
-    ReactDOM.render(
-        <FormPassword onFinished={showDashboard} />,
-        $('.passwordform').show()[0],
-    );
+
+    const root = createRoot($('.passwordform').show()[0]);
+    root.render(<FormPassword onFinished={showDashboard} />);
 }
 
 export default () => ({
     draw() {
+        const passwordFormWasDrawn = $('.repository-content').children('.passwordform').length;
+        const dashboardWasDrawn = $('.repository-content').children('.k2dashboard').length;
+        if (passwordFormWasDrawn || dashboardWasDrawn) {
+            return;
+        }
         $('.repository-content').children().remove();
         ReactNativeOnyx.init({
             keys: ONYXKEYS,

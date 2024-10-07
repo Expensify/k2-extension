@@ -10,7 +10,12 @@ let octokit;
  */
 function getOctokit() {
     if (!octokit) {
-        octokit = new Octokit({auth: Preferences.getGitHubToken()});
+        /* eslint-disable-next-line no-console */
+        console.log('authenticate with auth token', Preferences.getGitHubToken());
+        octokit = new Octokit({
+            auth: Preferences.getGitHubToken(),
+            userAgent: 'expensify-k2-extension',
+        });
     }
     return octokit;
 }
@@ -35,13 +40,13 @@ function getCurrentUser() {
  */
 function getRequestParams() {
     const url = window.location.href;
-    const regex = /github.com\/(\w*)\/(\w*)\/(?:issues|pull)\/(\d*)/;
+    const regex = /github.com\/(?<owner>\w*)\/(?<repo>\w*)(?:\/(?:issues|pull)\/(?<issue_number>\d*))?/;
     const matches = url.match(regex);
 
     return {
-        owner: matches[1],
-        repo: matches[2],
-        issue_number: matches[3],
+        owner: (matches && matches.groups && matches.groups.owner) || '',
+        repo: (matches && matches.groups && matches.groups.repo) || '',
+        issue_number: (matches && matches.groups && matches.groups.issue_number) || '',
     };
 }
 
@@ -320,6 +325,7 @@ function getIssues(assignee = 'none', labels) {
                         url
                         createdAt
                         updatedAt
+                        body
                         assignees(first: 100) {
                           nodes {
                             avatarUrl
@@ -395,6 +401,21 @@ function addComment(comment) {
     return getOctokit().rest.issues.createComment({...getRequestParams(), body: comment});
 }
 
+/**
+ * @returns {Promise}
+ */
+function getCurrentIssueDescription() {
+    return getOctokit().rest.issues.get({...getRequestParams()});
+}
+
+/**
+ * @param {String} body
+ * @returns {Promise}
+ */
+function setCurrentIssueBody(body) {
+    return getOctokit().rest.issues.update({...getRequestParams(), body});
+}
+
 export {
     addComment,
     getCheckRuns,
@@ -407,4 +428,6 @@ export {
     getMilestones,
     getCurrentUser,
     getPullsByType,
+    getCurrentIssueDescription,
+    setCurrentIssueBody,
 };

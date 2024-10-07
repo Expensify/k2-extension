@@ -13,13 +13,15 @@ const defaultProps = {
     count: null,
 };
 
-const Title = props => (
-    <div>
-        <h3 className="panel-title">
-            {`${props.text} ${props.count !== null ? `(${props.count})` : ''}`}
-        </h3>
-    </div>
-);
+function Title(props) {
+    return (
+        <div>
+            <h3 className="panel-title">
+                {`${props.text} ${props.count !== null ? `(${props.count})` : ''}`}
+            </h3>
+        </div>
+    );
+}
 
 Title.propTypes = propTypes;
 Title.defaultProps = defaultProps;

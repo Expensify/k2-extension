@@ -1,3 +1,50 @@
+#1.3.66
+- Added Firefox build script for Manifest V3 compatibility
+
+#1.3.65
+- Changed manifest.json to comply with Manifest V3
+
+#1.3.64
+- Fix the sidebar not redrawing when looking at GH issues
+
+#1.3.63
+- Allow for code owners to be assigned when there is only one person assigned
+- Show on the K2 dashboard if an issue has an owner, and you're not the owner
+- Add a filter for issues not owned by you
+
+#1.3.62
+- Design improvements for light and dark mode.
+
+#1.3.61
+- Bumped package versions to fix security vulnerabilities.
+
+#1.3.6
+- Add manual throttling to GH API Calls to protect against unnecessary re-renders
+
+#1.3.5
+- Upgrade to Node v20
+
+#1.3.4
+- Fix console error for regex on dashboard page
+
+#1.3.3
+- Change the color of non-issue owners to be grey
+
+#1.3.2
+- Updated the octokit client to fix throttling
+
+#1.3.1
+- Made new filter work in dark mode
+
+#1.3.0
+- Add filters for held and under review issues in the assigned issues sections
+
+#1.2.15
+- Added issue owner functionality
+
+#1.2.14
+- Bumped package versions to fix security vulnerabilities.
+
 #1.2.13
 - Improve the regex that fetches the repository name, owner and issue number from the current URL work for pull requests as well
 

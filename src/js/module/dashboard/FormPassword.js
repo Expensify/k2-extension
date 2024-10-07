@@ -2,7 +2,6 @@ import $ from 'jquery';
 import React from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
-import {withOnyx} from 'react-native-onyx';
 import * as Preferences from '../../lib/actions/Preferences';
 import Title from '../../component/panel-title/Title';
 
@@ -56,7 +55,7 @@ class FormPassword extends React.Component {
                                     <input
                                         ref={el => this.input = el}
                                         type="password"
-                                        htmlid="password"
+                                        id="password"
                                         name="password"
                                         className="input-block"
                                         required
@@ -90,8 +89,4 @@ class FormPassword extends React.Component {
 FormPassword.propTypes = propTypes;
 FormPassword.defaultProps = defaultProps;
 
-export default withOnyx({
-    preferences: {
-        key: 'preferences',
-    },
-})(FormPassword);
+export default FormPassword;

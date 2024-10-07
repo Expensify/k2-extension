@@ -20,6 +20,10 @@ $color-light-blue: #12a4d5;
 $color-darker-green: #2cb528;
 $color-dark-yellow: #DAA520;
 
+.owner {
+  color: $color-dark-yellow !important;
+}
+
 .k2dashboard,
 .passwordform {
     max-width: 1680px;
@@ -88,7 +92,8 @@ $color-dark-yellow: #DAA520;
 }
 .panel {
   border: 1px solid $color-neutral-light;
-  border-radius: 3px;
+  border-radius: 8px;
+  overflow: hidden;
   &.hourly {
     .label {
       display: none;
@@ -184,7 +189,7 @@ $color-dark-yellow: #DAA520;
 .panel-item {
   border-top: 1px solid $color-neutral-light;
   display: block;
-  padding: $gutter;
+  padding: 4px 8px;
     .AvatarStack {
         display: inline-block !important;
         float: right !important;
@@ -218,7 +223,8 @@ $color-dark-yellow: #DAA520;
   // issue erosion still happens for "held issues"
   &.help-wanted,
   &.challenge-sent,
-  &.hold {
+  &.hold,
+  &.nonowner {
     color: darken($color-neutral-light, 20%) !important;
     .issue-link {
       color: darken($color-neutral-light, 20%) !important;
@@ -539,4 +545,31 @@ $color-dark-yellow: #DAA520;
 #partial-discussion-sidebar[data-url^="/Expensify/"] {
   position: sticky;
   top: 60px;
+}
+
+.js-issue-assignees .k2-button {
+  position: absolute;
+  right: -12px;
+  margin-top: -5px !important;
+}
+
+.alert {
+  color: $color-alert;
+  font-weight: bold;
+  margin: 8px 16px;
+}
+
+.issue-filter {
+  border-radius: 8px;
+  background: none;
+  border: 1px solid rgb(221, 221, 221);
+}
+
+@media (prefers-color-scheme: dark) {
+  .panel, .panel-item, .issue-filter {
+     border-color: rgb(48, 54, 61);
+  }
+  .issue-filter {
+     color: rgb(230, 237, 243)
+  }
 }

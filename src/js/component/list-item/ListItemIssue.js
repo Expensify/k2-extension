@@ -19,13 +19,16 @@ class ListItemIssue extends React.Component {
         let className = 'issue';
 
         // See if it's under review
-
         if (this.isUnderReview) {
             className += ' reviewing';
         }
 
         if (this.isOverdue) {
             className += ' overdue';
+        }
+
+        if (this.issueHasOwner && !this.isCurrentUserOwner) {
+            className += ' nonowner';
         }
 
         return className + this.isPlanning + this.isWaitingOnCustomer + this.isHeld + this.isChallengeSent + this.isHelpWanted + this.isContributorAssigned;
@@ -51,12 +54,24 @@ class ListItemIssue extends React.Component {
         this.isHelpWanted = _.some(this.props.issue.labels, {name: 'Help Wanted'}) ? ' help-wanted' : '';
         this.isContributorAssigned = this.isExternal && !this.isHelpWanted ? ' contributor-assigned' : '';
         this.isUnderReview = _.find(this.props.issue.labels, label => label.name.toLowerCase() === 'reviewing');
+        this.issueHasOwner = this.props.issue.issueHasOwner;
+        this.isCurrentUserOwner = this.props.issue.currentUserIsOwner;
     }
 
     render() {
         this.parseIssue();
         return (
             <div className="panel-item">
+                {this.isCurrentUserOwner && (
+                    <span className="owner">
+                        {'★ '}
+                    </span>
+                )}
+                {this.issueHasOwner && !this.isCurrentUserOwner && (
+                    <span>
+                        {'☆ '}
+                    </span>
+                )}
                 <a
                     href={this.props.issue.url}
                     className={this.getClassName()}

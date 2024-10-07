@@ -19,8 +19,10 @@ export default function () {
      * Runs on page load, adds qa guidelines content and event listener to show/hide the guidelines
      */
     CreatePrPage.setup = function () {
+        // eslint-disable-next-line no-undef
         addQAGuidelines();
 
+        // eslint-disable-next-line no-undef
         $('#k2-extension-qa-guidelines-toggle').on('change', toggleQAGuidelines);
     };
 
