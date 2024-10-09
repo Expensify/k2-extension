@@ -4,6 +4,7 @@ import Filters from './Filters';
 
 import ListIssuesAssigned from './ListIssuesAssigned';
 import ListPRsAssigned from './ListPRsAssigned';
+import ListPRsMerged from './ListPRsMerged';
 import ListPRsReviewing from './ListPRsReviewing';
 import ListIssuesEngineering from './ListIssuesEngineering';
 import Legend from './Legend';
@@ -24,6 +25,8 @@ function ListIssues(props) {
             <ListIssuesAssigned pollInterval={props.pollInterval} />
 
             <ListPRsAssigned pollInterval={props.pollInterval * 2.5} />
+
+            <ListPRsMerged pollInterval={props.pollInterval * 2.5} />
 
             <ListIssuesWAQ pollInterval={props.pollInterval * 2.5} />
 

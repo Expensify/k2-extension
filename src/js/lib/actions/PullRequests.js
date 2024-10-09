@@ -79,6 +79,32 @@ function getAssigned() {
     ));
 }
 
+function getMerged() {
+    ActionThrottle('getAssigned', () => (
+        API.getStagingPullsByType('assignee')
+            .then(prs => (
+                API.getStagingPullsByType('author')
+                    .then((authorPrs) => {
+                        _.each(authorPrs, (authorPr) => {
+                            if (authorPr.assignees.nodes.length > 0) {
+                                return;
+                            }
+
+                            // eslint-disable-next-line no-param-reassign
+                            prs[authorPr.id] = authorPr;
+                        });
+
+                        // Always use set() here because there is no way to remove issues from Onyx
+                        // that get closed and are no longer assigned
+                        ReactNativeOnyx.set(ONYXKEYS.PRS.MERGED, prs);
+
+                        // Get the check-runs for each PR and then merge that information into the PR information in Onyx.
+                        return getChecks(prs, ONYXKEYS.PRS.MERGED);
+                    })
+            ))
+    ));
+}
+
 function getReviewing() {
     ActionThrottle('getReviewing', () => {
         const promises = [];
@@ -109,4 +135,5 @@ function getReviewing() {
 export {
     getAssigned,
     getReviewing,
+    getMerged,
 };

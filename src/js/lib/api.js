@@ -265,6 +265,71 @@ query {
         });
 }
 
+function getStagingPullsByType(type) {
+    let query = '';
+    query += ' type:pr';
+
+    // Filter to target only PRs into the "staging" branch
+    query += ' base:staging';
+
+    query += ' org:expensify';
+    query += ` ${type}:${getCurrentUser()}`;
+
+    const graphQLQuery = `
+query {
+    search(query: "${query}", type: ISSUE, first: 100) {
+        nodes {
+            ... on PullRequest {
+                headRefOid
+                id
+                isDraft
+                mergeable
+                reviewDecision
+                title
+                url
+                updatedAt
+                author {
+                    login
+                }
+                assignees(first:1) {
+                    nodes {
+                        login
+                    }
+                }
+                comments {
+                    totalCount
+                }
+                repository {
+                    name
+                }
+                reviews {
+                    totalCount
+                }
+                baseRefName
+            }
+        }
+    }
+}
+    `;
+
+    return getOctokit().graphql(graphQLQuery)
+        .then((data) => {
+            // Put the data into a format that the rest of the app will use to remove things like edges and nodes
+            const results = _.reduce(data.search.nodes, (pullRequests, searchNodes) => {
+                pullRequests.push({
+                    ...searchNodes,
+                });
+                return pullRequests;
+            }, []);
+
+            // eslint-disable-next-line no-console
+            console.log('>>>', {data, results});
+
+            // Index the results by their ID so they are easier to access as a collection
+            return _.indexBy(results, 'id');
+        });
+}
+
 function getCheckRuns(repo, headSHA) {
     return getOctokit().rest.checks.listForRef({
         owner: getRequestParams().owner,
@@ -428,6 +493,7 @@ export {
     getMilestones,
     getCurrentUser,
     getPullsByType,
+    getStagingPullsByType,
     getCurrentIssueDescription,
     setCurrentIssueBody,
 };
