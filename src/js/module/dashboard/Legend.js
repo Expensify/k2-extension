@@ -46,6 +46,11 @@ function Legend() {
                 {' '}
                 Issue owner
             </div>
+            <div>
+                <span>☆</span>
+                {' '}
+                Issue is owned by someone else
+            </div>
             <div className="issue">
                 <sup>I</sup>
                 {' '}

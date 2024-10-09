@@ -63,7 +63,7 @@ Sometimes it is necessary to install and enable the public version of the extens
 
 # Creating your PR
 Be sure to do the following before pushing up your branch:
-1. Bump the version number in `assets/manifest.json` (use major.minor.patch version scheme)
+1. Bump the version number in `assets/manifest.json` and `assets/manifest-firefox.json` (use major.minor.patch version scheme)
 1. Bump the version number in `package.json` and `package-lock.json` to match
 1. Add a new change log entry in `CHANGELOG.md`
 

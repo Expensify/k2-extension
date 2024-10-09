@@ -2,8 +2,8 @@
 
 installedNodeVersion="$(node -v)"
 installedNpmVersion="$(npm -v)"
-desiredNodeVersion="v20.10.0"
-desiredNpmVersion="10.2.3"
+desiredNodeVersion="v20.15.1"
+desiredNpmVersion="10.7.0"
 
 if [[ "$installedNodeVersion" != "$desiredNodeVersion" ]]; then
   echo "⚠️  [ERROR] Wrong version of node installed! You are currently running $installedNodeVersion. Please install node $desiredNodeVersion from https://nodejs.org/en/download/releases/"
