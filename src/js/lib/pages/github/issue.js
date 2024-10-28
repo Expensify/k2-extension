@@ -23,6 +23,41 @@ function catchError(e) {
 }
 
 /**
+ * Gets the contents of the reviewer checklist from GitHub and then posts it as a comment to the current PR
+ * @param {Event} e
+ */
+const copyReviewerChecklist = (e) => {
+    e.preventDefault();
+    const pathToChecklist = 'https://raw.githubusercontent.com/Expensify/App/f1e20914e4a9f3065457048e6a396fa0c841b0ad/contributingGuides/BUGZERO_CHECKLIST.md';
+    $.get(pathToChecklist)
+        .done((fileContents) => {
+            if (!fileContents) {
+                console.error(`could not load contents of ${pathToChecklist} for some reason`);
+                return;
+            }
+
+            API.addComment(fileContents);
+        });
+};
+
+const renderCopyChecklistButton = () => {
+    // Look through all the comments on the page to find one that has the template for the copy/paste checklist button
+    // eslint-disable-next-line rulesdir/prefer-underscore-method
+    $('.js-comment-body').each((i, el) => {
+        const commentHtml = $(el).html();
+
+        // When the button template is found, replace it with an HTML button and then put that back into the DOM so someone can click on it
+        if (commentHtml && commentHtml.indexOf('you can simply click: [this button]') > -1) {
+            const newHtml = commentHtml.replace('[this button]', '<button type="button" class="btn btn-sm k2-copy-checklist">HERE</button>');
+            $(el).html(newHtml);
+
+            // Now that the button is on the page, add a click handler to it (always remove all handlers first so that we know there will always be one handler attached)
+            $('.k2-copy-checklist').off().on('click', copyReviewerChecklist);
+        }
+    });
+};
+
+/**
  * Sets the owner of an issue when it doesn't have an owner yet
  * @param {String} owner to set
  */
@@ -166,6 +201,9 @@ export default function () {
                 refreshAssignees();
             }
         }, 1000);
+
+        // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
+        setInterval(renderCopyChecklistButton, 2000);
     };
 
     return IssuePage;
