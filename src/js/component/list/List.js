@@ -61,13 +61,6 @@ class List extends React.Component {
         });
     }
 
-    fetch() {
-        if (!this.props.action) {
-            return;
-        }
-        this.props.action.fetch();
-    }
-
     render() {
         if (this.state.loading) {
             return (

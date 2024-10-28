@@ -64,37 +64,31 @@ class CommentsButtons extends React.Component {
                         </span>
                     </button>
                     {this.state.isOpen && (
-                        <>
-                            {this.state.isButtonSelected ? (
-                                <>
-                                    <button
-                                        type="button"
-                                        className="btn btn-sm"
-                                        onClick={() => this.setState({participationComment: '', isButtonSelected: false, selectedButton: {}})}
-                                    >
-                                        <span role="img" aria-label={this.state.selectedButton.ariaLabel}>
-                                            {this.state.selectedButton.title}
-                                        </span>
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    {_.map(participationButtons, participationButton => (
-                                        <button
-                                            type="button"
-                                            className="btn btn-sm"
-                                            onClick={() => this.setState({
-                                                participationComment: participationButton.comment, isButtonSelected: true, selectedButton: participationButton, isOpen: false,
-                                            })}
-                                        >
-                                            <span role="img" aria-label={participationButton.ariaLabel}>
-                                                {participationButton.title}
-                                            </span>
-                                        </button>
-                                    ))}
-                                </>
-                            )}
-                        </>
+                        this.state.isButtonSelected ? (
+                            <button
+                                type="button"
+                                className="btn btn-sm"
+                                onClick={() => this.setState({participationComment: '', isButtonSelected: false, selectedButton: {}})}
+                            >
+                                <span role="img" aria-label={this.state.selectedButton.ariaLabel}>
+                                    {this.state.selectedButton.title}
+                                </span>
+                            </button>
+                        ) : (
+                            _.map(participationButtons, participationButton => (
+                                <button
+                                    type="button"
+                                    className="btn btn-sm"
+                                    onClick={() => this.setState({
+                                        participationComment: participationButton.comment, isButtonSelected: true, selectedButton: participationButton, isOpen: false,
+                                    })}
+                                >
+                                    <span role="img" aria-label={participationButton.ariaLabel}>
+                                        {participationButton.title}
+                                    </span>
+                                </button>
+                            ))
+                        )
                     )}
                 </BtnGroup>
                 {(this.state.isButtonSelected && !this.state.shouldShowConfirmationMessage) && (

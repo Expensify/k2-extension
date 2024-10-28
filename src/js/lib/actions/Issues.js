@@ -36,14 +36,15 @@ function getAllAssigned() {
                     const regexResult = issue.body.match(/Current Issue Owner:\s@(?<owner>[a-z0-9-]+)/i);
                     const currentOwner = regexResult && regexResult.groups && regexResult.groups.owner;
 
-                    return {
-                        ...finalObject,
-                        [issue.id]: {
-                            ...issue,
-                            issueHasOwner: Boolean(currentOwner),
-                            currentUserIsOwner: currentOwner && currentOwner === currentUser,
-                        },
+                    const result = finalObject;
+
+                    result[issue.id] = {
+                        ...issue,
+                        issueHasOwner: !!currentOwner,
+                        currentUserIsOwner: currentOwner && currentOwner === currentUser,
                     };
+
+                    return result;
                 }, {});
 
                 // Always use set() here because there is no way to remove issues from Onyx
