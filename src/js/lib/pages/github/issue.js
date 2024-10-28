@@ -28,7 +28,7 @@ function catchError(e) {
  */
 const copyReviewerChecklist = (e) => {
     e.preventDefault();
-    const pathToChecklist = 'https://raw.githubusercontent.com/Expensify/App/f1e20914e4a9f3065457048e6a396fa0c841b0ad/contributingGuides/BUGZERO_CHECKLIST.md';
+    const pathToChecklist = 'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/BUGZERO_CHECKLIST.md';
     $.get(pathToChecklist)
         .done((fileContents) => {
             if (!fileContents) {
