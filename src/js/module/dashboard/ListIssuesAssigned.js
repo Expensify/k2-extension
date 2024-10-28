@@ -24,9 +24,11 @@ class ListIssuesAssigned extends React.Component {
 
         this.state = {shouldHideHeldIssues: false};
         this.state = {shouldHideUnderReviewIssues: false};
+        this.state = {shouldHideOwnedBySomeoneElseIssues: false};
         this.fetch = this.fetch.bind(this);
         this.toggleHeldFilter = this.toggleHeldFilter.bind(this);
         this.toggleUnderReviewFilter = this.toggleUnderReviewFilter.bind(this);
+        this.toggleOwnedBySomeoneElseFilter = this.toggleOwnedBySomeoneElseFilter.bind(this);
     }
 
     componentDidMount() {
@@ -54,6 +56,10 @@ class ListIssuesAssigned extends React.Component {
 
     toggleUnderReviewFilter() {
         this.setState(prevState => ({shouldHideUnderReviewIssues: !prevState.shouldHideUnderReviewIssues}));
+    }
+
+    toggleOwnedBySomeoneElseFilter() {
+        this.setState(prevState => ({shouldHideOwnedBySomeoneElseIssues: !prevState.shouldHideOwnedBySomeoneElseIssues}));
     }
 
     render() {
@@ -90,6 +96,12 @@ class ListIssuesAssigned extends React.Component {
                                 Under Review
                             </label>
                         </div>
+                        <div className="checkbox">
+                            <label>
+                                <input type="checkbox" name="shouldHideIfUnderReview" id="shouldHideIfUnderReview" onChange={this.toggleOwnedBySomeoneElseFilter} />
+                                Owned by Someone Else
+                            </label>
+                        </div>
                     </form>
                 </div>
                 <div className="d-flex flex-row">
@@ -100,6 +112,7 @@ class ListIssuesAssigned extends React.Component {
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Hourly'}))}
                             hideIfHeld={this.state.shouldHideHeldIssues}
                             hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
+                            hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
                         />
                     </div>
                     <div className="col-3 pr-3">
@@ -109,6 +122,7 @@ class ListIssuesAssigned extends React.Component {
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Daily'}))}
                             hideIfHeld={this.state.shouldHideHeldIssues}
                             hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
+                            hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
                         />
                     </div>
                     <div className="col-3 pr-3">
@@ -118,6 +132,7 @@ class ListIssuesAssigned extends React.Component {
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Weekly'}))}
                             hideIfHeld={this.state.shouldHideHeldIssues}
                             hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
+                            hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
                         />
                     </div>
                     <div className="col-3">
@@ -127,6 +142,7 @@ class ListIssuesAssigned extends React.Component {
                             data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Monthly'}))}
                             hideIfHeld={this.state.shouldHideHeldIssues}
                             hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
+                            hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
                         />
                     </div>
                 </div>
@@ -139,6 +155,7 @@ class ListIssuesAssigned extends React.Component {
                         data={_.pick(this.props.issues, issue => _.intersection(_.map(issue.labels, label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0)}
                         hideIfHeld={this.state.shouldHideHeldIssues}
                         hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
+                        hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
                     />
                 </div>
             </div>

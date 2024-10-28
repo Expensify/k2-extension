@@ -74,12 +74,6 @@ const refreshAssignees = () => {
     // Always start by erasing whatever was drawn before (so it always starts from a clean slate)
     $('.js-issue-assignees .k2-element').remove();
 
-    // Do nothing if there is only one person assigned. Owners can only be set when there are
-    // multiple assignees
-    if ($('.js-issue-assignees > p > span').length <= 1) {
-        return;
-    }
-
     // Check if there is an owner for the issue
     const ghDescription = $('.comment-body').text();
     const regexResult = ghDescription.match(/Current Issue Owner:\s@(?<owner>\S+)/i);
@@ -97,7 +91,7 @@ const refreshAssignees = () => {
         } else {
             $(el).append(`
                 <button type="button" class="Button flex-md-order-2 m-0 k2-element k2-button k2-button-make-owner" data-owner="${assignee}">
-                    ○
+                    ☆
                 </button>
             `);
         }
@@ -159,27 +153,19 @@ export default function () {
         }
         allreadySetup = true;
 
-        let refreshPickerTimeoutID;
-        let refreshAssigneesTimeoutID;
+        // Draw them once when the page is loaded
         setTimeout(refreshPicker, 500);
         setTimeout(refreshAssignees, 500);
 
-        // Listen for when the sidebar is redrawn, then redraw our pickers
-        $(document).bind('DOMNodeRemoved', (e) => {
-            if ($(e.target).hasClass('sidebar-assignee')) {
-                // Make sure that only one setTimeout runs at a time
-                clearTimeout(refreshAssigneesTimeoutID);
-                refreshAssigneesTimeoutID = setTimeout(refreshAssignees, 500);
+        // Every second, check to see if the pickers are still there, and if not, redraw them
+        setInterval(() => {
+            if (!$('.k2picker-wrapper').length) {
+                refreshPicker();
             }
-
-            if ($(e.target).is('#partial-discussion-sidebar')) {
-                // Make sure that only one setTimeout runs at a time
-                clearTimeout(refreshPickerTimeoutID);
-                refreshPickerTimeoutID = setTimeout(refreshPicker, 500);
-                clearTimeout(refreshAssigneesTimeoutID);
-                refreshAssigneesTimeoutID = setTimeout(refreshAssignees, 500);
+            if (!$('.js-issue-assignees .k2-element').length) {
+                refreshAssignees();
             }
-        });
+        }, 1000);
     };
 
     return IssuePage;
