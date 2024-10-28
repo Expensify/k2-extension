@@ -1,5 +1,8 @@
+#1.3.68
+- Added a button to GH issues to copy the bugzero checklist
+
 #1.3.67
-- Added additional linting and CI for Firefox 
+- Added additional linting and CI for Firefox
 
 #1.3.66
 - Added Firefox build script for Manifest V3 compatibility
