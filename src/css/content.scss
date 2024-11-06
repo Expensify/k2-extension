@@ -1,4 +1,5 @@
-@import 'global';
+@use "sass:color";
+@use 'global';
 
 $gutter: 5px;
 
@@ -225,12 +226,12 @@ $color-dark-yellow: #DAA520;
   &.challenge-sent,
   &.hold,
   &.nonowner {
-    color: darken($color-neutral-light, 20%) !important;
+    color: color.adjust($color-neutral-light, $lightness: -20%) !important;
     .issue-link {
-      color: darken($color-neutral-light, 20%) !important;
+      color: color.adjust($color-neutral-light, $lightness: -20%) !important;
     }
     .label {
-      background-color: darken($color-neutral-light, 20%) !important;
+      background-color: color.adjust($color-neutral-light, $lightness: -20%) !important;
     }
   }
   &.planning {
