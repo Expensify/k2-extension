@@ -1,3 +1,6 @@
+#1.3.69
+- Security fixes
+
 #1.3.68
 - Added a button to GH issues to copy the bugzero checklist
 
