@@ -53,6 +53,26 @@ const renderCopyChecklistButton = () => {
     });
 };
 
+/**
+ * Replaces all `- [ ]` with `- [x]` in textareas with specific names
+ */
+const replaceChecklistItems = () => {
+    // eslint-disable-next-line rulesdir/prefer-underscore-method
+    $('textarea[name="issue[body]"], textarea[name="issue_comment[body]"], textarea[name="comment[body]"]').each((i, el) => {
+        const updatedText = $(el).val().replace(/- \[ \]/g, '- [x]');
+        $(el).val(updatedText);
+    });
+};
+
+const renderReplaceChecklistButton = () => {
+    if ($('.k2-replace-checklist').length) {
+        return;
+    }
+    const buttonHtml = '<button type="button" class="btn btn-sm k2-replace-checklist">Auto complete checklist</button>';
+    $('.discussion-sidebar-item').last().append(buttonHtml);
+    $('.k2-replace-checklist').off().on('click', replaceChecklistItems);
+};
+
 const refreshHold = function () {
     const prTitle = $('.js-issue-title').text();
     const prAuthor = $('.pull-header-username').text();
@@ -124,9 +144,8 @@ export default function () {
      */
     PrPage.setup = function () {
         setInterval(refreshHold, 1000);
-
-        // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
         setInterval(renderCopyChecklistButton, 2000);
+        setInterval(renderReplaceChecklistButton, 2000);
     };
 
     return PrPage;
