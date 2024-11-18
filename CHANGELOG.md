@@ -1,3 +1,6 @@
+#1.3.70
+- Fixed padding added to bullet lists in comments
+
 #1.3.69
 - Security fixes
 
