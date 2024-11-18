@@ -40,7 +40,7 @@
     "css-loader": "^6.8.1",
     "eslint-config-expensify": "^2.0.44",
     "eslint-webpack-plugin": "^4.0.1",
-    "mini-css-extract-plugin": "^2.5.2",
+    "mini-css-extract-plugin": "^2.9.1",
     "sass": "^1.80.6",
     "sass-loader": "^16.0.3",
     "underscore-template-loader": "^1.2.0",
