@@ -23,6 +23,41 @@ function catchError(e) {
 }
 
 /**
+ * Gets the contents of the reviewer checklist from GitHub and then posts it as a comment to the current PR
+ * @param {Event} e
+ */
+const copyReviewerChecklist = (e) => {
+    e.preventDefault();
+    const pathToChecklist = 'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/BUGZERO_CHECKLIST.md';
+    $.get(pathToChecklist)
+        .done((fileContents) => {
+            if (!fileContents) {
+                console.error(`could not load contents of ${pathToChecklist} for some reason`);
+                return;
+            }
+
+            API.addComment(fileContents);
+        });
+};
+
+const renderCopyChecklistButton = () => {
+    // Look through all the comments on the page to find one that has the template for the copy/paste checklist button
+    // eslint-disable-next-line rulesdir/prefer-underscore-method
+    $('.js-comment-body').each((i, el) => {
+        const commentHtml = $(el).html();
+
+        // When the button template is found, replace it with an HTML button and then put that back into the DOM so someone can click on it
+        if (commentHtml && commentHtml.indexOf('you can simply click: [this button]') > -1) {
+            const newHtml = commentHtml.replace('[this button]', '<button type="button" class="btn btn-sm k2-copy-checklist">HERE</button>');
+            $(el).html(newHtml);
+
+            // Now that the button is on the page, add a click handler to it (always remove all handlers first so that we know there will always be one handler attached)
+            $('.k2-copy-checklist').off().on('click', copyReviewerChecklist);
+        }
+    });
+};
+
+/**
  * Sets the owner of an issue when it doesn't have an owner yet
  * @param {String} owner to set
  */
@@ -74,12 +109,6 @@ const refreshAssignees = () => {
     // Always start by erasing whatever was drawn before (so it always starts from a clean slate)
     $('.js-issue-assignees .k2-element').remove();
 
-    // Do nothing if there is only one person assigned. Owners can only be set when there are
-    // multiple assignees
-    if ($('.js-issue-assignees > p > span').length <= 1) {
-        return;
-    }
-
     // Check if there is an owner for the issue
     const ghDescription = $('.comment-body').text();
     const regexResult = ghDescription.match(/Current Issue Owner:\s@(?<owner>\S+)/i);
@@ -97,7 +126,7 @@ const refreshAssignees = () => {
         } else {
             $(el).append(`
                 <button type="button" class="Button flex-md-order-2 m-0 k2-element k2-button k2-button-make-owner" data-owner="${assignee}">
-                    ○
+                    ☆
                 </button>
             `);
         }
@@ -159,27 +188,22 @@ export default function () {
         }
         allreadySetup = true;
 
-        let refreshPickerTimeoutID;
-        let refreshAssigneesTimeoutID;
+        // Draw them once when the page is loaded
         setTimeout(refreshPicker, 500);
         setTimeout(refreshAssignees, 500);
 
-        // Listen for when the sidebar is redrawn, then redraw our pickers
-        $(document).bind('DOMNodeRemoved', (e) => {
-            if ($(e.target).hasClass('sidebar-assignee')) {
-                // Make sure that only one setTimeout runs at a time
-                clearTimeout(refreshAssigneesTimeoutID);
-                refreshAssigneesTimeoutID = setTimeout(refreshAssignees, 500);
+        // Every second, check to see if the pickers are still there, and if not, redraw them
+        setInterval(() => {
+            if (!$('.k2picker-wrapper').length) {
+                refreshPicker();
             }
+            if (!$('.js-issue-assignees .k2-element').length) {
+                refreshAssignees();
+            }
+        }, 1000);
 
-            if ($(e.target).is('#partial-discussion-sidebar')) {
-                // Make sure that only one setTimeout runs at a time
-                clearTimeout(refreshPickerTimeoutID);
-                refreshPickerTimeoutID = setTimeout(refreshPicker, 500);
-                clearTimeout(refreshAssigneesTimeoutID);
-                refreshAssigneesTimeoutID = setTimeout(refreshAssignees, 500);
-            }
-        });
+        // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
+        setInterval(renderCopyChecklistButton, 2000);
     };
 
     return IssuePage;

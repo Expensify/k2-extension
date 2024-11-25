@@ -1,3 +1,29 @@
+#1.3.70
+- Fixed padding added to bullet lists in comments
+
+#1.3.69
+- Security fixes
+
+#1.3.68
+- Added a button to GH issues to copy the bugzero checklist
+
+#1.3.67
+- Added additional linting and CI for Firefox
+
+#1.3.66
+- Added Firefox build script for Manifest V3 compatibility
+
+#1.3.65
+- Changed manifest.json to comply with Manifest V3
+
+#1.3.64
+- Fix the sidebar not redrawing when looking at GH issues
+
+#1.3.63
+- Allow for code owners to be assigned when there is only one person assigned
+- Show on the K2 dashboard if an issue has an owner, and you're not the owner
+- Add a filter for issues not owned by you
+
 #1.3.62
 - Design improvements for light and dark mode.
 

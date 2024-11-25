@@ -27,9 +27,14 @@ const propTypes = {
     /** If there are no issues to list in the panel, hide the panel entirely */
     hideOnEmpty: PropTypes.bool,
 
+    /** If the issue is on HOLD, hide it */
     hideIfHeld: PropTypes.bool,
 
+    /** If the issue is under review, hide it */
     hideIfUnderReview: PropTypes.bool,
+
+    /** If the issue is owned by someone else, hide it */
+    hideIfOwnedBySomeoneElse: PropTypes.bool,
 };
 const defaultProps = {
     filters: {
@@ -42,21 +47,27 @@ const defaultProps = {
     hideOnEmpty: false,
     hideIfHeld: false,
     hideIfUnderReview: false,
+    hideIfOwnedBySomeoneElse: false,
 };
 
 function PanelIssues(props) {
     let filteredData = props.data;
 
-    if (props.hideIfHeld || props.hideIfUnderReview) {
+    if (props.hideIfHeld || props.hideIfUnderReview || props.hideIfOwnedBySomeoneElse) {
         filteredData = _.filter(props.data, (item) => {
             const isHeld = item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
             const isUnderReview = _.find(item.labels, label => label.name.toLowerCase() === 'reviewing');
+            const isOwnedBySomeoneElse = item.issueHasOwner && !item.currentUserIsOwner;
 
             if (isHeld && props.hideIfHeld) {
                 return false;
             }
 
             if (isUnderReview && props.hideIfUnderReview) {
+                return false;
+            }
+
+            if (isOwnedBySomeoneElse && props.hideIfOwnedBySomeoneElse) {
                 return false;
             }
 
