@@ -31,11 +31,6 @@ class ListItemIssue extends React.Component {
             className += ' nonowner';
         }
 
-        // See if it's waiting for an action from the engineer
-        if ((this.isWaitingForEngineerReview && !this.isContributorAssigned) || this.hasUnrepliedMentions) {
-            className += ' overdue';
-        }
-
         return className + this.isPlanning + this.isWaitingOnCustomer + this.isHeld + this.isChallengeSent + this.isHelpWanted + this.isContributorAssigned;
     }
 
@@ -59,25 +54,8 @@ class ListItemIssue extends React.Component {
         this.isHelpWanted = _.some(this.props.issue.labels, {name: 'Help Wanted'}) ? ' help-wanted' : '';
         this.isContributorAssigned = this.isExternal && !this.isHelpWanted ? ' contributor-assigned' : '';
         this.isUnderReview = _.find(this.props.issue.labels, label => label.name.toLowerCase() === 'reviewing');
-        this.isWaitingForEngineerReview = this.props.issue.comments && _.some(this.props.issue.comments.nodes, comment => comment.body.includes('🎀👀🎀') || comment.body.includes('🎀 👀 🎀'));
         this.issueHasOwner = this.props.issue.issueHasOwner;
         this.isCurrentUserOwner = this.props.issue.currentUserIsOwner;
-        this.hasUnrepliedMentions = (() => {
-            if (!this.props.issue.comments) { return false; }
-            const comments = this.props.issue.comments.nodes;
-            const username = 'grgia'; // Replace with your GitHub username
-
-            const lastMentionIndex = _.findLastIndex(comments, comment => comment.body.includes(`@${username}`));
-
-            if (lastMentionIndex === -1) { return false; }
-
-            const hasRepliedSince = _.some(
-                comments.slice(lastMentionIndex + 1),
-                comment => comment.author.login === username,
-            );
-
-            return !hasRepliedSince;
-        })();
     }
 
     render() {
@@ -113,18 +91,7 @@ class ListItemIssue extends React.Component {
                     {this.isFeature}
                     {this.props.issue.title}
                 </a>
-                {this.isWaitingForEngineerReview && !this.isContributorAssigned && (
-                    // eslint-disable-next-line jsx-a11y/accessible-emoji
-                    <span>
-                        {'\n 🎀👀🎀'}
-                    </span>
-                )}
-                {this.hasUnrepliedMentions && (
-                    // eslint-disable-next-line jsx-a11y/accessible-emoji
-                    <span>
-                        {'\n ⚠️💬⚠️'}
-                    </span>
-                )}
+
                 {this.props.showAttendees && (
                     <div className="AvatarStack AvatarStack--right ml-2 flex-1 flex-shrink-0">
                         <div
