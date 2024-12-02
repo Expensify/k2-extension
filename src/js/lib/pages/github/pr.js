@@ -58,7 +58,7 @@ const renderCopyChecklistButton = () => {
  */
 const replaceChecklistItems = () => {
     // eslint-disable-next-line rulesdir/prefer-underscore-method
-    $('textarea[name="issue[body]"], textarea[name="issue_comment[body]"], textarea[name="comment[body]"]').each((i, el) => {
+    $('textarea[name="issue[body]"], textarea[name="issue_comment[body]"], textarea[name="comment[body]"], textarea[name="pull_request[body]"]').each((i, el) => {
         const updatedText = $(el).val().replace(/- \[ \]/g, '- [x]');
         $(el).val(updatedText);
     });
