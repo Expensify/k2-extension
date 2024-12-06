@@ -68,7 +68,7 @@ const renderReplaceChecklistButton = () => {
     if ($('.k2-replace-checklist').length) {
         return;
     }
-    const buttonHtml = '<button type="button" class="btn btn-sm k2-replace-checklist k2-inactive">Auto complete checklist</button>';
+    const buttonHtml = '<button type="button" class="btn-link no-underline text-bold Link--primary k2-replace-checklist hidden">Auto complete checklist</button>';
     $('.discussion-sidebar-item').last().append(buttonHtml);
     $('.k2-replace-checklist').off().on('click', replaceChecklistItems);
 };
