@@ -339,6 +339,17 @@ function getIssues(assignee = 'none', labels = []) {
                         milestone {
                             id
                         }
+                        comments(last: 15) {
+                            nodes {
+                                body
+                                createdAt
+                                author {
+                                    login
+                                    avatarUrl
+                                }
+                            }
+                            totalCount
+                        } 
                     }
                 }
             }
