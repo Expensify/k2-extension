@@ -244,6 +244,13 @@ $color-dark-yellow: #DAA520;
         display: inline;
       }
   }
+  &.actionRequired {
+    color: $color-bright-purple !important;
+    // Only show the alert icon if the item is overdue
+    .octicon-alert {
+      display: inline;
+    }
+}
   &.reviewing {
       color: $color-neutral-light !important;
       .issue-link {
