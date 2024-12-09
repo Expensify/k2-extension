@@ -1,3 +1,6 @@
+#1.3.71
+- Removed the whats app quality section and replaced it with a hot pick section
+
 #1.3.70
 - Fixed padding added to bullet lists in comments
 
