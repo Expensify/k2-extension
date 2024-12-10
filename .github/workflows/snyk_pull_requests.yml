@@ -14,4 +14,4 @@ jobs:
         uses: nikosmoum/auto-assign-reviewer-team@v0.5
         with:
           teamName: "pullerbear"
-          githubToken: ${{ secrets.MELVIN_GH_TOKEN }}
+          token: ${{ secrets.MELVIN_GH_TOKEN }}
