@@ -5,13 +5,41 @@ import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
 import ActionThrottle from '../ActionThrottle';
 
-function getWAQ() {
-    ActionThrottle('getWAQ', () => (
-        API.getWAQIssues()
+function getHotPicks() {
+    ActionThrottle('getHotPicks', () => (
+        API.getHotPickIssues()
             .then((issues) => {
+                const sortedData = _.chain(issues)
+                    .map((item) => {
+                        const modifiedItem = {...item};
+
+                        const age = moment().diff(item.created_at, 'days');
+                        const isHourly = _.findWhere(item.labels, {name: 'Hourly'});
+                        const isDaily = _.findWhere(item.labels, {name: 'Daily'});
+                        const isWeekly = _.findWhere(item.labels, {name: 'Weekly'});
+                        const isMonthly = _.findWhere(item.labels, {name: 'Monthly'});
+                        let score = 0;
+
+                        // Sort by K2
+                        score += isHourly ? 10000000 : 0;
+                        score += isDaily ? 1000000 : 0;
+                        score += isWeekly ? 100000 : 0;
+                        score += isMonthly ? 10000 : 0;
+
+                        // Sort by age too
+                        score += age / 100;
+
+                        modifiedItem.score = score;
+                        modifiedItem.age = age;
+                        return modifiedItem;
+                    })
+                    .sortBy('score')
+                    .value()
+                    .reverse();
+
                 // Always use set() here because there is no way to remove issues from Onyx
                 // that get closed or assigned
-                ReactNativeOnyx.set(ONYXKEYS.ISSUES.WAQ, issues);
+                ReactNativeOnyx.set(ONYXKEYS.ISSUES.HOTPICKS, sortedData);
             })
     ));
 }
@@ -132,6 +160,6 @@ export {
     getAllAssigned,
     getEngineering,
     getDailyImprovements,
-    getWAQ,
+    getHotPicks,
     saveFilters,
 };
