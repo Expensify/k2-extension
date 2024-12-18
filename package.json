@@ -39,7 +39,7 @@
     "copy-webpack-plugin": "^12.0.0",
     "css-loader": "^6.8.1",
     "eslint-config-expensify": "^2.0.44",
-    "eslint-webpack-plugin": "^4.0.1",
+    "eslint-webpack-plugin": "^4.2.0",
     "mini-css-extract-plugin": "^2.9.1",
     "sass": "^1.80.6",
     "sass-loader": "^16.0.3",
