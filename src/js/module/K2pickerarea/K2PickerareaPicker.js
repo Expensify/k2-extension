@@ -22,10 +22,6 @@ class K2PickerareaPicker extends React.Component {
                 className: `${defaultBtnClass} inactive k2-design`,
                 shortName: '🎨 Design',
             },
-            Ops: {
-                className: `${defaultBtnClass} inactive k2-ops`,
-                shortName: '💰 Ops',
-            },
             Infra: {
                 className: `${defaultBtnClass} inactive k2-infra`,
                 shortName: '🚨 Infra',
