@@ -152,6 +152,7 @@ function getHotPickIssues() {
     query += ' state:open';
     query += ' type:issue';
     query += ' repo:Expensify/App';
+    query += ' repo:Expensify/Expensify';
     query += ' NOT hold in:title';
     query += ' label:\\"Hot Pick\\"';
 
