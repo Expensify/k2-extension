@@ -15,24 +15,24 @@ class K2PickerareaPicker extends React.Component {
                 shortName: '💻 Engineering',
             },
             'Integration Server': {
-                className: `${defaultBtnClass} inactive k2-integration server tooltipped tooltipped-n`,
+                className: `${defaultBtnClass} inactive k2-integration-server tooltipped tooltipped-n`,
                 shortName: '📤 IS',
             },
             Design: {
                 className: `${defaultBtnClass} inactive k2-design`,
                 shortName: '🎨 Design',
             },
-            Ops: {
-                className: `${defaultBtnClass} inactive k2-ops`,
-                shortName: '💰 Ops',
-            },
             Infra: {
                 className: `${defaultBtnClass} inactive k2-infra`,
-                shortName: '🔥 Infra',
+                shortName: '🚨 Infra',
             },
             External: {
                 className: `${defaultBtnClass} inactive k2-external`,
                 shortName: '👥 External',
+            },
+            'Hot Pick': {
+                className: `${defaultBtnClass} inactive k2-hot-pick`,
+                shortName: '🔥 Hot Pick',
             },
         };
         // eslint-disable-next-line rulesdir/prefer-underscore-method
