@@ -88,19 +88,37 @@ class ListIssuesAssigned extends React.Component {
                         Hide:
                         <div className="checkbox">
                             <label>
-                                <input type="checkbox" name="shouldHideIfHeld" id="shouldHideIfHeld" onChange={this.toggleHeldFilter} checked={this.state.shouldHideHeldIssues ? 'checked' : undefined} />
+                                <input
+                                    type="checkbox"
+                                    name="shouldHideIfHeld"
+                                    id="shouldHideIfHeld"
+                                    onChange={this.toggleHeldFilter}
+                                    checked={this.state.shouldHideHeldIssues ? 'checked' : undefined}
+                                />
                                 On Hold
                             </label>
                         </div>
                         <div className="checkbox">
                             <label>
-                                <input type="checkbox" name="shouldHideIfUnderReview" id="shouldHideIfUnderReview" onChange={this.toggleUnderReviewFilter} checked={this.state.shouldHideUnderReviewIssues ? 'checked' : undefined} />
+                                <input
+                                    type="checkbox"
+                                    name="shouldHideIfUnderReview"
+                                    id="shouldHideIfUnderReview"
+                                    onChange={this.toggleUnderReviewFilter}
+                                    checked={this.state.shouldHideUnderReviewIssues ? 'checked' : undefined}
+                                />
                                 Under Review
                             </label>
                         </div>
                         <div className="checkbox">
                             <label>
-                                <input type="checkbox" name="shouldHideIfOwnedBySomeoneElse" id="shouldHideIfOwnedBySomeoneElse" onChange={this.toggleOwnedBySomeoneElseFilter} checked={this.state.shouldHideOwnedBySomeoneElseIssues ? 'checked' : undefined} />
+                                <input
+                                    type="checkbox"
+                                    name="shouldHideIfOwnedBySomeoneElse"
+                                    id="shouldHideIfOwnedBySomeoneElse"
+                                    onChange={this.toggleOwnedBySomeoneElseFilter}
+                                    checked={this.state.shouldHideOwnedBySomeoneElseIssues ? 'checked' : undefined}
+                                />
                                 Owned by Someone Else
                             </label>
                         </div>
