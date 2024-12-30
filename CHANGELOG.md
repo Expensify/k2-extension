@@ -1,3 +1,6 @@
+#1.3.73
+- Added query string params to determine initial checked state for "on hold", "under review", and "owned by someone else" checkboxes
+
 #1.3.72
 - Included Expensify/Expensify Hot Pick issues to the section with the same name.
 - Added `Hot Pick` label to the shortcuts right panel.
