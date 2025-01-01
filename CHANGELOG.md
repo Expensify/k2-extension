@@ -1,3 +1,6 @@
+#1.3.74
+- Moved the previous query string params to Onyx
+
 #1.3.73
 - Added query string params to determine initial checked state for "on hold", "under review", and "owned by someone else" checkboxes
 
