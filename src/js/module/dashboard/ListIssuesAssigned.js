@@ -13,19 +13,34 @@ const propTypes = {
 
     /** All the GH issues assigned to the current user */
     issues: PropTypes.objectOf(IssuePropTypes),
+
+    checkboxes: PropTypes.shape({
+        /** Should issues that are on HOLD be hidden? */
+        shouldHideOnHold: PropTypes.bool,
+
+        /** Should issues with "reviewing" label be hidden? */
+        shouldHideUnderReview: PropTypes.bool,
+
+        /** Should issues owned by someone else be hidden? */
+        shouldHideOwnedBySomeoneElse: PropTypes.bool,
+    }),
 };
 const defaultProps = {
     issues: null,
+    checkboxes: {
+        shouldHideOnHold: false,
+        shouldHideUnderReview: false,
+        shouldHideOwnedBySomeoneElse: false,
+    },
 };
 
 class ListIssuesAssigned extends React.Component {
     constructor(props) {
         super(props);
-        const params = new URLSearchParams(window.location.search);
         this.state = {
-            shouldHideHeldIssues: !!params.get('shouldHideOnHold'),
-            shouldHideUnderReviewIssues: !!params.get('shouldHideUnderReview'),
-            shouldHideOwnedBySomeoneElseIssues: !!params.get('shouldHideOwnedBySomeoneElse'),
+            shouldHideHeldIssues: props.checkboxes.shouldHideOnHold,
+            shouldHideUnderReviewIssues: props.checkboxes.shouldHideUnderReview,
+            shouldHideOwnedBySomeoneElseIssues: props.checkboxes.shouldHideOwnedBySomeoneElse,
         };
         this.fetch = this.fetch.bind(this);
         this.toggleHeldFilter = this.toggleHeldFilter.bind(this);
@@ -54,14 +69,17 @@ class ListIssuesAssigned extends React.Component {
 
     toggleHeldFilter() {
         this.setState(prevState => ({shouldHideHeldIssues: !prevState.shouldHideHeldIssues}));
+        Issues.saveCheckboxes({shouldHideOnHold: !this.state.shouldHideHeldIssues});
     }
 
     toggleUnderReviewFilter() {
         this.setState(prevState => ({shouldHideUnderReviewIssues: !prevState.shouldHideUnderReviewIssues}));
+        Issues.saveCheckboxes({shouldHideUnderReview: !this.state.shouldHideUnderReviewIssues});
     }
 
     toggleOwnedBySomeoneElseFilter() {
         this.setState(prevState => ({shouldHideOwnedBySomeoneElseIssues: !prevState.shouldHideOwnedBySomeoneElseIssues}));
+        Issues.saveCheckboxes({shouldHideOwnedBySomeoneElse: !this.state.shouldHideOwnedBySomeoneElseIssues});
     }
 
     render() {
@@ -189,5 +207,8 @@ ListIssuesAssigned.defaultProps = defaultProps;
 export default withOnyx({
     issues: {
         key: ONYXKEYS.ISSUES.ASSIGNED,
+    },
+    checkboxes: {
+        key: ONYXKEYS.ISSUES.CHECKBOXES,
     },
 })(ListIssuesAssigned);
