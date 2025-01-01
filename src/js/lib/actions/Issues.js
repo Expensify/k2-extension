@@ -138,6 +138,16 @@ function getEngineering() {
 }
 
 /**
+ * @param {Object} checkboxes
+ * @param {String} checkboxes.shouldHideOnHold
+ * @param {String} checkboxes.shouldHideUnderReview
+ * @param {String} checkboxes.shouldHideOwnedBySomeoneElse
+ */
+function saveCheckboxes(checkboxes) {
+    ReactNativeOnyx.merge(ONYXKEYS.ISSUES.CHECKBOXES, checkboxes);
+}
+
+/**
  * @param {Object} filters
  * @param {String} filters.milestone
  * @param {String} filters.improvement
@@ -161,5 +171,6 @@ export {
     getEngineering,
     getDailyImprovements,
     getHotPicks,
+    saveCheckboxes,
     saveFilters,
 };
