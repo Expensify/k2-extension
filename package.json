@@ -44,7 +44,7 @@
     "sass": "^1.80.6",
     "sass-loader": "^16.0.3",
     "underscore-template-loader": "^1.2.0",
-    "webpack": "^5.94.0",
+    "webpack": "^5.96.1",
     "webpack-cli": "^4.10.0",
     "webpack-merge": "^5.10.0"
   }
