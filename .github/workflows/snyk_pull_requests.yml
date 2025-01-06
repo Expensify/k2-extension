@@ -11,6 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Assign PullerBear for Snyk PR reviews
-        run: gh pr edit ${{ github.event.pull_request.number }} --add-team-reviewer "Expensify/pullerbear"
+        run: gh pr edit ${{ github.event.pull_request.number }} --add-reviewer "Expensify/pullerbear"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
