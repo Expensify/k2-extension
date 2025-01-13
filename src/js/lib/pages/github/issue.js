@@ -13,12 +13,12 @@ import * as API from '../../api';
 
 let clearErrorTimeoutID;
 function catchError(e) {
-    $('.gh-header-actions .k2-element').remove();
-    $('.gh-header-actions').append('<span class="alert k2-element">OOPS!</span>');
+    $('div[data-component="PH_Actions"] .k2-element').remove();
+    $('.div[data-component="PH_Actions"]').append('<span class="alert k2-element">OOPS!</span>');
     console.error(e);
     clearTimeout(clearErrorTimeoutID);
     clearErrorTimeoutID = setTimeout(() => {
-        $('.gh-header-actions .k2-element').remove();
+        $('.div[data-component="PH_Actions"] .k2-element').remove();
     }, 30000);
 }
 
@@ -107,18 +107,18 @@ function replaceOwner(oldOwner, newOwner) {
  */
 const refreshAssignees = () => {
     // Always start by erasing whatever was drawn before (so it always starts from a clean slate)
-    $('.js-issue-assignees .k2-element').remove();
+    $('div[data-testid="sidebar-section"] > .k2-element').remove();
 
     // Check if there is an owner for the issue
-    const ghDescription = $('.comment-body').text();
+    const ghDescription = $('.markdown-body').text();
     const regexResult = ghDescription.match(/Current Issue Owner:\s@(?<owner>\S+)/i);
     const currentOwner = regexResult && regexResult.groups && regexResult.groups.owner;
 
     // Add buttons to each assignee
-    $('.js-issue-assignees > p > span').each((i, el) => {
-        const assignee = $(el).find('.assignee span').text();
+    $('div[data-testid="issue-assignees"]').each((i, el) => {
+        const assignee = $(el).text();
         if (assignee === currentOwner) {
-            $(el).append(`
+            $(el).closest('li').append(`
                 <button type="button" class="Button flex-md-order-2 m-0 owner k2-element k2-button k2-button-remove-owner" data-owner="${currentOwner}">
                     ★
                 </button>
@@ -156,7 +156,7 @@ const refreshAssignees = () => {
 const refreshPicker = function () {
     // Add our wrappers to the DOM which all the React components will be rendered into
     if (!$('.k2picker-wrapper').length) {
-        $('.js-issue-labels').after(sidebarWrapperHTML);
+        $('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(3)').after(sidebarWrapperHTML)
     }
 
     new K2picker().draw();
@@ -197,7 +197,7 @@ export default function () {
             if (!$('.k2picker-wrapper').length) {
                 refreshPicker();
             }
-            if (!$('.js-issue-assignees .k2-element').length) {
+            if (!$('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(2) .k2-element').length) {
                 refreshAssignees();
             }
         }, 1000);

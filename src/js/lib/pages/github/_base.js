@@ -47,11 +47,11 @@ export default function () {
     Page.setup = function () {};
 
     Page.getRepoOwner = function () {
-        return $('.author a span').text();
+        return document.querySelectorAll('.AppHeader-context-item-label.Truncate-text')[0].textContent.trim();
     };
 
     Page.getRepo = function () {
-        return $('.js-current-repository').text();
+        return document.querySelectorAll('.AppHeader-context-item-label.Truncate-text')[1].textContent.trim();
     };
 
     return Page;
