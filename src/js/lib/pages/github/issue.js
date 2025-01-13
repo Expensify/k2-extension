@@ -43,7 +43,7 @@ const copyReviewerChecklist = (e) => {
 const renderCopyChecklistButton = () => {
     // Look through all the comments on the page to find one that has the template for the copy/paste checklist button
     // eslint-disable-next-line rulesdir/prefer-underscore-method
-    $('.js-comment-body').each((i, el) => {
+    $('.markdown-body > p').each((i, el) => {
         const commentHtml = $(el).html();
 
         // When the button template is found, replace it with an HTML button and then put that back into the DOM so someone can click on it
@@ -124,7 +124,7 @@ const refreshAssignees = () => {
                 </button>
             `);
         } else {
-            $(el).append(`
+            $(el).closest('li').append(`
                 <button type="button" class="Button flex-md-order-2 m-0 k2-element k2-button k2-button-make-owner" data-owner="${assignee}">
                     ☆
                 </button>
