@@ -39,7 +39,7 @@ const copyReviewerChecklist = (e) => {
 const renderCopyChecklistButton = () => {
     // Look through all the comments on the page to find one that has the template for the copy/paste checklist button
     // eslint-disable-next-line rulesdir/prefer-underscore-method
-    $('.js-comment-body').each((i, el) => {
+    $('.markdown-body > p').each((i, el) => {
         const commentHtml = $(el).html();
 
         // When the button template is found, replace it with an HTML button and then put that back into the DOM so someone can click on it
@@ -55,54 +55,106 @@ const renderCopyChecklistButton = () => {
 
 const refreshHold = function () {
     const prTitle = $('.js-issue-title').text();
-    const prAuthor = $('.pull-header-username').text();
+    const prAuthor = $('.gh-header-meta .author').text();
     const getCurrentUser = API.getCurrentUser();
-    const branchName = $('.head-ref').text();
+    const branchName = $('.head-ref span').text();
+
+    const isNewMerge = $('div[data-testid="mergebox-partial"]').length;
+
+    // Classic merge experience
+    if (!isNewMerge) {
+        if (prTitle.toLowerCase().indexOf('[hold') > -1 || prTitle.toLowerCase().indexOf('[wip') > -1) {
+            $('.branch-action') // entire section
+                .removeClass('branch-action-state-clean')
+                .addClass('branch-action-state-dirty');
+            $('.merge-message button') // merge pull request button
+                .removeClass('btn-primary')
+                .attr('disabled', 'disabled');
+            // eslint-disable-next-line rulesdir/prefer-underscore-method
+            $('.branch-action-item').last().find('.completeness-indicator') // Last section
+                .removeClass('completeness-indicator-success')
+                .addClass('completeness-indicator-problem')
+                .end()
+                .find('.status-heading')
+                .text('This pull request has a hold on it and cannot be merged')
+                .end()
+                .find('.status-meta')
+                .html('Remove the HOLD or WIP label from the title of the PR to make it mergeable')
+                .end()
+                .find('.octicon')
+                .removeClass('octicon-check')
+                .addClass('octicon-alert');
+        }
+
+        if (!(branchName.toLowerCase() === 'master' || branchName.toLowerCase() === 'main') && !isSelfMergingAllowed() && getCurrentUser === prAuthor) {
+            $('.branch-action')
+                .removeClass('branch-action-state-clean')
+                .addClass('branch-action-state-dirty');
+            $('.merge-message button')
+                .removeClass('btn-primary')
+                .attr('disabled', 'disabled');
+            // eslint-disable-next-line rulesdir/prefer-underscore-method
+            $('.branch-action-item').last().find('.completeness-indicator')
+                .removeClass('completeness-indicator-success')
+                .addClass('completeness-indicator-problem')
+                .end()
+                .find('.status-heading')
+                .text('You cannot merge your own PR.')
+                .end()
+                .find('.status-meta')
+                .html('I\'m sorry Dave, I\'m afraid you can\'t merge your own PR')
+                .end()
+                .find('.octicon')
+                .removeClass('octicon-check')
+                .addClass('octicon-alert');
+        }
+        return;
+    }
 
     if (prTitle.toLowerCase().indexOf('[hold') > -1 || prTitle.toLowerCase().indexOf('[wip') > -1) {
-        $('.branch-action')
-            .removeClass('branch-action-state-clean')
-            .addClass('branch-action-state-dirty');
-        $('.merge-message button')
-            .removeClass('btn-primary')
+        $('div[data-testid="mergebox-partial"] > div > div:last-of-type')
+            .removeClass('borderColor-success-emphasis');
+        $('div[data-testid="mergebox-partial"] > div > div > div button').first() // merge pull request button
+            .css({backgroundColor: 'var(--bgColor-neutral-muted)', borderColor: 'var(--bgColor-neutral-muted)'})
             .attr('disabled', 'disabled');
+        $('div[data-testid="mergebox-partial"] > div > div button[data-component="IconButton"]').first()
+            .css({backgroundColor: 'var(--bgColor-neutral-muted)', borderColor: 'var(--bgColor-neutral-muted)'})
+            .attr('disabled', 'disabled');
+        $('div[data-testid="mergebox-partial"] > div > div > div > div > div')
+            .css({borderColor: 'var(--bgColor-neutral-muted)'});
+        $('div[data-testid="mergeability-icon-wrapper"] div').css({backgroundColor: 'var(--bgColor-neutral-emphasis)'});
         // eslint-disable-next-line rulesdir/prefer-underscore-method
-        $('.branch-action-item').last().find('.completeness-indicator')
-            .removeClass('completeness-indicator-success')
-            .addClass('completeness-indicator-problem')
-            .end()
-            .find('.status-heading')
-            .text('This pull request has a hold on it and cannot be merged')
-            .end()
-            .find('.status-meta')
-            .html('Remove the HOLD or WIP label from the title of the PR to make it mergeable')
-            .end()
-            .find('.octicon')
-            .removeClass('octicon-check')
-            .addClass('octicon-alert');
+        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type svg') // Last section
+            .parent()
+            .removeClass('bgColor-success-emphasis')
+            .css({backgroundColor: 'var(--bgColor-neutral-emphasis)'});
+        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type h3')
+            .text('This pull request has a hold on it and cannot be merged');
+        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type p')
+            .html('Remove the HOLD or WIP label from the title of the PR to make it mergeable');
     }
 
     if (!(branchName.toLowerCase() === 'master' || branchName.toLowerCase() === 'main') && !isSelfMergingAllowed() && getCurrentUser === prAuthor) {
-        $('.branch-action')
-            .removeClass('branch-action-state-clean')
-            .addClass('branch-action-state-dirty');
-        $('.merge-message button')
-            .removeClass('btn-primary')
+        $('div[data-testid="mergebox-partial"] > div > div:last-of-type')
+            .removeClass('borderColor-success-emphasis');
+        $('div[data-testid="mergebox-partial"] > div > div > div button').first() // merge pull request button
+            .css({backgroundColor: 'var(--bgColor-neutral-muted)', borderColor: 'var(--bgColor-neutral-muted)'})
             .attr('disabled', 'disabled');
+        $('div[data-testid="mergebox-partial"] > div > div button[data-component="IconButton"]').first()
+            .css({backgroundColor: 'var(--bgColor-neutral-muted)', borderColor: 'var(--bgColor-neutral-muted)'})
+            .attr('disabled', 'disabled');
+        $('div[data-testid="mergebox-partial"] > div > div > div > div > div')
+            .css({borderColor: 'var(--bgColor-neutral-muted)'});
+        $('div[data-testid="mergeability-icon-wrapper"] div').css({backgroundColor: 'var(--bgColor-neutral-emphasis)'});
         // eslint-disable-next-line rulesdir/prefer-underscore-method
-        $('.branch-action-item').last().find('.completeness-indicator')
-            .removeClass('completeness-indicator-success')
-            .addClass('completeness-indicator-problem')
-            .end()
-            .find('.status-heading')
-            .text('You cannot merge your own PR.')
-            .end()
-            .find('.status-meta')
-            .html('I\'m sorry Dave, I\'m afraid you can\'t merge your own PR')
-            .end()
-            .find('.octicon')
-            .removeClass('octicon-check')
-            .addClass('octicon-alert');
+        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type svg') // Last section
+            .parent()
+            .removeClass('bgColor-success-emphasis')
+            .css({backgroundColor: 'var(--bgColor-neutral-emphasis)'});
+        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type h3')
+            .text('You cannot merge your own PR');
+        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type p')
+            .html('It\'s like giving yourself a high-five in public.');
     }
 };
 
