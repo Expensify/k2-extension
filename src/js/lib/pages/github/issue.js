@@ -110,7 +110,7 @@ const refreshAssignees = () => {
     $('div[data-testid="sidebar-section"] > .k2-element').remove();
 
     // Check if there is an owner for the issue
-    const ghDescription = $('.markdown-body').text();
+    const ghDescription = $('.markdown-body').first().text();
     const regexResult = ghDescription.match(/Current Issue Owner:\s@(?<owner>\S+)/i);
     const currentOwner = regexResult && regexResult.groups && regexResult.groups.owner;
 
@@ -156,7 +156,7 @@ const refreshAssignees = () => {
 const refreshPicker = function () {
     // Add our wrappers to the DOM which all the React components will be rendered into
     if (!$('.k2picker-wrapper').length) {
-        $('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(3)').after(sidebarWrapperHTML)
+        $('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(3)').after(sidebarWrapperHTML);
     }
 
     new K2picker().draw();

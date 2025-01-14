@@ -1,5 +1,3 @@
-import $ from 'jquery';
-
 /**
  * This class is to be extended by each of the distinct types of webpages that the extension works on
  * @returns {Object}
