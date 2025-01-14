@@ -14,11 +14,11 @@ import * as API from '../../api';
 let clearErrorTimeoutID;
 function catchError(e) {
     $('div[data-component="PH_Actions"] .k2-element').remove();
-    $('.div[data-component="PH_Actions"]').append('<span class="alert k2-element">OOPS!</span>');
+    $('div[data-component="PH_Actions"]').append('<span class="alert k2-element">OOPS!</span>');
     console.error(e);
     clearTimeout(clearErrorTimeoutID);
     clearErrorTimeoutID = setTimeout(() => {
-        $('.div[data-component="PH_Actions"] .k2-element').remove();
+        $('div[data-component="PH_Actions"] .k2-element').remove();
     }, 30000);
 }
 
