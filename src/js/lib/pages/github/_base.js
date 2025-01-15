@@ -153,7 +153,7 @@ export default function () {
             repoNameProcessed = 'Web-Expensify';
         }
 
-        const link =`https://github.com/${orgName}/${repoNameProcessed ?? currentRepoName}/issues/${issueNumber}`;
+        const link = `https://github.com/${orgName}/${repoNameProcessed ?? currentRepoName}/issues/${issueNumber}`;
 
         const issueRegex = new RegExp(`#${issueNumber}`);
         const htmlContent = titleSelector.html();
