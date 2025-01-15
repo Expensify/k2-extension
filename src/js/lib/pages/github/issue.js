@@ -22,23 +22,6 @@ function catchError(e) {
     }, 30000);
 }
 
-/**
- * Gets the contents of the reviewer checklist from GitHub and then posts it as a comment to the current PR
- * @param {Event} e
- */
-const copyReviewerChecklist = (e) => {
-    e.preventDefault();
-    const pathToChecklist = 'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/BUGZERO_CHECKLIST.md';
-    $.get(pathToChecklist)
-        .done((fileContents) => {
-            if (!fileContents) {
-                console.error(`could not load contents of ${pathToChecklist} for some reason`);
-                return;
-            }
-
-            API.addComment(fileContents);
-        });
-};
 
 /**
  * Sets the owner of an issue when it doesn't have an owner yet
@@ -175,8 +158,10 @@ export default function () {
             }
         }, 1000);
 
+        renderLinksInTitle();
+
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
-        setInterval(() => IssuePage.renderCopyChecklistButtons(copyReviewerChecklist), 2000);
+        setInterval(() => IssuePage.renderCopyChecklistButtons('bugzero'), 2000);
     };
 
     return IssuePage;
