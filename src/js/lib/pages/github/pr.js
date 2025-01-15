@@ -1,40 +1,6 @@
 import $ from 'jquery';
 import Base from './_base';
 
-function renderLinksInTitle() {
-    const titleSelector = $('h1 .js-issue-title');
-
-    if (!titleSelector.length) {
-        return;
-    }
-
-    const titleText = titleSelector.text();
-    const pattern = /\[HOLD.*?([A-Za-z0-9_.-]*)#(\d+)\]/i;
-    const match = titleText.match(pattern);
-
-    if (!match) {
-        return;
-    }
-    let partialRepoName = match[1];
-    const issueOrPRNumber = match[2];
-    const pathParts = window.location.pathname.split('/');
-    const orgName = pathParts[1];
-    const currentRepoName = pathParts[2];
-    if (partialRepoName === 'Web') {
-        partialRepoName = 'Web-Expensify';
-    }
-    let link;
-    if (!partialRepoName) {
-        link = `https://github.com/${orgName}/${currentRepoName}/issues/${issueOrPRNumber}`;
-    } else {
-        link = `https://github.com/${orgName}/${partialRepoName}/pull/${issueOrPRNumber}`;
-    }
-    const needle = `${match[1]}#${issueOrPRNumber}`;
-    const replacement = `<a href="${link}" target="_blank">#${issueOrPRNumber}</a>`;
-    const replacedTitle = titleText.replace(needle, replacement);
-    titleSelector.html(replacedTitle);
-}
-
 const refreshHold = function () {
     const prTitle = $('.js-issue-title').text();
 
@@ -113,7 +79,7 @@ export default function () {
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
         setInterval(() => PrPage.renderCopyChecklistButtons('reviewer'), 2000);
 
-        renderLinksInTitle();
+        setTimeout(() => PrPage.renderHoldLinksInTitle($('h1 .js-issue-title'), 5000));
     };
 
     return PrPage;

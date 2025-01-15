@@ -124,5 +124,51 @@ export default function () {
         });
     };
 
+    /**
+     * Renders hold issue numbers into links
+     * @param {*} titleSelector
+     */
+    Page.renderHoldLinksInTitle = function (titleSelector) {
+        // eslint-disable-next-line
+        if (!titleSelector.length || titleSelector.find('a').length > 0) {
+            return;
+        }
+
+        const titleText = titleSelector.text();
+        const pattern = /\[HOLD.*?(?<repoName>[A-Za-z0-9_.-]*)#(?<issueNumber>\d+)\]/i;
+        const match = titleText.match(pattern);
+
+        if (!match || !match.groups) {
+            return;
+        }
+
+        const {repoName, issueNumber} = match.groups; // Removed spaces after '{' and before '}'
+
+        const pathParts = window.location.pathname.split('/');
+        const orgName = pathParts[1];
+        const currentRepoName = pathParts[2];
+
+        let repoNameProcessed = repoName;
+        if (repoNameProcessed === 'Web') {
+            repoNameProcessed = 'Web-Expensify';
+        }
+
+        const link =`https://github.com/${orgName}/${repoNameProcessed ?? currentRepoName}/issues/${issueNumber}`;
+
+        const issueRegex = new RegExp(`#${issueNumber}`);
+        const htmlContent = titleSelector.html();
+
+        if (!issueRegex.test(htmlContent)) {
+            return;
+        }
+
+        const linkedContent = htmlContent.replace(
+            issueRegex,
+            `<a href="${link}" target="_blank">#${issueNumber}</a>`,
+        ); // Added trailing comma
+
+        titleSelector.html(linkedContent);
+    };
+
     return Page;
 }

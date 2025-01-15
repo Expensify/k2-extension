@@ -22,40 +22,6 @@ function catchError(e) {
     }, 30000);
 }
 
-function renderLinksInTitle() {
-    const titleSelector = $('div[data-testid="issue-header"] bdi');
-
-    if (!titleSelector.length) {
-        return;
-    }
-
-    const titleText = titleSelector.text();
-    const pattern = /\[HOLD.*?([A-Za-z0-9_.-]*)#(\d+)\]/i;
-    const match = titleText.match(pattern);
-
-    if (!match) {
-        return;
-    }
-    let partialRepoName = match[1];
-    const issueOrPRNumber = match[2];
-    const pathParts = window.location.pathname.split('/');
-    const orgName = pathParts[1];
-    const currentRepoName = pathParts[2];
-    if (partialRepoName === 'Web') {
-        partialRepoName = 'Web-Expensify';
-    }
-    let link;
-    if (!partialRepoName) {
-        link = `https://github.com/${orgName}/${currentRepoName}/issues/${issueOrPRNumber}`;
-    } else {
-        link = `https://github.com/${orgName}/${partialRepoName}/pull/${issueOrPRNumber}`;
-    }
-    const needle = `${match[1]}#${issueOrPRNumber}`;
-    const replacement = `<a href="${link}" target="_blank">#${issueOrPRNumber}</a>`;
-    const replacedTitle = titleText.replace(needle, replacement);
-    titleSelector.html(replacedTitle);
-}
-
 /**
  * Sets the owner of an issue when it doesn't have an owner yet
  * @param {String} newOwner to change to (removes owner if null)
@@ -191,7 +157,8 @@ export default function () {
             }
         }, 1000);
 
-        renderLinksInTitle();
+        IssuePage.renderHoldLinksInTitle($('div[data-testid="issue-header"] bdi'));
+
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
         setInterval(() => IssuePage.renderCopyChecklistButtons('bugzero'), 2000);
     };
