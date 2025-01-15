@@ -59,60 +59,46 @@ const renderCopyChecklistButton = () => {
 
 /**
  * Sets the owner of an issue when it doesn't have an owner yet
- * @param {String} owner to set
+ * @param {String} newOwner to change to (removes owner if null)
+ * @param {String} oldOwner to change from (only adds new owner if null)
  */
-function setOwner(owner) {
-    API.getCurrentIssueDescription()
-        .then((response) => {
-            const ghDescription = response.data.body;
-            const newDescription = `${ghDescription}
+async function setOwner(newOwner, oldOwner) {
+    try {
+        const issueDescription = (await API.getCurrentIssueDescription()).data.body;
+        let newDescription = '';
 
-<details><summary>Issue Owner</summary>Current Issue Owner: @${owner}</details>`;
-            API.setCurrentIssueBody(newDescription);
-        })
-        .catch(catchError);
-}
+        if (newOwner) {
+            if (oldOwner) {
+                newDescription = issueDescription.replace(`Current Issue Owner: @${oldOwner}`, `Current Issue Owner: @${newOwner}`);
+            } else {
+                newDescription = `${issueDescription}\n\n<details><summary>Issue Owner</summary>Current Issue Owner: @${newOwner}</details>`;
+            }
+        } else {
+            newDescription = issueDescription.replace(`<details><summary>Issue Owner</summary>Current Issue Owner: @${oldOwner}</details>`, '');
+        }
 
-/**
- * Removes the existing owner of an issue
- * @param {String} owner to remove
- */
-function removeOwner(owner) {
-    API.getCurrentIssueDescription()
-        .then((response) => {
-            const ghDescription = response.data.body;
-            const newDescription = ghDescription.replace(`<details><summary>Issue Owner</summary>Current Issue Owner: @${owner}</details>`, '');
-            API.setCurrentIssueBody(newDescription);
-        })
-        .catch(catchError);
-}
-
-/**
- * Replaces the existing issue owner with a different owner
- * @param {String} oldOwner
- * @param {String} newOwner
- */
-function replaceOwner(oldOwner, newOwner) {
-    API.getCurrentIssueDescription()
-        .then((response) => {
-            const ghDescription = response.data.body;
-            const newDescription = ghDescription.replace(`Current Issue Owner: @${oldOwner}`, `Current Issue Owner: @${newOwner}`);
-            API.setCurrentIssueBody(newDescription);
-        })
-        .catch(catchError);
+        await API.setCurrentIssueBody(newDescription);
+    } catch (e) {
+        catchError(e);
+    }
 }
 
 /**
  * This method is all about adding the "issue owner" functionality which melvin will use to see who should be providing ksv2 updates to an issue.
+ * @param {String | null | undefined} issueOwner GitHub username of the issue owner. Null means no owner, undefined means get the owner from issue body
  */
-const refreshAssignees = () => {
+const renderAssignees = (issueOwner) => {
     // Always start by erasing whatever was drawn before (so it always starts from a clean slate)
-    $('div[data-testid="sidebar-section"] > .k2-element').remove();
+    $('div[data-testid="sidebar-section"] .k2-element').remove();
 
-    // Check if there is an owner for the issue
-    const ghDescription = $('.markdown-body').first().text();
-    const regexResult = ghDescription.match(/Current Issue Owner:\s@(?<owner>\S+)/i);
-    const currentOwner = regexResult && regexResult.groups && regexResult.groups.owner;
+    let currentOwner = issueOwner;
+
+    // if issue owner is not provided, then try to get it from the issue body
+    if (currentOwner === undefined) {
+        const ghDescription = $('.markdown-body').first().text();
+        const regexResult = ghDescription.match(/Current Issue Owner:\s@(?<owner>\S+)/i);
+        currentOwner = regexResult && regexResult.groups && regexResult.groups.owner;
+    }
 
     // Add buttons to each assignee
     $('div[data-testid="issue-assignees"]').each((i, el) => {
@@ -133,23 +119,23 @@ const refreshAssignees = () => {
     });
 
     // Remove the owner with this button is clicked
-    $('.k2-button-remove-owner').off('click').on('click', (e) => {
+    $('.k2-button-remove-owner').off('click').on('click', async (e) => {
         e.preventDefault();
         const owner = $(e.target).data('owner');
-        removeOwner(owner);
-        return false;
+        await setOwner(null, owner);
+        renderAssignees(null);
     });
 
     // Make a new owner when this button is clicked
-    $('.k2-button-make-owner').off('click').on('click', (e) => {
+    $('.k2-button-make-owner').off('click').on('click', async (e) => {
         e.preventDefault();
         const newOwner = $(e.target).data('owner');
         if (currentOwner) {
-            replaceOwner(currentOwner, newOwner);
+            await setOwner(newOwner, currentOwner);
         } else {
-            setOwner(newOwner);
+            await setOwner(newOwner, null);
         }
-        return false;
+        renderAssignees(newOwner);
     });
 };
 
@@ -172,7 +158,7 @@ const refreshPicker = function () {
  * @returns {Object}
  */
 export default function () {
-    let allreadySetup = false;
+    let alreadySetup = false;
     ReactNativeOnyx.init({
         keys: ONYXKEYS,
     });
@@ -183,14 +169,14 @@ export default function () {
 
     IssuePage.setup = function () {
         // Prevent this function from running twice (it sometimes does that because of how chrome triggers the extension)
-        if (allreadySetup) {
+        if (alreadySetup) {
             return;
         }
-        allreadySetup = true;
+        alreadySetup = true;
 
         // Draw them once when the page is loaded
         setTimeout(refreshPicker, 500);
-        setTimeout(refreshAssignees, 500);
+        setTimeout(renderAssignees, 500);
 
         // Every second, check to see if the pickers are still there, and if not, redraw them
         setInterval(() => {
@@ -198,7 +184,7 @@ export default function () {
                 refreshPicker();
             }
             if (!$('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(2) .k2-element').length) {
-                refreshAssignees();
+                renderAssignees();
             }
         }, 1000);
 
