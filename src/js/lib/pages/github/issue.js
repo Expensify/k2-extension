@@ -22,7 +22,6 @@ function catchError(e) {
     }, 30000);
 }
 
-
 /**
  * Sets the owner of an issue when it doesn't have an owner yet
  * @param {String} newOwner to change to (removes owner if null)
@@ -157,8 +156,6 @@ export default function () {
                 renderAssignees();
             }
         }, 1000);
-
-        renderLinksInTitle();
 
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
         setInterval(() => IssuePage.renderCopyChecklistButtons('bugzero'), 2000);
