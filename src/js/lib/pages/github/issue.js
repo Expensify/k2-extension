@@ -40,32 +40,19 @@ const copyReviewerChecklist = (e) => {
         });
 };
 
-const renderCopyChecklistButton = () => {
-    // Look through all the comments on the page to find one that has the template for the copy/paste checklist button
-    // eslint-disable-next-line rulesdir/prefer-underscore-method
-    $('.markdown-body > p').each((i, el) => {
-        const commentHtml = $(el).html();
-
-        // When the button template is found, replace it with an HTML button and then put that back into the DOM so someone can click on it
-        if (commentHtml && commentHtml.indexOf('you can simply click: [this button]') > -1) {
-            const newHtml = commentHtml.replace('[this button]', '<button type="button" class="btn btn-sm k2-copy-checklist">HERE</button>');
-            $(el).html(newHtml);
-
-            // Now that the button is on the page, add a click handler to it (always remove all handlers first so that we know there will always be one handler attached)
-            $('.k2-copy-checklist').off().on('click', copyReviewerChecklist);
-        }
-    });
-};
-
 /**
  * Sets the owner of an issue when it doesn't have an owner yet
  * @param {String} newOwner to change to (removes owner if null)
  * @param {String} oldOwner to change from (only adds new owner if null)
  */
 async function setOwner(newOwner, oldOwner) {
+    const actionedOwner = newOwner ?? oldOwner;
+    const ownerSelector = $(`button[data-owner="${actionedOwner}"]`);
+    $(ownerSelector).html('<div class="loader" />');
+
     try {
         const issueDescription = (await API.getCurrentIssueDescription()).data.body;
-        let newDescription = '';
+        let newDescription;
 
         if (newOwner) {
             if (oldOwner) {
@@ -85,7 +72,7 @@ async function setOwner(newOwner, oldOwner) {
 
 /**
  * This method is all about adding the "issue owner" functionality which melvin will use to see who should be providing ksv2 updates to an issue.
- * @param {String | null | undefined} issueOwner GitHub username of the issue owner. Null means no owner, undefined means get the owner from issue body
+ * @param {String | null} [issueOwner] GitHub username of the issue owner. Null means no owner, undefined means get the owner from issue body
  */
 const renderAssignees = (issueOwner) => {
     // Always start by erasing whatever was drawn before (so it always starts from a clean slate)
@@ -189,7 +176,7 @@ export default function () {
         }, 1000);
 
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
-        setInterval(renderCopyChecklistButton, 2000);
+        setInterval(() => IssuePage.renderCopyChecklistButtons(copyReviewerChecklist), 2000);
     };
 
     return IssuePage;
