@@ -28,7 +28,7 @@ export default function () {
         const originalContent = button.innerHTML;
 
         // Replace the button content with a loader
-        button.innerHTML = '<div class="loader"></div>';
+        button.innerHTML = '<div class="loader" />';
 
         try {
             // Fetch the checklist contents
