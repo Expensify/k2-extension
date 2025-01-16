@@ -24,32 +24,47 @@ function catchError(e) {
 
 /**
  * Sets the owner of an issue when it doesn't have an owner yet
- * @param {String} newOwner to change to (removes owner if null)
- * @param {String} oldOwner to change from (only adds new owner if null)
+ * @param {String} owner to set
  */
-async function setOwner(newOwner, oldOwner) {
-    const actionedOwner = newOwner ?? oldOwner;
-    const ownerSelector = $(`button[data-owner="${actionedOwner}"]`);
-    $(ownerSelector).html('<div class="loader" />');
+function setOwner(owner) {
+    API.getCurrentIssueDescription()
+        .then((response) => {
+            const ghDescription = response.data.body;
+            const newDescription = `${ghDescription}
 
-    try {
-        const issueDescription = (await API.getCurrentIssueDescription()).data.body;
-        let newDescription;
+<details><summary>Issue Owner</summary>Current Issue Owner: @${owner}</details>`;
+            API.setCurrentIssueBody(newDescription);
+        })
+        .catch(catchError);
+}
 
-        if (newOwner) {
-            if (oldOwner) {
-                newDescription = issueDescription.replace(`Current Issue Owner: @${oldOwner}`, `Current Issue Owner: @${newOwner}`);
-            } else {
-                newDescription = `${issueDescription}\n\n<details><summary>Issue Owner</summary>Current Issue Owner: @${newOwner}</details>`;
-            }
-        } else {
-            newDescription = issueDescription.replace(`<details><summary>Issue Owner</summary>Current Issue Owner: @${oldOwner}</details>`, '');
-        }
+/**
+ * Removes the existing owner of an issue
+ * @param {String} owner to remove
+ */
+function removeOwner(owner) {
+    API.getCurrentIssueDescription()
+        .then((response) => {
+            const ghDescription = response.data.body;
+            const newDescription = ghDescription.replace(`<details><summary>Issue Owner</summary>Current Issue Owner: @${owner}</details>`, '');
+            API.setCurrentIssueBody(newDescription);
+        })
+        .catch(catchError);
+}
 
-        await API.setCurrentIssueBody(newDescription);
-    } catch (e) {
-        catchError(e);
-    }
+/**
+ * Replaces the existing issue owner with a different owner
+ * @param {String} oldOwner
+ * @param {String} newOwner
+ */
+function replaceOwner(oldOwner, newOwner) {
+    API.getCurrentIssueDescription()
+        .then((response) => {
+            const ghDescription = response.data.body;
+            const newDescription = ghDescription.replace(`Current Issue Owner: @${oldOwner}`, `Current Issue Owner: @${newOwner}`);
+            API.setCurrentIssueBody(newDescription);
+        })
+        .catch(catchError);
 }
 
 /**
@@ -91,7 +106,7 @@ const renderAssignees = (issueOwner) => {
     $('.k2-button-remove-owner').off('click').on('click', async (e) => {
         e.preventDefault();
         const owner = $(e.target).data('owner');
-        await setOwner(null, owner);
+        removeOwner(owner);
         renderAssignees(null);
     });
 
@@ -100,9 +115,9 @@ const renderAssignees = (issueOwner) => {
         e.preventDefault();
         const newOwner = $(e.target).data('owner');
         if (currentOwner) {
-            await setOwner(newOwner, currentOwner);
+            replaceOwner(currentOwner, newOwner);
         } else {
-            await setOwner(newOwner, null);
+            setOwner(newOwner);
         }
         renderAssignees(newOwner);
     });
