@@ -96,11 +96,13 @@ export default function () {
     Page.setup = function () {};
 
     Page.getRepoOwner = function () {
-        return document.querySelectorAll('.AppHeader-context-item-label.Truncate-text')[0].textContent.trim();
+        return document.querySelectorAll('.AppHeader-context-item-label.Truncate-text')[0] // Org name next to GitHub logo
+            .textContent.trim();
     };
 
     Page.getRepo = function () {
-        return document.querySelectorAll('.AppHeader-context-item-label.Truncate-text')[1].textContent.trim();
+        return document.querySelectorAll('.AppHeader-context-item-label.Truncate-text')[1] // Repo name next to GitHub logo
+            .textContent.trim();
     };
 
     /**

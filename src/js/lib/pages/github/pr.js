@@ -9,21 +9,21 @@ const refreshHold = function () {
     // Classic merge experience
     if (!isNewMergeUI) {
         if (prTitle.toLowerCase().indexOf('[hold') > -1 || prTitle.toLowerCase().indexOf('[wip') > -1) {
-            $('.branch-action') // entire section
+            $('.branch-action') // Entire PR merge section
                 .removeClass('branch-action-state-clean')
                 .addClass('branch-action-state-dirty');
-            $('.merge-message button') // merge pull request button
+            $('.merge-message button') // Merge pull request button
                 .removeClass('btn-primary')
                 .attr('disabled', 'disabled');
             // eslint-disable-next-line rulesdir/prefer-underscore-method
-            $('.branch-action-item').last().find('.completeness-indicator') // Last section
+            $('.branch-action-item').last().find('.completeness-indicator') // "Merging status" section above the merge button
                 .removeClass('completeness-indicator-success')
                 .addClass('completeness-indicator-problem')
                 .end()
-                .find('.status-heading')
+                .find('.status-heading') // Header for the "merging status" section
                 .text('This pull request has a hold on it and cannot be merged')
                 .end()
-                .find('.status-meta')
+                .find('.status-meta') // Body text for the "merging status" section
                 .html('Remove the HOLD or WIP label from the title of the PR to make it mergeable')
                 .end()
                 .find('.octicon')
@@ -34,25 +34,24 @@ const refreshHold = function () {
     }
 
     if (prTitle.toLowerCase().indexOf('[hold') > -1 || prTitle.toLowerCase().indexOf('[wip') > -1) {
-        $('div[data-testid="mergebox-partial"] > div > div:last-of-type')
+        $('div[data-testid="mergebox-partial"] > div > div:last-of-type') // Entire PR merge section
             .removeClass('borderColor-success-emphasis');
-        $('div[data-testid="mergebox-partial"] > div > div > div button').first() // merge pull request button
+        $('div[data-testid="mergebox-partial"] > div > div > div button').first() // Merge pull request button
             .css({backgroundColor: 'var(--bgColor-neutral-muted)', borderColor: 'var(--bgColor-neutral-muted)'})
             .attr('disabled', 'disabled');
-        $('div[data-testid="mergebox-partial"] > div > div button[data-component="IconButton"]').first()
+        $('div[data-testid="mergebox-partial"] > div > div button[data-component="IconButton"]').first() // Dropdown button next to merge button
             .css({backgroundColor: 'var(--bgColor-neutral-muted)', borderColor: 'var(--bgColor-neutral-muted)'})
             .attr('disabled', 'disabled');
-        $('div[data-testid="mergebox-partial"] > div > div > div > div > div')
+        $('div[data-testid="mergebox-partial"] > div > div > div > div > div') // Container for merge pull request button
             .css({borderColor: 'var(--bgColor-neutral-muted)'});
-        $('div[data-testid="mergeability-icon-wrapper"] div').css({backgroundColor: 'var(--bgColor-neutral-emphasis)'});
-        // eslint-disable-next-line rulesdir/prefer-underscore-method
-        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type svg') // Last section
+        $('div[data-testid="mergeability-icon-wrapper"] div').css({backgroundColor: 'var(--bgColor-neutral-emphasis)'}); // Icon on the left side of the merge panel
+        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type svg') // "Merging status" section above the merge button
             .parent()
             .removeClass('bgColor-success-emphasis')
             .css({backgroundColor: 'var(--bgColor-neutral-emphasis)'});
-        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type h3')
+        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type h3') // Header for the "merging status" section
             .text('This pull request has a hold on it and cannot be merged');
-        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type p')
+        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type p') // Body text for the "merging status" section
             .html('Remove the HOLD or WIP label from the title of the PR to make it mergeable');
     }
 };

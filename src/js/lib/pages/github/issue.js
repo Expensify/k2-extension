@@ -13,8 +13,9 @@ import * as API from '../../api';
 
 let clearErrorTimeoutID;
 function catchError(e) {
-    $('div[data-component="PH_Actions"] .k2-element').remove();
-    $('div[data-component="PH_Actions"]').append('<span class="alert k2-element">OOPS!</span>');
+    $('div[data-component="PH_Actions"] .k2-element').remove(); // K2 elements in action buttons
+    $('div[data-component="PH_Actions"]') // Action buttons next to issue title
+        .append('<span class="alert k2-element">OOPS!</span>');
     console.error(e);
     clearTimeout(clearErrorTimeoutID);
     clearErrorTimeoutID = setTimeout(() => {
@@ -126,7 +127,8 @@ const renderAssignees = (issueOwner) => {
 const refreshPicker = function () {
     // Add our wrappers to the DOM which all the React components will be rendered into
     if (!$('.k2picker-wrapper').length) {
-        $('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(3)').after(sidebarWrapperHTML);
+        $('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(3)') // Labels section in right side panel
+            .after(sidebarWrapperHTML);
     }
 
     new K2picker().draw();
@@ -167,7 +169,9 @@ export default function () {
             if (!$('.k2picker-wrapper').length) {
                 refreshPicker();
             }
-            if (!$('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(2) .k2-element').length) {
+
+            if (!$('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(2) .k2-element') // Assignee section in right side panel
+                .length) {
                 renderAssignees();
             }
         }, 1000);
