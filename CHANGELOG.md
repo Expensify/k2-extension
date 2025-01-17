@@ -1,3 +1,7 @@
+#1.4.0
+- Updated the extension to work with new GitHub UI
+- Updated the extension to work with GitHub's new PR merge experience
+
 #1.3.74
 - Moved the previous query string params to Onyx
 
