@@ -33,18 +33,7 @@ export default function () {
         try {
             // Fetch the checklist contents
             const response = await fetch(checklistUrl);
-
-            if (!response.ok) {
-                console.error(`Failed to load contents of ${checklistUrl}: ${response.statusText}`);
-                return;
-            }
-
             const fileContents = await response.text();
-
-            if (!fileContents) {
-                console.error(`Could not load contents of ${checklistUrl} for some reason`);
-                return;
-            }
 
             // Call the API to add the comment
             await API.addComment(fileContents);
