@@ -15,7 +15,8 @@ export default {
         DAILY_IMPROVEMENTS: 'issueDailyImprovements',
         ENGINEERING: 'issueEngineering',
         FILTER: 'issueFilter',
-        WAQ: 'issueWhatsAppQuality',
+        CHECKBOXES: 'issueCheckboxes',
+        HOTPICKS: 'issueHotPicks',
     },
 
     MILESTONES: 'milestones',

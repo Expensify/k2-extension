@@ -147,14 +147,14 @@ function formatIssueResults(rawIssueData) {
     return _.indexBy(cleanData, 'id');
 }
 
-function getWAQIssues() {
+function getHotPickIssues() {
     let query = '';
     query += ' state:open';
     query += ' type:issue';
     query += ' repo:Expensify/App';
-    query += ' label:Bug';
+    query += ' repo:Expensify/Expensify';
     query += ' NOT hold in:title';
-    query += ' -label:Reviewing';
+    query += ' label:\\"Hot Pick\\"';
 
     const graphQLQuery = `
         query($cursor:String) {
@@ -422,7 +422,7 @@ export {
     getEngineeringIssues,
     getIssuesAssigned,
     getDailyImprovements,
-    getWAQIssues,
+    getHotPickIssues,
     addLabel,
     removeLabel,
     getMilestones,

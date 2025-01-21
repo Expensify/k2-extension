@@ -1,3 +1,21 @@
+#1.4.0
+- Updated the extension to work with new GitHub UI
+- Updated the extension to work with GitHub's new PR merge experience
+
+#1.3.74
+- Moved the previous query string params to Onyx
+
+#1.3.73
+- Added query string params to determine initial checked state for "on hold", "under review", and "owned by someone else" checkboxes
+
+#1.3.72
+- Included Expensify/Expensify Hot Pick issues to the section with the same name.
+- Added `Hot Pick` label to the shortcuts right panel.
+- Removed `Ops` label from the shortcuts.
+
+#1.3.71
+- Removed the whats app quality section and replaced it with a hot pick section
+
 #1.3.70
 - Fixed padding added to bullet lists in comments
 

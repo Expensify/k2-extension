@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Filters from './Filters';
 
+// import Filters from './Filters';
 import ListIssuesAssigned from './ListIssuesAssigned';
 import ListPRsAssigned from './ListPRsAssigned';
 import ListPRsReviewing from './ListPRsReviewing';
-import ListIssuesEngineering from './ListIssuesEngineering';
+
+// import ListIssuesEngineering from './ListIssuesEngineering';
 import Legend from './Legend';
-import ListIssuesWAQ from './ListIssuesWAQ';
+import ListIssuesHotPicks from './ListIssuesHotPicks';
 
 const propTypes = {
     /** The number of seconds to refresh the list of issues */
@@ -25,11 +26,12 @@ function ListIssues(props) {
 
             <ListIssuesAssigned pollInterval={props.pollInterval} />
 
-            <ListIssuesWAQ pollInterval={props.pollInterval * 2.5} />
+            <ListIssuesHotPicks pollInterval={props.pollInterval * 2.5} />
 
-            <Filters />
+            {/* Hide these for now while we focus on NewDot */}
+            {/* <Filters />
 
-            <ListIssuesEngineering pollInterval={props.pollInterval * 2.5} />
+            <ListIssuesEngineering pollInterval={props.pollInterval * 2.5} /> */}
         </div>
     );
 }
