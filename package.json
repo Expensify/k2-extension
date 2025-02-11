@@ -23,7 +23,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-native-onyx": "^2.0.88",
-    "underscore": "^1.13.2",
+    "underscore": "^1.13.7",
     "web-ext": "^8.3.0"
   },
   "devDependencies": {
