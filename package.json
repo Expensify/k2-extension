@@ -22,7 +22,7 @@
     "prop-types": "^15.7.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-native-onyx": "^2.0.88",
+    "react-native-onyx": "^2.0.90",
     "underscore": "^1.13.7",
     "web-ext": "^8.3.0"
   },
