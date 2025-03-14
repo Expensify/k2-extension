@@ -7,7 +7,7 @@ module.exports = {
         'rulesdir/no-api-in-views': 'off',
         'rulesdir/no-multiple-api-calls': 'off',
         '@lwc/lwc/no-async-await': 'off',
-        'es/no-nullish-coalescing-operators' : 'off'
+        'es/no-nullish-coalescing-operators': 'off',
     },
     settings: {
         'import/resolver': {
