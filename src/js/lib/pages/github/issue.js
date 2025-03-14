@@ -127,7 +127,7 @@ const renderAssignees = (issueOwner) => {
 
 const refreshPicker = function () {
     // Add our wrappers to the DOM which all the React components will be rendered into
-    if (!$('.k2picker-wrapper').length) {
+    if (!$('.k2picker-wrapper')) {
         $('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(3)') // Labels section in right side panel
             .after(sidebarWrapperHTML);
     }
@@ -167,7 +167,7 @@ export default function () {
 
         // Every second, check to see if the pickers are still there, and if not, redraw them
         setInterval(() => {
-            if (!$('.k2picker-wrapper').length) {
+            if (!$('.k2picker-wrapper')) {
                 refreshPicker();
             }
 
