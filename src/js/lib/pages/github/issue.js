@@ -88,6 +88,7 @@ const renderAssignees = (issueOwner) => {
     // Add buttons to each assignee
     $('div[data-testid="issue-assignees"]').each((i, el) => {
         const assignee = $(el).text();
+        $(el).closest('li').css('display', 'flex');
         if (assignee === currentOwner) {
             $(el).closest('li').append(`
                 <button type="button" class="Button flex-md-order-2 m-0 owner k2-element k2-button k2-button-remove-owner" data-owner="${currentOwner}">
@@ -170,7 +171,7 @@ export default function () {
                 refreshPicker();
             }
 
-            if (!$('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(2) .k2-element') // Assignee section in right side panel
+            if (!$('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(3) .k2-element') // Assignee section in right side panel
                 .length) {
                 renderAssignees();
             }
