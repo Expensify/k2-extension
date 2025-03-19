@@ -1,3 +1,7 @@
+#1.4.1
+- Fixed issue star icon placement for recent GitHub UI changes
+- Fixed rendering loops for issue pages
+
 #1.4.0
 - Updated the extension to work with new GitHub UI
 - Updated the extension to work with GitHub's new PR merge experience
