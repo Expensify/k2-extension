@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {useState} from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
+import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
 import {withOnyx} from 'react-native-onyx';
 import Title from '../panel-title/Title';
 import IssuePropTypes from '../list-item/IssuePropTypes';
@@ -51,10 +52,33 @@ const defaultProps = {
 };
 
 function PanelIssues(props) {
-    let filteredData = props.data;
+    const [issues, setIssues] = useState(Object.values(props.data));
+
+    const onDragEnd = (result) => {
+        const {destination, source} = result;
+        debugger;
+        console.log('onDragEnd destination', destination);
+        console.log('onDragEnd source', source);
+
+        // If no destination, or dropped in the same place, do nothing
+        if (!destination || destination.index === source.index) {
+            return;
+        }
+
+        // Reorder the issues array
+        console.log('Issues before reorder', issues);
+        const reorderedIssues = Array.from(issues);
+        const [movedIssue] = reorderedIssues.splice(source.index, 1);
+        reorderedIssues.splice(destination.index, 0, movedIssue);
+        console.log('Issues after reorder', reorderedIssues);
+
+        setIssues(reorderedIssues);
+    };
+
+    let filteredData = issues;
 
     if (props.hideIfHeld || props.hideIfUnderReview || props.hideIfOwnedBySomeoneElse) {
-        filteredData = _.filter(props.data, (item) => {
+        filteredData = _.filter(issues, (item) => {
             const isHeld = item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
             const isUnderReview = _.find(item.labels, label => label.name.toLowerCase() === 'reviewing');
             const isOwnedBySomeoneElse = item.issueHasOwner && !item.currentUserIsOwner;
@@ -75,9 +99,8 @@ function PanelIssues(props) {
         });
     }
 
-    // We need to be sure to filter the data if the user has set any filters
     if (props.applyFilters && props.filters && !_.isEmpty(props.filters)) {
-        filteredData = _.filter(props.data, (item) => {
+        filteredData = _.filter(issues, (item) => {
             const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
             const isTask = _.findWhere(item.labels, {name: 'Task'});
             const isFeature = _.findWhere(item.labels, {name: 'NewFeature'});
@@ -94,12 +117,9 @@ function PanelIssues(props) {
         });
     }
 
-    if (!_.size(props.data) && props.hideOnEmpty) {
+    if (!_.size(filteredData) && props.hideOnEmpty) {
         return null;
     }
-
-    // Put the issues owned by the current user at the top of the list
-    const sortedData = _.sortBy(filteredData, 'currentUserIsOwner');
 
     return (
         <div className={`panel ${props.extraClass}`}>
@@ -108,14 +128,36 @@ function PanelIssues(props) {
                 count={_.size(filteredData) || 0}
             />
 
-            {!_.size(props.data) ? (
+            {!_.size(filteredData) ? (
                 <div className="blankslate capped clean-background">
                     No items
                 </div>
             ) : (
-                <div>
-                    {_.map(sortedData, issue => <ListItemIssue key={`issue_raw_${issue.id}`} issue={issue} />)}
-                </div>
+                <DragDropContext onDragEnd={onDragEnd}>
+                    <Droppable droppableId="issues-list">
+                        {(provided) => (
+                            <div
+                                {...provided.droppableProps}
+                                ref={provided.innerRef}
+                            >
+                                {filteredData.map((issue, index) => (
+                                    <Draggable key={issue.id} draggableId={issue.id.toString()} index={index}>
+                                        {(provided) => (
+                                            <div
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                            >
+                                                <ListItemIssue issue={issue} />
+                                            </div>
+                                        )}
+                                    </Draggable>
+                                ))}
+                                {provided.placeholder}
+                            </div>
+                        )}
+                    </Droppable>
+                </DragDropContext>
             )}
         </div>
     );
