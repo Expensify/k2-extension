@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useMemo} from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
@@ -53,49 +53,61 @@ const defaultProps = {
 };
 
 function PanelIssues(props) {
-    const [issues, setIssues] = useState(Object.values(props.data));
+    // Compute filteredData dynamically using useMemo
+    const filteredData = useMemo(() => {
+        let data = Object.values(props.data);
 
-    let filteredData = issues;
+        if (props.hideIfHeld || props.hideIfUnderReview || props.hideIfOwnedBySomeoneElse) {
+            data = _.filter(data, (item) => {
+                const isHeld = item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
+                const isUnderReview = _.find(item.labels, label => label.name.toLowerCase() === 'reviewing');
+                const isOwnedBySomeoneElse = item.issueHasOwner && !item.currentUserIsOwner;
 
-    if (props.hideIfHeld || props.hideIfUnderReview || props.hideIfOwnedBySomeoneElse) {
-        filteredData = _.filter(issues, (item) => {
-            const isHeld = item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
-            const isUnderReview = _.find(item.labels, label => label.name.toLowerCase() === 'reviewing');
-            const isOwnedBySomeoneElse = item.issueHasOwner && !item.currentUserIsOwner;
+                if (isHeld && props.hideIfHeld) {
+                    return false;
+                }
 
-            if (isHeld && props.hideIfHeld) {
-                return false;
-            }
+                if (isUnderReview && props.hideIfUnderReview) {
+                    return false;
+                }
 
-            if (isUnderReview && props.hideIfUnderReview) {
-                return false;
-            }
+                if (isOwnedBySomeoneElse && props.hideIfOwnedBySomeoneElse) {
+                    return false;
+                }
 
-            if (isOwnedBySomeoneElse && props.hideIfOwnedBySomeoneElse) {
-                return false;
-            }
+                return true;
+            });
+        }
 
-            return true;
-        });
-    }
+        if (props.applyFilters && props.filters && !_.isEmpty(props.filters)) {
+            data = _.filter(data, (item) => {
+                const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
+                const isTask = _.findWhere(item.labels, {name: 'Task'});
+                const isFeature = _.findWhere(item.labels, {name: 'NewFeature'});
+                const isOnMilestone = item.milestone && item.milestone.id === props.filters.milestone;
 
-    if (props.applyFilters && props.filters && !_.isEmpty(props.filters)) {
-        filteredData = _.filter(issues, (item) => {
-            const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
-            const isTask = _.findWhere(item.labels, {name: 'Task'});
-            const isFeature = _.findWhere(item.labels, {name: 'NewFeature'});
-            const isOnMilestone = item.milestone && item.milestone.id === props.filters.milestone;
+                if (props.filters.milestone && !isOnMilestone) {
+                    return false;
+                }
 
-            // If we are filtering on milestone, remove everything not on that milestone
-            if (props.filters.milestone && !isOnMilestone) {
-                return false;
-            }
+                return (props.filters.improvement && isImprovement)
+                    || (props.filters.task && isTask)
+                    || (props.filters.feature && isFeature);
+            });
+        }
 
-            return (props.filters.improvement && isImprovement)
-                || (props.filters.task && isTask)
-                || (props.filters.feature && isFeature);
-        });
-    }
+        // Sort the filtered data by priority, then currentUserIsOwner
+        data = _.sortBy(data, (item) => item.priority ?? item.currentUserIsOwner);
+        console.log('Updated filtered data:', data);
+        return data;
+    }, [
+        props.data,
+        props.hideIfHeld,
+        props.hideIfUnderReview,
+        props.hideIfOwnedBySomeoneElse,
+        props.applyFilters,
+        props.filters,
+    ]);
 
     const onDragEnd = (result) => {
         const {destination, source} = result;
@@ -122,14 +134,6 @@ function PanelIssues(props) {
     if (!_.size(filteredData) && props.hideOnEmpty) {
         return null;
     }
-
-    // Sort the filteredData based on priority, then currentUserIsOwner
-    filteredData = _.sortBy(filteredData, (item) => {
-        // First sort by priority
-        return item.priority ?? item.currentUserIsOwner;
-    });
-
-    console.log('Final filteredData:', filteredData);
 
     return (
         <div className={`panel ${props.extraClass}`}>
@@ -172,7 +176,6 @@ function PanelIssues(props) {
         </div>
     );
 }
-
 PanelIssues.propTypes = propTypes;
 PanelIssues.defaultProps = defaultProps;
 PanelIssues.displayName = 'PanelIssues';

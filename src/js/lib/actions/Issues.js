@@ -166,6 +166,7 @@ function addComment(comment) {
 }
 
 function mergeAssignedIssues(issues) {
+    console.log('Merging issues', issues);
     ReactNativeOnyx.merge(ONYXKEYS.ISSUES.ASSIGNED, issues);
 }
 

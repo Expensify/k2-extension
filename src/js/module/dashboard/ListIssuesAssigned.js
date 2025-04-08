@@ -64,6 +64,7 @@ class ListIssuesAssigned extends React.Component {
     }
 
     fetch() {
+        console.log('Fetching issues assigned to the user');
         Issues.getAllAssigned();
     }
 
@@ -98,6 +99,8 @@ class ListIssuesAssigned extends React.Component {
                 </div>
             );
         }
+
+        console.log('Got updated issues');
 
         return (
             <div className="mb-3">
