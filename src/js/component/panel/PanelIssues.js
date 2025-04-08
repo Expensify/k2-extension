@@ -8,6 +8,7 @@ import IssuePropTypes from '../list-item/IssuePropTypes';
 import ListItemIssue from '../list-item/ListItemIssue';
 import ONYXKEYS from '../../ONYXKEYS';
 import filterPropTypes from '../../lib/filterPropTypes';
+import * as Issues from '../../lib/actions/Issues';
 
 const propTypes = {
     /** A CSS class to add to this panel to give it some color */
@@ -54,31 +55,6 @@ const defaultProps = {
 function PanelIssues(props) {
     const [issues, setIssues] = useState(Object.values(props.data));
 
-    const onDragEnd = (result) => {
-        const {destination, source} = result;
-
-        // If no destination, or dropped in the same place, do nothing
-        if (!destination || destination.index === source.index) {
-            return;
-        }
-
-        const movedIssueID = filteredData[source.index].id;
-        const destinationIssueID = filteredData[destination.index].id;
-
-        // Find the source and destination indices in the issues array
-        const sourceIndex = issues.findIndex(issue => issue.id === movedIssueID);
-        const destinationIndex = issues.findIndex(issue => issue.id === destinationIssueID);
-
-        // Reorder the issues array
-        console.log(`Reordering issues: ${movedIssueID} from ${sourceIndex} to ${destinationIndex}`);
-        console.log(`Issues before reordering: ${JSON.stringify(issues)}`);
-        const reorderedIssues = Array.from(issues);
-        const [removed] = reorderedIssues.splice(sourceIndex, 1);
-        reorderedIssues.splice(destinationIndex, 0, removed);
-        console.log(`Issues after reordering: ${JSON.stringify(reorderedIssues)}`);
-        setIssues(reorderedIssues);
-    };
-
     let filteredData = issues;
 
     if (props.hideIfHeld || props.hideIfUnderReview || props.hideIfOwnedBySomeoneElse) {
@@ -121,9 +97,39 @@ function PanelIssues(props) {
         });
     }
 
+    const onDragEnd = (result) => {
+        const {destination, source} = result;
+
+        // If no destination, or dropped in the same place, do nothing
+        if (!destination || destination.index === source.index) {
+            return;
+        }
+
+        // Reorder the filteredData array
+        const reorderedData = Array.from(filteredData);
+        const [removed] = reorderedData.splice(source.index, 1);
+        reorderedData.splice(destination.index, 0, removed);
+        console.log(`Reordering issues: ${removed.id} from ${source.index} to ${destination.index}`);
+
+        for (let i = 0; i < reorderedData.length; i++) {
+            const issue = reorderedData[i];
+            issue.priority = i;
+        }
+        console.log('Reordered issues:', reorderedData);
+        Issues.mergeAssignedIssues(reorderedData);
+    };
+
     if (!_.size(filteredData) && props.hideOnEmpty) {
         return null;
     }
+
+    // Sort the filteredData based on priority, then currentUserIsOwner
+    filteredData = _.sortBy(filteredData, (item) => {
+        // First sort by priority
+        return item.priority ?? item.currentUserIsOwner;
+    });
+
+    console.log('Final filteredData:', filteredData);
 
     return (
         <div className={`panel ${props.extraClass}`}>

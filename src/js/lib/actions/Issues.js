@@ -165,6 +165,10 @@ function addComment(comment) {
     API.addComment(comment);
 }
 
+function mergeAssignedIssues(issues) {
+    ReactNativeOnyx.merge(ONYXKEYS.ISSUES.ASSIGNED, issues);
+}
+
 export {
     addComment,
     getAllAssigned,
@@ -173,4 +177,5 @@ export {
     getHotPicks,
     saveCheckboxes,
     saveFilters,
+    mergeAssignedIssues,
 };
