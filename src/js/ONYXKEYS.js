@@ -17,7 +17,7 @@ export default {
         FILTER: 'issueFilter',
         CHECKBOXES: 'issueCheckboxes',
         HOTPICKS: 'issueHotPicks',
-        PRIORITIES: 'issuePriorities',
+        COLLECTION_PRIORITIES: 'issuePriorities_',
     },
 
     MILESTONES: 'milestones',

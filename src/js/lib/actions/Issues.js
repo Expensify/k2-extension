@@ -165,8 +165,8 @@ function addComment(comment) {
     API.addComment(comment);
 }
 
-function setPriorities(priorities) {
-    ReactNativeOnyx.set(ONYXKEYS.ISSUES.PRIORITIES, priorities);
+function setPriorities(priorities, priorityLabel) {
+    ReactNativeOnyx.set(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${priorityLabel}`, priorities);
 }
 
 export {

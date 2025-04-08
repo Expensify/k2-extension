@@ -27,7 +27,6 @@ const propTypes = {
     filters: filterPropTypes,
 
     priorities: PropTypes.objectOf(PropTypes.shape({
-        priorityLabel: PropTypes.string,
         priority: PropTypes.number,
     })),
 
@@ -110,7 +109,7 @@ function PanelIssues(props) {
 
             // Get the priority from the priorities object
             const priority = props.priorities[item.url ?? ''];
-            if (!priority || priority.priorityLabel !== props.title) {
+            if (!priority) {
                 return sortValue;
             }
             sortValue = priority.priority;
@@ -142,16 +141,15 @@ function PanelIssues(props) {
         reorderedData.splice(destination.index, 0, removed);
         console.log(`Reordering issues: ${removed.id} from ${source.index} to ${destination.index}`);
 
-        // Create an object mapping issues URLs to their priorities which includes the bucket / priority label (Hourly, Daily, etc.) and priority number
+        // Create an object mapping issues URLs to their priorities
         const priorities = {};
         for (let i = 0; i < reorderedData.length; i++) {
             const issue = reorderedData[i];
             priorities[issue.url] = {
-                priorityLabel: props.title,
                 priority: i,
             };
         }
-        Issues.setPriorities(priorities);
+        Issues.setPriorities(priorities, props.title);
     };
 
     if (!_.size(filteredData) && props.hideOnEmpty) {
@@ -208,6 +206,6 @@ export default withOnyx({
         key: ONYXKEYS.ISSUES.FILTER,
     },
     priorities: {
-        key: ONYXKEYS.ISSUES.PRIORITIES,
+        key: `${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props => props.title}`,
     },
 })(PanelIssues);
