@@ -56,22 +56,26 @@ function PanelIssues(props) {
 
     const onDragEnd = (result) => {
         const {destination, source} = result;
-        debugger;
-        console.log('onDragEnd destination', destination);
-        console.log('onDragEnd source', source);
 
         // If no destination, or dropped in the same place, do nothing
         if (!destination || destination.index === source.index) {
             return;
         }
 
-        // Reorder the issues array
-        console.log('Issues before reorder', issues);
-        const reorderedIssues = Array.from(issues);
-        const [movedIssue] = reorderedIssues.splice(source.index, 1);
-        reorderedIssues.splice(destination.index, 0, movedIssue);
-        console.log('Issues after reorder', reorderedIssues);
+        const movedIssueID = filteredData[source.index].id;
+        const destinationIssueID = filteredData[destination.index].id;
 
+        // Find the source and destination indices in the issues array
+        const sourceIndex = issues.findIndex(issue => issue.id === movedIssueID);
+        const destinationIndex = issues.findIndex(issue => issue.id === destinationIssueID);
+
+        // Reorder the issues array
+        console.log(`Reordering issues: ${movedIssueID} from ${sourceIndex} to ${destinationIndex}`);
+        console.log(`Issues before reordering: ${JSON.stringify(issues)}`);
+        const reorderedIssues = Array.from(issues);
+        const [removed] = reorderedIssues.splice(sourceIndex, 1);
+        reorderedIssues.splice(destinationIndex, 0, removed);
+        console.log(`Issues after reordering: ${JSON.stringify(reorderedIssues)}`);
         setIssues(reorderedIssues);
     };
 
