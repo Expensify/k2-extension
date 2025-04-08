@@ -26,6 +26,11 @@ const propTypes = {
     /** The filters to apply to the issue data */
     filters: filterPropTypes,
 
+    priorities: PropTypes.objectOf(PropTypes.shape({
+        priorityLabel: PropTypes.string,
+        priority: PropTypes.number,
+    })),
+
     /** If there are no issues to list in the panel, hide the panel entirely */
     hideOnEmpty: PropTypes.bool,
 
@@ -45,6 +50,7 @@ const defaultProps = {
         feature: true,
         milestone: '',
     },
+    priorities: {},
     applyFilters: false,
     hideOnEmpty: false,
     hideIfHeld: false,
@@ -97,7 +103,19 @@ function PanelIssues(props) {
         }
 
         // Sort the filtered data by priority, then currentUserIsOwner
-        data = _.sortBy(data, (item) => item.priority ?? item.currentUserIsOwner);
+        data = _.sortBy(data, (item) => {
+            console.log('Sorting item:', item);
+            console.log('priorities:', props.priorities);
+            let sortValue = item.currentUserIsOwner;
+
+            // Get the priority from the priorities object
+            const priority = props.priorities[item.url ?? ''];
+            if (!priority || priority.priorityLabel !== props.title) {
+                return sortValue;
+            }
+            sortValue = priority.priority;
+            return sortValue;
+        });
         console.log('Updated filtered data:', data);
         return data;
     }, [
@@ -107,6 +125,7 @@ function PanelIssues(props) {
         props.hideIfOwnedBySomeoneElse,
         props.applyFilters,
         props.filters,
+        props.priorities,
     ]);
 
     const onDragEnd = (result) => {
@@ -123,12 +142,16 @@ function PanelIssues(props) {
         reorderedData.splice(destination.index, 0, removed);
         console.log(`Reordering issues: ${removed.id} from ${source.index} to ${destination.index}`);
 
+        // Create an object mapping issues URLs to their priorities which includes the bucket / priority label (Hourly, Daily, etc.) and priority number
+        const priorities = {};
         for (let i = 0; i < reorderedData.length; i++) {
             const issue = reorderedData[i];
-            issue.priority = i;
+            priorities[issue.url] = {
+                priorityLabel: props.title,
+                priority: i,
+            };
         }
-        console.log('Reordered issues:', reorderedData);
-        Issues.mergeAssignedIssues(reorderedData);
+        Issues.setPriorities(priorities);
     };
 
     if (!_.size(filteredData) && props.hideOnEmpty) {
@@ -183,5 +206,8 @@ PanelIssues.displayName = 'PanelIssues';
 export default withOnyx({
     filters: {
         key: ONYXKEYS.ISSUES.FILTER,
+    },
+    priorities: {
+        key: ONYXKEYS.ISSUES.PRIORITIES,
     },
 })(PanelIssues);

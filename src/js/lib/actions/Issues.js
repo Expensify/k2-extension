@@ -165,9 +165,8 @@ function addComment(comment) {
     API.addComment(comment);
 }
 
-function mergeAssignedIssues(issues) {
-    console.log('Merging issues', issues);
-    ReactNativeOnyx.merge(ONYXKEYS.ISSUES.ASSIGNED, issues);
+function setPriorities(priorities) {
+    ReactNativeOnyx.set(ONYXKEYS.ISSUES.PRIORITIES, priorities);
 }
 
 export {
@@ -178,5 +177,5 @@ export {
     getHotPicks,
     saveCheckboxes,
     saveFilters,
-    mergeAssignedIssues,
+    setPriorities,
 };
