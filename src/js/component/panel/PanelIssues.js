@@ -2,7 +2,7 @@ import React, {useMemo} from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
-import {withOnyx} from 'react-native-onyx';
+import {withOnyx, useOnyx} from 'react-native-onyx';
 import Title from '../panel-title/Title';
 import IssuePropTypes from '../list-item/IssuePropTypes';
 import ListItemIssue from '../list-item/ListItemIssue';
@@ -26,10 +26,6 @@ const propTypes = {
     /** The filters to apply to the issue data */
     filters: filterPropTypes,
 
-    priorities: PropTypes.objectOf(PropTypes.shape({
-        priority: PropTypes.number,
-    })),
-
     /** If there are no issues to list in the panel, hide the panel entirely */
     hideOnEmpty: PropTypes.bool,
 
@@ -49,7 +45,6 @@ const defaultProps = {
         feature: true,
         milestone: '',
     },
-    priorities: {},
     applyFilters: false,
     hideOnEmpty: false,
     hideIfHeld: false,
@@ -58,6 +53,8 @@ const defaultProps = {
 };
 
 function PanelIssues(props) {
+    const [priorities = {}] = useOnyx(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`);
+
     // Compute filteredData dynamically using useMemo
     const filteredData = useMemo(() => {
         let data = Object.values(props.data);
@@ -103,19 +100,16 @@ function PanelIssues(props) {
 
         // Sort the filtered data by priority, then currentUserIsOwner
         data = _.sortBy(data, (item) => {
-            console.log('Sorting item:', item);
-            console.log('priorities:', props.priorities);
             let sortValue = item.currentUserIsOwner;
 
             // Get the priority from the priorities object
-            const priority = props.priorities[item.url ?? ''];
+            const priority = priorities[item.url ?? ''];
             if (!priority) {
                 return sortValue;
             }
             sortValue = priority.priority;
             return sortValue;
         });
-        console.log('Updated filtered data:', data);
         return data;
     }, [
         props.data,
@@ -124,7 +118,7 @@ function PanelIssues(props) {
         props.hideIfOwnedBySomeoneElse,
         props.applyFilters,
         props.filters,
-        props.priorities,
+        priorities,
     ]);
 
     const onDragEnd = (result) => {
@@ -139,17 +133,16 @@ function PanelIssues(props) {
         const reorderedData = Array.from(filteredData);
         const [removed] = reorderedData.splice(source.index, 1);
         reorderedData.splice(destination.index, 0, removed);
-        console.log(`Reordering issues: ${removed.id} from ${source.index} to ${destination.index}`);
 
         // Create an object mapping issues URLs to their priorities
-        const priorities = {};
+        const newPriorities = {};
         for (let i = 0; i < reorderedData.length; i++) {
             const issue = reorderedData[i];
-            priorities[issue.url] = {
+            newPriorities[issue.url] = {
                 priority: i,
             };
         }
-        Issues.setPriorities(priorities, props.title);
+        Issues.setPriorities(newPriorities, props.title);
     };
 
     if (!_.size(filteredData) && props.hideOnEmpty) {
@@ -204,8 +197,5 @@ PanelIssues.displayName = 'PanelIssues';
 export default withOnyx({
     filters: {
         key: ONYXKEYS.ISSUES.FILTER,
-    },
-    priorities: {
-        key: `${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props => props.title}`,
     },
 })(PanelIssues);
