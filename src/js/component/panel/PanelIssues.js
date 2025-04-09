@@ -57,7 +57,7 @@ function PanelIssues(props) {
 
     // Compute filteredData dynamically using useMemo
     const filteredData = useMemo(() => {
-        let data = Object.values(props.data);
+        let data = props.data;
 
         if (props.hideIfHeld || props.hideIfUnderReview || props.hideIfOwnedBySomeoneElse) {
             data = _.filter(data, (item) => {
@@ -103,7 +103,7 @@ function PanelIssues(props) {
         // Sort the filtered data by priority, then currentUserIsOwner
         data = _.sortBy(data, (item) => {
             // If the issue has a priority, use it; otherwise, assign a very high value to sort it last
-            const priority = priorities[item.url ?? '']?.priority ?? Number.MAX_SAFE_INTEGER;
+            const priority = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined) ? priorities[item.url].priority : Number.MAX_SAFE_INTEGER;
 
             // Sort by priority first, then by currentUserIsOwner
             return [priority, item.currentUserIsOwner ? 0 : 1];
@@ -161,18 +161,21 @@ function PanelIssues(props) {
             ) : (
                 <DragDropContext onDragEnd={onDragEnd}>
                     <Droppable droppableId="issues-list">
-                        {(provided) => (
+                        {provided => (
                             <div
+                                // eslint-disable-next-line react/jsx-props-no-spreading
                                 {...provided.droppableProps}
                                 ref={provided.innerRef}
                             >
-                                {filteredData.map((issue, index) => (
+                                {_.map(filteredData, (issue, index) => (
                                     <Draggable key={issue.id} draggableId={issue.id.toString()} index={index}>
-                                        {(provided) => (
+                                        {draggableProvided => (
                                             <div
-                                                ref={provided.innerRef}
-                                                {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
+                                                ref={draggableProvided.innerRef}
+                                                // eslint-disable-next-line react/jsx-props-no-spreading
+                                                {...draggableProvided.draggableProps}
+                                                // eslint-disable-next-line react/jsx-props-no-spreading
+                                                {...draggableProvided.dragHandleProps}
                                             >
                                                 <ListItemIssue issue={issue} />
                                             </div>
