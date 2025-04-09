@@ -2,7 +2,7 @@
   "manifest_version": 3,
 
   "name": "K2 for GitHub",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Manage your Kernel Scheduling from directly inside GitHub",
 
   "icons": {

@@ -1,3 +1,6 @@
+#1.5.0
+- Added drag and drop prioritization within each priority label list (Hourly, Daily, Weekly, Monthly)
+
 #1.4.1
 - Fixed issue star icon placement for recent GitHub UI changes
 - Fixed rendering loops for issue pages
