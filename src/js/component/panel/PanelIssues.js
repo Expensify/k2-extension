@@ -100,15 +100,11 @@ function PanelIssues(props) {
 
         // Sort the filtered data by priority, then currentUserIsOwner
         data = _.sortBy(data, (item) => {
-            let sortValue = item.currentUserIsOwner;
+            // If the issue has a priority, use it; otherwise, assign a very high value to sort it last
+            const priority = priorities[item.url ?? '']?.priority ?? Number.MAX_SAFE_INTEGER;
 
-            // Get the priority from the priorities object
-            const priority = priorities[item.url ?? ''];
-            if (!priority) {
-                return sortValue;
-            }
-            sortValue = priority.priority;
-            return sortValue;
+            // Sort by priority first, then by currentUserIsOwner
+            return [priority, item.currentUserIsOwner ? 0 : 1];
         });
         return data;
     }, [
