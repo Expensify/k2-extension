@@ -81,6 +81,7 @@ function PanelIssues(props) {
             });
         }
 
+        // We need to be sure to filter the data if the user has set any filters
         if (props.applyFilters && props.filters && !_.isEmpty(props.filters)) {
             data = _.filter(data, (item) => {
                 const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
@@ -88,6 +89,7 @@ function PanelIssues(props) {
                 const isFeature = _.findWhere(item.labels, {name: 'NewFeature'});
                 const isOnMilestone = item.milestone && item.milestone.id === props.filters.milestone;
 
+                // If we are filtering on milestone, remove everything not on that milestone
                 if (props.filters.milestone && !isOnMilestone) {
                     return false;
                 }
@@ -186,6 +188,7 @@ function PanelIssues(props) {
         </div>
     );
 }
+
 PanelIssues.propTypes = propTypes;
 PanelIssues.defaultProps = defaultProps;
 PanelIssues.displayName = 'PanelIssues';
