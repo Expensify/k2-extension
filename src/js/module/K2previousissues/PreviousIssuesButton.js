@@ -45,41 +45,33 @@ class PreviousIssuesButtons extends React.Component {
             .then((issueTitleResponse) => {
                 const ghTitle = issueTitleResponse.data.title;
 
-                // Check for Monthly Close format
-                const monthlySearchParts = ghTitle.match(/\[.*\] (Accounting \w+ Close) (\w{3} \d{4}) (.*) \[.*\]/);
+                // Single regex to catch both Monthly and Quarterly formats
+                // The (\w+) between "Accounting" and "Close" captures either "Monthly" or "Quarterly"
+                const searchParts = ghTitle.match(/\[.*\] (Accounting (\w+) Close) ((?:\w{3} \d{4})|(?:Q\d \d{4})) (.*) \[.*\]/);
 
-                // Check for Quarterly Close format
-                const quarterlySearchParts = ghTitle.match(/\[.*\] (Accounting Quarterly Close) (Q\d) (\d{4}) (.*) \[.*\]/);
+                if (!searchParts) {
+                    console.debug('Found no search parts in issue title:', ghTitle);
+                    return;
+                }
 
-                const filteredSearchParts = [];
+                const closeType = searchParts[2]; // "Monthly" or "Quarterly"
+                const isQuarterly = closeType === 'Quarterly';
+                const periodText = searchParts[3]; // "MMM YYYY" or "QN YYYY"
+                const taskText = searchParts[4]; // The task description
+
+                const filteredSearchParts = [searchParts[1], taskText];
                 let previousPeriodFormatted = '';
 
-                if (monthlySearchParts) {
-                    // Handle monthly format
-                    filteredSearchParts.push(monthlySearchParts[1]);
-                    filteredSearchParts.push(monthlySearchParts[3]);
-
-                    const currentMonth = moment(monthlySearchParts[2], 'MMM YYYY').toDate();
-
-                    if (buttonConfig.type === 'monthly' || buttonConfig.type === 'all') {
-                        const previousMonth = new Date(currentMonth);
-                        if (buttonConfig.monthsAgo) {
-                            previousMonth.setMonth(previousMonth.getMonth() - buttonConfig.monthsAgo);
-                        } else if (buttonConfig.yearsAgo) {
-                            previousMonth.setFullYear(previousMonth.getFullYear() - buttonConfig.yearsAgo);
-                        }
-                        previousPeriodFormatted = moment(previousMonth).format('MMM YYYY');
-                    } else {
-                        console.debug('Cannot go back by quarters for a monthly issue');
+                if (isQuarterly) {
+                    // Handle quarterly format
+                    const quarterParts = periodText.match(/Q(\d) (\d{4})/);
+                    if (!quarterParts) {
+                        console.debug('Invalid quarter format:', periodText);
                         return;
                     }
-                } else if (quarterlySearchParts) {
-                    // Handle quarterly format
-                    filteredSearchParts.push(quarterlySearchParts[1]);
-                    filteredSearchParts.push(quarterlySearchParts[4]);
 
-                    const currentQuarter = parseInt(quarterlySearchParts[2].substring(1), 10);
-                    const currentYear = parseInt(quarterlySearchParts[3], 10);
+                    const currentQuarter = parseInt(quarterParts[1], 10);
+                    const currentYear = parseInt(quarterParts[2], 10);
 
                     if (buttonConfig.type === 'quarterly' || buttonConfig.type === 'all') {
                         let targetQuarter = currentQuarter;
@@ -103,8 +95,21 @@ class PreviousIssuesButtons extends React.Component {
                         return;
                     }
                 } else {
-                    console.debug('Found no search parts in issue title:', ghTitle);
-                    return;
+                    // Handle monthly format
+                    const currentMonth = moment(periodText, 'MMM YYYY').toDate();
+
+                    if (buttonConfig.type === 'monthly' || buttonConfig.type === 'all') {
+                        const previousMonth = new Date(currentMonth);
+                        if (buttonConfig.monthsAgo) {
+                            previousMonth.setMonth(previousMonth.getMonth() - buttonConfig.monthsAgo);
+                        } else if (buttonConfig.yearsAgo) {
+                            previousMonth.setFullYear(previousMonth.getFullYear() - buttonConfig.yearsAgo);
+                        }
+                        previousPeriodFormatted = moment(previousMonth).format('MMM YYYY');
+                    } else {
+                        console.debug('Cannot go back by quarters for a monthly issue');
+                        return;
+                    }
                 }
 
                 console.debug('Looking for previous period:', previousPeriodFormatted);
