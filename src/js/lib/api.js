@@ -361,8 +361,6 @@ function getPreviousInstancesOfIssue(tilteParts) {
         query += ` '${tilteParts[i]}' in:title`;
     }
 
-    console.debug('query', query);
-
     const graphQLQuery = `
         query($cursor:String) {
             search(

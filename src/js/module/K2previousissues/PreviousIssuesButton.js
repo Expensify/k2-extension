@@ -137,8 +137,6 @@ class PreviousIssuesButtons extends React.Component {
                     }
                 }
 
-                console.debug('Looking for previous period:', previousPeriodFormatted);
-
                 return API.getPreviousInstancesOfIssue(filteredSearchParts)
                     .then((previousIssuesResponse) => {
                         if (!previousIssuesResponse || _.isEmpty(previousIssuesResponse)) {
@@ -154,10 +152,14 @@ class PreviousIssuesButtons extends React.Component {
                             && _.has(issue.milestone, 'title')
                             && issue.milestone.title.includes(previousPeriodFormatted));
 
-                        console.debug('Matching issue:', matchingIssue);
+                        if (!matchingIssue) {
+                            console.debug('No matching issue found for:', previousPeriodFormatted);
+                            this.showErrorMessage(`No matching issue found for ${previousPeriodFormatted}`);
+                            return;
+                        }
 
                         // Use matching issue if found, otherwise use the first issue
-                        const previousGithubIssueURL = matchingIssue ? matchingIssue.url : (issues[0] && issues[0].url);
+                        const previousGithubIssueURL = matchingIssue.url;
 
                         if (previousGithubIssueURL) {
                             window.open(previousGithubIssueURL, '_blank', 'noopener,noreferrer');
