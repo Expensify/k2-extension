@@ -350,15 +350,15 @@ function getIssues(assignee = 'none', labels = []) {
         .then(formatIssueResults);
 }
 
-function getPreviousInstancesOfIssue(tilteParts) {
+function getPreviousInstancesOfIssue(titleParts) {
     let query = '';
     query += ' state:closed';
     query += ' type:issue';
     query += ' repo:Expensify/Insiders';
     query += ' repo:Expensify/Expensify';
 
-    for (let i = 0; i < tilteParts.length; i++) {
-        query += ` '${tilteParts[i]}' in:title`;
+    for (let i = 0; i < titleParts.length; i++) {
+        query += ` '${titleParts[i]}' in:title`;
     }
 
     const graphQLQuery = `
