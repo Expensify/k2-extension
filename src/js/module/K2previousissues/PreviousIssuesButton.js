@@ -9,11 +9,25 @@ const previousIssueButtons = [
         title: 'Previous Version (-1M)',
         ariaLabel: 'one month ago',
         monthsAgo: 1,
+        type: 'monthly',
     },
     {
         title: 'Previous Version (-3M)',
         ariaLabel: 'three months ago',
         monthsAgo: 3,
+        type: 'monthly',
+    },
+    {
+        title: 'Previous Version (-1Q)',
+        ariaLabel: 'one quarter ago',
+        quartersAgo: 1,
+        type: 'quarterly',
+    },
+    {
+        title: 'Previous Version (-1Y)',
+        ariaLabel: 'one year ago',
+        yearsAgo: 1,
+        type: 'all',
     },
 ];
 
@@ -26,31 +40,77 @@ class PreviousIssuesButtons extends React.Component {
         };
     }
 
-    openIssue(monthsAgo) {
+    openIssue(buttonConfig) {
         API.getCurrentIssueDescription()
             .then((issueTitleResponse) => {
                 const ghTitle = issueTitleResponse.data.title;
-                const searchParts = ghTitle.match(/\[.*\] (Accounting \w+ Close) (\w{3} \d{4}) (.*) \[.*\]/);
-                if (!searchParts) {
+
+                // Check for Monthly Close format
+                const monthlySearchParts = ghTitle.match(/\[.*\] (Accounting \w+ Close) (\w{3} \d{4}) (.*) \[.*\]/);
+
+                // Check for Quarterly Close format
+                const quarterlySearchParts = ghTitle.match(/\[.*\] (Accounting Quarterly Close) (Q\d) (\d{4}) (.*) \[.*\]/);
+
+                const filteredSearchParts = [];
+                let previousPeriodFormatted = '';
+
+                if (monthlySearchParts) {
+                    // Handle monthly format
+                    filteredSearchParts.push(monthlySearchParts[1]);
+                    filteredSearchParts.push(monthlySearchParts[3]);
+
+                    const currentMonth = moment(monthlySearchParts[2], 'MMM YYYY').toDate();
+
+                    if (buttonConfig.type === 'monthly' || buttonConfig.type === 'all') {
+                        const previousMonth = new Date(currentMonth);
+                        if (buttonConfig.monthsAgo) {
+                            previousMonth.setMonth(previousMonth.getMonth() - buttonConfig.monthsAgo);
+                        } else if (buttonConfig.yearsAgo) {
+                            previousMonth.setFullYear(previousMonth.getFullYear() - buttonConfig.yearsAgo);
+                        }
+                        previousPeriodFormatted = moment(previousMonth).format('MMM YYYY');
+                    } else {
+                        console.debug('Cannot go back by quarters for a monthly issue');
+                        return;
+                    }
+                } else if (quarterlySearchParts) {
+                    // Handle quarterly format
+                    filteredSearchParts.push(quarterlySearchParts[1]);
+                    filteredSearchParts.push(quarterlySearchParts[4]);
+
+                    const currentQuarter = parseInt(quarterlySearchParts[2].substring(1), 10);
+                    const currentYear = parseInt(quarterlySearchParts[3], 10);
+
+                    if (buttonConfig.type === 'quarterly' || buttonConfig.type === 'all') {
+                        let targetQuarter = currentQuarter;
+                        let targetYear = currentYear;
+
+                        if (buttonConfig.quartersAgo) {
+                            targetQuarter -= buttonConfig.quartersAgo;
+
+                            // Handle quarter wrapping
+                            while (targetQuarter <= 0) {
+                                targetYear--;
+                                targetQuarter += 4;
+                            }
+                        } else if (buttonConfig.yearsAgo) {
+                            targetYear -= buttonConfig.yearsAgo;
+                        }
+
+                        previousPeriodFormatted = `Q${targetQuarter} ${targetYear}`;
+                    } else {
+                        console.debug('Cannot go back by months for a quarterly issue');
+                        return;
+                    }
+                } else {
                     console.debug('Found no search parts in issue title:', ghTitle);
                     return;
                 }
 
-                // Some of the capture groups are throw aways, so we need to select the ones we actually want to search.
-                const filteredSearchParts = [];
-                filteredSearchParts.push(searchParts[1]);
-                filteredSearchParts.push(searchParts[3]);
-
-                const currentMonth = moment(searchParts[2], 'MMM YYYY').toDate();
-                const previousMonth = new Date(currentMonth);
-                previousMonth.setMonth(previousMonth.getMonth() - monthsAgo);
-                const previousMonthFormatted = moment(previousMonth).format('MMM YYYY');
-                console.debug('Current month:', currentMonth);
-                console.debug('Previous month formatted:', previousMonthFormatted);
+                console.debug('Looking for previous period:', previousPeriodFormatted);
 
                 return API.getPreviousInstancesOfIssue(filteredSearchParts)
                     .then((previousIssuesResponse) => {
-                        // console.debug('Previous issues response:', previousIssuesResponse);
                         if (!previousIssuesResponse || _.isEmpty(previousIssuesResponse)) {
                             console.debug('No previous issues found');
                             return;
@@ -61,7 +121,7 @@ class PreviousIssuesButtons extends React.Component {
 
                         const matchingIssue = _.find(issues, issue => _.has(issue, 'milestone')
                             && _.has(issue.milestone, 'title')
-                            && issue.milestone.title.includes(previousMonthFormatted));
+                            && issue.milestone.title.includes(previousPeriodFormatted));
 
                         console.debug('Matching issue:', matchingIssue);
 
@@ -100,7 +160,7 @@ class PreviousIssuesButtons extends React.Component {
                                 key={index}
                                 type="button"
                                 className="btn btn-sm"
-                                onClick={() => this.openIssue(previousIssueButton.monthsAgo)}
+                                onClick={() => this.openIssue(previousIssueButton)}
                             >
                                 <span role="img" aria-label={previousIssueButton.ariaLabel}>
                                     {previousIssueButton.title}
