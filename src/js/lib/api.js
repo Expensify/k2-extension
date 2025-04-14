@@ -350,6 +350,63 @@ function getIssues(assignee = 'none', labels = []) {
         .then(formatIssueResults);
 }
 
+function getPreviousInstancesOfIssue(tilteParts) {
+    let query = '';
+    query += ' state:closed';
+    query += ' type:issue';
+    query += ' repo:Expensify/Insiders';
+    query += ' repo:Expensify/Expensify';
+
+    for (let i = 0; i < tilteParts.length; i++) {
+        query += ` '${tilteParts[i]}' in:title`;
+    }
+
+    console.debug('query', query);
+
+    const graphQLQuery = `
+        query($cursor:String) {
+            search(
+                query: "${query}"
+                type: ISSUE
+                first: 100
+                after:$cursor
+            ) {
+                pageInfo {
+                    endCursor
+                    hasNextPage
+                }
+                nodes {
+                    ... on Issue {
+                        title
+                        id
+                        url
+                        createdAt
+                        updatedAt
+                        assignees(first: 100) {
+                          nodes {
+                            avatarUrl
+                            login
+                          }
+                        }
+                        labels(first: 100) {
+                            nodes {
+                                name
+                            }
+                        }
+                        milestone {
+                            id
+                            title
+                        }
+                    }
+                }
+            }
+        }
+    `;
+
+    return getFullResultsUsingPagination(graphQLQuery)
+        .then(formatIssueResults);
+}
+
 /**
  * Get all issues assigned to the current user
  *
@@ -430,4 +487,5 @@ export {
     getPullsByType,
     getCurrentIssueDescription,
     setCurrentIssueBody,
+    getPreviousInstancesOfIssue,
 };
