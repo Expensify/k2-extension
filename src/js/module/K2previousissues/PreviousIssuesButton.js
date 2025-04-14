@@ -37,7 +37,28 @@ class PreviousIssuesButtons extends React.Component {
 
         this.state = {
             isOpen: false,
+            errorMessage: '',
+            showError: false,
         };
+    }
+
+    showErrorMessage(message) {
+        this.setState({
+            errorMessage: message,
+            showError: true,
+        });
+
+        setTimeout(() => {
+            this.setState({
+                showError: false,
+            });
+
+            setTimeout(() => {
+                this.setState({
+                    errorMessage: '',
+                });
+            }, 300);
+        }, 5000);
     }
 
     openIssue(buttonConfig) {
@@ -51,6 +72,7 @@ class PreviousIssuesButtons extends React.Component {
 
                 if (!searchParts) {
                     console.debug('Found no search parts in issue title:', ghTitle);
+                    this.showErrorMessage('Unable to parse issue title format');
                     return;
                 }
 
@@ -67,6 +89,7 @@ class PreviousIssuesButtons extends React.Component {
                     const quarterParts = periodText.match(/Q(\d) (\d{4})/);
                     if (!quarterParts) {
                         console.debug('Invalid quarter format:', periodText);
+                        this.showErrorMessage('Invalid quarter format in issue title');
                         return;
                     }
 
@@ -92,6 +115,7 @@ class PreviousIssuesButtons extends React.Component {
                         previousPeriodFormatted = `Q${targetQuarter} ${targetYear}`;
                     } else {
                         console.debug('Cannot go back by months for a quarterly issue');
+                        this.showErrorMessage('Cannot use monthly navigation on a quarterly issue');
                         return;
                     }
                 } else {
@@ -108,6 +132,7 @@ class PreviousIssuesButtons extends React.Component {
                         previousPeriodFormatted = moment(previousMonth).format('MMM YYYY');
                     } else {
                         console.debug('Cannot go back by quarters for a monthly issue');
+                        this.showErrorMessage('Cannot use quarterly navigation on a monthly issue');
                         return;
                     }
                 }
@@ -118,6 +143,7 @@ class PreviousIssuesButtons extends React.Component {
                     .then((previousIssuesResponse) => {
                         if (!previousIssuesResponse || _.isEmpty(previousIssuesResponse)) {
                             console.debug('No previous issues found');
+                            this.showErrorMessage(`No previous issues found for ${previousPeriodFormatted}`);
                             return;
                         }
 
@@ -135,11 +161,14 @@ class PreviousIssuesButtons extends React.Component {
 
                         if (previousGithubIssueURL) {
                             window.open(previousGithubIssueURL, '_blank', 'noopener,noreferrer');
+                        } else {
+                            this.showErrorMessage(`No previous issue found for ${previousPeriodFormatted}`);
                         }
                     });
             })
             .catch((error) => {
                 console.error('Error fetching previous issues:', error);
+                this.showErrorMessage('Error fetching previous issues');
             });
     }
 
@@ -160,18 +189,32 @@ class PreviousIssuesButtons extends React.Component {
                     </button>
 
                     {this.state.isOpen && (
-                        _.map(previousIssueButtons, (previousIssueButton, index) => (
-                            <button
-                                key={index}
-                                type="button"
-                                className="btn btn-sm"
-                                onClick={() => this.openIssue(previousIssueButton)}
-                            >
-                                <span role="img" aria-label={previousIssueButton.ariaLabel}>
-                                    {previousIssueButton.title}
-                                </span>
-                            </button>
-                        ))
+                        <>
+                            {_.map(previousIssueButtons, (previousIssueButton, index) => (
+                                <button
+                                    key={index}
+                                    type="button"
+                                    className="btn btn-sm"
+                                    onClick={() => this.openIssue(previousIssueButton)}
+                                >
+                                    <span role="img" aria-label={previousIssueButton.ariaLabel}>
+                                        {previousIssueButton.title}
+                                    </span>
+                                </button>
+                            ))}
+                            {this.state.showError && (
+                                <div style={{
+                                    color: 'red',
+                                    fontSize: '12px',
+                                    marginTop: '5px',
+                                    opacity: this.state.showError ? 1 : 0,
+                                    transition: 'opacity 0.3s ease-in-out',
+                                }}
+                                >
+                                    {this.state.errorMessage}
+                                </div>
+                            )}
+                        </>
                     )}
                 </BtnGroup>
             </div>
