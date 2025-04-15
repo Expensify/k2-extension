@@ -350,6 +350,12 @@ function getIssues(assignee = 'none', labels = []) {
         .then(formatIssueResults);
 }
 
+/**
+ * Get previous instance of issue - used by accounting team to find the previous issue for the currently open chore
+ *
+ * @param {String[]} titleParts
+ * @returns {Promise}
+ */
 function getPreviousInstancesOfIssue(titleParts) {
     let query = '';
     query += ' state:closed';

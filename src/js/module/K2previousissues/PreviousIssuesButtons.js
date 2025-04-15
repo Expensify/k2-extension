@@ -77,7 +77,7 @@ class PreviousIssuesButtons extends React.Component {
                 }
 
                 const closeType = searchParts[2]; // "Monthly" or "Quarterly"
-                const isQuarterly = closeType === 'Quarterly';
+                const isQuarterly = closeType?.toLowerCase() === 'quarterly';
                 const periodText = searchParts[3]; // "MMM YYYY" or "QN YYYY"
                 const taskText = searchParts[4]; // The task description
 
@@ -158,7 +158,7 @@ class PreviousIssuesButtons extends React.Component {
                             return;
                         }
 
-                        // Use matching issue if found, otherwise use the first issue
+                        // Use matching issue if found
                         const previousGithubIssueURL = matchingIssue.url;
 
                         if (previousGithubIssueURL) {
