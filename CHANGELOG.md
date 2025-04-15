@@ -1,3 +1,6 @@
+#1.4.2
+- Adds feature to get previos version of a GitHub issue for Accounting.
+
 #1.4.1
 - Fixed issue star icon placement for recent GitHub UI changes
 - Fixed rendering loops for issue pages
