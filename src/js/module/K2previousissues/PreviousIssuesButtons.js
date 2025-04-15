@@ -77,7 +77,7 @@ class PreviousIssuesButtons extends React.Component {
                 }
 
                 const closeType = searchParts[2]; // "Monthly" or "Quarterly"
-                const isQuarterly = closeType?.toLowerCase() === 'quarterly';
+                const isQuarterly = (closeType || '').toLowerCase() === 'quarterly';
                 const periodText = searchParts[3]; // "MMM YYYY" or "QN YYYY"
                 const taskText = searchParts[4]; // The task description
 
