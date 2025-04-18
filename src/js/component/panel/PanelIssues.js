@@ -1,7 +1,20 @@
+import {
+    DndContext,
+    closestCenter,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {CSS} from '@dnd-kit/utilities';
 import React, {useMemo} from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
-import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
 import {withOnyx, useOnyx} from 'react-native-onyx';
 import Title from '../panel-title/Title';
 import IssuePropTypes from '../list-item/IssuePropTypes';
@@ -50,6 +63,39 @@ const defaultProps = {
     hideIfHeld: false,
     hideIfUnderReview: false,
     hideIfOwnedBySomeoneElse: false,
+};
+
+function SortableIssue(props) {
+    const {issue} = props;
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({id: issue.id.toString()});
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 2 : 1,
+        background: isDragging ? '#f0f0f0' : undefined,
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            {...attributes} // eslint-disable-line react/jsx-props-no-spreading
+            {...listeners} // eslint-disable-line react/jsx-props-no-spreading
+        >
+            <ListItemIssue issue={issue} />
+        </div>
+    );
+}
+SortableIssue.propTypes = {
+    issue: IssuePropTypes.isRequired,
 };
 
 function PanelIssues(props) {
@@ -119,20 +165,27 @@ function PanelIssues(props) {
         priorities,
     ]);
 
-    const onDragEnd = (result) => {
-        const {destination, source} = result;
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5,
+            },
+        }),
+    );
 
-        // If no destination, or dropped in the same place, do nothing
-        if (!destination || destination.index === source.index) {
+    const issueIds = _.map(filteredData, issue => issue.id.toString());
+
+    const handleDragEnd = (event) => {
+        const {active, over} = event;
+        if (!over || active.id === over.id) {
             return;
         }
-
-        // Reorder the filteredData array
-        const reorderedData = Array.from(filteredData);
-        const [removed] = reorderedData.splice(source.index, 1);
-        reorderedData.splice(destination.index, 0, removed);
-
-        // Create an object mapping issues URLs to their priorities
+        const oldIndex = issueIds.indexOf(active.id);
+        const newIndex = issueIds.indexOf(over.id);
+        if (oldIndex === -1 || newIndex === -1) {
+            return;
+        }
+        const reorderedData = arrayMove(filteredData, oldIndex, newIndex);
         const newPriorities = {};
         for (let i = 0; i < reorderedData.length; i++) {
             const issue = reorderedData[i];
@@ -159,34 +212,20 @@ function PanelIssues(props) {
                     No items
                 </div>
             ) : (
-                <DragDropContext onDragEnd={onDragEnd}>
-                    <Droppable droppableId="issues-list">
-                        {provided => (
-                            <div
-                                // eslint-disable-next-line react/jsx-props-no-spreading
-                                {...provided.droppableProps}
-                                ref={provided.innerRef}
-                            >
-                                {_.map(filteredData, (issue, index) => (
-                                    <Draggable key={issue.id} draggableId={issue.id.toString()} index={index}>
-                                        {draggableProvided => (
-                                            <div
-                                                ref={draggableProvided.innerRef}
-                                                // eslint-disable-next-line react/jsx-props-no-spreading
-                                                {...draggableProvided.draggableProps}
-                                                // eslint-disable-next-line react/jsx-props-no-spreading
-                                                {...draggableProvided.dragHandleProps}
-                                            >
-                                                <ListItemIssue issue={issue} />
-                                            </div>
-                                        )}
-                                    </Draggable>
-                                ))}
-                                {provided.placeholder}
-                            </div>
-                        )}
-                    </Droppable>
-                </DragDropContext>
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                >
+                    <SortableContext
+                        items={issueIds}
+                        strategy={verticalListSortingStrategy}
+                    >
+                        {_.map(filteredData, issue => (
+                            <SortableIssue key={issue.id} issue={issue} />
+                        ))}
+                    </SortableContext>
+                </DndContext>
             )}
         </div>
     );
