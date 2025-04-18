@@ -273,51 +273,44 @@ function PanelIssues(props) {
         return null;
     }
 
-    function renderContent() {
-        if (!_.size(filteredData)) {
-            return (
-                <div className="blankslate capped clean-background">
-                    No items
-                </div>
-            );
-        }
-        return (
-            <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
-            >
-                <SortableContext
-                    items={issueIds}
-                    strategy={verticalListSortingStrategy}
-                >
-                    {_.map(filteredData, issue => <SortableIssue key={issue.id} issue={issue} />)}
-                </SortableContext>
-                <DragOverlay>
-                    {activeIssue ? (
-                        <div style={{
-                            lineHeight: 1.2,
-                            background: '#fff',
-                            opacity: 1,
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                        }}
-                        >
-                            <ListItemIssue issue={activeIssue} />
-                        </div>
-                    ) : null}
-                </DragOverlay>
-            </DndContext>
-        );
-    }
-
     return (
         <div className={`panel ${props.extraClass}`}>
             <Title
                 text={props.title}
                 count={_.size(filteredData) || 0}
             />
-            {renderContent()}
+            {!_.size(filteredData) ? (
+                <div className="blankslate capped clean-background">
+                    No items
+                </div>
+            ) : (
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                >
+                    <SortableContext
+                        items={issueIds}
+                        strategy={verticalListSortingStrategy}
+                    >
+                        {_.map(filteredData, issue => <SortableIssue key={issue.id} issue={issue} />)}
+                    </SortableContext>
+                    <DragOverlay>
+                        {activeIssue ? (
+                            <div style={{
+                                lineHeight: 1.2,
+                                background: '#fff',
+                                opacity: 1,
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                            }}
+                            >
+                                <ListItemIssue issue={activeIssue} />
+                            </div>
+                        ) : null}
+                    </DragOverlay>
+                </DndContext>
+            )}
         </div>
     );
 }
