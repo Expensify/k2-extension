@@ -199,7 +199,6 @@ function PanelIssues(props) {
 
     useEffect(() => {
         const sortedIDs = _.map(filteredData, item => item.id);
-        console.log('sortedIDs', sortedIDs);
         if (!sortedIDs.length || _.isEqual(localOrder, sortedIDs)) {
             return;
         }
