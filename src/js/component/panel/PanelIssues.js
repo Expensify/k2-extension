@@ -4,6 +4,7 @@ import {
     PointerSensor,
     useSensor,
     useSensors,
+    DragOverlay,
 } from '@dnd-kit/core';
 import {
     arrayMove,
@@ -100,6 +101,7 @@ SortableIssue.propTypes = {
 
 function PanelIssues(props) {
     const [priorities = {}] = useOnyx(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`);
+    const [activeId, setActiveId] = React.useState(null);
 
     // Compute filteredData dynamically using useMemo
     const filteredData = useMemo(() => {
@@ -174,9 +176,11 @@ function PanelIssues(props) {
     );
 
     const issueIds = _.map(filteredData, issue => issue.id.toString());
+    const activeIssue = activeId ? _.find(filteredData, issue => issue.id.toString() === activeId) : null;
 
     const handleDragEnd = (event) => {
         const {active, over} = event;
+        setActiveId(null);
         if (!over || active.id === over.id) {
             return;
         }
@@ -215,6 +219,7 @@ function PanelIssues(props) {
                 <DndContext
                     sensors={sensors}
                     collisionDetection={closestCenter}
+                    onDragStart={event => setActiveId(event.active.id)}
                     onDragEnd={handleDragEnd}
                 >
                     <SortableContext
@@ -225,6 +230,13 @@ function PanelIssues(props) {
                             <SortableIssue key={issue.id} issue={issue} />
                         ))}
                     </SortableContext>
+                    <DragOverlay>
+                        {activeIssue ? (
+                            <div style={{lineHeight: 1.2}}>
+                                <ListItemIssue issue={activeIssue} />
+                            </div>
+                        ) : null}
+                    </DragOverlay>
                 </DndContext>
             )}
         </div>
