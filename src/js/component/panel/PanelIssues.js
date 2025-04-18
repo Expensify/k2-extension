@@ -128,7 +128,7 @@ function getOrderedFilteredIssues({
         return [priority, item.currentUserIsOwner ? 0 : 1];
     });
 
-    // Use localOrder if available and if we have priorities
+    // Use localOrder if available, while waiting for Onyx to update
     if (localOrder.length && localOrder.length === preparedIssues.length) {
         const dataById = _.indexBy(preparedIssues, 'id');
         return _.filter(_.map(localOrder, id => dataById[id]), Boolean);
