@@ -179,6 +179,41 @@ function PanelIssues(props) {
     ]);
 
     React.useEffect(() => {
+        // Only update localOrder if priorities are loaded and the order has changed
+        const sortedIds = _.chain(props.data)
+            .filter(item => {
+                // Apply the same filters as in filteredData
+                if ((props.hideIfHeld && item.title.toLowerCase().indexOf('[hold') > -1) ||
+                    (props.hideIfUnderReview && _.find(item.labels, label => label.name.toLowerCase() === 'reviewing')) ||
+                    (props.hideIfOwnedBySomeoneElse && item.issueHasOwner && !item.currentUserIsOwner)) {
+                    return false;
+                }
+                if (props.applyFilters && props.filters && !_.isEmpty(props.filters)) {
+                    const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
+                    const isTask = _.findWhere(item.labels, {name: 'Task'});
+                    const isFeature = _.findWhere(item.labels, {name: 'NewFeature'});
+                    const isOnMilestone = item.milestone && item.milestone.id === props.filters.milestone;
+                    if (props.filters.milestone && !isOnMilestone) {
+                        return false;
+                    }
+                    return (props.filters.improvement && isImprovement)
+                        || (props.filters.task && isTask)
+                        || (props.filters.feature && isFeature);
+                }
+                return true;
+            })
+            .sortBy(item => {
+                const priority = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined) ? priorities[item.url].priority : Number.MAX_SAFE_INTEGER;
+                return [priority, item.currentUserIsOwner ? 0 : 1];
+            })
+            .pluck('id')
+            .value();
+        if (sortedIds.length && !_.isEqual(localOrder, sortedIds)) {
+            setLocalOrder(sortedIds);
+        }
+    }, [props.data, priorities, props.hideIfHeld, props.hideIfUnderReview, props.hideIfOwnedBySomeoneElse, props.applyFilters, props.filters]);
+
+    React.useEffect(() => {
         // Reset localOrder if data changes (e.g., after Onyx update)
         if (filteredData.length && (localOrder.length !== filteredData.length || !_.isEqual(_.pluck(filteredData, 'id'), localOrder))) {
             setLocalOrder(_.pluck(filteredData, 'id'));
