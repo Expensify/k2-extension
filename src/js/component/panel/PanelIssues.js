@@ -68,6 +68,62 @@ const defaultProps = {
     hideIfOwnedBySomeoneElse: false,
 };
 
+function getOrderedFilteredIssues({
+    data,
+    filters = {},
+    priorities = {},
+    localOrder = [],
+    hideIfHeld = false,
+    hideIfUnderReview = false,
+    hideIfOwnedBySomeoneElse = false,
+    applyFilters = false,
+}) {
+    let issues = data;
+    if (!issues) { return []; }
+
+    // Hide by hold, review, owner
+    if (hideIfHeld || hideIfUnderReview || hideIfOwnedBySomeoneElse) {
+        issues = _.filter(issues, (item) => {
+            const isHeld = item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
+            const isUnderReview = _.find(item.labels, label => label.name.toLowerCase() === 'reviewing');
+            const isOwnedBySomeoneElse = item.issueHasOwner && !item.currentUserIsOwner;
+            if (isHeld && hideIfHeld) { return false; }
+            if (isUnderReview && hideIfUnderReview) { return false; }
+            if (isOwnedBySomeoneElse && hideIfOwnedBySomeoneElse) { return false; }
+            return true;
+        });
+    }
+
+    // Apply filters
+    if (applyFilters && filters && !_.isEmpty(filters)) {
+        issues = _.filter(issues, (item) => {
+            const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
+            const isTask = _.findWhere(item.labels, {name: 'Task'});
+            const isFeature = _.findWhere(item.labels, {name: 'NewFeature'});
+            const isOnMilestone = item.milestone && item.milestone.id === filters.milestone;
+            if (filters.milestone && !isOnMilestone) { return false; }
+            return (filters.improvement && isImprovement)
+                || (filters.task && isTask)
+                || (filters.feature && isFeature);
+        });
+    }
+
+    // Sort by priority, then owner
+    issues = _.sortBy(issues, (item) => {
+        const priority = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined)
+            ? priorities[item.url].priority
+            : Number.MAX_SAFE_INTEGER;
+        return [priority, item.currentUserIsOwner ? 0 : 1];
+    });
+
+    // Use localOrder if available
+    if (localOrder.length === issues.length) {
+        const dataById = _.indexBy(issues, 'id');
+        return _.filter(_.map(localOrder, id => dataById[id]), Boolean);
+    }
+    return issues;
+}
+
 function SortableIssue(props) {
     const {issue} = props;
     const {
@@ -109,68 +165,16 @@ function PanelIssues(props) {
     // preventing the item from jumping back to its original position briefly
     const [localOrder, setLocalOrder] = useState([]);
 
-    // Compute filteredData dynamically using useMemo
-    const filteredData = useMemo(() => {
-        let data = props.data;
-
-        if (props.hideIfHeld || props.hideIfUnderReview || props.hideIfOwnedBySomeoneElse) {
-            data = _.filter(data, (item) => {
-                const isHeld = item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
-                const isUnderReview = _.find(item.labels, label => label.name.toLowerCase() === 'reviewing');
-                const isOwnedBySomeoneElse = item.issueHasOwner && !item.currentUserIsOwner;
-
-                if (isHeld && props.hideIfHeld) {
-                    return false;
-                }
-
-                if (isUnderReview && props.hideIfUnderReview) {
-                    return false;
-                }
-
-                if (isOwnedBySomeoneElse && props.hideIfOwnedBySomeoneElse) {
-                    return false;
-                }
-
-                return true;
-            });
-        }
-
-        // We need to be sure to filter the data if the user has set any filters
-        if (props.applyFilters && props.filters && !_.isEmpty(props.filters)) {
-            data = _.filter(data, (item) => {
-                const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
-                const isTask = _.findWhere(item.labels, {name: 'Task'});
-                const isFeature = _.findWhere(item.labels, {name: 'NewFeature'});
-                const isOnMilestone = item.milestone && item.milestone.id === props.filters.milestone;
-
-                // If we are filtering on milestone, remove everything not on that milestone
-                if (props.filters.milestone && !isOnMilestone) {
-                    return false;
-                }
-
-                return (props.filters.improvement && isImprovement)
-                    || (props.filters.task && isTask)
-                    || (props.filters.feature && isFeature);
-            });
-        }
-
-        // Sort the filtered data by priority, then currentUserIsOwner
-        data = _.sortBy(data, (item) => {
-            // If the issue has a priority, use it; otherwise, assign a very high value to sort it last
-            const priority = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined) ? priorities[item.url].priority : Number.MAX_SAFE_INTEGER;
-
-            // Sort by priority first, then by currentUserIsOwner
-            return [priority, item.currentUserIsOwner ? 0 : 1];
-        });
-
-        // If localOrder is set, use it to order the data
-        if (localOrder.length === data.length) {
-            const dataById = _.indexBy(data, 'id');
-            return _.filter(_.map(localOrder, id => dataById[id]), Boolean);
-        }
-
-        return data;
-    }, [
+    const filteredData = useMemo(() => getOrderedFilteredIssues({
+        data: props.data,
+        filters: props.filters,
+        priorities,
+        localOrder,
+        hideIfHeld: props.hideIfHeld,
+        hideIfUnderReview: props.hideIfUnderReview,
+        hideIfOwnedBySomeoneElse: props.hideIfOwnedBySomeoneElse,
+        applyFilters: props.applyFilters,
+    }), [
         props.data,
         props.hideIfHeld,
         props.hideIfUnderReview,
@@ -182,39 +186,12 @@ function PanelIssues(props) {
     ]);
 
     useEffect(() => {
-        // Only update localOrder if priorities are loaded and the order has changed
-        const sortedIds = _.chain(props.data)
-            .filter((item) => {
-                // Apply the same filters as in filteredData
-                if ((props.hideIfHeld && item.title.toLowerCase().indexOf('[hold') > -1)
-                    || (props.hideIfUnderReview && _.find(item.labels, label => label.name.toLowerCase() === 'reviewing'))
-                    || (props.hideIfOwnedBySomeoneElse && item.issueHasOwner && !item.currentUserIsOwner)) {
-                    return false;
-                }
-                if (props.applyFilters && props.filters && !_.isEmpty(props.filters)) {
-                    const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
-                    const isTask = _.findWhere(item.labels, {name: 'Task'});
-                    const isFeature = _.findWhere(item.labels, {name: 'NewFeature'});
-                    const isOnMilestone = item.milestone && item.milestone.id === props.filters.milestone;
-                    if (props.filters.milestone && !isOnMilestone) {
-                        return false;
-                    }
-                    return (props.filters.improvement && isImprovement)
-                        || (props.filters.task && isTask)
-                        || (props.filters.feature && isFeature);
-                }
-                return true;
-            })
-            .sortBy((item) => {
-                const priority = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined) ? priorities[item.url].priority : Number.MAX_SAFE_INTEGER;
-                return [priority, item.currentUserIsOwner ? 0 : 1];
-            })
-            .pluck('id')
-            .value();
-        if (sortedIds.length && !_.isEqual(localOrder, sortedIds)) {
-            setLocalOrder(sortedIds);
+        const sortedIDs = _.map(filteredData, item => item.id);
+        if (!sortedIDs.length || _.isEqual(localOrder, sortedIDs)) {
+            return;
         }
-    }, [props.data, priorities, props.hideIfHeld, props.hideIfUnderReview, props.hideIfOwnedBySomeoneElse, props.applyFilters, props.filters, localOrder]);
+        setLocalOrder(sortedIDs);
+    }, [filteredData, localOrder]);
 
     useEffect(() => {
         if (!filteredData.length || (localOrder.length === filteredData.length && _.isEqual(_.pluck(filteredData, 'id'), localOrder))) {
