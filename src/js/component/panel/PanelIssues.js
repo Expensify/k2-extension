@@ -128,8 +128,8 @@ function getOrderedFilteredIssues({
         return [priority, item.currentUserIsOwner ? 0 : 1];
     });
 
-    // Use localOrder if available
-    if (localOrder.length === preparedIssues.length) {
+    // Use localOrder if available and if we have priorities
+    if (localOrder.length && localOrder.length === preparedIssues.length) {
         const dataById = _.indexBy(preparedIssues, 'id');
         return _.filter(_.map(localOrder, id => dataById[id]), Boolean);
     }
@@ -199,20 +199,20 @@ function PanelIssues(props) {
 
     useEffect(() => {
         const sortedIDs = _.map(filteredData, item => item.id);
-        if (!sortedIDs.length || _.isEqual(localOrder, sortedIDs)) {
+        if (_.isEmpty(priorities) || !sortedIDs.length || _.isEqual(localOrder, sortedIDs)) {
             return;
         }
         setLocalOrder(sortedIDs);
-    }, [filteredData, localOrder]);
+    }, [filteredData, localOrder, priorities]);
 
     useEffect(() => {
-        if (!filteredData.length || (localOrder.length === filteredData.length && _.isEqual(_.pluck(filteredData, 'id'), localOrder))) {
+        if (_.isEmpty(priorities) || !filteredData.length || (localOrder.length === filteredData.length && _.isEqual(_.pluck(filteredData, 'id'), localOrder))) {
             return;
         }
 
         // Reset localOrder if data changes (e.g., after Onyx update)
         setLocalOrder(_.pluck(filteredData, 'id'));
-    }, [filteredData, localOrder]);
+    }, [filteredData, localOrder, priorities]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
