@@ -165,6 +165,10 @@ function addComment(comment) {
     API.addComment(comment);
 }
 
+function setPriorities(priorities, priorityLabel) {
+    ReactNativeOnyx.set(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${priorityLabel}`, priorities);
+}
+
 export {
     addComment,
     getAllAssigned,
@@ -173,4 +177,5 @@ export {
     getHotPicks,
     saveCheckboxes,
     saveFilters,
+    setPriorities,
 };
