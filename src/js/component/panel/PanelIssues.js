@@ -170,13 +170,20 @@ SortableIssue.propTypes = {
 };
 
 function PanelIssues(props) {
-    const [priorities = {}, {prioritiesLoadingStatus}] = useOnyx(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`);
+    const [priorities = {}] = useOnyx(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`);
     const [activeId, setActiveId] = useState(null);
-    const isLoadingPriorities = prioritiesLoadingStatus === 'loading';
 
     // Add local state for ordered issues so that it can be updated synchronously when the user drags an issue and drops it,
     // preventing the item from jumping back to its original position briefly
     const [localOrder, setLocalOrder] = useState([]);
+
+    // When priorities or filteredData change (i.e., Onyx updates), clear localOrder only if not already empty
+    useEffect(() => {
+        if (!localOrder.length) {
+            return;
+        }
+        setLocalOrder([]);
+    }, [priorities, props.data, props.filters, props.hideIfHeld, props.hideIfUnderReview, props.hideIfOwnedBySomeoneElse, props.applyFilters, localOrder]);
 
     const filteredData = useMemo(() => getOrderedFilteredIssues({
         issues: props.data,
@@ -197,17 +204,6 @@ function PanelIssues(props) {
         priorities,
         localOrder,
     ]);
-
-    useEffect(() => {
-        if (isLoadingPriorities || !filteredData.length) {
-            return;
-        }
-        const filteredIds = _.pluck(filteredData, 'id');
-        if (_.isEqual(localOrder, filteredIds)) {
-            return;
-        }
-        setLocalOrder(filteredIds);
-    }, [filteredData, localOrder, isLoadingPriorities]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -237,8 +233,8 @@ function PanelIssues(props) {
             return;
         }
 
-        // Update local order immediately
-        const newOrder = arrayMove(localOrder, oldIndex, newIndex);
+        // Update local order immediately for UI feedback
+        const newOrder = arrayMove(_.pluck(filteredData, 'id'), oldIndex, newIndex);
         setLocalOrder(newOrder);
 
         // Also update priorities in Onyx
@@ -251,7 +247,7 @@ function PanelIssues(props) {
             };
         }
         Issues.setPriorities(newPriorities, props.title);
-    }, [setActiveId, issueIds, localOrder, filteredData, props.title]);
+    }, [setActiveId, issueIds, filteredData, props.title]);
 
     if (!_.size(filteredData) && props.hideOnEmpty) {
         return null;
