@@ -13,7 +13,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
-import React, {useMemo} from 'react';
+import React, {useMemo, useState, useEffect} from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {withOnyx, useOnyx} from 'react-native-onyx';
@@ -101,10 +101,10 @@ SortableIssue.propTypes = {
 
 function PanelIssues(props) {
     const [priorities = {}] = useOnyx(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`);
-    const [activeId, setActiveId] = React.useState(null);
+    const [activeId, setActiveId] = useState(null);
 
     // Add local state for ordered issues
-    const [localOrder, setLocalOrder] = React.useState([]);
+    const [localOrder, setLocalOrder] = useState([]);
 
     // Compute filteredData dynamically using useMemo
     const filteredData = useMemo(() => {
@@ -178,7 +178,7 @@ function PanelIssues(props) {
         localOrder,
     ]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         // Only update localOrder if priorities are loaded and the order has changed
         const sortedIds = _.chain(props.data)
             .filter(item => {
@@ -213,7 +213,7 @@ function PanelIssues(props) {
         }
     }, [props.data, priorities, props.hideIfHeld, props.hideIfUnderReview, props.hideIfOwnedBySomeoneElse, props.applyFilters, props.filters]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         // Reset localOrder if data changes (e.g., after Onyx update)
         if (filteredData.length && (localOrder.length !== filteredData.length || !_.isEqual(_.pluck(filteredData, 'id'), localOrder))) {
             setLocalOrder(_.pluck(filteredData, 'id'));
