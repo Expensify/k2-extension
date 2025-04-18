@@ -103,6 +103,9 @@ function PanelIssues(props) {
     const [priorities = {}] = useOnyx(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`);
     const [activeId, setActiveId] = React.useState(null);
 
+    // Add local state for ordered issues
+    const [localOrder, setLocalOrder] = React.useState([]);
+
     // Compute filteredData dynamically using useMemo
     const filteredData = useMemo(() => {
         let data = props.data;
@@ -156,6 +159,13 @@ function PanelIssues(props) {
             // Sort by priority first, then by currentUserIsOwner
             return [priority, item.currentUserIsOwner ? 0 : 1];
         });
+
+        // If localOrder is set, use it to order the data
+        if (localOrder.length === data.length) {
+            const dataById = _.indexBy(data, 'id');
+            return localOrder.map(id => dataById[id]).filter(Boolean);
+        }
+
         return data;
     }, [
         props.data,
@@ -165,7 +175,16 @@ function PanelIssues(props) {
         props.applyFilters,
         props.filters,
         priorities,
+        localOrder,
     ]);
+
+    React.useEffect(() => {
+        // Reset localOrder if data changes (e.g., after Onyx update)
+        if (filteredData.length && (localOrder.length !== filteredData.length || !_.isEqual(_.pluck(filteredData, 'id'), localOrder))) {
+            setLocalOrder(_.pluck(filteredData, 'id'));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [props.data, priorities]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -189,6 +208,10 @@ function PanelIssues(props) {
         if (oldIndex === -1 || newIndex === -1) {
             return;
         }
+        // Update local order immediately
+        const newOrder = arrayMove(localOrder, oldIndex, newIndex);
+        setLocalOrder(newOrder);
+        // Also update priorities in Onyx
         const reorderedData = arrayMove(filteredData, oldIndex, newIndex);
         const newPriorities = {};
         for (let i = 0; i < reorderedData.length; i++) {
