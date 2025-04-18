@@ -13,7 +13,9 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
-import React, {useMemo, useState, useEffect} from 'react';
+import React, {
+    useMemo, useState, useEffect, useCallback,
+} from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {withOnyx, useOnyx} from 'react-native-onyx';
@@ -103,7 +105,8 @@ function PanelIssues(props) {
     const [priorities = {}] = useOnyx(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`);
     const [activeId, setActiveId] = useState(null);
 
-    // Add local state for ordered issues
+    // Add local state for ordered issues so that it can be updated synchronously when the user drags an issue and drops it,
+    // preventing the item from jumping back to its original position briefly
     const [localOrder, setLocalOrder] = useState([]);
 
     // Compute filteredData dynamically using useMemo
@@ -163,7 +166,7 @@ function PanelIssues(props) {
         // If localOrder is set, use it to order the data
         if (localOrder.length === data.length) {
             const dataById = _.indexBy(data, 'id');
-            return localOrder.map(id => dataById[id]).filter(Boolean);
+            return _.filter(_.map(localOrder, id => dataById[id]), Boolean);
         }
 
         return data;
@@ -181,11 +184,11 @@ function PanelIssues(props) {
     useEffect(() => {
         // Only update localOrder if priorities are loaded and the order has changed
         const sortedIds = _.chain(props.data)
-            .filter(item => {
+            .filter((item) => {
                 // Apply the same filters as in filteredData
-                if ((props.hideIfHeld && item.title.toLowerCase().indexOf('[hold') > -1) ||
-                    (props.hideIfUnderReview && _.find(item.labels, label => label.name.toLowerCase() === 'reviewing')) ||
-                    (props.hideIfOwnedBySomeoneElse && item.issueHasOwner && !item.currentUserIsOwner)) {
+                if ((props.hideIfHeld && item.title.toLowerCase().indexOf('[hold') > -1)
+                    || (props.hideIfUnderReview && _.find(item.labels, label => label.name.toLowerCase() === 'reviewing'))
+                    || (props.hideIfOwnedBySomeoneElse && item.issueHasOwner && !item.currentUserIsOwner)) {
                     return false;
                 }
                 if (props.applyFilters && props.filters && !_.isEmpty(props.filters)) {
@@ -202,7 +205,7 @@ function PanelIssues(props) {
                 }
                 return true;
             })
-            .sortBy(item => {
+            .sortBy((item) => {
                 const priority = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined) ? priorities[item.url].priority : Number.MAX_SAFE_INTEGER;
                 return [priority, item.currentUserIsOwner ? 0 : 1];
             })
@@ -211,15 +214,16 @@ function PanelIssues(props) {
         if (sortedIds.length && !_.isEqual(localOrder, sortedIds)) {
             setLocalOrder(sortedIds);
         }
-    }, [props.data, priorities, props.hideIfHeld, props.hideIfUnderReview, props.hideIfOwnedBySomeoneElse, props.applyFilters, props.filters]);
+    }, [props.data, priorities, props.hideIfHeld, props.hideIfUnderReview, props.hideIfOwnedBySomeoneElse, props.applyFilters, props.filters, localOrder]);
 
     useEffect(() => {
-        // Reset localOrder if data changes (e.g., after Onyx update)
-        if (filteredData.length && (localOrder.length !== filteredData.length || !_.isEqual(_.pluck(filteredData, 'id'), localOrder))) {
-            setLocalOrder(_.pluck(filteredData, 'id'));
+        if (!filteredData.length || (localOrder.length === filteredData.length && _.isEqual(_.pluck(filteredData, 'id'), localOrder))) {
+            return;
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.data, priorities]);
+
+        // Reset localOrder if data changes (e.g., after Onyx update)
+        setLocalOrder(_.pluck(filteredData, 'id'));
+    }, [filteredData, localOrder]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -232,8 +236,13 @@ function PanelIssues(props) {
     const issueIds = _.map(filteredData, issue => issue.id.toString());
     const activeIssue = activeId ? _.find(filteredData, issue => issue.id.toString() === activeId) : null;
 
-    const handleDragEnd = (event) => {
-        const {active, over} = event;
+    const handleDragStart = useCallback((event) => {
+        setActiveId(event.active.id);
+    }, [setActiveId]);
+
+    const handleDragEnd = useCallback((event) => {
+        const active = event.active;
+        const over = event.over;
         setActiveId(null);
         if (!over || active.id === over.id) {
             return;
@@ -243,9 +252,11 @@ function PanelIssues(props) {
         if (oldIndex === -1 || newIndex === -1) {
             return;
         }
+
         // Update local order immediately
         const newOrder = arrayMove(localOrder, oldIndex, newIndex);
         setLocalOrder(newOrder);
+
         // Also update priorities in Onyx
         const reorderedData = arrayMove(filteredData, oldIndex, newIndex);
         const newPriorities = {};
@@ -256,10 +267,48 @@ function PanelIssues(props) {
             };
         }
         Issues.setPriorities(newPriorities, props.title);
-    };
+    }, [setActiveId, issueIds, localOrder, filteredData, props.title]);
 
     if (!_.size(filteredData) && props.hideOnEmpty) {
         return null;
+    }
+
+    function renderContent() {
+        if (!_.size(filteredData)) {
+            return (
+                <div className="blankslate capped clean-background">
+                    No items
+                </div>
+            );
+        }
+        return (
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+            >
+                <SortableContext
+                    items={issueIds}
+                    strategy={verticalListSortingStrategy}
+                >
+                    {_.map(filteredData, issue => <SortableIssue key={issue.id} issue={issue} />)}
+                </SortableContext>
+                <DragOverlay>
+                    {activeIssue ? (
+                        <div style={{
+                            lineHeight: 1.2,
+                            background: '#fff',
+                            opacity: 1,
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                        }}
+                        >
+                            <ListItemIssue issue={activeIssue} />
+                        </div>
+                    ) : null}
+                </DragOverlay>
+            </DndContext>
+        );
     }
 
     return (
@@ -268,40 +317,7 @@ function PanelIssues(props) {
                 text={props.title}
                 count={_.size(filteredData) || 0}
             />
-
-            {!_.size(filteredData) ? (
-                <div className="blankslate capped clean-background">
-                    No items
-                </div>
-            ) : (
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragStart={event => setActiveId(event.active.id)}
-                    onDragEnd={handleDragEnd}
-                >
-                    <SortableContext
-                        items={issueIds}
-                        strategy={verticalListSortingStrategy}
-                    >
-                        {_.map(filteredData, issue => (
-                            <SortableIssue key={issue.id} issue={issue} />
-                        ))}
-                    </SortableContext>
-                    <DragOverlay>
-                        {activeIssue ? (
-                            <div style={{
-                                lineHeight: 1.2,
-                                background: '#fff', // match your panel background if needed
-                                opacity: 1,
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                            }}>
-                                <ListItemIssue issue={activeIssue} />
-                            </div>
-                        ) : null}
-                    </DragOverlay>
-                </DndContext>
-            )}
+            {renderContent()}
         </div>
     );
 }
