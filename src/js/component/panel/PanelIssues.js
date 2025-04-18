@@ -69,7 +69,7 @@ const defaultProps = {
 };
 
 function getOrderedFilteredIssues({
-    data,
+    issues,
     filters = {},
     priorities = {},
     localOrder = [],
@@ -78,30 +78,42 @@ function getOrderedFilteredIssues({
     hideIfOwnedBySomeoneElse = false,
     applyFilters = false,
 }) {
-    let issues = data;
-    if (!issues) { return []; }
+    let preparedIssues = issues;
+    if (!preparedIssues) {
+        return [];
+    }
 
     // Hide by hold, review, owner
     if (hideIfHeld || hideIfUnderReview || hideIfOwnedBySomeoneElse) {
-        issues = _.filter(issues, (item) => {
+        preparedIssues = _.filter(preparedIssues, (item) => {
             const isHeld = item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
             const isUnderReview = _.find(item.labels, label => label.name.toLowerCase() === 'reviewing');
             const isOwnedBySomeoneElse = item.issueHasOwner && !item.currentUserIsOwner;
-            if (isHeld && hideIfHeld) { return false; }
-            if (isUnderReview && hideIfUnderReview) { return false; }
-            if (isOwnedBySomeoneElse && hideIfOwnedBySomeoneElse) { return false; }
+            if (isHeld && hideIfHeld) {
+                return false;
+            }
+            if (isUnderReview && hideIfUnderReview) {
+                return false;
+            }
+            if (isOwnedBySomeoneElse && hideIfOwnedBySomeoneElse) {
+                return false;
+            }
             return true;
         });
     }
 
     // Apply filters
     if (applyFilters && filters && !_.isEmpty(filters)) {
-        issues = _.filter(issues, (item) => {
+        preparedIssues = _.filter(preparedIssues, (item) => {
             const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
             const isTask = _.findWhere(item.labels, {name: 'Task'});
             const isFeature = _.findWhere(item.labels, {name: 'NewFeature'});
             const isOnMilestone = item.milestone && item.milestone.id === filters.milestone;
-            if (filters.milestone && !isOnMilestone) { return false; }
+
+            // If we are filtering on milestone, remove everything not on that milestone
+            if (filters.milestone && !isOnMilestone) {
+                return false;
+            }
             return (filters.improvement && isImprovement)
                 || (filters.task && isTask)
                 || (filters.feature && isFeature);
@@ -109,7 +121,7 @@ function getOrderedFilteredIssues({
     }
 
     // Sort by priority, then owner
-    issues = _.sortBy(issues, (item) => {
+    preparedIssues = _.sortBy(preparedIssues, (item) => {
         const priority = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined)
             ? priorities[item.url].priority
             : Number.MAX_SAFE_INTEGER;
@@ -117,11 +129,11 @@ function getOrderedFilteredIssues({
     });
 
     // Use localOrder if available
-    if (localOrder.length === issues.length) {
-        const dataById = _.indexBy(issues, 'id');
+    if (localOrder.length === preparedIssues.length) {
+        const dataById = _.indexBy(preparedIssues, 'id');
         return _.filter(_.map(localOrder, id => dataById[id]), Boolean);
     }
-    return issues;
+    return preparedIssues;
 }
 
 function SortableIssue(props) {
