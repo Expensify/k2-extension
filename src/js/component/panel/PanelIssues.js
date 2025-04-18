@@ -178,7 +178,7 @@ function PanelIssues(props) {
     const [localOrder, setLocalOrder] = useState([]);
 
     const filteredData = useMemo(() => getOrderedFilteredIssues({
-        data: props.data,
+        issues: props.data,
         filters: props.filters,
         priorities,
         localOrder,
@@ -199,6 +199,7 @@ function PanelIssues(props) {
 
     useEffect(() => {
         const sortedIDs = _.map(filteredData, item => item.id);
+        console.log('sortedIDs', sortedIDs);
         if (!sortedIDs.length || _.isEqual(localOrder, sortedIDs)) {
             return;
         }
