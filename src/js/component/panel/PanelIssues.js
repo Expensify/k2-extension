@@ -170,8 +170,9 @@ SortableIssue.propTypes = {
 };
 
 function PanelIssues(props) {
-    const [priorities = {}] = useOnyx(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`);
+    const [priorities = {}, {prioritiesLoadingStatus}] = useOnyx(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`);
     const [activeId, setActiveId] = useState(null);
+    const isLoadingPriorities = prioritiesLoadingStatus === 'loading';
 
     // Add local state for ordered issues so that it can be updated synchronously when the user drags an issue and drops it,
     // preventing the item from jumping back to its original position briefly
@@ -198,21 +199,15 @@ function PanelIssues(props) {
     ]);
 
     useEffect(() => {
-        const sortedIDs = _.map(filteredData, item => item.id);
-        if (_.isEmpty(priorities) || !sortedIDs.length || _.isEqual(localOrder, sortedIDs)) {
+        if (isLoadingPriorities || !filteredData.length) {
             return;
         }
-        setLocalOrder(sortedIDs);
-    }, [filteredData, localOrder, priorities]);
-
-    useEffect(() => {
-        if (_.isEmpty(priorities) || !filteredData.length || (localOrder.length === filteredData.length && _.isEqual(_.pluck(filteredData, 'id'), localOrder))) {
+        const filteredIds = _.pluck(filteredData, 'id');
+        if (_.isEqual(localOrder, filteredIds)) {
             return;
         }
-
-        // Reset localOrder if data changes (e.g., after Onyx update)
-        setLocalOrder(_.pluck(filteredData, 'id'));
-    }, [filteredData, localOrder, priorities]);
+        setLocalOrder(filteredIds);
+    }, [filteredData, localOrder, isLoadingPriorities]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
