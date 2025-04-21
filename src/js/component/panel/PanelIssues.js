@@ -23,7 +23,7 @@ import ListItemIssue from '../list-item/ListItemIssue';
 import ONYXKEYS from '../../ONYXKEYS';
 import filterPropTypes from '../../lib/filterPropTypes';
 import * as Issues from '../../lib/actions/Issues';
-import SortableIssue from './SortableIssue';
+import SortableIssue from '../list-item/SortableIssue';
 
 const propTypes = {
     /** A CSS class to add to this panel to give it some color */
