@@ -1,8 +1,8 @@
 import React from 'react';
 import {useSortable} from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
-import ListItemIssue from '../list-item/ListItemIssue';
-import IssuePropTypes from '../list-item/IssuePropTypes';
+import ListItemIssue from './ListItemIssue';
+import IssuePropTypes from './IssuePropTypes';
 
 const propTypes = {
     /** The issue to display */
