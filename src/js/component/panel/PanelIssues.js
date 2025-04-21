@@ -9,10 +9,8 @@ import {
 import {
     arrayMove,
     SortableContext,
-    useSortable,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {CSS} from '@dnd-kit/utilities';
 import React, {
     useMemo, useState, useEffect, useCallback,
 } from 'react';
@@ -25,6 +23,7 @@ import ListItemIssue from '../list-item/ListItemIssue';
 import ONYXKEYS from '../../ONYXKEYS';
 import filterPropTypes from '../../lib/filterPropTypes';
 import * as Issues from '../../lib/actions/Issues';
+import SortableIssue from './SortableIssue';
 
 const propTypes = {
     /** A CSS class to add to this panel to give it some color */
@@ -136,39 +135,6 @@ function getOrderedFilteredIssues({
     return preparedIssues;
 }
 
-function SortableIssue(props) {
-    const {issue} = props;
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({id: issue.id.toString()});
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        zIndex: isDragging ? 2 : 1,
-        background: isDragging ? '#f0f0f0' : undefined,
-    };
-
-    return (
-        <div
-            ref={setNodeRef}
-            style={style}
-            {...attributes} // eslint-disable-line react/jsx-props-no-spreading
-            {...listeners} // eslint-disable-line react/jsx-props-no-spreading
-        >
-            <ListItemIssue issue={issue} />
-        </div>
-    );
-}
-SortableIssue.propTypes = {
-    issue: IssuePropTypes.isRequired,
-};
-
 function PanelIssues(props) {
     const [priorities = {}] = useOnyx(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`);
     const [activeId, setActiveId] = useState(null);
@@ -177,7 +143,7 @@ function PanelIssues(props) {
     // preventing the item from jumping back to its original position briefly
     const [localOrder, setLocalOrder] = useState([]);
 
-    // When priorities or filteredData change (i.e., Onyx updates), clear localOrder only if not already empty
+    // When priorities or filteredData change (i.e., Onyx updates), clear localOrder only if it's set
     useEffect(() => {
         if (!localOrder.length) {
             return;
