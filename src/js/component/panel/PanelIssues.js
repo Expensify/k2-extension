@@ -182,17 +182,18 @@ function PanelIssues(props) {
     const issueIds = _.map(filteredData, issue => issue.id.toString());
     const activeIssue = activeId ? _.find(filteredData, issue => issue.id.toString() === activeId) : null;
 
-    const handleDragStart = useCallback((event) => {
-        setActiveId(event.active.id);
-    }, [setActiveId]);
-
-    const handleDragEnd = useCallback((event) => {
+    const updatePriorities = useCallback((event) => {
+        // In dnd-kit, `event.active` represents the item being dragged, and `event.over` represents the item currently being hovered over (the potential drop target).
         const active = event.active;
         const over = event.over;
         setActiveId(null);
+
+        // Early return: If there is no item being hovered over (e.g., dropped outside a valid target), or if the dragged item is dropped back in its original position.
         if (!over || active.id === over.id) {
             return;
         }
+
+        // Early return: If either the dragged or target item is not found in the list.
         const oldIndex = issueIds.indexOf(active.id);
         const newIndex = issueIds.indexOf(over.id);
         if (oldIndex === -1 || newIndex === -1) {
@@ -233,8 +234,8 @@ function PanelIssues(props) {
                 <DndContext
                     sensors={sensors}
                     collisionDetection={closestCenter}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
+                    onDragStart={e => setActiveId(e.active.id)}
+                    onDragEnd={updatePriorities}
                 >
                     <SortableContext
                         items={issueIds}
