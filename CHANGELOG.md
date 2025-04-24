@@ -1,3 +1,6 @@
+#1.5.0
+- Added drag and drop prioritization within each priority label list (Hourly, Daily, Weekly, Monthly)
+
 #1.4.2
 - Adds feature to get previos version of a GitHub issue for Accounting.
 
