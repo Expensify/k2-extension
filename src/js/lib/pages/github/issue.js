@@ -8,6 +8,7 @@ import K2pickerarea from '../../../module/K2pickerarea/K2pickerarea';
 import K2pickerType from '../../../module/K2pickertype/K2pickertype';
 import ToggleReview from '../../../module/ToggleReview/ToggleReview';
 import K2comments from '../../../module/K2comments/K2comments';
+import K2previousissues from '../../../module/K2previousissues/K2previousissues';
 import ONYXKEYS from '../../../ONYXKEYS';
 import * as API from '../../api';
 
@@ -137,6 +138,7 @@ const refreshPicker = function () {
     new K2pickerarea().draw();
     new ToggleReview().draw();
     new K2comments().draw();
+    new K2previousissues().draw();
 };
 
 /**
