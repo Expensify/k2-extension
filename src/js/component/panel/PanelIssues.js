@@ -151,16 +151,36 @@ function PanelIssues(props) {
         setLocalOrder([]);
     }, [priorities, props.data, props.filters, props.hideIfHeld, props.hideIfUnderReview, props.hideIfOwnedBySomeoneElse, props.applyFilters, localOrder]);
 
-    const filteredData = useMemo(() => getOrderedFilteredIssues({
-        issues: props.data,
-        filters: props.filters,
-        priorities,
-        localOrder,
-        hideIfHeld: props.hideIfHeld,
-        hideIfUnderReview: props.hideIfUnderReview,
-        hideIfOwnedBySomeoneElse: props.hideIfOwnedBySomeoneElse,
-        applyFilters: props.applyFilters,
-    }), [
+    // Debug: Log whenever priorities is updated from Onyx
+    useEffect(() => {
+        // Build an ordered array of issue titles based on priorities
+        const issuesArray = _.isArray(props.data) ? props.data : _.values(props.data);
+        const urlToTitle = _.object(_.map(issuesArray, issue => [issue.url, issue.title]));
+        const orderedUrls = _.chain(priorities)
+            .map((v, url) => ({url, priority: v.priority}))
+            .sortBy('priority')
+            .map(({url}) => url)
+            .value();
+        const orderedTitles = _.map(orderedUrls, url => urlToTitle[url] || url);
+        // eslint-disable-next-line no-console
+        console.log('[PanelIssues] priorities updated from Onyx (ordered titles):', orderedTitles);
+    }, [priorities, props.data]);
+
+    const filteredData = useMemo(() => {
+        const result = getOrderedFilteredIssues({
+            issues: props.data,
+            filters: props.filters,
+            priorities,
+            localOrder,
+            hideIfHeld: props.hideIfHeld,
+            hideIfUnderReview: props.hideIfUnderReview,
+            hideIfOwnedBySomeoneElse: props.hideIfOwnedBySomeoneElse,
+            applyFilters: props.applyFilters,
+        });
+        // eslint-disable-next-line no-console
+        console.log('[PanelIssues] getOrderedFilteredIssues result:', _.map(result, issue => issue.title));
+        return result;
+    }, [
         props.data,
         props.hideIfHeld,
         props.hideIfUnderReview,
@@ -200,12 +220,20 @@ function PanelIssues(props) {
             return;
         }
 
+        // Log the order of issue titles before reordering
+        // eslint-disable-next-line no-console
+        console.log('[PanelIssues] Order before reorder:', _.map(filteredData, issue => issue.title));
+
         // Update local order immediately for UI feedback
         const newOrder = arrayMove(_.pluck(filteredData, 'id'), oldIndex, newIndex);
         setLocalOrder(newOrder);
 
-        // Also update priorities in Onyx
+        // Log the order of issue titles after reordering
         const reorderedData = arrayMove(filteredData, oldIndex, newIndex);
+        // eslint-disable-next-line no-console
+        console.log('[PanelIssues] Order after reorder:', _.map(reorderedData, issue => issue.title));
+
+        // Also update priorities in Onyx
         const newPriorities = {};
         for (let i = 0; i < reorderedData.length; i++) {
             const issue = reorderedData[i];
