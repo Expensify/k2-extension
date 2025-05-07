@@ -64,7 +64,7 @@ class ListIssuesAssigned extends React.Component {
     }
 
     fetch() {
-        Issues.getAllAssigned();
+        // Issues.getAllAssigned();
     }
 
     toggleHeldFilter() {
