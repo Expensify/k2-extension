@@ -12,7 +12,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import React, {
-    useMemo, useState, useEffect, useCallback,
+    useMemo, useState, useEffect, useCallback, useRef,
 } from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
@@ -119,25 +119,48 @@ function getOrderedFilteredIssues({
         });
     }
 
-    // Sort by priority, then owner
-    preparedIssues = _.sortBy(preparedIssues, (item) => {
-        const priority = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined)
-            ? priorities[item.url].priority
-            : Number.MAX_SAFE_INTEGER;
-        return [priority, item.currentUserIsOwner ? 0 : 1];
-    });
-
     // Use localOrder if available, while waiting for Onyx to update
-    if (localOrder.length && localOrder.length === preparedIssues.length) {
+    if (localOrder.length && localOrder.length === _.size(preparedIssues)) {
         const dataById = _.indexBy(preparedIssues, 'id');
         return _.filter(_.map(localOrder, id => dataById[id]), Boolean);
     }
-    return preparedIssues;
+
+    // Iteratee for sorting by owner (secondary sort, for un-prioritized issues)
+    const ownerSortIteratee = (item) => {
+        const priorityValue = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined)
+            ? priorities[item.url].priority
+            : Number.MAX_SAFE_INTEGER;
+        if (priorityValue === Number.MAX_SAFE_INTEGER) {
+            // Sort un-prioritized issues by owner
+            return item.currentUserIsOwner ? 0 : 1;
+        }
+
+        // Prioritized issues get the same value to maintain stability for the next sort
+        return 0;
+    };
+
+    // Iteratee for sorting by priority (primary sort)
+    const priorityIteratee = (item) => {
+        // If an issue doesn't have a priority, return -1 so that is appears at the top of the list, which will prompt the user to set a priority
+        const priorityValue = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined)
+            ? priorities[item.url].priority
+            : -1;
+
+        return priorityValue;
+    };
+
+    // Sort by priority, then owner. Sorting has to be chained, since _.sortBy doesn't support multi-criteria sorting.
+    // If an array is returned, it will be sorted lexicographically and won't sort properly according to priority when there are more than 10 issues.
+    return _.chain(preparedIssues)
+        .sortBy(ownerSortIteratee)
+        .sortBy(priorityIteratee)
+        .value();
 }
 
 function PanelIssues(props) {
     const [priorities = {}] = useOnyx(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`);
     const [activeId, setActiveId] = useState(null);
+    const prevPrioritiesRef = useRef();
 
     // Add local state for ordered issues so that it can be updated synchronously when the user drags an issue and drops it,
     // preventing the item from jumping back to its original position briefly
@@ -148,8 +171,16 @@ function PanelIssues(props) {
         if (!localOrder.length) {
             return;
         }
-        setLocalOrder([]);
-    }, [priorities, props.data, props.filters, props.hideIfHeld, props.hideIfUnderReview, props.hideIfOwnedBySomeoneElse, props.applyFilters, localOrder]);
+
+        // If priorities have changed since the last render, it means Onyx has updated.
+        // We can now clear localOrder as the persisted order should be reflected.
+        if (!_.isEqual(prevPrioritiesRef.current, priorities)) {
+            setLocalOrder([]);
+        }
+
+        // Update the ref to the current priorities for the next render.
+        prevPrioritiesRef.current = priorities;
+    }, [priorities, localOrder]);
 
     const filteredData = useMemo(() => getOrderedFilteredIssues({
         issues: props.data,
