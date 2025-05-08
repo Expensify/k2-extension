@@ -119,7 +119,8 @@ function getOrderedFilteredIssues({
         });
     }
 
-    // Sort by priority, then owner
+    // Sort by priority, then owner. Sorting has to be chained, since _.sortBy doesn't support multi-criteria sorting.
+    // If an array is returned, it will be sorted lexicographically and cause issues above 10 items.
     // Iteratee for sorting by owner (secondary sort, for unprioritized items)
     const ownerSortIteratee = (item) => {
         const priorityValue = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined)
