@@ -162,22 +162,43 @@ function getOrderedFilteredIssues({
     // Sort by priority, then owner
     console.log('[getOrderedFilteredIssues] preparedIssues before priority sort:', preparedIssues);
     console.log('[getOrderedFilteredIssues] priorities for priority sort:', priorities);
-    preparedIssues = _.sortBy(preparedIssues, (item) => {
-        const priority = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined)
+
+    const issuesToSort = _.isArray(preparedIssues) ? preparedIssues : _.values(preparedIssues);
+
+    // Iteratee for sorting by owner (secondary sort, for unprioritized items)
+    const ownerSortIteratee = (item) => {
+        const priorityValue = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined)
+            ? priorities[item.url].priority
+            : Number.MAX_SAFE_INTEGER;
+        const hasActualPriority = priorityValue !== Number.MAX_SAFE_INTEGER;
+
+        if (!hasActualPriority) {
+            return item.currentUserIsOwner ? 0 : 1; // Sort unprioritized by owner
+        }
+        return 0; // Prioritized items get the same key here to maintain stability for the next sort
+    };
+
+    // Iteratee for sorting by priority (primary sort)
+    const priorityIteratee = (item) => {
+        const priorityValue = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined)
             ? priorities[item.url].priority
             : Number.MAX_SAFE_INTEGER;
 
-        // Log the issue titles for which the priority is the max int
-        if (priority === Number.MAX_SAFE_INTEGER) {
-            console.log('[getOrderedFilteredIssues] issue with max priority:', item.title);
+        // Log if defaulting
+        if (priorityValue === Number.MAX_SAFE_INTEGER) {
+            console.log('[getOrderedFilteredIssues] issue missing priority in primary sort:', item.title);
         }
-        return priority;
-    });
-    console.log('[getOrderedFilteredIssues] preparedIssues after priority sort:', preparedIssues);
+        return priorityValue;
+    };
+
+    let sortedIssues = _.sortBy(issuesToSort, ownerSortIteratee);
+    sortedIssues = _.sortBy(sortedIssues, priorityIteratee);
+
+    console.log('[getOrderedFilteredIssues] preparedIssues after priority sort:', sortedIssues);
 
     // Use localOrder if available, while waiting for Onyx to update
-    if (localOrder.length && localOrder.length === preparedIssues.length) {
-        const dataById = _.indexBy(preparedIssues, 'id');
+    if (localOrder.length && localOrder.length === sortedIssues.length) {
+        const dataById = _.indexBy(sortedIssues, 'id');
         // eslint-disable-next-line no-console
         console.log('[getOrderedFilteredIssues] Using localOrder for ordering');
         return _.filter(_.map(localOrder, id => dataById[id]), Boolean);
@@ -186,8 +207,7 @@ function getOrderedFilteredIssues({
     // Fallback
     // eslint-disable-next-line no-console
     console.log('[getOrderedFilteredIssues] Using fallback sort (priority, owner)');
-    console.log('[getOrderedFilteredIssues] final preparedIssues:', preparedIssues);
-    return preparedIssues;
+    return sortedIssues;
 }
 
 function PanelIssues(props) {
