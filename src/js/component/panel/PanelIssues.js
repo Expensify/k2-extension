@@ -119,17 +119,24 @@ function getOrderedFilteredIssues({
         });
     }
 
-    // Sort by priority, then owner. Sorting has to be chained, since _.sortBy doesn't support multi-criteria sorting.
-    // If an array is returned, it will be sorted lexicographically and cause issues above 10 items.
-    // Iteratee for sorting by owner (secondary sort, for unprioritized items)
+    // Use localOrder if available, while waiting for Onyx to update
+    if (localOrder.length && localOrder.length === preparedIssues.length) {
+        const dataById = _.indexBy(preparedIssues, 'id');
+        return _.filter(_.map(localOrder, id => dataById[id]), Boolean);
+    }
+
+    // Iteratee for sorting by owner (secondary sort, for un-prioritized issues)
     const ownerSortIteratee = (item) => {
         const priorityValue = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined)
             ? priorities[item.url].priority
             : Number.MAX_SAFE_INTEGER;
         if (priorityValue === Number.MAX_SAFE_INTEGER) {
-            return item.currentUserIsOwner ? 0 : 1; // Sort unprioritized by owner
+            // Sort un-prioritized issues by owner
+            return item.currentUserIsOwner ? 0 : 1;
         }
-        return 0; // Prioritized items get the same key here to maintain stability for the next sort
+
+        // Prioritized issues get the same value to maintain stability for the next sort
+        return 0;
     };
 
     // Iteratee for sorting by priority (primary sort)
@@ -142,16 +149,12 @@ function getOrderedFilteredIssues({
         return priorityValue;
     };
 
-    let sortedIssues = _.sortBy(preparedIssues, ownerSortIteratee);
-    sortedIssues = _.sortBy(sortedIssues, priorityIteratee);
-
-    // Use localOrder if available, while waiting for Onyx to update
-    if (localOrder.length && localOrder.length === sortedIssues.length) {
-        const dataById = _.indexBy(sortedIssues, 'id');
-        return _.filter(_.map(localOrder, id => dataById[id]), Boolean);
-    }
-
-    return sortedIssues;
+    // Sort by priority, then owner. Sorting has to be chained, since _.sortBy doesn't support multi-criteria sorting.
+    // If an array is returned, it will be sorted lexicographically and won't sort properly according to priority when there are more than 10 issues.
+    return _.chain(preparedIssues)
+        .sortBy(ownerSortIteratee)
+        .sortBy(priorityIteratee)
+        .value();
 }
 
 function PanelIssues(props) {
