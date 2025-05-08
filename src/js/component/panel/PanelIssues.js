@@ -77,26 +77,6 @@ function getOrderedFilteredIssues({
     hideIfOwnedBySomeoneElse = false,
     applyFilters = false,
 }) {
-    // Build lookup tables for logging
-    const issuesArray = _.isArray(issues) ? issues : _.values(issues);
-    const idToTitle = _.object(_.map(issuesArray, issue => [issue.id, issue.title]));
-    const urlToTitle = _.object(_.map(issuesArray, issue => [issue.url, issue.title]));
-
-    // Log priorities as ordered list of titles
-    const orderedUrls = _.chain(priorities)
-        .map((v, url) => ({url, priority: v.priority}))
-        .sortBy('priority')
-        .map(({url}) => url)
-        .value();
-    const prioritiesTitles = _.map(orderedUrls, url => urlToTitle[url] || url);
-    // eslint-disable-next-line no-console
-    console.log('[getOrderedFilteredIssues] priorities (ordered titles):', prioritiesTitles);
-
-    // Log localOrder as list of titles
-    const localOrderTitles = _.map(localOrder, id => idToTitle[id] || id);
-    // eslint-disable-next-line no-console
-    console.log('[getOrderedFilteredIssues] localOrder (titles):', localOrderTitles);
-
     let preparedIssues = issues;
     if (!preparedIssues) {
         return [];
@@ -104,7 +84,6 @@ function getOrderedFilteredIssues({
 
     // Hide by hold, review, owner
     if (hideIfHeld || hideIfUnderReview || hideIfOwnedBySomeoneElse) {
-        console.log('[getOrderedFilteredIssues] hiding issues based on hold, review, or owner');
         preparedIssues = _.filter(preparedIssues, (item) => {
             const isHeld = item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
             const isUnderReview = _.find(item.labels, label => label.name.toLowerCase() === 'reviewing');
@@ -124,7 +103,6 @@ function getOrderedFilteredIssues({
 
     // Apply filters
     if (applyFilters && filters && !_.isEmpty(filters)) {
-        console.log('[getOrderedFilteredIssues] applying filters');
         preparedIssues = _.filter(preparedIssues, (item) => {
             const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
             const isTask = _.findWhere(item.labels, {name: 'Task'});
@@ -141,38 +119,13 @@ function getOrderedFilteredIssues({
         });
     }
 
-    // Check for missing priorities
-    const missingPriorityTitles = _.map(
-        _.filter(preparedIssues, issue => !priorities[issue.url] || priorities[issue.url].priority === undefined),
-        issue => issue.title,
-    );
-    if (missingPriorityTitles.length > 0) {
-        // eslint-disable-next-line no-console
-        console.warn('[getOrderedFilteredIssues] Issues missing priorities:', missingPriorityTitles);
-    }
-
-    // Check for non-unique priorities
-    const priorityValues = _.map(preparedIssues, issue => priorities[issue.url] && priorities[issue.url].priority);
-    const duplicatePriorities = _.keys(_.pick(_.countBy(priorityValues), count => count > 1 && count !== undefined));
-    if (duplicatePriorities.length > 0) {
-        // eslint-disable-next-line no-console
-        console.warn('[getOrderedFilteredIssues] Duplicate priority values found:', duplicatePriorities);
-    }
-
     // Sort by priority, then owner
-    console.log('[getOrderedFilteredIssues] preparedIssues before priority sort:', preparedIssues);
-    console.log('[getOrderedFilteredIssues] priorities for priority sort:', priorities);
-
-    const issuesToSort = _.isArray(preparedIssues) ? preparedIssues : _.values(preparedIssues);
-
     // Iteratee for sorting by owner (secondary sort, for unprioritized items)
     const ownerSortIteratee = (item) => {
         const priorityValue = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined)
             ? priorities[item.url].priority
             : Number.MAX_SAFE_INTEGER;
-        const hasActualPriority = priorityValue !== Number.MAX_SAFE_INTEGER;
-
-        if (!hasActualPriority) {
+        if (priorityValue === Number.MAX_SAFE_INTEGER) {
             return item.currentUserIsOwner ? 0 : 1; // Sort unprioritized by owner
         }
         return 0; // Prioritized items get the same key here to maintain stability for the next sort
@@ -184,29 +137,18 @@ function getOrderedFilteredIssues({
             ? priorities[item.url].priority
             : Number.MAX_SAFE_INTEGER;
 
-        // Log if defaulting
-        if (priorityValue === Number.MAX_SAFE_INTEGER) {
-            console.log('[getOrderedFilteredIssues] issue missing priority in primary sort:', item.title);
-        }
         return priorityValue;
     };
 
-    let sortedIssues = _.sortBy(issuesToSort, ownerSortIteratee);
+    let sortedIssues = _.sortBy(preparedIssues, ownerSortIteratee);
     sortedIssues = _.sortBy(sortedIssues, priorityIteratee);
-
-    console.log('[getOrderedFilteredIssues] preparedIssues after priority sort:', sortedIssues);
 
     // Use localOrder if available, while waiting for Onyx to update
     if (localOrder.length && localOrder.length === sortedIssues.length) {
         const dataById = _.indexBy(sortedIssues, 'id');
-        // eslint-disable-next-line no-console
-        console.log('[getOrderedFilteredIssues] Using localOrder for ordering');
         return _.filter(_.map(localOrder, id => dataById[id]), Boolean);
     }
 
-    // Fallback
-    // eslint-disable-next-line no-console
-    console.log('[getOrderedFilteredIssues] Using fallback sort (priority, owner)');
     return sortedIssues;
 }
 
@@ -235,36 +177,16 @@ function PanelIssues(props) {
         prevPrioritiesRef.current = priorities;
     }, [priorities, localOrder]);
 
-    // Debug: Log whenever priorities is updated from Onyx
-    useEffect(() => {
-        // Build an ordered array of issue titles based on priorities
-        const issuesArray = _.isArray(props.data) ? props.data : _.values(props.data);
-        const urlToTitle = _.object(_.map(issuesArray, issue => [issue.url, issue.title]));
-        const orderedUrls = _.chain(priorities)
-            .map((v, url) => ({url, priority: v.priority}))
-            .sortBy('priority')
-            .map(({url}) => url)
-            .value();
-        const orderedTitles = _.map(orderedUrls, url => urlToTitle[url] || url);
-        // eslint-disable-next-line no-console
-        console.log('[PanelIssues] priorities updated from Onyx (ordered titles):', orderedTitles);
-    }, [priorities, props.data]);
-
-    const filteredData = useMemo(() => {
-        const result = getOrderedFilteredIssues({
-            issues: props.data,
-            filters: props.filters,
-            priorities,
-            localOrder,
-            hideIfHeld: props.hideIfHeld,
-            hideIfUnderReview: props.hideIfUnderReview,
-            hideIfOwnedBySomeoneElse: props.hideIfOwnedBySomeoneElse,
-            applyFilters: props.applyFilters,
-        });
-        // eslint-disable-next-line no-console
-        console.log('[PanelIssues] getOrderedFilteredIssues result:', _.map(result, issue => issue.title));
-        return result;
-    }, [
+    const filteredData = useMemo(() => getOrderedFilteredIssues({
+        issues: props.data,
+        filters: props.filters,
+        priorities,
+        localOrder,
+        hideIfHeld: props.hideIfHeld,
+        hideIfUnderReview: props.hideIfUnderReview,
+        hideIfOwnedBySomeoneElse: props.hideIfOwnedBySomeoneElse,
+        applyFilters: props.applyFilters,
+    }), [
         props.data,
         props.hideIfHeld,
         props.hideIfUnderReview,
@@ -304,20 +226,12 @@ function PanelIssues(props) {
             return;
         }
 
-        // Log the order of issue titles before reordering
-        // eslint-disable-next-line no-console
-        console.log('[PanelIssues] Order before reorder:', _.map(filteredData, issue => issue.title));
-
         // Update local order immediately for UI feedback
         const newOrder = arrayMove(_.pluck(filteredData, 'id'), oldIndex, newIndex);
         setLocalOrder(newOrder);
 
-        // Log the order of issue titles after reordering
-        const reorderedData = arrayMove(filteredData, oldIndex, newIndex);
-        // eslint-disable-next-line no-console
-        console.log('[PanelIssues] Order after reorder:', _.map(reorderedData, issue => issue.title));
-
         // Also update priorities in Onyx
+        const reorderedData = arrayMove(filteredData, oldIndex, newIndex);
         const newPriorities = {};
         for (let i = 0; i < reorderedData.length; i++) {
             const issue = reorderedData[i];
