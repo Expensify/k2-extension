@@ -12,7 +12,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import React, {
-    useMemo, useState, useEffect, useCallback,
+    useMemo, useState, useEffect, useCallback, useRef,
 } from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
@@ -77,6 +77,26 @@ function getOrderedFilteredIssues({
     hideIfOwnedBySomeoneElse = false,
     applyFilters = false,
 }) {
+    // Build lookup tables for logging
+    const issuesArray = _.isArray(issues) ? issues : _.values(issues);
+    const idToTitle = _.object(_.map(issuesArray, issue => [issue.id, issue.title]));
+    const urlToTitle = _.object(_.map(issuesArray, issue => [issue.url, issue.title]));
+
+    // Log priorities as ordered list of titles
+    const orderedUrls = _.chain(priorities)
+        .map((v, url) => ({url, priority: v.priority}))
+        .sortBy('priority')
+        .map(({url}) => url)
+        .value();
+    const prioritiesTitles = _.map(orderedUrls, url => urlToTitle[url] || url);
+    // eslint-disable-next-line no-console
+    console.log('[getOrderedFilteredIssues] priorities (ordered titles):', prioritiesTitles);
+
+    // Log localOrder as list of titles
+    const localOrderTitles = _.map(localOrder, id => idToTitle[id] || id);
+    // eslint-disable-next-line no-console
+    console.log('[getOrderedFilteredIssues] localOrder (titles):', localOrderTitles);
+
     let preparedIssues = issues;
     if (!preparedIssues) {
         return [];
@@ -84,6 +104,7 @@ function getOrderedFilteredIssues({
 
     // Hide by hold, review, owner
     if (hideIfHeld || hideIfUnderReview || hideIfOwnedBySomeoneElse) {
+        console.log('[getOrderedFilteredIssues] hiding issues based on hold, review, or owner');
         preparedIssues = _.filter(preparedIssues, (item) => {
             const isHeld = item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
             const isUnderReview = _.find(item.labels, label => label.name.toLowerCase() === 'reviewing');
@@ -103,6 +124,7 @@ function getOrderedFilteredIssues({
 
     // Apply filters
     if (applyFilters && filters && !_.isEmpty(filters)) {
+        console.log('[getOrderedFilteredIssues] applying filters');
         preparedIssues = _.filter(preparedIssues, (item) => {
             const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
             const isTask = _.findWhere(item.labels, {name: 'Task'});
@@ -119,25 +141,59 @@ function getOrderedFilteredIssues({
         });
     }
 
+    // Check for missing priorities
+    const missingPriorityTitles = _.map(
+        _.filter(preparedIssues, issue => !priorities[issue.url] || priorities[issue.url].priority === undefined),
+        issue => issue.title,
+    );
+    if (missingPriorityTitles.length > 0) {
+        // eslint-disable-next-line no-console
+        console.warn('[getOrderedFilteredIssues] Issues missing priorities:', missingPriorityTitles);
+    }
+
+    // Check for non-unique priorities
+    const priorityValues = _.map(preparedIssues, issue => priorities[issue.url] && priorities[issue.url].priority);
+    const duplicatePriorities = _.keys(_.pick(_.countBy(priorityValues), count => count > 1 && count !== undefined));
+    if (duplicatePriorities.length > 0) {
+        // eslint-disable-next-line no-console
+        console.warn('[getOrderedFilteredIssues] Duplicate priority values found:', duplicatePriorities);
+    }
+
     // Sort by priority, then owner
+    console.log('[getOrderedFilteredIssues] preparedIssues before priority sort:', preparedIssues);
+    console.log('[getOrderedFilteredIssues] priorities for priority sort:', priorities);
     preparedIssues = _.sortBy(preparedIssues, (item) => {
         const priority = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined)
             ? priorities[item.url].priority
             : Number.MAX_SAFE_INTEGER;
-        return [priority, item.currentUserIsOwner ? 0 : 1];
+
+        // Log the issue titles for which the priority is the max int
+        if (priority === Number.MAX_SAFE_INTEGER) {
+            console.log('[getOrderedFilteredIssues] issue with max priority:', item.title);
+        }
+        return priority;
     });
+    console.log('[getOrderedFilteredIssues] preparedIssues after priority sort:', preparedIssues);
 
     // Use localOrder if available, while waiting for Onyx to update
     if (localOrder.length && localOrder.length === preparedIssues.length) {
         const dataById = _.indexBy(preparedIssues, 'id');
+        // eslint-disable-next-line no-console
+        console.log('[getOrderedFilteredIssues] Using localOrder for ordering');
         return _.filter(_.map(localOrder, id => dataById[id]), Boolean);
     }
+
+    // Fallback
+    // eslint-disable-next-line no-console
+    console.log('[getOrderedFilteredIssues] Using fallback sort (priority, owner)');
+    console.log('[getOrderedFilteredIssues] final preparedIssues:', preparedIssues);
     return preparedIssues;
 }
 
 function PanelIssues(props) {
     const [priorities = {}] = useOnyx(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`);
     const [activeId, setActiveId] = useState(null);
+    const prevPrioritiesRef = useRef();
 
     // Add local state for ordered issues so that it can be updated synchronously when the user drags an issue and drops it,
     // preventing the item from jumping back to its original position briefly
@@ -148,8 +204,16 @@ function PanelIssues(props) {
         if (!localOrder.length) {
             return;
         }
-        setLocalOrder([]);
-    }, [priorities, props.data, props.filters, props.hideIfHeld, props.hideIfUnderReview, props.hideIfOwnedBySomeoneElse, props.applyFilters, localOrder]);
+
+        // If priorities have changed since the last render, it means Onyx has updated.
+        // We can now clear localOrder as the persisted order should be reflected.
+        if (!_.isEqual(prevPrioritiesRef.current, priorities)) {
+            setLocalOrder([]);
+        }
+
+        // Update the ref to the current priorities for the next render.
+        prevPrioritiesRef.current = priorities;
+    }, [priorities, localOrder]);
 
     // Debug: Log whenever priorities is updated from Onyx
     useEffect(() => {
