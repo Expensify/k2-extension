@@ -1,3 +1,7 @@
+#1.5.1
+- Fixed drag and drop prioritization for lists with 11+ items
+- Newly added, un-prioritized issues are now displayed at the top of the list to prompt users to prioritize them
+
 #1.5.0
 - Added drag and drop prioritization within each priority label list (Hourly, Daily, Weekly, Monthly)
 
