@@ -120,7 +120,7 @@ function getOrderedFilteredIssues({
     }
 
     // Use localOrder if available, while waiting for Onyx to update
-    if (localOrder.length && localOrder.length === preparedIssues.length) {
+    if (localOrder.length && localOrder.length === _.size(preparedIssues)) {
         const dataById = _.indexBy(preparedIssues, 'id');
         return _.filter(_.map(localOrder, id => dataById[id]), Boolean);
     }
