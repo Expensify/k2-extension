@@ -134,9 +134,10 @@ function getOrderedFilteredIssues({
 
     // Iteratee for sorting by priority (primary sort)
     const priorityIteratee = (item) => {
+        // If an issue doesn't have a priority, return -1 so that is appears at the top of the list, which will prompt the user to set a priority
         const priorityValue = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined)
             ? priorities[item.url].priority
-            : Number.MAX_SAFE_INTEGER;
+            : -1;
 
         return priorityValue;
     };
