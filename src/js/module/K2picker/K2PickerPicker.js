@@ -20,7 +20,7 @@ class K2PickerPicker extends React.Component {
 
     componentDidMount() {
         // eslint-disable-next-line rulesdir/prefer-underscore-method
-        $('.js-issue-labels .IssueLabel').each((i, el) => {
+        $('div[data-testid="issue-labels"] a > span').each((i, el) => {
             const label = $(el).text().trim();
             if (['Hourly', 'Daily', 'Weekly', 'Monthly'].indexOf(label) > -1) {
                 this.setActiveLabel(label);

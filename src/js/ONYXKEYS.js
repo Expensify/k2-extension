@@ -15,7 +15,9 @@ export default {
         DAILY_IMPROVEMENTS: 'issueDailyImprovements',
         ENGINEERING: 'issueEngineering',
         FILTER: 'issueFilter',
+        CHECKBOXES: 'issueCheckboxes',
         HOTPICKS: 'issueHotPicks',
+        COLLECTION_PRIORITIES: 'issuePriorities_',
     },
 
     MILESTONES: 'milestones',
