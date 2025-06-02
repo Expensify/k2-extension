@@ -93,7 +93,7 @@ function getOrderedFilteredIssues({
             const isHeld = item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
             const isUnderReview = _.find(item.labels, label => label.name.toLowerCase() === 'reviewing');
             const isOwnedBySomeoneElse = item.issueHasOwner && !item.currentUserIsOwner;
-            const isOverdue = _.findWhere(item.labels, {name: 'Overdue'});
+            const isOverdue = _.find(item.labels, label => label.name.toLowerCase() === 'overdue');
             if (isHeld && hideIfHeld) {
                 return false;
             }
