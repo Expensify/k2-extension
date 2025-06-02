@@ -23,6 +23,9 @@ const propTypes = {
 
         /** Should issues owned by someone else be hidden? */
         shouldHideOwnedBySomeoneElse: PropTypes.bool,
+
+        /** Should issues that are not overdue be hidden? */
+        shouldHideNotOverdue: PropTypes.bool,
     }),
 };
 const defaultProps = {
@@ -31,6 +34,7 @@ const defaultProps = {
         shouldHideOnHold: false,
         shouldHideUnderReview: false,
         shouldHideOwnedBySomeoneElse: false,
+        shouldHideNotOverdue: false,
     },
 };
 
@@ -41,11 +45,13 @@ class ListIssuesAssigned extends React.Component {
             shouldHideHeldIssues: props.checkboxes.shouldHideOnHold,
             shouldHideUnderReviewIssues: props.checkboxes.shouldHideUnderReview,
             shouldHideOwnedBySomeoneElseIssues: props.checkboxes.shouldHideOwnedBySomeoneElse,
+            shouldHideNotOverdueIssues: props.checkboxes.shouldHideNotOverdue,
         };
         this.fetch = this.fetch.bind(this);
         this.toggleHeldFilter = this.toggleHeldFilter.bind(this);
         this.toggleUnderReviewFilter = this.toggleUnderReviewFilter.bind(this);
         this.toggleOwnedBySomeoneElseFilter = this.toggleOwnedBySomeoneElseFilter.bind(this);
+        this.toggleNotOverdueFilter = this.toggleNotOverdueFilter.bind(this);
     }
 
     componentDidMount() {
@@ -80,6 +86,11 @@ class ListIssuesAssigned extends React.Component {
     toggleOwnedBySomeoneElseFilter() {
         this.setState(prevState => ({shouldHideOwnedBySomeoneElseIssues: !prevState.shouldHideOwnedBySomeoneElseIssues}));
         Issues.saveCheckboxes({shouldHideOwnedBySomeoneElse: !this.state.shouldHideOwnedBySomeoneElseIssues});
+    }
+
+    toggleNotOverdueFilter() {
+        this.setState(prevState => ({shouldHideNotOverdueIssues: !prevState.shouldHideNotOverdueIssues}));
+        Issues.saveCheckboxes({shouldHideNotOverdue: !this.state.shouldHideNotOverdueIssues});
     }
 
     render() {
@@ -140,6 +151,18 @@ class ListIssuesAssigned extends React.Component {
                                 Owned by Someone Else
                             </label>
                         </div>
+                        <div className="checkbox">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="shouldHideIfNotOverdue"
+                                    id="shouldHideIfNotOverdue"
+                                    onChange={this.toggleNotOverdueFilter}
+                                    checked={this.state.shouldHideNotOverdueIssues ? 'checked' : undefined}
+                                />
+                                Not Overdue
+                            </label>
+                        </div>
                     </form>
                 </div>
                 <div className="d-flex flex-row">
@@ -151,6 +174,7 @@ class ListIssuesAssigned extends React.Component {
                             hideIfHeld={this.state.shouldHideHeldIssues}
                             hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
                             hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
+                            hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
                         />
                     </div>
                     <div className="col-3 pr-3">
@@ -161,6 +185,7 @@ class ListIssuesAssigned extends React.Component {
                             hideIfHeld={this.state.shouldHideHeldIssues}
                             hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
                             hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
+                            hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
                         />
                     </div>
                     <div className="col-3 pr-3">
@@ -171,6 +196,7 @@ class ListIssuesAssigned extends React.Component {
                             hideIfHeld={this.state.shouldHideHeldIssues}
                             hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
                             hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
+                            hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
                         />
                     </div>
                     <div className="col-3">
@@ -181,6 +207,7 @@ class ListIssuesAssigned extends React.Component {
                             hideIfHeld={this.state.shouldHideHeldIssues}
                             hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
                             hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
+                            hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
                         />
                     </div>
                 </div>
@@ -194,6 +221,7 @@ class ListIssuesAssigned extends React.Component {
                         hideIfHeld={this.state.shouldHideHeldIssues}
                         hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
                         hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
+                        hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
                     />
                 </div>
             </div>
