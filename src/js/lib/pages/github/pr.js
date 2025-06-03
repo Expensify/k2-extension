@@ -94,7 +94,6 @@ export default function () {
      */
     PrPage.setup = function () {
         setInterval(refreshHold, 1000);
-        setInterval(renderCopyChecklistButton, 2000);
         setInterval(renderReplaceChecklistButton, 2000);
 
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
