@@ -47,7 +47,7 @@ class ListItemIssue extends React.Component {
         this.isWaitingForCustomer = _.findWhere(this.props.issue.labels, {name: 'Waiting for customer'}) ? <span className="label waiting">Waiting</span> : '';
         this.isWhatsNext = _.findWhere(this.props.issue.labels, {name: 'WhatsNext'}) ? <span className="label whatsnext">WN</span> : null;
         this.isPlanning = _.findWhere(this.props.issue.labels, {name: 'Planning'}) ? ' planning' : '';
-        this.isOverdue = _.findWhere(this.props.issue.labels, {name: 'Overdue'});
+        this.isOverdue = _.find(this.props.issue.labels, label => label.name.toLowerCase() === 'overdue');
         this.isWaitingOnCustomer = _.findWhere(this.props.issue.labels, {name: 'Waiting for customer'}) ? ' waiting-for-customer' : '';
         this.isHeld = this.props.issue.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
         this.isChallengeSent = _.findWhere(this.props.issue.labels, {name: 'Take Home Challenge Sent'}) ? ' challenge-sent' : '';

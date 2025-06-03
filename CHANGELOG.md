@@ -1,3 +1,35 @@
+#1.5.2
+- Added "Not Overdue" filter
+
+#1.5.1
+- Fixed drag and drop prioritization for lists with 11+ items
+- Newly added, un-prioritized issues are now displayed at the top of the list to prompt users to prioritize them
+
+#1.5.0
+- Added drag and drop prioritization within each priority label list (Hourly, Daily, Weekly, Monthly)
+
+#1.4.2
+- Adds feature to get previos version of a GitHub issue for Accounting.
+
+#1.4.1
+- Fixed issue star icon placement for recent GitHub UI changes
+- Fixed rendering loops for issue pages
+
+#1.4.0
+- Updated the extension to work with new GitHub UI
+- Updated the extension to work with GitHub's new PR merge experience
+
+#1.3.74
+- Moved the previous query string params to Onyx
+
+#1.3.73
+- Added query string params to determine initial checked state for "on hold", "under review", and "owned by someone else" checkboxes
+
+#1.3.72
+- Included Expensify/Expensify Hot Pick issues to the section with the same name.
+- Added `Hot Pick` label to the shortcuts right panel.
+- Removed `Ops` label from the shortcuts.
+
 #1.3.71
 - Removed the whats app quality section and replaced it with a hot pick section
 

@@ -138,6 +138,17 @@ function getEngineering() {
 }
 
 /**
+ * @param {Object} checkboxes
+ * @param {String} [checkboxes.shouldHideOnHold]
+ * @param {String} [checkboxes.shouldHideUnderReview]
+ * @param {String} [checkboxes.shouldHideOwnedBySomeoneElse]
+ * @param {String} [checkboxes.shouldHideNotOverdue]
+ */
+function saveCheckboxes(checkboxes) {
+    ReactNativeOnyx.merge(ONYXKEYS.ISSUES.CHECKBOXES, checkboxes);
+}
+
+/**
  * @param {Object} filters
  * @param {String} filters.milestone
  * @param {String} filters.improvement
@@ -155,11 +166,17 @@ function addComment(comment) {
     API.addComment(comment);
 }
 
+function setPriorities(priorities, priorityLabel) {
+    ReactNativeOnyx.set(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${priorityLabel}`, priorities);
+}
+
 export {
     addComment,
     getAllAssigned,
     getEngineering,
     getDailyImprovements,
     getHotPicks,
+    saveCheckboxes,
     saveFilters,
+    setPriorities,
 };

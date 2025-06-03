@@ -9,12 +9,14 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v2
+              # v4.2.2
+              uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af6838
               with:
                   fetch-depth: 0
 
             - name: Add build cache
-              uses: actions/cache@v2
+              # v4
+              uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
               with:
                   path: ~/.npm
                   key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -22,7 +24,8 @@ jobs:
                       ${{ runner.os }}-node-
 
             - name: Setup Node
-              uses: actions/setup-node@v4
+              # v4
+              uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e
               with:
                   node-version-file: '.nvmrc'
 
