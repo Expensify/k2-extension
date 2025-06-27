@@ -1,3 +1,6 @@
+#1.5.3
+- Added workflow dispatch button to trigger GitHub Actions workflows from PR and issue pages
+
 #1.5.2
 - Added "Not Overdue" filter
 

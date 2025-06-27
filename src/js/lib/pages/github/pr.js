@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import Base from './_base';
+import WorkflowDispatch from '../../../module/WorkflowDispatch/WorkflowDispatch';
 
 const refreshHold = function () {
     const prTitle = $('.js-issue-title').text();
@@ -56,6 +57,36 @@ const refreshHold = function () {
     }
 };
 
+const refreshWorkflowDispatch = function () {
+    // If the wrapper already exists, just redraw the component
+    if ($('.workflowdispatch-wrapper').length) {
+        new WorkflowDispatch().draw();
+        return;
+    }
+
+    // Create just the workflow dispatch wrapper element
+    const workflowDispatchWrapper = '<div class="discussion-sidebar-item js-discussion-sidebar-item workflowdispatch-wrapper"></div>';
+
+    // Try multiple selectors to find the right place in the PR sidebar
+    let sidebarTarget = null;
+
+    // Try the labels section first (same as issue page)
+    if ($('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(4)').length) {
+        sidebarTarget = $('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(4)');
+    } else if ($('div[data-testid="pr-review-metadata"] .discussion-sidebar-item').last().length) {
+        // Try alternative selector for PR sidebar
+        sidebarTarget = $('div[data-testid="pr-review-metadata"] .discussion-sidebar-item').last();
+    } else if ($('.discussion-sidebar-item').last().length) {
+        // Try another alternative - look for any sidebar item in the metadata pane
+        sidebarTarget = $('.discussion-sidebar-item').last();
+    }
+
+    if (sidebarTarget) {
+        sidebarTarget.after(workflowDispatchWrapper);
+        new WorkflowDispatch().draw();
+    }
+};
+
 /**
  * This class handles what happens on the pull request page
  *
@@ -74,6 +105,17 @@ export default function () {
      */
     PrPage.setup = function () {
         setInterval(refreshHold, 1000);
+
+        // Draw the workflow dispatch button once when the page is loaded
+        setTimeout(refreshWorkflowDispatch, 500);
+
+        // Every second, check to see if the workflow dispatch button is still there, and if not, redraw it
+        setInterval(() => {
+            if ($('.workflowdispatch-wrapper').length) {
+                return;
+            }
+            refreshWorkflowDispatch();
+        }, 1000);
 
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
         setInterval(() => PrPage.renderCopyChecklistButtons('reviewer'), 2000);

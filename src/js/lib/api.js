@@ -477,6 +477,25 @@ function setCurrentIssueBody(body) {
     return getOctokit().rest.issues.update({...getRequestParams(), body});
 }
 
+/**
+ * Dispatch a GitHub workflow with inputs
+ * @param {String} owner - Repository owner
+ * @param {String} repo - Repository name
+ * @param {String} workflowId - Workflow filename or ID
+ * @param {String} ref - Git reference (branch, tag, or commit SHA)
+ * @param {Object} inputs - Workflow inputs
+ * @returns {Promise}
+ */
+function dispatchWorkflow(owner, repo, workflowId, ref, inputs = {}) {
+    return getOctokit().rest.actions.createWorkflowDispatch({
+        owner,
+        repo,
+        workflow_id: workflowId,
+        ref,
+        inputs,
+    });
+}
+
 export {
     addComment,
     getCheckRuns,
@@ -492,4 +511,5 @@ export {
     getCurrentIssueDescription,
     setCurrentIssueBody,
     getPreviousInstancesOfIssue,
+    dispatchWorkflow,
 };

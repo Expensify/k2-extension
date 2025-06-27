@@ -9,6 +9,7 @@ import K2pickerType from '../../../module/K2pickertype/K2pickertype';
 import ToggleReview from '../../../module/ToggleReview/ToggleReview';
 import K2comments from '../../../module/K2comments/K2comments';
 import K2previousissues from '../../../module/K2previousissues/K2previousissues';
+import WorkflowDispatch from '../../../module/WorkflowDispatch/WorkflowDispatch';
 import ONYXKEYS from '../../../ONYXKEYS';
 import * as API from '../../api';
 
@@ -139,6 +140,7 @@ const refreshPicker = function () {
     new ToggleReview().draw();
     new K2comments().draw();
     new K2previousissues().draw();
+    new WorkflowDispatch().draw();
 };
 
 /**
