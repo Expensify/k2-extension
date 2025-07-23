@@ -12,14 +12,9 @@ async function getKSv2FrequencyLabel() {
     const labels = issueData.data.labels || [];
 
     const ksv2Labels = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
-    for (const labelName of ksv2Labels) {
-        const foundLabel = _.findWhere(labels, {name: labelName});
-        if (foundLabel) {
-            return labelName;
-        }
-    }
+    const foundKsv2Label = ksv2Labels.find(labelName => _.findWhere(labels, {name: labelName}));
 
-    return 'Latest';
+    return foundKsv2Label || 'Latest';
 }
 
 /**
@@ -28,7 +23,7 @@ async function getKSv2FrequencyLabel() {
 async function generateEngineeringUpdateTemplate() {
     const ksv2Label = await getKSv2FrequencyLabel();
     const currentUser = API.getCurrentUser();
-    
+
     const template = `# ${ksv2Label} Update
 - Here is the progress update
 
@@ -39,7 +34,7 @@ async function generateEngineeringUpdateTemplate() {
 - Post a specific ETA for when I think the issue will be finished
 
 _Learn more about how to use this template: https://stackoverflowteams.com/c/expensify/questions/21273_`;
-    
+
     return template;
 }
 
