@@ -5,6 +5,24 @@ import * as Issues from '../../lib/actions/Issues';
 import * as API from '../../lib/api';
 
 /**
+ * Get the KSv2 frequency label from the current issue
+ */
+async function getKSv2FrequencyLabel() {
+    const issueData = await API.getCurrentIssueDescription();
+    const labels = issueData.data.labels || [];
+
+    const ksv2Labels = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
+    for (const labelName of ksv2Labels) {
+        const foundLabel = _.findWhere(labels, {name: labelName});
+        if (foundLabel) {
+            return labelName;
+        }
+    }
+
+    return 'Latest';
+}
+
+/**
  * Generate the engineering update template with dynamic KSv2 label
  */
 async function generateEngineeringUpdateTemplate() {
