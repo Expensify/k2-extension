@@ -4,6 +4,17 @@ import BtnGroup from '../../component/BtnGroup';
 import * as Issues from '../../lib/actions/Issues';
 import * as API from '../../lib/api';
 
+const engineeringUpdateTemplate = `# Daily Update
+- Here is the progress I made today
+
+### Next Steps
+- @${API.getCurrentUser()} Identify the immediate next steps that need to be taken
+
+#### ETA
+- Post a specific ETA for when I think the issue will be finished
+
+_Learn more about how to use this template: https://stackoverflowteams.com/c/expensify/questions/21273_`;
+
 const participationButtons = [
     {
         title: '📃 ✅ Reviewed Doc',
@@ -31,17 +42,6 @@ const participationButtons = [
         comment: engineeringUpdateTemplate,
     },
 ];
-
-const engineeringUpdateTemplate = `# Daily Update
-- Here is the progress I made today
-
-### Next Steps
-- @${API.getCurrentUser()} Identify the immediate next steps that need to be taken
-
-#### ETA
-- Post a specific ETA for when I think the issue will be finished
-
-_Learn more about how to use this template: https://stackoverflowteams.com/c/expensify/questions/21273_`;
 
 class CommentsButtons extends React.Component {
     constructor(props) {
