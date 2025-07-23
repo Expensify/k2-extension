@@ -92,8 +92,9 @@ class CommentsButtons extends React.Component {
                                 </span>
                             </button>
                         ) : (
-                            _.map(participationButtons, participationButton => (
+                            _.map(participationButtons, (participationButton, index) => (
                                 <button
+                                    key={index}
                                     type="button"
                                     className="btn btn-sm"
                                     onClick={() => this.setState({
