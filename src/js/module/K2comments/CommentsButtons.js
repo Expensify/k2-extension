@@ -4,16 +4,26 @@ import BtnGroup from '../../component/BtnGroup';
 import * as Issues from '../../lib/actions/Issues';
 import * as API from '../../lib/api';
 
-const engineeringUpdateTemplate = `# Daily Update
-- Here is the progress I made today
+/**
+ * Generate the engineering update template with dynamic KSv2 label
+ */
+async function generateEngineeringUpdateTemplate() {
+    const ksv2Label = await getKSv2FrequencyLabel();
+    const currentUser = API.getCurrentUser();
+    
+    const template = `# ${ksv2Label} Update
+- Here is the progress update
 
 ### Next Steps
-- @${API.getCurrentUser()} Identify the immediate next steps that need to be taken
+- @${currentUser} Identify the immediate next steps that need to be taken
 
 #### ETA
 - Post a specific ETA for when I think the issue will be finished
 
 _Learn more about how to use this template: https://stackoverflowteams.com/c/expensify/questions/21273_`;
+    
+    return template;
+}
 
 const participationButtons = [
     {
@@ -39,7 +49,7 @@ const participationButtons = [
     {
         title: '📝 Engineering Update',
         ariaLabel: 'engineering update template',
-        comment: engineeringUpdateTemplate,
+        comment: generateEngineeringUpdateTemplate,
     },
 ];
 
