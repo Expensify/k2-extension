@@ -12,7 +12,7 @@ async function getKSv2FrequencyLabel() {
     const labels = issueData.data.labels || [];
 
     const ksv2Labels = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
-    const foundKsv2Label = ksv2Labels.find(labelName => _.findWhere(labels, {name: labelName}));
+    const foundKsv2Label = _.find(ksv2Labels, labelName => _.findWhere(labels, {name: labelName}));
 
     return foundKsv2Label || 'Latest';
 }
