@@ -2,6 +2,37 @@ import React from 'react';
 import _ from 'underscore';
 import BtnGroup from '../../component/BtnGroup';
 import * as Issues from '../../lib/actions/Issues';
+import * as API from '../../lib/api';
+
+/**
+ * Get the KSv2 frequency label from the current issue
+ */
+async function getKSv2FrequencyLabel() {
+    const issueData = await API.getCurrentIssueDescription();
+    const labels = issueData.data.labels || [];
+
+    const ksv2Labels = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
+    const foundKsv2Label = _.find(ksv2Labels, labelName => _.findWhere(labels, {name: labelName}));
+
+    return foundKsv2Label || 'Latest';
+}
+
+/**
+ * Generate the engineering update template with dynamic KSv2 label
+ */
+async function generateEngineeringUpdateTemplate() {
+    const ksv2Label = await getKSv2FrequencyLabel();
+    const currentUser = API.getCurrentUser();
+
+    return `# ${ksv2Label} Update
+- Here is the progress update
+
+### Next Steps
+- @${currentUser} Identify the immediate next steps that need to be taken
+
+#### ETA
+- Post a specific ETA for when I think the issue will be finished`;
+}
 
 const participationButtons = [
     {
@@ -23,6 +54,11 @@ const participationButtons = [
         title: '📱 Reviewed Product Manager Application',
         ariaLabel: 'reviewed product manager emojis',
         comment: 'I have read and reviewed this Product Manager Application!',
+    },
+    {
+        title: '📝 Engineering Update',
+        ariaLabel: 'engineering update template',
+        comment: generateEngineeringUpdateTemplate,
     },
 ];
 
@@ -75,8 +111,9 @@ class CommentsButtons extends React.Component {
                                 </span>
                             </button>
                         ) : (
-                            _.map(participationButtons, participationButton => (
+                            _.map(participationButtons, (participationButton, index) => (
                                 <button
+                                    key={index}
                                     type="button"
                                     className="btn btn-sm"
                                     onClick={() => this.setState({
