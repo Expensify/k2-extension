@@ -24,18 +24,14 @@ async function generateEngineeringUpdateTemplate() {
     const ksv2Label = await getKSv2FrequencyLabel();
     const currentUser = API.getCurrentUser();
 
-    const template = `# ${ksv2Label} Update
+    return `# ${ksv2Label} Update
 - Here is the progress update
 
 ### Next Steps
 - @${currentUser} Identify the immediate next steps that need to be taken
 
 #### ETA
-- Post a specific ETA for when I think the issue will be finished
-
-_Learn more about how to use this template: https://stackoverflowteams.com/c/expensify/questions/21273_`;
-
-    return template;
+- Post a specific ETA for when I think the issue will be finished`;
 }
 
 const participationButtons = [
