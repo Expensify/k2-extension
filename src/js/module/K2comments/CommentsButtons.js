@@ -8,13 +8,17 @@ import * as API from '../../lib/api';
  * Get the KSv2 frequency label from the current issue
  */
 async function getKSv2FrequencyLabel() {
-    const issueData = await API.getCurrentIssueDescription();
-    const labels = issueData.data.labels || [];
+    try {
+        const issueData = await API.getCurrentIssueDescription();
+        const labels = issueData.data.labels || [];
 
-    const ksv2Labels = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
-    const foundKsv2Label = _.find(ksv2Labels, labelName => _.findWhere(labels, {name: labelName}));
+        const ksv2Labels = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
+        const foundKsv2Label = _.find(ksv2Labels, labelName => _.findWhere(labels, {name: labelName}));
 
-    return foundKsv2Label || 'Latest';
+        return foundKsv2Label || 'Latest';
+    } catch (error) {
+        return 'Latest';
+    }
 }
 
 /**
