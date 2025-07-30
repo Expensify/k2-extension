@@ -1,3 +1,6 @@
+#1.5.3
+- Added engineering update template button that dynamically detects KSv2 frequency labels (Hourly/Daily/Weekly/Monthly)
+
 #1.5.2
 - Added "Not Overdue" filter
 
