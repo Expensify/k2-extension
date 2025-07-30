@@ -81,6 +81,7 @@ class CommentsButtons extends React.Component {
 
     async addParticipationComment(comment) {
         try {
+            // If comment is a function, call it to get the actual comment text
             const commentText = typeof comment === 'function' ? await comment() : comment;
             Issues.addComment(commentText);
 
