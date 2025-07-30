@@ -75,15 +75,20 @@ class CommentsButtons extends React.Component {
         };
     }
 
-    addParticipationComment(comment) {
-        Issues.addComment(comment);
+    async addParticipationComment(comment) {
+        try {
+            const commentText = typeof comment === 'function' ? await comment() : comment;
+            Issues.addComment(commentText);
 
-        // Show the confirmation message for 5 seconds
-        this.setState({shouldShowConfirmationMessage: true}, () => {
-            setTimeout(() => {
-                this.setState({shouldShowConfirmationMessage: false, isButtonSelected: false});
-            }, 5000);
-        });
+            // Show the confirmation message for 5 seconds
+            this.setState({shouldShowConfirmationMessage: true}, () => {
+                setTimeout(() => {
+                    this.setState({shouldShowConfirmationMessage: false, isButtonSelected: false});
+                }, 5000);
+            });
+        } catch (error) {
+            console.error('Error adding comment:', error);
+        }
     }
 
     render() {
