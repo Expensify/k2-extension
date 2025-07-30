@@ -21,9 +21,22 @@ async function getKSv2FrequencyLabel() {
     }
 }
 
-/**
- * Generate the engineering update template with dynamic KSv2 label
- */
+function generateReviewedDocTemplate() {
+    return 'I have read and reviewed this Design Doc!';
+}
+
+function generateAttendedInterviewTemplate() {
+    return 'I attended this interview!';
+}
+
+function generateReviewedProjectManagerTemplate() {
+    return 'I have read and reviewed this Project Manager Application!';
+}
+
+function generateReviewedProductManagerTemplate() {
+    return 'I have read and reviewed this Product Manager Application!';
+}
+
 async function generateEngineeringUpdateTemplate() {
     const ksv2Label = await getKSv2FrequencyLabel();
     const currentUser = API.getCurrentUser();
@@ -42,22 +55,22 @@ const participationButtons = [
     {
         title: '📃 ✅ Reviewed Doc',
         ariaLabel: 'reviewed doc emojis',
-        comment: 'I have read and reviewed this Design Doc!',
+        comment: generateReviewedDocTemplate,
     },
     {
         title: '✋ Attended Interview',
         ariaLabel: 'attended interview emojis',
-        comment: 'I attended this interview!',
+        comment: generateAttendedInterviewTemplate,
     },
     {
         title: '🖊️ Reviewed Project Manager Application',
         ariaLabel: 'reviewed project manager emojis',
-        comment: 'I have read and reviewed this Project Manager Application!',
+        comment: generateReviewedProjectManagerTemplate,
     },
     {
         title: '📱 Reviewed Product Manager Application',
         ariaLabel: 'reviewed product manager emojis',
-        comment: 'I have read and reviewed this Product Manager Application!',
+        comment: generateReviewedProductManagerTemplate,
     },
     {
         title: '📝 Engineering Update',
@@ -81,8 +94,7 @@ class CommentsButtons extends React.Component {
 
     async addParticipationComment(comment) {
         try {
-            // If comment is a function, call it to get the actual comment text
-            const commentText = typeof comment === 'function' ? await comment() : comment;
+            const commentText = await comment();
             Issues.addComment(commentText);
 
             // Show the confirmation message for 5 seconds
