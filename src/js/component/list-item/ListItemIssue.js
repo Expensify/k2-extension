@@ -62,12 +62,13 @@ class ListItemIssue extends React.Component {
         this.isWaitingForEngineerReview = this.props.issue.comments && _.some(this.props.issue.comments.nodes, comment => comment.body.includes('🎀👀🎀') || comment.body.includes('🎀 👀 🎀'));
         this.issueHasOwner = this.props.issue.issueHasOwner;
         this.isCurrentUserOwner = this.props.issue.currentUserIsOwner;
+        this.isDeployBlocker = _.findWhere(this.props.issue.labels, {name: 'DeployBlockerCash'}) ? <span className="label hourly">H</span> : null;
         this.hasUnrepliedMentions = (() => {
             if (!this.props.issue.comments) { return false; }
             const comments = this.props.issue.comments.nodes;
             const username = 'grgia'; // Replace with your GitHub username
 
-            const lastMentionIndex = _.findLastIndex(comments, comment => comment.body.includes(`@${username}`));
+            const lastMentionIndex = _.findLastIndex(comments, comment => comment.body.includes(`@${username}`) && comment.author.login !== 'melvin-bot');
 
             if (lastMentionIndex === -1) { return false; }
 
@@ -123,6 +124,12 @@ class ListItemIssue extends React.Component {
                     // eslint-disable-next-line jsx-a11y/accessible-emoji
                     <span>
                         {'\n ⚠️💬⚠️'}
+                    </span>
+                )}
+                {this.isDeployBlocker && (
+                    // eslint-disable-next-line jsx-a11y/accessible-emoji
+                    <span>
+                        {'\n ❌❌❌'}
                     </span>
                 )}
                 {this.props.showAttendees && (
