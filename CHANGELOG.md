@@ -1,3 +1,6 @@
+#1.5.4
+- Engineering update template feature - refactored all comment templates to use a single generator function for consistency and improved error handling
+
 #1.5.3
 - Added engineering update template button that dynamically detects KSv2 frequency labels (Hourly/Daily/Weekly/Monthly)
 
