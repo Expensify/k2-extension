@@ -1,3 +1,6 @@
+#1.5.5
+- Changed the DOM selector in the issue view to accommodate for new GH UI changes
+
 #1.5.4
 - Engineering update template feature - refactored all comment templates to use a single generator function for consistency and improved error handling
 
