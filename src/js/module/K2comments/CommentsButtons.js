@@ -8,23 +8,26 @@ import * as API from '../../lib/api';
  * Get the KSv2 frequency label from the current issue
  */
 async function getKSv2FrequencyLabel() {
-    const issueData = await API.getCurrentIssueDescription();
-    const labels = issueData.data.labels || [];
+    try {
+        const issueData = await API.getCurrentIssueDescription();
+        const labels = issueData.data.labels || [];
 
-    const ksv2Labels = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
-    const foundKsv2Label = _.find(ksv2Labels, labelName => _.findWhere(labels, {name: labelName}));
+        const ksv2Labels = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
+        const foundKsv2Label = _.find(ksv2Labels, labelName => _.findWhere(labels, {name: labelName}));
 
-    return foundKsv2Label || 'Latest';
+        return foundKsv2Label || 'Latest';
+    } catch (error) {
+        return 'Latest';
+    }
 }
 
-/**
- * Generate the engineering update template with dynamic KSv2 label
- */
-async function generateEngineeringUpdateTemplate() {
-    const ksv2Label = await getKSv2FrequencyLabel();
-    const currentUser = API.getCurrentUser();
-
-    return `# ${ksv2Label} Update
+// Single generator function
+async function generateTemplate(type) {
+    switch (type) {
+        case 'engineeringUpdate': {
+            const ksv2Label = await getKSv2FrequencyLabel();
+            const currentUser = API.getCurrentUser();
+            return `# ${ksv2Label} Update
 - Here is the progress update
 
 ### Next Steps
@@ -32,34 +35,27 @@ async function generateEngineeringUpdateTemplate() {
 
 #### ETA
 - Post a specific ETA for when I think the issue will be finished`;
+        }
+        case 'reviewedDoc':
+            return 'I have read and reviewed this Design Doc!';
+        case 'attendedInterview':
+            return 'I attended this interview!';
+        case 'reviewedPMApp':
+            return 'I have read and reviewed this Project Manager Application!';
+        case 'reviewedProductManagerApp':
+            return 'I have read and reviewed this Product Manager Application!';
+        default:
+            return '';
+    }
 }
 
+// Button config data
 const participationButtons = [
-    {
-        title: '📃 ✅ Reviewed Doc',
-        ariaLabel: 'reviewed doc emojis',
-        comment: 'I have read and reviewed this Design Doc!',
-    },
-    {
-        title: '✋ Attended Interview',
-        ariaLabel: 'attended interview emojis',
-        comment: 'I attended this interview!',
-    },
-    {
-        title: '🖊️ Reviewed Project Manager Application',
-        ariaLabel: 'reviewed project manager emojis',
-        comment: 'I have read and reviewed this Project Manager Application!',
-    },
-    {
-        title: '📱 Reviewed Product Manager Application',
-        ariaLabel: 'reviewed product manager emojis',
-        comment: 'I have read and reviewed this Product Manager Application!',
-    },
-    {
-        title: '📝 Engineering Update',
-        ariaLabel: 'engineering update template',
-        comment: generateEngineeringUpdateTemplate,
-    },
+    {title: '📃 ✅ Reviewed Doc', ariaLabel: 'reviewed doc emojis', type: 'reviewedDoc'},
+    {title: '✋ Attended Interview', ariaLabel: 'attended interview emojis', type: 'attendedInterview'},
+    {title: '🖊️ Reviewed Project Manager Application', ariaLabel: 'reviewed project manager emojis', type: 'reviewedPMApp'},
+    {title: '📱 Reviewed Product Manager Application', ariaLabel: 'reviewed product manager emojis', type: 'reviewedProductManagerApp'},
+    {title: '📝 Engineering Update', ariaLabel: 'engineering update template', type: 'engineeringUpdate'},
 ];
 
 class CommentsButtons extends React.Component {
@@ -75,15 +71,20 @@ class CommentsButtons extends React.Component {
         };
     }
 
-    addParticipationComment(comment) {
-        Issues.addComment(comment);
+    async addParticipationComment(type) {
+        try {
+            const commentText = await generateTemplate(type);
+            Issues.addComment(commentText);
 
-        // Show the confirmation message for 5 seconds
-        this.setState({shouldShowConfirmationMessage: true}, () => {
-            setTimeout(() => {
-                this.setState({shouldShowConfirmationMessage: false, isButtonSelected: false});
-            }, 5000);
-        });
+            // Show the confirmation message for 5 seconds
+            this.setState({shouldShowConfirmationMessage: true}, () => {
+                setTimeout(() => {
+                    this.setState({shouldShowConfirmationMessage: false, isButtonSelected: false});
+                }, 5000);
+            });
+        } catch (error) {
+            console.error('Error adding comment:', error);
+        }
     }
 
     render() {
@@ -117,7 +118,7 @@ class CommentsButtons extends React.Component {
                                     type="button"
                                     className="btn btn-sm"
                                     onClick={() => this.setState({
-                                        participationComment: participationButton.comment, isButtonSelected: true, selectedButton: participationButton, isOpen: false,
+                                        participationComment: participationButton.type, isButtonSelected: true, selectedButton: participationButton, isOpen: false,
                                     })}
                                 >
                                     <span role="img" aria-label={participationButton.ariaLabel}>
