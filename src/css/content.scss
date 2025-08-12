@@ -12,6 +12,7 @@ $color-red: #FF0000;
 $color-purple: #A85AD4;
 $color-light-purple: #CFC8F1;
 $color-bright-purple: #8747FE;
+$color-mauve: #ac92afdf;
 $color-orange: #eb6420;
 $color-green: #009800;
 $color-black: #000000;
@@ -75,6 +76,12 @@ $color-dark-yellow: #DAA520;
   &.active { background-color: $color-neutral; }
   &.inactive { @extend .k2-inactive; }
 }
+
+.k2-needs-reproduction {
+    &.active { background-color: $color-alert; }
+    &.inactive { @extend .k2-inactive; }
+}
+
 .discussion-sidebar-item h6 {
     margin-bottom: 8px;
 }
@@ -252,6 +259,12 @@ $color-dark-yellow: #DAA520;
       }
     .label {
       background-color: $color-neutral-light !important;
+    }
+  }
+  &.needs-reproduction {
+    color: $color-mauve !important;
+    .issue-link {
+      color: $color-mauve !important;
     }
   }
   &.waiting-for-customer,
