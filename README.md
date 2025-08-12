@@ -98,6 +98,8 @@ To publish a new version of this extension, you should follow these steps:
 ## Firefox
 https://stackoverflow.com/c/expensify/questions/7043/7044#7044
 
+Finally, send an email to all@expensify.com with the update instructions.
+
 # Code Standards
 This repo uses several tools to keep the code standardized.
 

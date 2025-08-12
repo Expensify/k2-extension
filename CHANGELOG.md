@@ -1,3 +1,19 @@
+#1.5.5
+- Changed the DOM selector in the issue view to accommodate for new GH UI changes
+
+#1.5.4
+- Engineering update template feature - refactored all comment templates to use a single generator function for consistency and improved error handling
+
+#1.5.3
+- Added engineering update template button that dynamically detects KSv2 frequency labels (Hourly/Daily/Weekly/Monthly)
+
+#1.5.2
+- Added "Not Overdue" filter
+
+#1.5.1
+- Fixed drag and drop prioritization for lists with 11+ items
+- Newly added, un-prioritized issues are now displayed at the top of the list to prompt users to prioritize them
+
 #1.5.0
 - Added drag and drop prioritization within each priority label list (Hourly, Daily, Weekly, Monthly)
 
