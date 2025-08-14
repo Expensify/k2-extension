@@ -37,6 +37,7 @@ function Legend() {
             <div className="issue planning">Planning</div>
             <div className="issue contributor-assigned">Contributor Assigned</div>
             <div className="issue needs-reproduction">Needs Reproduction</div>
+            <div className="issue infra">Ring 1 / Infra</div>
             <div className="issue">
                 <sup>E</sup>
                 {' '}
