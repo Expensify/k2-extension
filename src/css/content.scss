@@ -20,6 +20,9 @@ $color-blue: #0000ff;
 $color-light-blue: #12a4d5;
 $color-darker-green: #2cb528;
 $color-dark-yellow: #DAA520;
+$color-dark-sea-green: #8FBC8B;
+$color-mauve: #b1a5b2df;
+$color-periwinkle: #b6daf6;
 
 .owner {
   color: $color-dark-yellow !important;
@@ -75,6 +78,17 @@ $color-dark-yellow: #DAA520;
   &.active { background-color: $color-neutral; }
   &.inactive { @extend .k2-inactive; }
 }
+
+.k2-needs-reproduction {
+    &.active { background-color: $color-alert; }
+    &.inactive { @extend .k2-inactive; }
+}
+
+.k2-infra {
+    &.active { background-color: $color-alert; }
+    &.inactive { @extend .k2-inactive; }
+}
+
 .discussion-sidebar-item h6 {
     margin-bottom: 8px;
 }
@@ -245,6 +259,9 @@ $color-dark-yellow: #DAA520;
         display: inline;
       }
   }
+  &.approved {
+    color: $color-dark-sea-green !important;
+  }
   &.reviewing {
       color: $color-neutral-light !important;
       .issue-link {
@@ -252,6 +269,18 @@ $color-dark-yellow: #DAA520;
       }
     .label {
       background-color: $color-neutral-light !important;
+    }
+  }
+  &.needs-reproduction {
+    color: $color-mauve !important;
+    .issue-link {
+      color: $color-mauve !important;
+    }
+  }
+  &.infra {
+    color: $color-periwinkle !important;
+    .issue-link {
+      color: $color-periwinkle !important;
     }
   }
   &.waiting-for-customer,

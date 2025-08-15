@@ -23,6 +23,14 @@ class ListItemIssue extends React.Component {
             className += ' reviewing';
         }
 
+        if (this.isNeedsReproduction) {
+            className += ' needs-reproduction';
+        }
+
+        if (this.isInfra) {
+            className += ' infra';
+        }
+
         if (this.isOverdue) {
             className += ' overdue';
         }
@@ -54,6 +62,8 @@ class ListItemIssue extends React.Component {
         this.isHelpWanted = _.some(this.props.issue.labels, {name: 'Help Wanted'}) ? ' help-wanted' : '';
         this.isContributorAssigned = this.isExternal && !this.isHelpWanted ? ' contributor-assigned' : '';
         this.isUnderReview = _.find(this.props.issue.labels, label => label.name.toLowerCase() === 'reviewing');
+        this.isNeedsReproduction = _.find(this.props.issue.labels, label => label.name.toLowerCase() === 'needs reproduction');
+        this.isInfra = _.find(this.props.issue.labels, label => (label.name.toLowerCase() === 'ring 1' || label.name.toLowerCase() === 'infra'));
         this.issueHasOwner = this.props.issue.issueHasOwner;
         this.isCurrentUserOwner = this.props.issue.currentUserIsOwner;
     }

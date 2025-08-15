@@ -23,7 +23,7 @@ function ListItemPull(props) {
     if (!pr.id) {
         return null;
     }
-    function getClassName() {
+    function getClassName(mergeability) {
         let className = 'issue';
         const today = moment();
         const days = 7;
@@ -33,6 +33,10 @@ function ListItemPull(props) {
 
         if (isOverdue) {
             className += ' overdue';
+        }
+
+        if (mergeability === 'Approved') {
+            className += ' approved';
         }
 
         if (pr.title.indexOf('[HOLD') > -1
@@ -113,7 +117,7 @@ function ListItemPull(props) {
                 </span>
             </span>
 
-            <a href={pr.url} className={getClassName()} target="_blank" rel="noreferrer noopener">
+            <a href={pr.url} className={getClassName(mergeability)} target="_blank" rel="noreferrer noopener">
                 <span className="octicon octicon-alert" />
                 {`${pr.title}`}
                 {' '}
