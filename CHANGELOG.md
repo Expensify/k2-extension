@@ -1,3 +1,6 @@
+#1.5.6
+- Added a hidden button that can be used to auto-complete PR checklists
+
 #1.5.5
 - Changed the DOM selector in the issue view to accommodate for new GH UI changes
 
