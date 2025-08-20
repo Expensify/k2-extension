@@ -44,7 +44,7 @@
     "eslint-config-expensify": "^2.0.75",
     "eslint-webpack-plugin": "^4.2.0",
     "mini-css-extract-plugin": "^2.9.2",
-    "sass": "^1.83.4",
+    "sass": "^1.89.2",
     "sass-loader": "^16.0.4",
     "underscore-template-loader": "^1.2.0",
     "webpack": "^5.97.1",
