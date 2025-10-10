@@ -37,7 +37,10 @@ jobs:
                   command: npm ci
 
             - name: Lint with ESLint
-              run: npx eslint --max-warnings=0 $(git diff --diff-filter=ACM --name-only origin/main '**/*.js' | xargs)
+              run: |
+                # shellcheck disable=SC2046
+                npx eslint --max-warnings=0 $(git diff --diff-filter=ACM --name-only origin/main '**/*.js' | xargs)
+
             - name: Lint for Firefox
               run: npm run lint:firefox
 
