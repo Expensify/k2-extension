@@ -1,6 +1,26 @@
 import $ from 'jquery';
 import Base from './_base';
 
+/**
+ * Replaces all `- [ ]` with `- [x]` in textareas with specific names
+ */
+const replaceChecklistItems = () => {
+    // eslint-disable-next-line rulesdir/prefer-underscore-method
+    $('textarea[name="issue[body]"], textarea[name="issue_comment[body]"], textarea[name="comment[body]"], textarea[name="pull_request[body]"]').each((i, el) => {
+        const updatedText = $(el).val().replace(/- \[ \]/g, '- [x]');
+        $(el).val(updatedText);
+    });
+};
+
+const renderReplaceChecklistButton = () => {
+    if ($('.k2-replace-checklist').length) {
+        return;
+    }
+    const buttonHtml = '<button type="button" class="btn-link no-underline text-bold Link--primary k2-replace-checklist almost-transparent">Auto complete checklist</button>';
+    $('.discussion-sidebar-item').last().append(buttonHtml);
+    $('.k2-replace-checklist').off().on('click', replaceChecklistItems);
+};
+
 const refreshHold = function () {
     const prTitle = $('.js-issue-title').text();
 
@@ -74,6 +94,7 @@ export default function () {
      */
     PrPage.setup = function () {
         setInterval(refreshHold, 1000);
+        setInterval(renderReplaceChecklistButton, 2000);
 
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
         setInterval(() => PrPage.renderCopyChecklistButtons('reviewer'), 2000);
