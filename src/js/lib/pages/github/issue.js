@@ -75,7 +75,7 @@ function replaceOwner(oldOwner, newOwner) {
  */
 const renderAssignees = (issueOwner) => {
     // Always start by erasing whatever was drawn before (so it always starts from a clean slate)
-    $('div[data-testid="sidebar-section"] .k2-element').remove();
+    $('.k2-button-remove-owner, .k2-button-make-owner').remove();
 
     let currentOwner = issueOwner;
 
