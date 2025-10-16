@@ -57,3 +57,10 @@ updateChangelog() {
     echo -e "$CHANGELOG" > "$CHANGELOG_FILE"
 }
 updateChangelog
+
+# Print the new version if running interactively, or else print the variable for the GH action
+if [[ -n "${CI:-""}" ]] ; then
+    echo "new-version=$NEW_VERSION"
+else
+    echo "Bumped version to $NEW_VERSION"
+fi
