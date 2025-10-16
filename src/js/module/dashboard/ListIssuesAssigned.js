@@ -173,7 +173,7 @@ class ListIssuesAssigned extends React.Component {
                 </div>
                 {!_.isEmpty(this.props.issues) && (
                     <div className="d-flex flex-row gap-3">
-                        {_.isEmpty(hourlyIssues) || (
+                        {!_.isEmpty(hourlyIssues) && (
                             <div key="hourly" className="flex-fill">
                                 <PanelIssues
                                     title="Hourly"
@@ -186,7 +186,7 @@ class ListIssuesAssigned extends React.Component {
                                 />
                             </div>
                         )}
-                        {_.isEmpty(dailyIssues) || (
+                        {!_.isEmpty(dailyIssues) && (
                             <div key="daily" className="flex-fill">
                                 <PanelIssues
                                     title="Daily"
@@ -199,7 +199,7 @@ class ListIssuesAssigned extends React.Component {
                                 />
                             </div>
                         )}
-                        {_.isEmpty(weeklyIssues) || (
+                        {!_.isEmpty(weeklyIssues) && (
                             <div key="weekly" className="flex-fill">
                                 <PanelIssues
                                     title="Weekly"
@@ -212,7 +212,7 @@ class ListIssuesAssigned extends React.Component {
                                 />
                             </div>
                         )}
-                        {_.isEmpty(monthlyIssues) || (
+                        {!_.isEmpty(monthlyIssues) && (
                             <div key="monthly" className="flex-fill">
                                 <PanelIssues
                                     title="Monthly"
@@ -227,7 +227,7 @@ class ListIssuesAssigned extends React.Component {
                         )}
                     </div>
                 )}
-                {_.isEmpty(issuesNoLabel) || (
+                {!_.isEmpty(issuesNoLabel) && (
                     <div className="pt-4">
                         <PanelIssues
                             title="No Priority"
