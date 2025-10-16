@@ -173,8 +173,8 @@ export default function () {
                 refreshPicker();
             }
 
-            if (!$('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(3) .k2-element') // Assignee section in right side panel
-                .length) {
+            // Assignee section in right side panel
+            if (!$('div[data-testid="sidebar-assignees-section"] .k2-element').length) {
                 renderAssignees();
             }
         }, 1000);

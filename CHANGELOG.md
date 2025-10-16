@@ -1,5 +1,8 @@
-#1.5.7
+#1.5.8
 - Hide empty Hourly / Daily / Weekly / Monthly / No Priority issue sections
+
+#1.5.7
+- Fix selectors that caused infinite rendering of the assignees on the issue page
 
 #1.5.6
 - Added a hidden button that can be used to auto-complete PR checklists
