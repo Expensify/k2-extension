@@ -1,3 +1,6 @@
+#1.5.8
+- Hide empty Hourly / Daily / Weekly / Monthly / No Priority issue sections
+
 #1.5.7
 - Fix selectors that caused infinite rendering of the assignees on the issue page
 
