@@ -43,7 +43,7 @@ for FILE in "$PACKAGE_JSON" "$TOP/package-lock.json" "$TOP/assets/manifest.json"
 done
 
 updateChangelog() {
-    local CHANGELOG="#{$NEW_VERSION}\n"
+    local CHANGELOG="#${NEW_VERSION}\n"
     local PULL_REQUEST TITLE
     local -r CHANGELOG_FILE="$TOP/CHANGELOG.md"
 
