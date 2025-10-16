@@ -110,13 +110,11 @@ class ListIssuesAssigned extends React.Component {
             );
         }
 
-        // Filter urgencies that have issues
-        const urgencies = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
-        const urgenciesWithIssues = _.filter(urgencies, urgency => !_.isEmpty(_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: urgency}))));
+        const hourlyIssues = _.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Hourly'}));
+        const dailyIssues = _.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Daily'}));
+        const weeklyIssues = _.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Weekly'}));
+        const monthlyIssues = _.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Monthly'}));
         const issuesNoLabel = _.pick(this.props.issues, issue => _.intersection(_.map(issue.labels, label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0);
-
-        // Doesn't matter what the column size is if there are no columns, just make sure we don't divide by 0
-        const columnSize = urgenciesWithIssues.length === 0 ? -1 : 12 / urgenciesWithIssues.length;
 
         return (
             <div className="mb-3">
@@ -173,47 +171,76 @@ class ListIssuesAssigned extends React.Component {
                         </div>
                     </form>
                 </div>
-                {
-                    urgenciesWithIssues.length === 0 ? null : (
-                        <div className="d-flex flex-row">
-                            {_.map(urgenciesWithIssues, (urgency, index) => {
-                                const isLastColumn = index === urgenciesWithIssues.length - 1;
-                                const columnClasses = `col-${columnSize}${isLastColumn ? '' : ` pr-${columnSize}`}`;
-                                const issueData = _.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: urgency}));
-
-                                return (
-                                    <div key={urgency} className={columnClasses}>
-                                        <PanelIssues
-                                            title={urgency}
-                                            extraClass={urgency.toLowerCase()}
-                                            data={issueData}
-                                            hideIfHeld={this.state.shouldHideHeldIssues}
-                                            hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
-                                            hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
-                                            hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
-                                        />
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    )
-                }
-                {
-                    _.isEmpty(issuesNoLabel) ? null : (
-                        <div className="pt-4">
-                            <PanelIssues
-                                title="No Priority"
-                                extraClass="no-priority"
-                                hideOnEmpty
-                                data={issuesNoLabel}
-                                hideIfHeld={this.state.shouldHideHeldIssues}
-                                hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
-                                hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
-                                hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
-                            />
-                        </div>
-                    )
-                }
+                {!_.isEmpty(this.props.issues) && (
+                    <div className="d-flex flex-row gap-3">
+                        {_.isEmpty(hourlyIssues) || (
+                            <div key="hourly" className="flex-fill">
+                                <PanelIssues
+                                    title="Hourly"
+                                    extraClass="hourly"
+                                    data={hourlyIssues}
+                                    hideIfHeld={this.state.shouldHideHeldIssues}
+                                    hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
+                                    hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
+                                    hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
+                                />
+                            </div>
+                        )}
+                        {_.isEmpty(dailyIssues) || (
+                            <div key="daily" className="flex-fill">
+                                <PanelIssues
+                                    title="Daily"
+                                    extraClass="daily"
+                                    data={dailyIssues}
+                                    hideIfHeld={this.state.shouldHideHeldIssues}
+                                    hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
+                                    hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
+                                    hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
+                                />
+                            </div>
+                        )}
+                        {_.isEmpty(weeklyIssues) || (
+                            <div key="weekly" className="flex-fill">
+                                <PanelIssues
+                                    title="Weekly"
+                                    extraClass="weekly"
+                                    data={weeklyIssues}
+                                    hideIfHeld={this.state.shouldHideHeldIssues}
+                                    hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
+                                    hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
+                                    hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
+                                />
+                            </div>
+                        )}
+                        {_.isEmpty(monthlyIssues) || (
+                            <div key="monthly" className="flex-fill">
+                                <PanelIssues
+                                    title="Monthly"
+                                    extraClass="monthly"
+                                    data={monthlyIssues}
+                                    hideIfHeld={this.state.shouldHideHeldIssues}
+                                    hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
+                                    hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
+                                    hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
+                                />
+                            </div>
+                        )}
+                    </div>
+                )}
+                {_.isEmpty(issuesNoLabel) || (
+                    <div className="pt-4">
+                        <PanelIssues
+                            title="No Priority"
+                            extraClass="no-priority"
+                            hideOnEmpty
+                            data={issuesNoLabel}
+                            hideIfHeld={this.state.shouldHideHeldIssues}
+                            hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
+                            hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
+                            hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
+                        />
+                    </div>
+                )}
             </div>
         );
     }
