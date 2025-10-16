@@ -29,6 +29,9 @@ const propTypes = {
     /** A CSS class to add to this panel to give it some color */
     extraClass: PropTypes.string.isRequired,
 
+    /** A CSS class to add to the wrapper div of this panel for layout purposes */
+    wrapperClass: PropTypes.string.isRequired,
+
     /** The title of the panel */
     title: PropTypes.string.isRequired,
 
@@ -263,43 +266,45 @@ function PanelIssues(props) {
     }
 
     return (
-        <div className={`panel ${props.extraClass}`}>
-            <Title
-                text={props.title}
-                count={_.size(filteredData) || 0}
-            />
-            {!_.size(filteredData) ? (
-                <div className="blankslate capped clean-background">
-                    No items
-                </div>
-            ) : (
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragStart={e => setActiveId(e.active.id)}
-                    onDragEnd={updatePriorities}
-                >
-                    <SortableContext
-                        items={issueIds}
-                        strategy={verticalListSortingStrategy}
+        <div className={props.wrapperClass}>
+            <div className={`panel ${props.extraClass}`}>
+                <Title
+                    text={props.title}
+                    count={_.size(filteredData) || 0}
+                />
+                {!_.size(filteredData) ? (
+                    <div className="blankslate capped clean-background">
+                        No items
+                    </div>
+                ) : (
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragStart={e => setActiveId(e.active.id)}
+                        onDragEnd={updatePriorities}
                     >
-                        {_.map(filteredData, issue => <SortableIssue key={issue.id} issue={issue} />)}
-                    </SortableContext>
-                    <DragOverlay>
-                        {activeIssue ? (
-                            <div style={{
-                                lineHeight: 1.2,
-                                background: '#fff',
-                                opacity: 1,
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                            }}
-                            >
-                                <ListItemIssue issue={activeIssue} />
-                            </div>
-                        ) : null}
-                    </DragOverlay>
-                </DndContext>
-            )}
+                        <SortableContext
+                            items={issueIds}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            {_.map(filteredData, issue => <SortableIssue key={issue.id} issue={issue} />)}
+                        </SortableContext>
+                        <DragOverlay>
+                            {activeIssue ? (
+                                <div style={{
+                                    lineHeight: 1.2,
+                                    background: '#fff',
+                                    opacity: 1,
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                                }}
+                                >
+                                    <ListItemIssue issue={activeIssue} />
+                                </div>
+                            ) : null}
+                        </DragOverlay>
+                    </DndContext>
+                )}
+            </div>
         </div>
     );
 }

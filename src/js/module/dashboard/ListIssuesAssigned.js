@@ -110,12 +110,6 @@ class ListIssuesAssigned extends React.Component {
             );
         }
 
-        const hourlyIssues = _.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Hourly'}));
-        const dailyIssues = _.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Daily'}));
-        const weeklyIssues = _.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Weekly'}));
-        const monthlyIssues = _.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Monthly'}));
-        const issuesNoLabel = _.pick(this.props.issues, issue => _.intersection(_.map(issue.labels, label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0);
-
         return (
             <div className="mb-3">
                 <div className="panel-title issue-filter mb-2">
@@ -173,67 +167,49 @@ class ListIssuesAssigned extends React.Component {
                 </div>
                 {!_.isEmpty(this.props.issues) && (
                     <div className="d-flex flex-row gap-3">
-                        {!_.isEmpty(hourlyIssues) && (
-                            <div key="hourly" className="flex-fill">
-                                <PanelIssues
-                                    title="Hourly"
-                                    extraClass="hourly"
-                                    data={hourlyIssues}
-                                    hideIfHeld={this.state.shouldHideHeldIssues}
-                                    hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
-                                    hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
-                                    hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
-                                />
-                            </div>
-                        )}
-                        {!_.isEmpty(dailyIssues) && (
-                            <div key="daily" className="flex-fill">
-                                <PanelIssues
-                                    title="Daily"
-                                    extraClass="daily"
-                                    data={dailyIssues}
-                                    hideIfHeld={this.state.shouldHideHeldIssues}
-                                    hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
-                                    hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
-                                    hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
-                                />
-                            </div>
-                        )}
-                        {!_.isEmpty(weeklyIssues) && (
-                            <div key="weekly" className="flex-fill">
-                                <PanelIssues
-                                    title="Weekly"
-                                    extraClass="weekly"
-                                    data={weeklyIssues}
-                                    hideIfHeld={this.state.shouldHideHeldIssues}
-                                    hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
-                                    hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
-                                    hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
-                                />
-                            </div>
-                        )}
-                        {!_.isEmpty(monthlyIssues) && (
-                            <div key="monthly" className="flex-fill">
-                                <PanelIssues
-                                    title="Monthly"
-                                    extraClass="monthly"
-                                    data={monthlyIssues}
-                                    hideIfHeld={this.state.shouldHideHeldIssues}
-                                    hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
-                                    hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
-                                    hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
-                                />
-                            </div>
-                        )}
-                    </div>
-                )}
-                {!_.isEmpty(issuesNoLabel) && (
-                    <div className="pt-4">
                         <PanelIssues
-                            title="No Priority"
-                            extraClass="no-priority"
+                            title="Hourly"
+                            key="hourly"
+                            extraClass="hourly"
+                            wrapperClass="flex-fill"
                             hideOnEmpty
-                            data={issuesNoLabel}
+                            data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Hourly'}))}
+                            hideIfHeld={this.state.shouldHideHeldIssues}
+                            hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
+                            hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
+                            hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
+                        />
+                        <PanelIssues
+                            title="Daily"
+                            key="daily"
+                            extraClass="daily"
+                            wrapperClass="flex-fill"
+                            hideOnEmpty
+                            data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Daily'}))}
+                            hideIfHeld={this.state.shouldHideHeldIssues}
+                            hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
+                            hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
+                            hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
+                        />
+                        <PanelIssues
+                            title="Weekly"
+                            key="weekly"
+                            extraClass="weekly"
+                            wrapperClass="flex-fill"
+                            hideOnEmpty
+                            data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Weekly'}))}
+                            hideIfHeld={this.state.shouldHideHeldIssues}
+                            hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
+                            hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
+                            hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
+                        />
+                        <PanelIssues
+                            title="Monthly"
+                            key="monthly"
+                            extraClass="monthly"
+                            wrapperClass="flex-fill"
+                            hideOnEmpty
+                            data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Monthly'}))}
                             hideIfHeld={this.state.shouldHideHeldIssues}
                             hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
                             hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
@@ -241,6 +217,18 @@ class ListIssuesAssigned extends React.Component {
                         />
                     </div>
                 )}
+                <PanelIssues
+                    title="No Priority"
+                    key="no-priority"
+                    extraClass="no-priority"
+                    wrapperClass="pt-4"
+                    hideOnEmpty
+                    data={_.pick(this.props.issues, issue => _.intersection(_.map(issue.labels, label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0)}
+                    hideIfHeld={this.state.shouldHideHeldIssues}
+                    hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
+                    hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
+                    hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
+                />
             </div>
         );
     }
