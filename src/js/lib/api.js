@@ -477,6 +477,19 @@ function setCurrentIssueBody(body) {
     return getOctokit().rest.issues.update({...getRequestParams(), body});
 }
 
+function triggerWorkflow(workflow) {
+    const {owner, repo, issue_number} = getRequestParams();
+    return getOctokit().rest.actions.createWorkflowDispatch({
+        owner,
+        repo,
+        workflow_id: workflow,
+        ref: 'main',
+        inputs: {
+            PULL_REQUEST_URL: `https://github.com/${owner}/${repo}/pull/${issue_number}`,
+        },
+    });
+}
+
 export {
     addComment,
     getCheckRuns,
@@ -492,4 +505,5 @@ export {
     getCurrentIssueDescription,
     setCurrentIssueBody,
     getPreviousInstancesOfIssue,
+    triggerWorkflow,
 };

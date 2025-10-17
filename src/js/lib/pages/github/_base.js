@@ -46,6 +46,32 @@ export default function () {
     };
 
     /**
+     * Runs the GitHub workflow for generating translations
+     * @param {Event} e
+     */
+    const runTranslationWorkflow = async (e) => {
+        e.preventDefault();
+
+        // Get the button element
+        const button = e.target;
+
+        // Save the original content of the button
+        const originalContent = button.innerHTML;
+
+        // Replace the button content with a loader
+        button.innerHTML = '<div class="loader" />';
+
+        try {
+            await API.triggerWorkflow('generateTranslations.yml');
+        } catch (error) {
+            console.error('Error triggering translation workflow:', error);
+        } finally {
+            // Restore the original button content
+            button.innerHTML = originalContent;
+        }
+    };
+
+    /**
      * A unique identifier for each page
      */
     Page.id = '';
@@ -105,12 +131,39 @@ export default function () {
             const commentHtml = $(el).html();
 
             // When the button template is found, replace it with an HTML button and then put that back into the DOM so someone can click on it
-            if (commentHtml && commentHtml.indexOf('you can simply click: [this button]') > -1) {
+            // Check for checklist-specific content (BUGZERO_CHECKLIST.md or REVIEWER_CHECKLIST.md)
+            const isChecklistComment = commentHtml
+                && commentHtml.indexOf('you can simply click: [this button]') > -1
+                && (commentHtml.indexOf('BUGZERO_CHECKLIST.md') > -1
+                || commentHtml.indexOf('REVIEWER_CHECKLIST.md') > -1);
+
+            if (isChecklistComment) {
                 const newHtml = commentHtml.replace('[this button]', '<button type="button" class="btn btn-sm k2-copy-checklist">HERE</button>');
                 $(el).html(newHtml);
 
                 // Now that the button is on the page, add a click handler to it (always remove all handlers first so that we know there will always be one handler attached)
                 $('.k2-copy-checklist').off().on('click', e => copyReviewerChecklist(e, checklistType));
+            }
+        });
+    };
+
+    /**
+     * Renders buttons for triggering the translation workflow
+     */
+    Page.renderTranslationWorkflowButtons = function () {
+        // Look through all the comments on the page to find ones that have the template for the translation workflow button
+        // eslint-disable-next-line rulesdir/prefer-underscore-method
+        $('.markdown-body > p').each((i, el) => {
+            const commentHtml = $(el).html();
+
+            // Check if this comment is about translations and has the button template
+            // We identify it by looking for "generateTranslations.yml" which is unique to this comment
+            if (commentHtml && commentHtml.indexOf('generateTranslations.yml') > -1 && commentHtml.indexOf('you can simply click: [this button]') > -1) {
+                const newHtml = commentHtml.replace('[this button]', '<button type="button" class="btn btn-sm k2-translation-workflow">HERE</button>');
+                $(el).html(newHtml);
+
+                // Now that the button is on the page, add a click handler to it (always remove all handlers first so that we know there will always be one handler attached)
+                $('.k2-translation-workflow').off().on('click', runTranslationWorkflow);
             }
         });
     };
