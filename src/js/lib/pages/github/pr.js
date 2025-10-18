@@ -98,6 +98,7 @@ export default function () {
 
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
         setInterval(() => PrPage.renderCopyChecklistButtons('reviewer'), 2000);
+        setInterval(() => PrPage.renderTranslationWorkflowButtons(), 2000);
     };
 
     return PrPage;
