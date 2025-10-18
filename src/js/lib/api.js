@@ -477,6 +477,10 @@ function setCurrentIssueBody(body) {
     return getOctokit().rest.issues.update({...getRequestParams(), body});
 }
 
+/**
+ * @param {String} workflow
+ * @returns {Promise}
+ */
 function triggerWorkflow(workflow) {
     const {owner, repo, issue_number} = getRequestParams();
     return getOctokit().rest.actions.createWorkflowDispatch({
@@ -487,6 +491,52 @@ function triggerWorkflow(workflow) {
         inputs: {
             PULL_REQUEST_URL: `https://github.com/${owner}/${repo}/pull/${issue_number}`,
         },
+    });
+}
+
+/**
+ * Update an existing comment
+ * @param {Number} commentId
+ * @param {String} body
+ * @returns {Promise}
+ */
+function updateComment(commentId, body) {
+    const {owner, repo} = getRequestParams();
+    return getOctokit().rest.issues.updateComment({
+        owner,
+        repo,
+        comment_id: commentId,
+        body,
+    });
+}
+
+/**
+ * Get recent workflow runs for a specific workflow
+ * @param {String} workflowId
+ * @param {Number} perPage
+ * @returns {Promise}
+ */
+function getWorkflowRuns(workflowId, perPage = 5) {
+    const {owner, repo} = getRequestParams();
+    return getOctokit().rest.actions.listWorkflowRuns({
+        owner,
+        repo,
+        workflow_id: workflowId,
+        per_page: perPage,
+    });
+}
+
+/**
+ * Get a specific workflow run
+ * @param {Number} runId
+ * @returns {Promise}
+ */
+function getWorkflowRun(runId) {
+    const {owner, repo} = getRequestParams();
+    return getOctokit().rest.actions.getWorkflowRun({
+        owner,
+        repo,
+        run_id: runId,
     });
 }
 
@@ -506,4 +556,7 @@ export {
     setCurrentIssueBody,
     getPreviousInstancesOfIssue,
     triggerWorkflow,
+    updateComment,
+    getWorkflowRuns,
+    getWorkflowRun,
 };

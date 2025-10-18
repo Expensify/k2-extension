@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import _ from 'underscore';
 import * as API from '../../api';
 
 /**
@@ -58,16 +59,128 @@ export default function () {
         // Save the original content of the button
         const originalContent = button.innerHTML;
 
-        // Replace the button content with a loader
+        // Replace the button content with a loader and disable it
         button.innerHTML = '<div class="loader" />';
+        button.disabled = true;
+
+        // Find the comment element and get its ID using native DOM methods
+        const commentElement = button.closest('.timeline-comment');
+
+        // The comment ID is in the permalink anchor, not on the comment element itself
+        const permalinkElement = commentElement.querySelector('.js-timestamp[id*="issuecomment-"]');
+        const permalinkId = permalinkElement ? permalinkElement.id : null; // Format: "issuecomment-{id}-permalink"
+        const commentId = permalinkId ? permalinkId.replace('issuecomment-', '').replace('-permalink', '') : null;
 
         try {
+            // Record the time before triggering the workflow
+            const triggerTime = new Date();
+
+            // Trigger the workflow
             await API.triggerWorkflow('generateTranslations.yml');
+
+            // Poll for the workflow run until we find one that started after our trigger time
+            let latestRun = null;
+            const maxRetries = 20; // Try for up to ~40 seconds
+            let retries = 0;
+
+            // eslint-disable-next-line no-await-in-loop
+            while (!latestRun && retries < maxRetries) {
+                // Wait 2 seconds between checks
+                // eslint-disable-next-line no-await-in-loop
+                await new Promise((resolve) => {
+                    setTimeout(resolve, 2000);
+                });
+
+                // Get recent workflow runs
+                // eslint-disable-next-line no-await-in-loop
+                const workflowRuns = await API.getWorkflowRuns('generateTranslations.yml', 5);
+                const runs = workflowRuns.data.workflow_runs;
+
+                // Find a run that started after our trigger time and is queued or in progress
+                const matchingRun = _.find(runs, (run) => {
+                    const runStartTime = new Date(run.created_at);
+                    const isAfterTrigger = runStartTime >= triggerTime;
+                    const isRunning = run.status === 'queued' || run.status === 'in_progress';
+                    return isAfterTrigger && isRunning;
+                });
+
+                if (matchingRun) {
+                    latestRun = matchingRun;
+                } else {
+                    retries++;
+                }
+            }
+
+            if (latestRun && commentId) {
+                const workflowUrl = latestRun.html_url;
+                const runId = latestRun.id;
+
+                // Create a status element to show below the button
+                const statusElement = document.createElement('span');
+                statusElement.className = 'k2-translation-status ml-2';
+                statusElement.innerHTML = `<a href="${workflowUrl}" target="_blank" class="Link--primary">🦜 Polyglot Parrot is thinking... 🦜</a>`;
+                button.parentNode.insertBefore(statusElement, button.nextSibling);
+
+                // Poll the workflow status every 5 seconds
+                const pollWorkflow = async () => {
+                    try {
+                        const runStatus = await API.getWorkflowRun(runId);
+                        const {status, conclusion} = runStatus.data;
+
+                        // Check if workflow is complete
+                        if (status === 'completed') {
+                            // Remove the status element
+                            if (statusElement.parentNode) {
+                                statusElement.parentNode.removeChild(statusElement);
+                            }
+
+                            // Show a brief success/failure indicator
+                            if (conclusion === 'success') {
+                                button.innerHTML = '✓ Done';
+                                button.classList.add('k2-translation-success');
+                                setTimeout(() => {
+                                    button.innerHTML = originalContent;
+                                    button.classList.remove('k2-translation-success');
+                                    button.disabled = false;
+                                }, 4000);
+                            } else {
+                                button.innerHTML = '✗ Failed';
+                                button.classList.add('k2-translation-failed');
+                                setTimeout(() => {
+                                    button.innerHTML = originalContent;
+                                    button.classList.remove('k2-translation-failed');
+                                    button.disabled = false;
+                                }, 4000);
+                            }
+                        } else {
+                            // Continue polling
+                            setTimeout(pollWorkflow, 5000);
+                        }
+                    } catch (pollError) {
+                        console.error('Error polling workflow status:', pollError);
+
+                        // Remove status element and restore button on error
+                        if (statusElement.parentNode) {
+                            statusElement.parentNode.removeChild(statusElement);
+                        }
+                        button.innerHTML = originalContent;
+                        button.disabled = false;
+                    }
+                };
+
+                // Start polling
+                pollWorkflow();
+            } else {
+                // If we couldn't find the workflow run or comment, just restore the button
+                button.innerHTML = originalContent;
+                button.disabled = false;
+            }
         } catch (error) {
             console.error('Error triggering translation workflow:', error);
-        } finally {
-            // Restore the original button content
+
+            // Restore the original button content on error
             button.innerHTML = originalContent;
+            button.disabled = false;
         }
     };
 
