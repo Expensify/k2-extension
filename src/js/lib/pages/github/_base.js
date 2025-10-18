@@ -63,10 +63,8 @@ export default function () {
         button.innerHTML = '<div class="loader" />';
         button.disabled = true;
 
-        // Find the comment element and get its ID using native DOM methods
+        // Find the comment element and get it's ID from the permalink anchor
         const commentElement = button.closest('.timeline-comment');
-
-        // The comment ID is in the permalink anchor, not on the comment element itself
         const permalinkElement = commentElement.querySelector('.js-timestamp[id*="issuecomment-"]');
         const permalinkId = permalinkElement ? permalinkElement.id : null; // Format: "issuecomment-{id}-permalink"
         const commentId = permalinkId ? permalinkId.replace('issuecomment-', '').replace('-permalink', '') : null;
