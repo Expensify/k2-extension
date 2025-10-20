@@ -46,18 +46,6 @@ const propTypes = {
 
     /** If there are no issues to list in the panel, hide the panel entirely */
     hideOnEmpty: PropTypes.bool,
-
-    /** If the issue is on HOLD, hide it */
-    hideIfHeld: PropTypes.bool,
-
-    /** If the issue is under review, hide it */
-    hideIfUnderReview: PropTypes.bool,
-
-    /** If the issue is owned by someone else, hide it */
-    hideIfOwnedBySomeoneElse: PropTypes.bool,
-
-    /** If the issue is not overdue, hide it */
-    hideIfNotOverdue: PropTypes.bool,
 };
 const defaultProps = {
     filters: {
@@ -68,10 +56,6 @@ const defaultProps = {
     },
     applyFilters: false,
     hideOnEmpty: false,
-    hideIfHeld: false,
-    hideIfUnderReview: false,
-    hideIfOwnedBySomeoneElse: false,
-    hideIfNotOverdue: false,
 };
 
 function getOrderedFilteredIssues({
@@ -79,38 +63,11 @@ function getOrderedFilteredIssues({
     filters = {},
     priorities = {},
     localOrder = [],
-    hideIfHeld = false,
-    hideIfUnderReview = false,
-    hideIfOwnedBySomeoneElse = false,
-    hideIfNotOverdue = false,
     applyFilters = false,
 }) {
     let preparedIssues = issues;
     if (!preparedIssues) {
         return [];
-    }
-
-    // Hide by hold, review, owner, overdue
-    if (hideIfHeld || hideIfUnderReview || hideIfOwnedBySomeoneElse || hideIfNotOverdue) {
-        preparedIssues = _.filter(preparedIssues, (item) => {
-            const isHeld = item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
-            const isUnderReview = _.find(item.labels, label => label.name.toLowerCase() === 'reviewing');
-            const isOwnedBySomeoneElse = item.issueHasOwner && !item.currentUserIsOwner;
-            const isOverdue = _.find(item.labels, label => label.name.toLowerCase() === 'overdue');
-            if (isHeld && hideIfHeld) {
-                return false;
-            }
-            if (isUnderReview && hideIfUnderReview) {
-                return false;
-            }
-            if (isOwnedBySomeoneElse && hideIfOwnedBySomeoneElse) {
-                return false;
-            }
-            if (!isOverdue && hideIfNotOverdue) {
-                return false;
-            }
-            return true;
-        });
     }
 
     // Apply filters
@@ -199,17 +156,9 @@ function PanelIssues(props) {
         filters: props.filters,
         priorities,
         localOrder,
-        hideIfHeld: props.hideIfHeld,
-        hideIfUnderReview: props.hideIfUnderReview,
-        hideIfOwnedBySomeoneElse: props.hideIfOwnedBySomeoneElse,
-        hideIfNotOverdue: props.hideIfNotOverdue,
         applyFilters: props.applyFilters,
     }), [
         props.data,
-        props.hideIfHeld,
-        props.hideIfUnderReview,
-        props.hideIfOwnedBySomeoneElse,
-        props.hideIfNotOverdue,
         props.applyFilters,
         props.filters,
         priorities,
