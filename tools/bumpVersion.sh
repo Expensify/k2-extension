@@ -39,7 +39,8 @@ readonly NEW_VERSION="$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
 
 # Bump the version in all the files
 for FILE in "$PACKAGE_JSON" "$TOP/package-lock.json" "$TOP/assets/manifest.json" "$TOP/assets/manifest-firefox.json" ; do
-    sed -i -E 's/"'"$CURRENT_VERSION"'"/"'"$NEW_VERSION"'"/' "$FILE"
+    # Replace only the first instance of $CURRENT_VERSION in case another package has the same version number
+    sed -i -E '0,/"'"$CURRENT_VERSION"'"/s//"'"$NEW_VERSION"'"/' "$FILE"
 done
 
 updateChangelog() {
