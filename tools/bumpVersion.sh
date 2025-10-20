@@ -45,13 +45,13 @@ done
 
 updateChangelog() {
     local CHANGELOG="#${NEW_VERSION}\n"
-    local PULL_REQUEST TITLE
+    local PULL_REQUEST
     local -r CHANGELOG_FILE="$TOP/CHANGELOG.md"
 
     # Get a list of all PRs merged between the last tag and this one and use that as the notes for the
     # changelog
-    for PULL_REQUEST in "$(git log "$CURRENT_VERSION".. | grep 'Merge pull request #' | awk -F# '{print $2}' | awk '{print $1}')" ; do
-        CHANGELOG+="- $(gh pr view 280 --repo Expensify/k2-extension --json title --jq .title)\n"
+    for PULL_REQUEST in $(git log "$CURRENT_VERSION".. | grep 'Merge pull request #' | awk -F# '{print $2}' | awk '{print $1}') ; do
+        CHANGELOG+="- $(gh pr view "$PULL_REQUEST" --repo Expensify/k2-extension --json title --jq .title)\n"
     done
     CHANGELOG+="\n"
     CHANGELOG+="$(cat "$CHANGELOG_FILE")"
