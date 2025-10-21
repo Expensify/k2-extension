@@ -65,12 +65,6 @@ In order to test your changes, you need to have the extension loaded into Chrome
 ### Caution When Using the Publicly Installed Extension
 Sometimes it is necessary to install and enable the public version of the extension. You want to take care not to have both the public extension and the local extension enabled at the same time. It will make everything run twice and you'll get a lot of DOM conflicts, plus API calls will run twice so you'll hit rate limits faster.
 
-# Creating your PR
-Be sure to do the following before pushing up your branch:
-1. Bump the version number in `assets/manifest.json` and `assets/manifest-firefox.json` (use major.minor.patch version scheme)
-1. Bump the version number in `package.json` and `package-lock.json` to match
-1. Add a new change log entry in `CHANGELOG.md`
-
 # Publishing
 **Note:** Publishing KSv2 requires ring3 access. If you are not in ring 3 or below, tag your issue with the `ring3` label to assign a deployer.
 
@@ -87,7 +81,6 @@ steps:
 1. Click on the **Package** tab.
 1. Click on **Upload New Package**, then choose the `dist.zip` file that was created earlier.
 1. Click on **Upload**
-1. On the **Store Listing** page, copy the new version notes from CHANGELOG.md into the description field and click **Save Draft**
 1. Back on the **Package** tab, verify that the new version number is shown for the _Draft Package_.
 1. Back in **Store Listing** page, click **Submit for review**.
 1. Make sure `Publish "K2 for GitHub" automatically after it has passed review` is checked, then hit **Submit for review**.
