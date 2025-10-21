@@ -40,7 +40,7 @@ jobs:
           readonly VERSION="${{ steps.bump-version.outputs.new-version }}"
 
           # Push commits for the updated files
-          for FILE in package.json package-lock.json assets/manifest.jsoni assets/manifest-firefox.json CHANGELOG.md ; do
+          for FILE in package.json package-lock.json assets/manifest.json assets/manifest-firefox.json ; do
             MESSAGE="Update $FILE version to $VERSION"
             SHA=$(git rev-parse "main:$FILE")
             # Create a file with the base64 encoded content
