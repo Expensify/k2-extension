@@ -7,7 +7,7 @@ on:
 jobs:
   version:
     runs-on: ubuntu-latest
-    if: ${{ github.actor != 'osbotify-app[bot]' }} # prevent infinite loop
+    if: ${{ github.actor != 'os-botify[bot]' }} # prevent infinite loop
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -55,8 +55,8 @@ jobs:
           done
 
           # Set up git user info so we can push a tag
-          # osbotify-app[bot] GitHub App ID can be found here: https://api.github.com/users/osbotify-app[bot]
-          git config --global user.name "osbotify-app[bot]"
+          # os-botify[bot] GitHub App ID can be found here: https://api.github.com/users/os-botify[bot]
+          git config --global user.name "os-botify[bot]"
           git config --global user.email infra+osbotify@expensify.com
 
           # Fetch the commit that was made via the API
