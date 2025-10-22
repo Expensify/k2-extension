@@ -7,7 +7,7 @@ on:
 jobs:
   version:
     runs-on: ubuntu-latest
-    if: ${{ github.actor != 'botify-app[bot]' }} # prevent infinite loop
+    if: ${{ github.actor != 'osbotify-app[bot]' }} # prevent infinite loop
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -17,16 +17,16 @@ jobs:
         id: generateAppToken
         uses: actions/create-github-app-token@3ff1caaa28b64c9cc276ce0a02e2ff584f3900c5 # v2.0.2
         with:
-          app-id: ${{ vars.BOTIFY_APP_CLIENT_ID }}
-          private-key: ${{ secrets.BOTIFY_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.OS_BOTIFY_APP_ID }}
+          private-key: ${{ secrets.OS_BOTIFY_PRIVATE_KEY }}
 
       - name: Get merged pull request
         id: getMergedPullRequest
         run: |
-          echo "ORIGINAL_PR_URL=$(gh pr list --state merged --json 'mergeCommit,url' --jq '.[] | select(.mergeCommit.oid | contains("${{ github.sha }}")) | .url')" >> "$GITHUB_ENV"
+          echo "ORIGINAL_PR_URL=$(gh pr list --state merged --json 'mergeCommit,url' --jq '.[] | select(.mergeCommit.oid | contains("${{ github.sha }}")) | .url')" >> "$GITHUB_OUTPUT"
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
 
       # Generates new-version output with the new version number
       - name: Bump version
@@ -55,9 +55,9 @@ jobs:
           done
 
           # Set up git user info so we can push a tag
-          # botify-app[bot] GitHub App ID can be found here: https://api.github.com/users/botify-app[bot]
-          git config --global user.name "botify-app[bot]"
-          git config --global user.email "208549588+botify-app[bot]@users.noreply.github.com"
+          # osbotify-app[bot] GitHub App ID can be found here: https://api.github.com/users/osbotify-app[bot]
+          git config --global user.name "osbotify-app[bot]"
+          git config --global user.email infra+osbotify@expensify.com
 
           # Fetch the commit that was made via the API
           git fetch origin main
@@ -73,7 +73,7 @@ jobs:
 
       - name: Comment on PR
         run: |
-          gh pr comment ${{ env.ORIGINAL_PR_URL }} --body ":rocket: Released in version ${{ steps.bump-version.outputs.new-version }} :rocket:"
+          gh pr comment ${{ steps.getMergedPullRequest.outputs.ORIGINAL_PR_URL }} --body ":rocket: Released in version ${{ steps.bump-version.outputs.new-version }} :rocket:"
         env:
           GH_TOKEN: ${{ steps.generateAppToken.outputs.token }}
         shell: bash
