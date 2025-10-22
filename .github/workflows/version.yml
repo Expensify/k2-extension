@@ -57,7 +57,7 @@ jobs:
           # Set up git user info so we can push a tag
           # os-botify[bot] GitHub App ID can be found here: https://api.github.com/users/os-botify[bot]
           git config --global user.name "os-botify[bot]"
-          git config --global user.email infra+osbotify@expensify.com
+          git config --global user.email 140437396+os-botify[bot]@users.noreply.github.com
 
           # Fetch the commit that was made via the API
           git fetch origin main
