@@ -35,9 +35,9 @@ for FILE in "$TOP/assets/manifest.json" "$TOP/assets/manifest-firefox.json" ; do
     sed -i -E '0,/"'"$CURRENT_VERSION"'"/s//"'"$NEW_VERSION"'"/' "$FILE"
 done
 
-# Print the new version if running interactively, or else print the variable for the GH action
-if [[ -n "${CI:-""}" ]] ; then
-    echo "new-version=$NEW_VERSION"
-else
-    echo "Bumped version to $NEW_VERSION"
+# Output the new version to the GITHUB_OUTPUT file if it exists and is writable
+if [[ -w "$GITHUB_OUTPUT" ]]; then
+    echo "new-version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
 fi
+
+echo "Bumped version to $NEW_VERSION"

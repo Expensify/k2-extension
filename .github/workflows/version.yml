@@ -31,7 +31,7 @@ jobs:
       # Generates new-version output with the new version number
       - name: Bump version
         id: bump-version
-        run: ./tools/bumpVersion.sh >> "$GITHUB_OUTPUT"
+        run: ./tools/bumpVersion.sh
         shell: bash
 
       - name: Created signed commit and push tags
