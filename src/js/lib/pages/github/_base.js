@@ -268,19 +268,14 @@ export default function () {
             const fullCommentHTML = $(commentBody).html();
 
             // Check if this comment is about translations by looking for the workflow link
-            if (fullCommentHTML && fullCommentHTML.includes('generateTranslations.yml')) {
-                // Now find the paragraph with [this button] and replace it
-                // eslint-disable-next-line rulesdir/prefer-underscore-method
-                $(commentBody).find('p').each((j, p) => {
-                    const paragraphHtml = $(p).html();
-                    if (paragraphHtml && paragraphHtml.includes('[this button]')) {
-                        const newHtml = paragraphHtml.replace('[this button]', '<button type="button" class="btn btn-sm k2-translation-workflow">HERE</button>');
-                        $(p).html(newHtml);
+            // AND that we haven't already replaced the button (to avoid refresh loops)
+            if (fullCommentHTML && fullCommentHTML.includes('generateTranslations.yml') && fullCommentHTML.includes('[this button]')) {
+                // Now find `[this button]` and replace it with our button
+                const updatedFullCommentHTML = fullCommentHTML.replace('[this button]', '<button type="button" class="btn btn-sm k2-translation-workflow">HERE</button>');
+                $(commentBody).html(updatedFullCommentHTML);
 
-                        // Now that the button is on the page, add a click handler to it
-                        $('.k2-translation-workflow').off().on('click', runTranslationWorkflow);
-                    }
-                });
+                // Now that the button is on the page, add a click handler to it
+                $('.k2-translation-workflow').off().on('click', runTranslationWorkflow);
             }
         });
     };
