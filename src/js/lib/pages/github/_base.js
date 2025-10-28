@@ -262,18 +262,19 @@ export default function () {
      * Renders buttons for triggering the translation workflow
      */
     Page.renderTranslationWorkflowButtons = function () {
-        // Look through all the comments on the page to find ones that have the template for the translation workflow button
+        // Look through all the comments on the page to find ones that have the generateTranslations.yml link
         // eslint-disable-next-line rulesdir/prefer-underscore-method
-        $('.markdown-body > p').each((i, el) => {
-            const commentHtml = $(el).html();
+        $('.markdown-body').each((i, commentBody) => {
+            const fullCommentHTML = $(commentBody).html();
 
-            // Check if this comment is about translations and has the button template
-            // We identify it by looking for "generateTranslations.yml" which is unique to this comment
-            if (commentHtml && commentHtml.indexOf('generateTranslations.yml') > -1 && commentHtml.indexOf('you can simply click: [this button]') > -1) {
-                const newHtml = commentHtml.replace('[this button]', '<button type="button" class="btn btn-sm k2-translation-workflow">HERE</button>');
-                $(el).html(newHtml);
+            // Check if this comment is about translations by looking for the workflow link
+            // AND that we haven't already replaced the button (to avoid refresh loops)
+            if (fullCommentHTML && fullCommentHTML.includes('generateTranslations.yml') && fullCommentHTML.includes('[this button]')) {
+                // Now find `[this button]` and replace it with our button
+                const updatedFullCommentHTML = fullCommentHTML.replace('[this button]', '<button type="button" class="btn btn-sm k2-translation-workflow">HERE</button>');
+                $(commentBody).html(updatedFullCommentHTML);
 
-                // Now that the button is on the page, add a click handler to it (always remove all handlers first so that we know there will always be one handler attached)
+                // Now that the button is on the page, add a click handler to it
                 $('.k2-translation-workflow').off().on('click', runTranslationWorkflow);
             }
         });
