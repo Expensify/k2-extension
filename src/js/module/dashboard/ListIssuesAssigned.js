@@ -202,7 +202,6 @@ class ListIssuesAssigned extends React.Component {
                             key="hourly"
                             extraClass="hourly"
                             wrapperClass={`col-${columnSize}`}
-                            hideOnEmpty
                             data={hourlyIssues}
                         />
                         <PanelIssues
@@ -210,7 +209,6 @@ class ListIssuesAssigned extends React.Component {
                             key="daily"
                             extraClass="daily"
                             wrapperClass={`col-${columnSize}`}
-                            hideOnEmpty
                             data={dailyIssues}
                         />
                         <PanelIssues
@@ -218,7 +216,6 @@ class ListIssuesAssigned extends React.Component {
                             key="weekly"
                             extraClass="weekly"
                             wrapperClass={`col-${columnSize}`}
-                            hideOnEmpty
                             data={weeklyIssues}
                         />
                         <PanelIssues
@@ -226,7 +223,6 @@ class ListIssuesAssigned extends React.Component {
                             key="monthly"
                             extraClass="monthly"
                             wrapperClass={`col-${columnSize}`}
-                            hideOnEmpty
                             data={monthlyIssues}
                         />
                     </div>
