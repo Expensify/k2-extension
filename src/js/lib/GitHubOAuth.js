@@ -227,10 +227,7 @@ async function exchangeCodeViaWorker(code, redirectUri) {
             throw new Error('No access token or refresh token received from worker');
         }
 
-        return {
-            access_token: data.access_token,
-            refresh_token: data.refresh_token,
-        };
+        return {...data};
     } catch (error) {
         throw new Error(`Token retrieval failed: ${error.message}`);
     }

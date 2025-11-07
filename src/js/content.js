@@ -3,6 +3,7 @@
 import styles from '../css/content.scss';
 
 import * as messenger from './lib/messenger';
+import * as GitHubOAuth from './lib/GitHubOAuth';
 import ghAll from './lib/pages/github/all';
 import ghPr from './lib/pages/github/pr';
 import ghIssue from './lib/pages/github/issue';
@@ -30,6 +31,9 @@ function setupPages() {
 
 // The message listener needs to be started so that the background script can trigger events to happen in the extension
 messenger.startMessageListener();
+
+// Start background token auto-refresh
+GitHubOAuth.startAutoRefresh();
 
 // The nav event is triggered anytime a page is navigated on GitHub
 messenger.on('nav', setupPages);
