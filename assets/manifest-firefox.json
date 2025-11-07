@@ -19,11 +19,16 @@
   },
 
   "permissions": [
-    "webNavigation"
+    "webNavigation",
+    "tabs",
+    "identity"
   ],
 
   "host_permissions": [
-      "*://api.github.com/*"
+      "*://api.github.com/*",
+      "*://github.com/*",
+      "https://ksv2.exfy.io/*",
+      "https://ksv2-exfy-io.expensify.workers.dev/*"
   ],
 
   "content_scripts": [{

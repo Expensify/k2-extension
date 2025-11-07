@@ -3,6 +3,7 @@ import React from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import * as Preferences from '../../lib/actions/Preferences';
+import * as GitHubOAuth from '../../lib/GitHubOAuth';
 import Title from '../../component/panel-title/Title';
 
 const propTypes = {
@@ -17,11 +18,56 @@ class FormPassword extends React.Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+            isLoading: false,
+            error: null,
+        };
+
         this.submitForm = this.submitForm.bind(this);
+        this.handleOAuth = this.handleOAuth.bind(this);
     }
 
     componentDidMount() {
+        if (!this.input) {
+            return;
+        }
         this.input.focus();
+    }
+
+    /**
+     * Handle OAuth authentication
+     */
+    async handleOAuth() {
+        if (!GitHubOAuth.isOAuthAvailable()) {
+            this.setState({
+                error: 'OAuth is not available in this browser context.',
+            });
+            return;
+        }
+
+        this.setState({
+            isLoading: true,
+            error: null,
+        });
+
+        try {
+            await GitHubOAuth.initiateOAuth();
+
+            // OAuth success - token is stored automatically
+            // Clear loading state before calling onFinished
+            this.setState({
+                isLoading: false,
+                error: null,
+            });
+
+            // Trigger the callback function so we can move on
+            this.props.onFinished();
+        } catch (error) {
+            this.setState({
+                error: `OAuth authentication failed: ${error.message}`,
+                isLoading: false,
+            });
+        }
     }
 
     /**
@@ -31,24 +77,42 @@ class FormPassword extends React.Component {
      */
     submitForm(e) {
         e.preventDefault();
+
         const formData = $(this.form).serializeArray();
         const passwordData = _.findWhere(formData, {name: 'password'});
 
+        if (!passwordData || !passwordData.value.trim()) {
+            this.setState({
+                error: 'Please enter a valid Personal Access Token.',
+            });
+            return;
+        }
+
         // Save the github token to our locally stored preferences
-        Preferences.setGitHubToken(passwordData.value);
+        Preferences.setGitHubToken(passwordData.value.trim());
 
         // Trigger the callback function so we can move on
         this.props.onFinished();
     }
 
     render() {
+        const isOAuthAvailable = GitHubOAuth.isOAuthAvailable();
+
         return (
             <div className="columns">
                 <div className="one-third column centered">
                     <form ref={el => this.form = el} onSubmit={this.submitForm}>
                         <div className="panel mb-3">
-                            <Title text="Enter Credentials" />
+                            <Title text="GitHub Authentication" />
                             <div>
+                                {this.state.error && (
+                                    <div className="panel-item">
+                                        <div className="flash flash-error">
+                                            {this.state.error}
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div className="panel-item">
                                     <label htmlFor="password">Personal Access Token</label>
 
@@ -59,6 +123,7 @@ class FormPassword extends React.Component {
                                         name="password"
                                         className="input-block"
                                         required
+                                        disabled={this.state.isLoading}
                                     />
 
                                     <p>
@@ -72,9 +137,41 @@ class FormPassword extends React.Component {
                                     </p>
                                 </div>
 
+                                <div className="panel-item">
+                                    <p>
+                                        Or sign in with GitHub using OAuth (recommended).
+                                    </p>
+                                    {!isOAuthAvailable && (
+                                        <p className="text-small text-gray">
+                                            OAuth is not available in this browser context. Please use Personal Access Token.
+                                        </p>
+                                    )}
+                                    <p>
+                                        <strong>Required permissions:</strong>
+                                        <br />
+                                        • Repository access (to read issues and PRs)
+                                        <br />
+                                        • User information (to identify you)
+                                        <br />
+                                        • Notifications (to manage your GitHub notifications)
+                                    </p>
+                                </div>
+
                                 <footer className="panel-footer form-actions">
-                                    <button className="btn btn-primary" type="submit">
-                                        Submit
+                                    <button
+                                        className="btn btn-primary"
+                                        type="submit"
+                                        disabled={this.state.isLoading}
+                                    >
+                                        Save Token
+                                    </button>
+                                    <button
+                                        className="btn btn-outline ml-2"
+                                        type="button"
+                                        onClick={this.handleOAuth}
+                                        disabled={this.state.isLoading || !isOAuthAvailable}
+                                    >
+                                        {this.state.isLoading ? 'Authenticating…' : 'Sign in with GitHub'}
                                     </button>
                                 </footer>
                             </div>

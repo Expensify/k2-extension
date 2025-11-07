@@ -1,10 +1,21 @@
 import React from 'react';
 import ReactNativeOnyx from 'react-native-onyx';
 import * as Preferences from '../../lib/actions/Preferences';
+import * as GitHubOAuth from '../../lib/GitHubOAuth';
 
 function Legend() {
-    function signOut() {
-        Preferences.setGitHubToken('');
+    async function signOut() {
+        try {
+            // Revoke OAuth token if using OAuth
+            if (Preferences.getAuthType() === 'oauth') {
+                await GitHubOAuth.revokeToken();
+            }
+        } catch (error) {
+            // Silently handle error - token revocation is best effort
+        }
+
+        // Clear all authentication data
+        Preferences.clearAuth();
         ReactNativeOnyx.clear();
         window.location.reload();
     }
