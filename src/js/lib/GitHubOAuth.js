@@ -1,4 +1,6 @@
+import ReactNativeOnyx from 'react-native-onyx';
 import * as Preferences from './actions/Preferences';
+import ONYXKEYS from '../ONYXKEYS';
 import ksBrowser from './browser';
 
 /**
@@ -12,6 +14,19 @@ const GITHUB_OAUTH_CONFIG = {
     CLIENT_ID: 'Iv23lijMLQsnRac742az',
     APP_OAUTH_URL: 'https://ksv2.exfy.io',
 };
+
+// Refresh window (ms) before expiry to proactively refresh
+const REFRESH_SKEW_MS = 60 * 1000;
+let refreshIntervalId = null;
+let onyxAuthData = null;
+
+// Keep local copy of auth data from Onyx store
+ReactNativeOnyx.connect({
+    key: ONYXKEYS.PREFERENCES,
+    callback: (preferences) => {
+        onyxAuthData = (preferences && preferences.auth) ? preferences.auth : null;
+    },
+});
 
 /**
  * Initiate OAuth flow with GitHub using background script
@@ -76,6 +91,85 @@ function isOAuthAvailable() {
 }
 
 /**
+ * Refresh the OAuth token using the refresh token (if available)
+ * @returns {Promise<string>} New access token
+ */
+async function refreshToken() {
+    const refreshTokenValue = onyxAuthData && onyxAuthData.refreshToken;
+    if (!refreshTokenValue) {
+        throw new Error('No refresh token available');
+    }
+
+    const resp = await fetch(`${GITHUB_OAUTH_CONFIG.APP_OAUTH_URL}/oauth/github/refresh`, {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            refresh_token: refreshTokenValue,
+        }),
+    });
+    if (!resp.ok) {
+        throw new Error(`Refresh failed: ${resp.statusText}`);
+    }
+    const data = await resp.json();
+    if (!data || !data.access_token || !data.refresh_token) {
+        throw new Error('Invalid refresh response: missing access_token or refresh_token');
+    }
+
+    // Update stored auth
+    Preferences.setAuthData({
+        type: 'oauth',
+        token: data.access_token,
+        refreshToken: data.refresh_token,
+        expiresAt: data.expires_in ? Date.now() + (data.expires_in * 1000) : null,
+    });
+
+    return data.access_token;
+}
+
+/**
+ * Determine if token should be refreshed (expired or within skew)
+ * @returns {boolean}
+ */
+function shouldRefresh() {
+    const authData = onyxAuthData;
+    if (!authData || authData.type !== 'oauth' || !authData.token) {
+        return false;
+    }
+    if (!authData.expiresAt) {
+        return false;
+    }
+    return (Date.now() + REFRESH_SKEW_MS) >= authData.expiresAt;
+}
+
+/**
+ * Attempt to refresh token if needed
+ * @returns {Promise<void>}
+ */
+async function refreshIfNeeded() {
+    try {
+        if (shouldRefresh()) {
+            await refreshToken();
+        }
+    } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn('Token refresh failed', e);
+    }
+}
+
+/**
+ * Start periodic background refresh checks
+ */
+function startAutoRefresh() {
+    if (refreshIntervalId) {
+        return;
+    }
+    refreshIntervalId = setInterval(refreshIfNeeded, 60 * 1000);
+}
+
+/**
  * Extract error from callback URL
  * @param {string} url - Callback URL from OAuth flow
  * @returns {string|null} Error message
@@ -129,11 +223,14 @@ async function exchangeCodeViaWorker(code, redirectUri) {
             throw new Error(`OAuth error: ${detail || 'Unknown error'}`);
         }
 
-        if (!data.token || !data.token.access_token) {
-            throw new Error('No access token received from worker');
+        if (!data.access_token || !data.refresh_token) {
+            throw new Error('No access token or refresh token received from worker');
         }
 
-        return data.token;
+        return {
+            access_token: data.access_token,
+            refresh_token: data.refresh_token,
+        };
     } catch (error) {
         throw new Error(`Token retrieval failed: ${error.message}`);
     }
@@ -236,4 +333,6 @@ export {
     isOAuthAvailable,
     revokeToken,
     handleOAuthFlow,
+    refreshIfNeeded,
+    startAutoRefresh,
 };

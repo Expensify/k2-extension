@@ -5,9 +5,6 @@ export default {
     // Holds all the user preferences
     PREFERENCES: 'preferences',
 
-    // Authentication data
-    AUTH: 'auth',
-
     PRS: {
         ASSIGNED: 'prsAssigned',
         REVIEWING: 'prsReviewing',

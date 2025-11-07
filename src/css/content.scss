@@ -570,6 +570,9 @@ $color-dark-yellow: #DAA520;
   .panel, .panel-item, .issue-filter {
      border-color: rgb(48, 54, 61);
   }
+  .panel-title, .panel-footer {
+     color: rgb(48, 54, 61);
+  }
   .issue-filter {
      color: rgb(230, 237, 243)
   }

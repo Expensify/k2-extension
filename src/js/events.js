@@ -13,6 +13,8 @@ ksBrowser.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     GitHubOAuth.handleOAuthFlow()
         .then((result) => {
+            // Start background token auto-refresh
+            GitHubOAuth.startAutoRefresh();
             sendResponse(result);
         })
         .catch((error) => {

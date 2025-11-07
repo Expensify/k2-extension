@@ -26,7 +26,7 @@ function isTokenValid() {
  */
 function setAuthData(data) {
     authData = {...authData, ...data};
-    ReactNativeOnyx.merge(ONYXKEYS.AUTH, authData);
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {auth: authData});
 }
 
 ReactNativeOnyx.connect({
@@ -38,16 +38,9 @@ ReactNativeOnyx.connect({
         }
 
         ghToken = preferences.ghToken;
-    },
-});
-
-ReactNativeOnyx.connect({
-    key: ONYXKEYS.AUTH,
-    callback: (auth) => {
-        if (!auth) {
-            return;
+        if (preferences.auth) {
+            authData = {...authData, ...preferences.auth};
         }
-        authData = {...authData, ...auth};
     },
 });
 
@@ -92,8 +85,7 @@ function clearAuth() {
         refreshToken: null,
         expiresAt: null,
     };
-    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {ghToken: null});
-    ReactNativeOnyx.merge(ONYXKEYS.AUTH, authData);
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {ghToken: null, auth: authData});
 }
 
 /**

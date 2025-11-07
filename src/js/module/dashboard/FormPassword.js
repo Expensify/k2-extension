@@ -114,6 +114,17 @@ class FormPassword extends React.Component {
                                 )}
 
                                 <div className="panel-item">
+                                    <p>
+                                        Or sign in with GitHub using OAuth (recommended).
+                                    </p>
+                                    {!isOAuthAvailable && (
+                                        <p className="text-small text-gray">
+                                            OAuth is not available in this browser context. Please use Personal Access Token.
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="panel-item">
                                     <label htmlFor="password">Personal Access Token</label>
 
                                     <input
@@ -137,26 +148,6 @@ class FormPassword extends React.Component {
                                     </p>
                                 </div>
 
-                                <div className="panel-item">
-                                    <p>
-                                        Or sign in with GitHub using OAuth (recommended).
-                                    </p>
-                                    {!isOAuthAvailable && (
-                                        <p className="text-small text-gray">
-                                            OAuth is not available in this browser context. Please use Personal Access Token.
-                                        </p>
-                                    )}
-                                    <p>
-                                        <strong>Required permissions:</strong>
-                                        <br />
-                                        • Repository access (to read issues and PRs)
-                                        <br />
-                                        • User information (to identify you)
-                                        <br />
-                                        • Notifications (to manage your GitHub notifications)
-                                    </p>
-                                </div>
-
                                 <footer className="panel-footer form-actions">
                                     <button
                                         className="btn btn-primary"
@@ -166,7 +157,7 @@ class FormPassword extends React.Component {
                                         Save Token
                                     </button>
                                     <button
-                                        className="btn btn-outline ml-2"
+                                        className="btn btn-primary ml-2"
                                         type="button"
                                         onClick={this.handleOAuth}
                                         disabled={this.state.isLoading || !isOAuthAvailable}

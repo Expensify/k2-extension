@@ -40,13 +40,12 @@ function showPasswordForm() {
 
 /**
  * Check authentication status and show appropriate interface
- * @param {Object} preferences - User preferences from Onyx
- * @param {Object} auth - Auth data from Onyx
+ * @param {Object} preferences - User preferences from Onyx (contains ghToken and auth)
  */
-function checkAuthAndShowInterface(preferences, auth) {
+function checkAuthAndShowInterface(preferences) {
     // Check if user is authenticated with either PAT or OAuth
     const hasPatAuth = preferences && preferences.ghToken;
-    const hasOAuthAuth = auth && auth.type === 'oauth' && auth.token;
+    const hasOAuthAuth = preferences && preferences.auth && preferences.auth.type === 'oauth' && preferences.auth.token;
 
     if (!hasPatAuth && !hasOAuthAuth) {
         showPasswordForm();
@@ -69,23 +68,13 @@ export default () => ({
         });
 
         let preferences = null;
-        let auth = null;
 
         // Connect to preferences store
         ReactNativeOnyx.connect({
-            key: 'preferences',
+            key: ONYXKEYS.PREFERENCES,
             callback: (newPreferences) => {
                 preferences = newPreferences;
-                checkAuthAndShowInterface(preferences, auth);
-            },
-        });
-
-        // Connect to auth store
-        ReactNativeOnyx.connect({
-            key: 'auth',
-            callback: (newAuth) => {
-                auth = newAuth;
-                checkAuthAndShowInterface(preferences, auth);
+                checkAuthAndShowInterface(preferences);
             },
         });
     },

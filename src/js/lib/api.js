@@ -1,22 +1,32 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import {Octokit} from 'octokit';
-import * as Preferences from './actions/Preferences';
+import ReactNativeOnyx from 'react-native-onyx';
+import ONYXKEYS from '../ONYXKEYS';
 
 let octokit;
+let newToken;
+
+ReactNativeOnyx.connect({
+    key: ONYXKEYS.PREFERENCES,
+    callback: (preferences) => {
+        if (!preferences) {
+            return;
+        }
+        const token = preferences.auth.token;
+        newToken = token;
+    },
+});
 
 /**
  * @returns {Octokit}
  */
 function getOctokit() {
-    if (!octokit) {
-        /* eslint-disable-next-line no-console */
-        console.log('authenticate with auth token', Preferences.getGitHubToken());
-        octokit = new Octokit({
-            auth: Preferences.getGitHubToken(),
-            userAgent: 'expensify-k2-extension',
-        });
-    }
+    octokit = new Octokit({
+        auth: newToken,
+        userAgent: 'expensify-k2-extension',
+    });
+
     return octokit;
 }
 
