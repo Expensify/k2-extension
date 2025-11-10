@@ -16,7 +16,6 @@ GitHub UI integration for KS - Kernel Scheduling Method
 4. Click _Load Unpacked Extension_
 5. Navigate to the `dist` folder and select it
 
-
 # Installing on Firefox
 ## The "published" version
 1. https://stackoverflow.com/c/expensify/questions/7053/7054#7054
