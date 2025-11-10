@@ -27,7 +27,7 @@ $color-dark-yellow: #DAA520;
 
 .k2dashboard,
 .passwordform {
-    max-width: 1600px;
+    max-width: calc(100vw - 100px);
     margin: 24px auto 0;
     padding: 0 180px;
 }
