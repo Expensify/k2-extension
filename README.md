@@ -65,31 +65,22 @@ In order to test your changes, you need to have the extension loaded into Chrome
 ### Caution When Using the Publicly Installed Extension
 Sometimes it is necessary to install and enable the public version of the extension. You want to take care not to have both the public extension and the local extension enabled at the same time. It will make everything run twice and you'll get a lot of DOM conflicts, plus API calls will run twice so you'll hit rate limits faster.
 
-# Creating your PR
-Be sure to do the following before pushing up your branch:
-1. Bump the version number in `assets/manifest.json` and `assets/manifest-firefox.json` (use major.minor.patch version scheme)
-1. Bump the version number in `package.json` and `package-lock.json` to match
-1. Add a new change log entry in `CHANGELOG.md`
-
 # Publishing
 **Note:** Publishing KSv2 requires ring3 access. If you are not in ring 3 or below, tag your issue with the `ring3` label to assign a deployer.
 
-To publish a new version of this extension, you should follow these steps:
-
-1. Make sure the version number was bumped in `assets/manifest.json` (use major.minor.patch version scheme)
-1. Make sure the version number in `package.json` matches
-1. Make sure a new change log entry was added in `CHANGELOG.md`
-1. Run `npm run build` to output the minified code in the `/dist` directory
-1. Run `npm run package` which will generate a `dist.zip` file
+To publish a new version of this extension, **wait for the version
+number to be bumped automatically**, then pull `main` and follow these
+steps:
 
 ## Chrome
+1. Run `npm run build` to output the minified code in the `/dist` directory
+1. Run `npm run package` which will generate a `dist.zip` file
 1. Go to the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/developer/dashboard)
 1. Sign in with the account `apps@expensify.com`. The password/2FA is in the [ring3 vault in Password1](https://expensify.1password.com/vaults/all/allitems/qgxjpcxrhffbpazolqqoxrhxqm).
 1. Click on the **K2 for Github** app.
 1. Click on the **Package** tab.
 1. Click on **Upload New Package**, then choose the `dist.zip` file that was created earlier.
 1. Click on **Upload**
-1. On the **Store Listing** page, copy the new version notes from CHANGELOG.md into the description field and click **Save Draft**
 1. Back on the **Package** tab, verify that the new version number is shown for the _Draft Package_.
 1. Back in **Store Listing** page, click **Submit for review**.
 1. Make sure `Publish "K2 for GitHub" automatically after it has passed review` is checked, then hit **Submit for review**.

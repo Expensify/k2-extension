@@ -93,7 +93,37 @@ class ListIssuesAssigned extends React.Component {
         Issues.saveCheckboxes({shouldHideNotOverdue: !this.state.shouldHideNotOverdueIssues});
     }
 
+    filterIssues(issues) {
+        return _.filter(issues, (item) => {
+            if (this.state.shouldHideHeldIssues && item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '') {
+                return false;
+            }
+            if (this.state.shouldHideUnderReviewIssues && _.find(item.labels, label => label.name.toLowerCase() === 'reviewing')) {
+                return false;
+            }
+            if (this.state.shouldHideOwnedBySomeoneElseIssues && item.issueHasOwner && !item.currentUserIsOwner) {
+                return false;
+            }
+            if (this.state.shouldHideNotOverdueIssues && !_.find(item.labels, label => label.name.toLowerCase() === 'overdue')) {
+                return false;
+            }
+            return true;
+        });
+    }
+
     render() {
+        const hourlyIssues = this.filterIssues(_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Hourly'})));
+        const dailyIssues = this.filterIssues(_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Daily'})));
+        const weeklyIssues = this.filterIssues(_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Weekly'})));
+        const monthlyIssues = this.filterIssues(_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Monthly'})));
+        const issuesNoLabel = this.filterIssues(
+            _.pick(this.props.issues, issue => _.intersection(_.map(issue.labels, label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0),
+        );
+
+        // Doesn't matter what the column size is if there are no columns, just make sure we don't divide by 0
+        const numColumns = _.filter([hourlyIssues, dailyIssues, weeklyIssues, monthlyIssues], col => !_.isEmpty(col)).length;
+        const columnSize = numColumns === 0 ? -1 : 12 / numColumns;
+
         if (!this.props.issues) {
             return (
                 <div className="blankslate capped clean-background">
@@ -165,65 +195,50 @@ class ListIssuesAssigned extends React.Component {
                         </div>
                     </form>
                 </div>
-                <div className="d-flex flex-row">
-                    <div className="col-3 pr-3">
+                {!_.isEmpty(this.props.issues) && (
+                    <div className="d-flex flex-row gap-3">
                         <PanelIssues
                             title="Hourly"
+                            key="hourly"
                             extraClass="hourly"
-                            data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Hourly'}))}
-                            hideIfHeld={this.state.shouldHideHeldIssues}
-                            hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
-                            hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
-                            hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
+                            wrapperClass={`col-${columnSize}`}
+                            hideOnEmpty
+                            data={hourlyIssues}
                         />
-                    </div>
-                    <div className="col-3 pr-3">
                         <PanelIssues
                             title="Daily"
+                            key="daily"
                             extraClass="daily"
-                            data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Daily'}))}
-                            hideIfHeld={this.state.shouldHideHeldIssues}
-                            hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
-                            hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
-                            hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
+                            wrapperClass={`col-${columnSize}`}
+                            hideOnEmpty
+                            data={dailyIssues}
                         />
-                    </div>
-                    <div className="col-3 pr-3">
                         <PanelIssues
                             title="Weekly"
+                            key="weekly"
                             extraClass="weekly"
-                            data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Weekly'}))}
-                            hideIfHeld={this.state.shouldHideHeldIssues}
-                            hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
-                            hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
-                            hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
+                            wrapperClass={`col-${columnSize}`}
+                            hideOnEmpty
+                            data={weeklyIssues}
                         />
-                    </div>
-                    <div className="col-3">
                         <PanelIssues
                             title="Monthly"
+                            key="monthly"
                             extraClass="monthly"
-                            data={_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Monthly'}))}
-                            hideIfHeld={this.state.shouldHideHeldIssues}
-                            hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
-                            hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
-                            hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
+                            wrapperClass={`col-${columnSize}`}
+                            hideOnEmpty
+                            data={monthlyIssues}
                         />
                     </div>
-                </div>
-                <div className="pt-4">
-                    <PanelIssues
-                        title="No Priority"
-                        extraClass="no-priority"
-                        hideOnEmpty
-                        // eslint-disable-next-line max-len
-                        data={_.pick(this.props.issues, issue => _.intersection(_.map(issue.labels, label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0)}
-                        hideIfHeld={this.state.shouldHideHeldIssues}
-                        hideIfUnderReview={this.state.shouldHideUnderReviewIssues}
-                        hideIfOwnedBySomeoneElse={this.state.shouldHideOwnedBySomeoneElseIssues}
-                        hideIfNotOverdue={this.state.shouldHideNotOverdueIssues}
-                    />
-                </div>
+                )}
+                <PanelIssues
+                    title="No Priority"
+                    key="no-priority"
+                    extraClass="no-priority"
+                    wrapperClass="pt-4"
+                    hideOnEmpty
+                    data={issuesNoLabel}
+                />
             </div>
         );
     }

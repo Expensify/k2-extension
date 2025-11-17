@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import _ from 'underscore';
 import * as API from '../../api';
 
 /**
@@ -42,6 +43,142 @@ export default function () {
         } finally {
             // Restore the original button content
             button.innerHTML = originalContent;
+        }
+    };
+
+    /**
+     * Runs the GitHub workflow for generating translations
+     * @param {Event} e
+     */
+    const runTranslationWorkflow = async (e) => {
+        e.preventDefault();
+
+        // Get the button element
+        const button = e.target;
+
+        // Save the original content of the button
+        const originalContent = button.innerHTML;
+
+        // Replace the button content with a loader and disable it
+        button.innerHTML = '<div class="loader" />';
+        button.disabled = true;
+
+        // Find the comment element and get it's ID from the permalink anchor
+        const commentElement = button.closest('.timeline-comment');
+        const permalinkElement = commentElement.querySelector('.js-timestamp[id*="issuecomment-"]');
+        const permalinkId = permalinkElement ? permalinkElement.id : null; // Format: "issuecomment-{id}-permalink"
+        const commentId = permalinkId ? permalinkId.replace('issuecomment-', '').replace('-permalink', '') : null;
+
+        try {
+            // Record the time before triggering the workflow
+            const triggerTime = new Date();
+
+            // Trigger the workflow
+            await API.triggerWorkflow('generateTranslations.yml');
+
+            // Poll for the workflow run until we find one that started after our trigger time
+            let latestRun = null;
+            const maxRetries = 20; // Try for up to ~40 seconds
+            let retries = 0;
+
+            // eslint-disable-next-line no-await-in-loop
+            while (!latestRun && retries < maxRetries) {
+                // Wait 2 seconds between checks
+                // eslint-disable-next-line no-await-in-loop
+                await new Promise((resolve) => {
+                    setTimeout(resolve, 2000);
+                });
+
+                // Get recent workflow runs
+                // eslint-disable-next-line no-await-in-loop
+                const workflowRuns = await API.getWorkflowRuns('generateTranslations.yml', 5);
+                const runs = workflowRuns.data.workflow_runs;
+
+                // Find a run that started after our trigger time and is queued or in progress
+                const matchingRun = _.find(runs, (run) => {
+                    const runStartTime = new Date(run.created_at);
+                    const isAfterTrigger = runStartTime >= triggerTime;
+                    const isRunning = run.status === 'queued' || run.status === 'in_progress';
+                    return isAfterTrigger && isRunning;
+                });
+
+                if (matchingRun) {
+                    latestRun = matchingRun;
+                } else {
+                    retries++;
+                }
+            }
+
+            if (latestRun && commentId) {
+                const workflowUrl = latestRun.html_url;
+                const runId = latestRun.id;
+
+                // Create a status element to show below the button
+                const statusElement = document.createElement('span');
+                statusElement.className = 'k2-translation-status ml-2';
+                statusElement.innerHTML = `<a href="${workflowUrl}" target="_blank" class="Link--primary">🦜 Polyglot Parrot is thinking... 🦜</a>`;
+                button.parentNode.insertBefore(statusElement, button.nextSibling);
+
+                // Poll the workflow status every 5 seconds
+                const pollWorkflow = async () => {
+                    try {
+                        const runStatus = await API.getWorkflowRun(runId);
+                        const {status, conclusion} = runStatus.data;
+
+                        // Check if workflow is complete
+                        if (status === 'completed') {
+                            // Remove the status element
+                            if (statusElement.parentNode) {
+                                statusElement.parentNode.removeChild(statusElement);
+                            }
+
+                            // Show a brief success/failure indicator
+                            if (conclusion === 'success') {
+                                button.innerHTML = '✓ Done';
+                                button.classList.add('k2-translation-success');
+                                setTimeout(() => {
+                                    button.innerHTML = originalContent;
+                                    button.classList.remove('k2-translation-success');
+                                    button.disabled = false;
+                                }, 4000);
+                            } else {
+                                button.innerHTML = '✗ Failed';
+                                button.classList.add('k2-translation-failed');
+                                setTimeout(() => {
+                                    button.innerHTML = originalContent;
+                                    button.classList.remove('k2-translation-failed');
+                                    button.disabled = false;
+                                }, 4000);
+                            }
+                        } else {
+                            // Continue polling
+                            setTimeout(pollWorkflow, 5000);
+                        }
+                    } catch (pollError) {
+                        console.error('Error polling workflow status:', pollError);
+
+                        // Remove status element and restore button on error
+                        if (statusElement.parentNode) {
+                            statusElement.parentNode.removeChild(statusElement);
+                        }
+                        button.innerHTML = originalContent;
+                        button.disabled = false;
+                    }
+                };
+
+                // Start polling
+                pollWorkflow();
+            } else {
+                // If we couldn't find the workflow run or comment, just restore the button
+                button.innerHTML = originalContent;
+                button.disabled = false;
+            }
+        } catch (error) {
+            console.error('Error triggering translation workflow:', error);
+
+            // Restore the original button content on error
+            button.innerHTML = originalContent;
+            button.disabled = false;
         }
     };
 
@@ -105,12 +242,40 @@ export default function () {
             const commentHtml = $(el).html();
 
             // When the button template is found, replace it with an HTML button and then put that back into the DOM so someone can click on it
-            if (commentHtml && commentHtml.indexOf('you can simply click: [this button]') > -1) {
+            // Check for checklist-specific content (BUGZERO_CHECKLIST.md or REVIEWER_CHECKLIST.md)
+            const isChecklistComment = commentHtml
+                && commentHtml.indexOf('you can simply click: [this button]') > -1
+                && (commentHtml.indexOf('BUGZERO_CHECKLIST.md') > -1
+                || commentHtml.indexOf('REVIEWER_CHECKLIST.md') > -1);
+
+            if (isChecklistComment) {
                 const newHtml = commentHtml.replace('[this button]', '<button type="button" class="btn btn-sm k2-copy-checklist">HERE</button>');
                 $(el).html(newHtml);
 
                 // Now that the button is on the page, add a click handler to it (always remove all handlers first so that we know there will always be one handler attached)
                 $('.k2-copy-checklist').off().on('click', e => copyReviewerChecklist(e, checklistType));
+            }
+        });
+    };
+
+    /**
+     * Renders buttons for triggering the translation workflow
+     */
+    Page.renderTranslationWorkflowButtons = function () {
+        // Look through all the comments on the page to find ones that have the generateTranslations.yml link
+        // eslint-disable-next-line rulesdir/prefer-underscore-method
+        $('.markdown-body').each((i, commentBody) => {
+            const fullCommentHTML = $(commentBody).html();
+
+            // Check if this comment is about translations by looking for the workflow link
+            // AND that we haven't already replaced the button (to avoid refresh loops)
+            if (fullCommentHTML && fullCommentHTML.includes('generateTranslations.yml') && fullCommentHTML.includes('[this button]')) {
+                // Now find `[this button]` and replace it with our button
+                const updatedFullCommentHTML = fullCommentHTML.replace('[this button]', '<button type="button" class="btn btn-sm k2-translation-workflow">HERE</button>');
+                $(commentBody).html(updatedFullCommentHTML);
+
+                // Now that the button is on the page, add a click handler to it
+                $('.k2-translation-workflow').off().on('click', runTranslationWorkflow);
             }
         });
     };

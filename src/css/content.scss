@@ -606,3 +606,59 @@ $color-dark-yellow: #DAA520;
     50%   {transform:scaleY(-1) rotate(0deg)}
     100%  {transform:scaleY(-1) rotate(-135deg)}
 }
+
+// Translation workflow styles
+.k2-translation-status {
+    display: block;
+    margin-top: 8px;
+}
+
+.k2-translation-status a {
+    position: relative;
+    text-decoration: none !important;
+    transition: color .4s ease-out;
+
+    &::after {
+        border-radius: 1em;
+        border-top: .15em solid currentColor;
+        content: "";
+        position: absolute;
+        right: 100%;
+        bottom: -.2em;
+        left: 0;
+        transition: right .4s cubic-bezier(0,.5,0,1),
+                    border-color .4s ease-out;
+        animation: anchor-underline 2s cubic-bezier(0,.5,0,1) infinite;
+    }
+
+    &:hover::after {
+        animation: none;
+        left: 0;
+        right: 0;
+    }
+}
+
+@keyframes anchor-underline {
+    0%, 10% {
+        left: 0;
+        right: 100%;
+    }
+    40%, 60% {
+        left: 0;
+        right: 0;
+    }
+    90%, 100% {
+        left: 100%;
+        right: 0;
+    }
+}
+
+.k2-translation-success {
+    color: $color-green !important;
+    font-weight: bold;
+}
+
+.k2-translation-failed {
+    color: $color-red !important;
+    font-weight: bold;
+}
