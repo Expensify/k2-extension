@@ -7,6 +7,7 @@ import K2picker from '../../../module/K2picker/K2picker';
 import K2pickerarea from '../../../module/K2pickerarea/K2pickerarea';
 import K2pickerType from '../../../module/K2pickertype/K2pickertype';
 import ToggleReview from '../../../module/ToggleReview/ToggleReview';
+import ToggleTimestamps from '../../../module/ToggleTimestamps/ToggleTimestamps';
 import K2comments from '../../../module/K2comments/K2comments';
 import K2previousissues from '../../../module/K2previousissues/K2previousissues';
 import ONYXKEYS from '../../../ONYXKEYS';
@@ -137,6 +138,7 @@ const refreshPicker = function () {
     new K2pickerType().draw();
     new K2pickerarea().draw();
     new ToggleReview().draw();
+    new ToggleTimestamps().draw();
     new K2comments().draw();
     new K2previousissues().draw();
 };
@@ -166,6 +168,11 @@ export default function () {
         // Draw them once when the page is loaded
         setTimeout(refreshPicker, 500);
         setTimeout(renderAssignees, 500);
+
+        // Set up timestamp format conversion
+        const applyTimestampFormatPeriodic = IssuePage.applyTimestampFormat();
+        setTimeout(() => applyTimestampFormatPeriodic(), 500);
+        setInterval(() => applyTimestampFormatPeriodic(), 2000);
 
         // Every second, check to see if the pickers are still there, and if not, redraw them
         setInterval(() => {

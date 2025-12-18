@@ -1,6 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
+import ReactNativeOnyx from 'react-native-onyx';
 import * as API from '../../api';
+import * as Preferences from '../../actions/Preferences';
+import ONYXKEYS from '../../../ONYXKEYS';
+import convertTimestamps from '../../timestampConverter';
 
 /**
  * This class is to be extended by each of the distinct types of webpages that the extension works on
@@ -278,6 +282,33 @@ export default function () {
                 $('.k2-translation-workflow').off().on('click', runTranslationWorkflow);
             }
         });
+    };
+
+    /**
+     * Applies timestamp format based on user preference
+     * Sets up Onyx connection to listen for preference changes and returns a function
+     * that can be called periodically to handle dynamically loaded timestamps
+     * @returns {Function} Function to call periodically for dynamic content
+     */
+    Page.applyTimestampFormat = function () {
+        // Connect to Onyx to listen for preference changes
+        ReactNativeOnyx.connect({
+            key: ONYXKEYS.PREFERENCES,
+            callback: (preferences) => {
+                if (!preferences) {
+                    return;
+                }
+                const useStaticTimestamps = preferences.useStaticTimestamps || false;
+                convertTimestamps(useStaticTimestamps);
+            },
+        });
+
+        // Return a function that can be called periodically
+        // This function reads the current preference and converts timestamps
+        return function applyTimestampFormatPeriodic() {
+            const useStaticTimestamps = Preferences.getUseStaticTimestamps();
+            convertTimestamps(useStaticTimestamps);
+        };
     };
 
     return Page;

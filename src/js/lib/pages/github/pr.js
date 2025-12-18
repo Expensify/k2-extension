@@ -96,6 +96,11 @@ export default function () {
         setInterval(refreshHold, 1000);
         setInterval(renderReplaceChecklistButton, 2000);
 
+        // Set up timestamp format conversion
+        const applyTimestampFormatPeriodic = PrPage.applyTimestampFormat();
+        setTimeout(() => applyTimestampFormatPeriodic(), 500);
+        setInterval(() => applyTimestampFormatPeriodic(), 2000);
+
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
         setInterval(() => PrPage.renderCopyChecklistButtons('reviewer'), 2000);
         setInterval(() => PrPage.renderTranslationWorkflowButtons(), 2000);
