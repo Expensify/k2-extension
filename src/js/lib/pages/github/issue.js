@@ -134,13 +134,33 @@ const refreshPicker = function () {
             .before(sidebarWrapperHTML);
     }
 
+    // Add timestamp toggle wrapper at the bottom if it doesn't exist
+    if (!$('.k2toggletimestamps-wrapper').length) {
+        // Find the last sidebar item or sidebar container and append to bottom
+        const lastSidebarItem = $('.discussion-sidebar-item').last();
+        if (lastSidebarItem.length) {
+            lastSidebarItem.after('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+        } else {
+            // Fallback: append to sidebar container
+            const sidebar = $('.discussion-sidebar, [role="complementary"]').first();
+            if (sidebar.length) {
+                sidebar.append('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+            }
+        }
+    }
+
     new K2picker().draw();
     new K2pickerType().draw();
     new K2pickerarea().draw();
     new ToggleReview().draw();
-    new ToggleTimestamps().draw();
     new K2comments().draw();
     new K2previousissues().draw();
+
+    // Draw timestamp toggle if wrapper exists and is empty
+    const timestampWrapper = $('.k2toggletimestamps-wrapper');
+    if (timestampWrapper.length && timestampWrapper.children().length === 0) {
+        new ToggleTimestamps().draw();
+    }
 };
 
 /**

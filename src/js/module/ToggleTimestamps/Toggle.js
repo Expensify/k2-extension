@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactNativeOnyx from 'react-native-onyx';
-import BtnGroup from '../../component/BtnGroup';
 import ONYXKEYS from '../../ONYXKEYS';
 import * as Preferences from '../../lib/actions/Preferences';
 
@@ -56,20 +55,19 @@ class Toggle extends React.Component {
 
     render() {
         return (
-            <div>
-                <BtnGroup>
-                    <button
-                        type="button"
-                        className={this.state.useStaticTimestamps
-                            ? `${defaultBtnClass} k2-static-timestamps selected`
-                            : `${defaultBtnClass} k2-static-timestamps`}
-                        onClick={() => this.handleToggle()}
-                    >
-                        {this.state.useStaticTimestamps
-                            ? 'Use Relative Timestamps'
-                            : 'Use Static Timestamps'}
-                    </button>
-                </BtnGroup>
+            <div style={{width: '100%'}}>
+                <button
+                    type="button"
+                    className={this.state.useStaticTimestamps
+                        ? `${defaultBtnClass} k2-static-timestamps selected`
+                        : `${defaultBtnClass} k2-static-timestamps`}
+                    onClick={() => this.handleToggle()}
+                    style={{width: '100%'}}
+                >
+                    {this.state.useStaticTimestamps
+                        ? 'Use Relative Timestamps'
+                        : 'Use Static Timestamps'}
+                </button>
             </div>
         );
     }

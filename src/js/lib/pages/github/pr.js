@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import Base from './_base';
+import ToggleTimestamps from '../../../module/ToggleTimestamps/ToggleTimestamps';
 
 /**
  * Replaces all `- [ ]` with `- [x]` in textareas with specific names
@@ -19,6 +20,48 @@ const renderReplaceChecklistButton = () => {
     const buttonHtml = '<button type="button" class="btn-link no-underline text-bold Link--primary k2-replace-checklist almost-transparent">Auto complete checklist</button>';
     $('.discussion-sidebar-item').last().append(buttonHtml);
     $('.k2-replace-checklist').off().on('click', replaceChecklistItems);
+};
+
+const refreshSidebar = function () {
+    // Add the timestamp toggle wrapper to the DOM if it doesn't exist
+    if ($('.k2toggletimestamps-wrapper').length) {
+        // Draw the toggle if wrapper exists but is empty
+        const wrapper = $('.k2toggletimestamps-wrapper');
+        if (wrapper.children().length === 0) {
+            try {
+                new ToggleTimestamps().draw();
+            } catch (e) {
+                // eslint-disable-next-line no-console
+                console.warn('[K2 PR Page] Failed to draw timestamp toggle:', e);
+            }
+        }
+        return;
+    }
+
+    // Add timestamp toggle wrapper at the bottom of the sidebar
+    const lastSidebarItem = $('.discussion-sidebar-item').last();
+    if (lastSidebarItem.length) {
+        lastSidebarItem.after('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+    } else {
+        // Fallback: append to sidebar container
+        const sidebar = $('.discussion-sidebar, [role="complementary"], .Layout-sidebar').first();
+        if (sidebar.length) {
+            sidebar.append('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+        }
+    }
+
+    // Draw the timestamp toggle if the wrapper exists and is empty
+    const wrapper = $('.k2toggletimestamps-wrapper');
+    if (!wrapper.length || wrapper.children().length > 0) {
+        return;
+    }
+
+    try {
+        new ToggleTimestamps().draw();
+    } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn('[K2 PR Page] Failed to draw timestamp toggle:', e);
+    }
 };
 
 const refreshHold = function () {
@@ -95,6 +138,17 @@ export default function () {
     PrPage.setup = function () {
         setInterval(refreshHold, 1000);
         setInterval(renderReplaceChecklistButton, 2000);
+
+        // Draw sidebar components once when the page is loaded
+        setTimeout(refreshSidebar, 500);
+
+        // Periodically check if sidebar components need to be redrawn
+        setInterval(() => {
+            const wrapper = $('.k2toggletimestamps-wrapper');
+            if (!wrapper.length || wrapper.children().length === 0) {
+                refreshSidebar();
+            }
+        }, 1000);
 
         // Set up timestamp format conversion
         const applyTimestampFormatPeriodic = PrPage.applyTimestampFormat();
