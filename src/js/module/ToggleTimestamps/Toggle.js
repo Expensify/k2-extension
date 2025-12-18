@@ -65,8 +65,8 @@ class Toggle extends React.Component {
                     style={{width: '100%'}}
                 >
                     {this.state.useStaticTimestamps
-                        ? 'Use Relative Timestamps'
-                        : 'Use Static Timestamps'}
+                        ? 'Hide Timestamps'
+                        : 'Show Timestamps'}
                 </button>
             </div>
         );

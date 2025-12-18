@@ -23,11 +23,11 @@ function formatTimestamp(datetimeString) {
  */
 function convertTimestamps(useStaticTimestamps) {
     if (useStaticTimestamps) {
-        // Find all relative-time elements that haven't been replaced yet
-        const elements = document.querySelectorAll('relative-time:not([data-k2-replaced])');
+        // Find all relative-time elements that don't have static timestamp added yet
+        const elements = document.querySelectorAll('relative-time:not([data-k2-static-added])');
 
         // eslint-disable-next-line no-console
-        console.log('[K2 Timestamp Converter] Converting to static:', {
+        console.log('[K2 Timestamp Converter] Showing timestamps:', {
             elementCount: elements.length,
         });
 
@@ -38,60 +38,78 @@ function convertTimestamps(useStaticTimestamps) {
                 return;
             }
 
-            // Format the date
-            const formattedDate = formatTimestamp(datetime);
+            // Create a span for the static timestamp
+            const staticSpan = document.createElement('span');
+            const staticTime = formatTimestamp(datetime);
+            staticSpan.textContent = ` (${staticTime})`;
+            staticSpan.dataset.k2StaticPart = 'true';
 
-            // Replace the relative-time element with a span showing static timestamp
-            // We can't modify shadow DOM content, so we replace the entire element
-            const span = document.createElement('span');
-            span.textContent = formattedDate;
-            span.className = el.className;
-            span.setAttribute('title', formattedDate);
-            span.dataset.k2StaticTimestamp = 'true';
-            span.dataset.k2OriginalDatetime = datetime;
-
-            // Mark original as replaced
-            // eslint-disable-next-line no-param-reassign
-            el.dataset.k2Replaced = 'true';
-
+            // Add the static span after the relative-time element
             const parent = el.parentNode;
             if (parent) {
-                parent.replaceChild(span, el);
+                // Insert the static span right after the relative-time element
+                if (el.nextSibling) {
+                    parent.insertBefore(staticSpan, el.nextSibling);
+                } else {
+                    parent.appendChild(staticSpan);
+                }
+
+                // Mark that we've added the static part
+                // eslint-disable-next-line no-param-reassign
+                el.dataset.k2StaticAdded = 'true';
+
+                // Store datetime for updates
+                // eslint-disable-next-line no-param-reassign
+                el.dataset.k2OriginalDatetime = datetime;
             }
         });
 
-        // Also update any existing static timestamps in case the page content changed
-        const existingStatic = document.querySelectorAll('[data-k2-static-timestamp="true"]');
-        Array.from(existingStatic).forEach((span) => {
-            const datetime = span.dataset.k2OriginalDatetime;
+        // Update existing static parts (refresh the static timestamp)
+        const elementsWithStatic = document.querySelectorAll('relative-time[data-k2-static-added="true"]');
+        Array.from(elementsWithStatic).forEach((el) => {
+            const datetime = el.dataset.k2OriginalDatetime || el.getAttribute('datetime');
             if (datetime) {
-                const formattedDate = formatTimestamp(datetime);
-                // eslint-disable-next-line no-param-reassign
-                span.textContent = formattedDate;
+                // Find the static span that follows this element
+                let staticSpan = el.nextSibling;
+                while (staticSpan && (!staticSpan.dataset || staticSpan.dataset.k2StaticPart !== 'true')) {
+                    staticSpan = staticSpan.nextSibling;
+                }
+
+                if (staticSpan && staticSpan.dataset.k2StaticPart === 'true') {
+                    const staticTime = formatTimestamp(datetime);
+                    // eslint-disable-next-line no-param-reassign
+                    staticSpan.textContent = ` (${staticTime})`;
+                }
             }
         });
     } else {
-        // Find all our replacement spans and restore relative-time elements
-        const replacements = document.querySelectorAll('[data-k2-static-timestamp="true"]');
+        // Find all relative-time elements that have static timestamps added
+        const elements = document.querySelectorAll('relative-time[data-k2-static-added="true"]');
 
         // eslint-disable-next-line no-console
-        console.log('[K2 Timestamp Converter] Restoring relative timestamps:', {
-            elementCount: replacements.length,
+        console.log('[K2 Timestamp Converter] Hiding timestamps:', {
+            elementCount: elements.length,
         });
 
-        Array.from(replacements).forEach((replacement) => {
-            const datetime = replacement.dataset.k2OriginalDatetime;
-            if (datetime) {
-                // Create a new relative-time element
-                const relativeTimeEl = document.createElement('relative-time');
-                relativeTimeEl.setAttribute('datetime', datetime);
-                relativeTimeEl.className = replacement.className;
+        Array.from(elements).forEach((el) => {
+            // Find and remove the static timestamp span
+            let staticSpan = el.nextSibling;
+            while (staticSpan && (!staticSpan.dataset || staticSpan.dataset.k2StaticPart !== 'true')) {
+                staticSpan = staticSpan.nextSibling;
+            }
 
-                const parent = replacement.parentNode;
+            if (staticSpan && staticSpan.dataset.k2StaticPart === 'true') {
+                const parent = staticSpan.parentNode;
                 if (parent) {
-                    parent.replaceChild(relativeTimeEl, replacement);
+                    parent.removeChild(staticSpan);
                 }
             }
+
+            // Remove our markers
+            // eslint-disable-next-line no-param-reassign
+            delete el.dataset.k2StaticAdded;
+            // eslint-disable-next-line no-param-reassign
+            delete el.dataset.k2OriginalDatetime;
         });
     }
 }
