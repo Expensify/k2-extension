@@ -291,17 +291,35 @@ export default function () {
      * @returns {Function} Function to call periodically for dynamic content
      */
     Page.applyTimestampFormat = function () {
+        let currentPreference = false;
+
+        // eslint-disable-next-line no-console
+        console.log('[K2 Timestamp Converter] Setting up timestamp format converter');
+
         // Connect to Onyx to listen for preference changes
         ReactNativeOnyx.connect({
             key: ONYXKEYS.PREFERENCES,
             callback: (preferences) => {
+                // eslint-disable-next-line no-console
+                console.log('[K2 Timestamp Converter] Onyx callback fired:', preferences);
                 if (!preferences) {
                     return;
                 }
-                const useStaticTimestamps = preferences.useStaticTimestamps || false;
-                convertTimestamps(useStaticTimestamps);
+                currentPreference = preferences.useStaticTimestamps || false;
+                // eslint-disable-next-line no-console
+                console.log('[K2 Timestamp Converter] Preference changed to:', currentPreference);
+                convertTimestamps(currentPreference);
             },
         });
+
+        // Also try to get initial preference
+        const initialPreference = Preferences.getUseStaticTimestamps();
+        // eslint-disable-next-line no-console
+        console.log('[K2 Timestamp Converter] Initial preference:', initialPreference);
+        if (initialPreference !== undefined) {
+            currentPreference = initialPreference;
+            convertTimestamps(currentPreference);
+        }
 
         // Return a function that can be called periodically
         // This function reads the current preference and converts timestamps
