@@ -46,8 +46,6 @@ class Toggle extends React.Component {
     handleToggle() {
         this.setState((prevState) => {
             const newValue = !prevState.useStaticTimestamps;
-            // eslint-disable-next-line no-console
-            console.log('[K2 Timestamp Toggle] Toggling to:', newValue);
             Preferences.setUseStaticTimestamps(newValue);
             return {useStaticTimestamps: newValue};
         });

@@ -26,11 +26,6 @@ function convertTimestamps(useStaticTimestamps) {
         // Find all relative-time elements that don't have static timestamp added yet
         const elements = document.querySelectorAll('relative-time:not([data-k2-static-added])');
 
-        // eslint-disable-next-line no-console
-        console.log('[K2 Timestamp Converter] Showing timestamps:', {
-            elementCount: elements.length,
-        });
-
         Array.from(elements).forEach((el) => {
             const datetime = el.getAttribute('datetime');
 
@@ -85,11 +80,6 @@ function convertTimestamps(useStaticTimestamps) {
     } else {
         // Find all relative-time elements that have static timestamps added
         const elements = document.querySelectorAll('relative-time[data-k2-static-added="true"]');
-
-        // eslint-disable-next-line no-console
-        console.log('[K2 Timestamp Converter] Hiding timestamps:', {
-            elementCount: elements.length,
-        });
 
         Array.from(elements).forEach((el) => {
             // Find and remove the static timestamp span
