@@ -185,17 +185,22 @@ export default function () {
         }
         alreadySetup = true;
 
-        // Draw them once when the page is loaded
-        setTimeout(refreshPicker, 500);
-        setTimeout(renderAssignees, 500);
-
         // Set up timestamp format conversion
         const applyTimestampFormatPeriodic = IssuePage.applyTimestampFormat();
-        setTimeout(() => applyTimestampFormatPeriodic(), 500);
-        setInterval(() => applyTimestampFormatPeriodic(), 2000);
 
-        // Every second, check to see if the pickers are still there, and if not, redraw them
+        // Initial setup - combine all 500ms timeouts
+        setTimeout(() => {
+            refreshPicker();
+            renderAssignees();
+            applyTimestampFormatPeriodic();
+        }, 500);
+
+        // Unified interval running every 1000ms
+        let intervalCounter = 0;
         setInterval(() => {
+            intervalCounter++;
+
+            // Tasks that run every 1s
             if (!$('.k2picker-wrapper')) {
                 refreshPicker();
             }
@@ -204,10 +209,13 @@ export default function () {
             if (!$('div[data-testid="sidebar-assignees-section"] .k2-element').length) {
                 renderAssignees();
             }
-        }, 1000);
 
-        // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
-        setInterval(() => IssuePage.renderCopyChecklistButtons('bugzero'), 2000);
+            // Tasks that run every 2s (when counter is even)
+            if (intervalCounter % 2 === 0) {
+                applyTimestampFormatPeriodic();
+                IssuePage.renderCopyChecklistButtons('bugzero');
+            }
+        }, 1000);
     };
 
     return IssuePage;

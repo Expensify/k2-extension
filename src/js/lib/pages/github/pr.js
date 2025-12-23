@@ -136,28 +136,37 @@ export default function () {
      * Add buttons to the page and setup the event handler
      */
     PrPage.setup = function () {
-        setInterval(refreshHold, 1000);
-        setInterval(renderReplaceChecklistButton, 2000);
+        // Set up timestamp format conversion
+        const applyTimestampFormatPeriodic = PrPage.applyTimestampFormat();
 
-        // Draw sidebar components once when the page is loaded
-        setTimeout(refreshSidebar, 500);
+        // Initial setup - combine all 500ms timeouts
+        setTimeout(() => {
+            refreshSidebar();
+            applyTimestampFormatPeriodic();
+        }, 500);
 
-        // Periodically check if sidebar components need to be redrawn
+        // Unified interval running every 1000ms
+        let intervalCounter = 0;
         setInterval(() => {
+            intervalCounter++;
+
+            // Tasks that run every 1s
+            refreshHold();
+
+            // Check if sidebar components need to be redrawn
             const wrapper = $('.k2toggletimestamps-wrapper');
             if (!wrapper.length || wrapper.children().length === 0) {
                 refreshSidebar();
             }
+
+            // Tasks that run every 2s (when counter is even)
+            if (intervalCounter % 2 === 0) {
+                renderReplaceChecklistButton();
+                applyTimestampFormatPeriodic();
+                PrPage.renderCopyChecklistButtons('reviewer');
+                PrPage.renderTranslationWorkflowButtons();
+            }
         }, 1000);
-
-        // Set up timestamp format conversion
-        const applyTimestampFormatPeriodic = PrPage.applyTimestampFormat();
-        setTimeout(() => applyTimestampFormatPeriodic(), 500);
-        setInterval(() => applyTimestampFormatPeriodic(), 2000);
-
-        // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
-        setInterval(() => PrPage.renderCopyChecklistButtons('reviewer'), 2000);
-        setInterval(() => PrPage.renderTranslationWorkflowButtons(), 2000);
     };
 
     return PrPage;
