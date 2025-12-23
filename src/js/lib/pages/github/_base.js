@@ -300,13 +300,13 @@ export default function () {
                 if (!preferences) {
                     return;
                 }
-                currentPreference = preferences.useStaticTimestamps || false;
+                currentPreference = preferences.useAbsoluteTimestamps || false;
                 convertTimestamps(currentPreference);
             },
         });
 
         // Also try to get initial preference
-        const initialPreference = Preferences.getUseStaticTimestamps();
+        const initialPreference = Preferences.getUseAbsoluteTimestamps();
         if (initialPreference !== undefined) {
             currentPreference = initialPreference;
             convertTimestamps(currentPreference);
@@ -315,8 +315,8 @@ export default function () {
         // Return a function that can be called periodically
         // This function reads the current preference and converts timestamps
         return function applyTimestampFormatPeriodic() {
-            const useStaticTimestamps = Preferences.getUseStaticTimestamps();
-            convertTimestamps(useStaticTimestamps);
+            const useAbsoluteTimestamps = Preferences.getUseAbsoluteTimestamps();
+            convertTimestamps(useAbsoluteTimestamps);
         };
     };
 

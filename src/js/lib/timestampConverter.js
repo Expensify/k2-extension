@@ -19,12 +19,12 @@ function formatTimestamp(datetimeString) {
 
 /**
  * Converts all relative-time elements on the page based on the preference
- * @param {Boolean} useStaticTimestamps Whether to use static timestamps
+ * @param {Boolean} useAbsoluteTimestamps Whether to use absolute timestamps
  */
-function convertTimestamps(useStaticTimestamps) {
-    if (useStaticTimestamps) {
-        // Find all relative-time elements that don't have static timestamp added yet
-        const elements = document.querySelectorAll('relative-time:not([data-k2-static-added])');
+function convertTimestamps(useAbsoluteTimestamps) {
+    if (useAbsoluteTimestamps) {
+        // Find all relative-time elements that don't have absolute timestamp added yet
+        const elements = document.querySelectorAll('relative-time:not([data-k2-absolute-added])');
 
         Array.from(elements).forEach((el) => {
             const datetime = el.getAttribute('datetime');
@@ -33,25 +33,25 @@ function convertTimestamps(useStaticTimestamps) {
                 return;
             }
 
-            // Create a span for the static timestamp
-            const staticSpan = document.createElement('span');
-            const staticTime = formatTimestamp(datetime);
-            staticSpan.textContent = ` (${staticTime})`;
-            staticSpan.dataset.k2StaticPart = 'true';
+            // Create a span for the absolute timestamp
+            const absoluteSpan = document.createElement('span');
+            const absoluteTime = formatTimestamp(datetime);
+            absoluteSpan.textContent = ` (${absoluteTime})`;
+            absoluteSpan.dataset.k2AbsolutePart = 'true';
 
-            // Add the static span after the relative-time element
+            // Add the absolute span after the relative-time element
             const parent = el.parentNode;
             if (parent) {
-                // Insert the static span right after the relative-time element
+                // Insert the absolute span right after the relative-time element
                 if (el.nextSibling) {
-                    parent.insertBefore(staticSpan, el.nextSibling);
+                    parent.insertBefore(absoluteSpan, el.nextSibling);
                 } else {
-                    parent.appendChild(staticSpan);
+                    parent.appendChild(absoluteSpan);
                 }
 
-                // Mark that we've added the static part
+                // Mark that we've added the absolute part
                 // eslint-disable-next-line no-param-reassign
-                el.dataset.k2StaticAdded = 'true';
+                el.dataset.k2AbsoluteAdded = 'true';
 
                 // Store datetime for updates
                 // eslint-disable-next-line no-param-reassign
@@ -59,45 +59,45 @@ function convertTimestamps(useStaticTimestamps) {
             }
         });
 
-        // Update existing static parts (refresh the static timestamp)
-        const elementsWithStatic = document.querySelectorAll('relative-time[data-k2-static-added="true"]');
-        Array.from(elementsWithStatic).forEach((el) => {
+        // Update existing absolute parts (refresh the absolute timestamp)
+        const elementsWithAbsolute = document.querySelectorAll('relative-time[data-k2-absolute-added="true"]');
+        Array.from(elementsWithAbsolute).forEach((el) => {
             const datetime = el.dataset.k2OriginalDatetime || el.getAttribute('datetime');
             if (datetime) {
-                // Find the static span that follows this element
-                let staticSpan = el.nextSibling;
-                while (staticSpan && (!staticSpan.dataset || staticSpan.dataset.k2StaticPart !== 'true')) {
-                    staticSpan = staticSpan.nextSibling;
+                // Find the absolute span that follows this element
+                let absoluteSpan = el.nextSibling;
+                while (absoluteSpan && (!absoluteSpan.dataset || absoluteSpan.dataset.k2AbsolutePart !== 'true')) {
+                    absoluteSpan = absoluteSpan.nextSibling;
                 }
 
-                if (staticSpan && staticSpan.dataset.k2StaticPart === 'true') {
-                    const staticTime = formatTimestamp(datetime);
+                if (absoluteSpan && absoluteSpan.dataset.k2AbsolutePart === 'true') {
+                    const absoluteTime = formatTimestamp(datetime);
                     // eslint-disable-next-line no-param-reassign
-                    staticSpan.textContent = ` (${staticTime})`;
+                    absoluteSpan.textContent = ` (${absoluteTime})`;
                 }
             }
         });
     } else {
-        // Find all relative-time elements that have static timestamps added
-        const elements = document.querySelectorAll('relative-time[data-k2-static-added="true"]');
+        // Find all relative-time elements that have absolute timestamps added
+        const elements = document.querySelectorAll('relative-time[data-k2-absolute-added="true"]');
 
         Array.from(elements).forEach((el) => {
-            // Find and remove the static timestamp span
-            let staticSpan = el.nextSibling;
-            while (staticSpan && (!staticSpan.dataset || staticSpan.dataset.k2StaticPart !== 'true')) {
-                staticSpan = staticSpan.nextSibling;
+            // Find and remove the absolute timestamp span
+            let absoluteSpan = el.nextSibling;
+            while (absoluteSpan && (!absoluteSpan.dataset || absoluteSpan.dataset.k2AbsolutePart !== 'true')) {
+                absoluteSpan = absoluteSpan.nextSibling;
             }
 
-            if (staticSpan && staticSpan.dataset.k2StaticPart === 'true') {
-                const parent = staticSpan.parentNode;
+            if (absoluteSpan && absoluteSpan.dataset.k2AbsolutePart === 'true') {
+                const parent = absoluteSpan.parentNode;
                 if (parent) {
-                    parent.removeChild(staticSpan);
+                    parent.removeChild(absoluteSpan);
                 }
             }
 
             // Remove our markers
             // eslint-disable-next-line no-param-reassign
-            delete el.dataset.k2StaticAdded;
+            delete el.dataset.k2AbsoluteAdded;
             // eslint-disable-next-line no-param-reassign
             delete el.dataset.k2OriginalDatetime;
         });

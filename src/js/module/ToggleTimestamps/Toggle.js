@@ -9,15 +9,15 @@ class Toggle extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            useStaticTimestamps: false,
+            useAbsoluteTimestamps: false,
         };
         this.onyxConnection = null;
     }
 
     componentDidMount() {
         // Initialize with current preference
-        const currentPreference = Preferences.getUseStaticTimestamps();
-        this.setState({useStaticTimestamps: currentPreference});
+        const currentPreference = Preferences.getUseAbsoluteTimestamps();
+        this.setState({useAbsoluteTimestamps: currentPreference});
 
         // Connect to Onyx to read the preference
         this.onyxConnection = ReactNativeOnyx.connect({
@@ -27,7 +27,7 @@ class Toggle extends React.Component {
                     return;
                 }
                 this.setState({
-                    useStaticTimestamps: preferences.useStaticTimestamps || false,
+                    useAbsoluteTimestamps: preferences.useAbsoluteTimestamps || false,
                 });
             },
         });
@@ -41,13 +41,13 @@ class Toggle extends React.Component {
     }
 
     /**
-     * Toggle the static timestamps preference
+     * Toggle the absolute timestamps preference
      */
     handleToggle() {
         this.setState((prevState) => {
-            const newValue = !prevState.useStaticTimestamps;
-            Preferences.setUseStaticTimestamps(newValue);
-            return {useStaticTimestamps: newValue};
+            const newValue = !prevState.useAbsoluteTimestamps;
+            Preferences.setUseAbsoluteTimestamps(newValue);
+            return {useAbsoluteTimestamps: newValue};
         });
     }
 
@@ -56,13 +56,13 @@ class Toggle extends React.Component {
             <div style={{width: '100%'}}>
                 <button
                     type="button"
-                    className={this.state.useStaticTimestamps
-                        ? `${defaultBtnClass} k2-static-timestamps selected`
-                        : `${defaultBtnClass} k2-static-timestamps`}
+                    className={this.state.useAbsoluteTimestamps
+                        ? `${defaultBtnClass} k2-absolute-timestamps selected`
+                        : `${defaultBtnClass} k2-absolute-timestamps`}
                     onClick={() => this.handleToggle()}
                     style={{width: '100%'}}
                 >
-                    {this.state.useStaticTimestamps
+                    {this.state.useAbsoluteTimestamps
                         ? 'Hide Timestamps'
                         : 'Show Timestamps'}
                 </button>

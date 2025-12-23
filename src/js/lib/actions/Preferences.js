@@ -2,7 +2,7 @@ import ReactNativeOnyx from 'react-native-onyx';
 import ONYXKEYS from '../../ONYXKEYS';
 
 let ghToken;
-let useStaticTimestamps;
+let useAbsoluteTimestamps;
 ReactNativeOnyx.connect({
     key: ONYXKEYS.PREFERENCES,
     callback: (preferences) => {
@@ -12,7 +12,7 @@ ReactNativeOnyx.connect({
         }
 
         ghToken = preferences.ghToken;
-        useStaticTimestamps = preferences.useStaticTimestamps || false;
+        useAbsoluteTimestamps = preferences.useAbsoluteTimestamps || false;
     },
 });
 
@@ -28,21 +28,21 @@ function setGitHubToken(value) {
     ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {ghToken: value});
 }
 
-function getUseStaticTimestamps() {
-    return useStaticTimestamps || false;
+function getUseAbsoluteTimestamps() {
+    return useAbsoluteTimestamps || false;
 }
 
 /**
  * @param {Boolean} value
  */
-function setUseStaticTimestamps(value) {
-    useStaticTimestamps = value;
-    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {useStaticTimestamps: value});
+function setUseAbsoluteTimestamps(value) {
+    useAbsoluteTimestamps = value;
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {useAbsoluteTimestamps: value});
 }
 
 export {
     getGitHubToken,
     setGitHubToken,
-    getUseStaticTimestamps,
-    setUseStaticTimestamps,
+    getUseAbsoluteTimestamps,
+    setUseAbsoluteTimestamps,
 };
