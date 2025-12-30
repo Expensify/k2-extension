@@ -33,7 +33,7 @@ export default function () {
         // Set up timestamp format conversion
         const applyTimestampFormatPeriodic = AllPages.applyTimestampFormat();
         setTimeout(() => applyTimestampFormatPeriodic(), 500);
-        setInterval(() => applyTimestampFormatPeriodic(), 2000);
+        setInterval(() => applyTimestampFormatPeriodic(), 5000);
     };
 
     return AllPages;
