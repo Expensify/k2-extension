@@ -28,12 +28,7 @@ const refreshSidebar = function () {
         // Draw the toggle if wrapper exists but is empty
         const wrapper = $('.k2toggletimestamps-wrapper');
         if (wrapper.children().length === 0) {
-            try {
-                new ToggleTimestamps().draw();
-            } catch (e) {
-                // eslint-disable-next-line no-console
-                console.warn('[K2 PR Page] Failed to draw timestamp toggle:', e);
-            }
+            new ToggleTimestamps().draw();
         }
         return;
     }
@@ -56,12 +51,7 @@ const refreshSidebar = function () {
         return;
     }
 
-    try {
-        new ToggleTimestamps().draw();
-    } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('[K2 PR Page] Failed to draw timestamp toggle:', e);
-    }
+    new ToggleTimestamps().draw();
 };
 
 const refreshHold = function () {
@@ -136,6 +126,7 @@ export default function () {
      * Add buttons to the page and setup the event handler
      */
     PrPage.setup = function () {
+        setTimeout(refreshSidebar, 500);
         setInterval(refreshHold, 1000);
         setInterval(renderReplaceChecklistButton, 2000);
 
