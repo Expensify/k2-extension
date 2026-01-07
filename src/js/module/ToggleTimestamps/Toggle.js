@@ -2,6 +2,7 @@ import React from 'react';
 import ReactNativeOnyx from 'react-native-onyx';
 import ONYXKEYS from '../../ONYXKEYS';
 import * as Preferences from '../../lib/actions/Preferences';
+import convertTimestamps from '../../lib/timestampConverter';
 
 const defaultBtnClass = 'btn btn-sm';
 
@@ -47,6 +48,7 @@ class Toggle extends React.Component {
         this.setState((prevState) => {
             const newValue = !prevState.useAbsoluteTimestamps;
             Preferences.setUseAbsoluteTimestamps(newValue);
+            convertTimestamps(newValue);
             return {useAbsoluteTimestamps: newValue};
         });
     }

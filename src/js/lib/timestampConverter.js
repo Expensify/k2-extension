@@ -22,7 +22,9 @@ function formatTimestamp(datetimeString) {
  * @param {Boolean} useAbsoluteTimestamps Whether to use absolute timestamps
  */
 function convertTimestamps(useAbsoluteTimestamps) {
-    if (useAbsoluteTimestamps) {
+    const shouldUseAbsoluteTimestamps = !!useAbsoluteTimestamps;
+
+    if (shouldUseAbsoluteTimestamps) {
         // Find all relative-time elements that don't have absolute timestamp added yet
         const elements = document.querySelectorAll('relative-time:not([data-k2-absolute-added])');
 
@@ -60,17 +62,17 @@ function convertTimestamps(useAbsoluteTimestamps) {
         });
 
         // Update existing absolute parts (refresh the absolute timestamp)
-        const elementsWithAbsolute = document.querySelectorAll('relative-time[data-k2-absolute-added="true"]');
+        const elementsWithAbsolute = document.querySelectorAll('relative-time[data-k2-absolute-added]');
         Array.from(elementsWithAbsolute).forEach((el) => {
             const datetime = el.dataset.k2OriginalDatetime || el.getAttribute('datetime');
             if (datetime) {
                 // Find the absolute span that follows this element
                 let absoluteSpan = el.nextSibling;
-                while (absoluteSpan && (!absoluteSpan.dataset || absoluteSpan.dataset.k2AbsolutePart !== 'true')) {
+                while (absoluteSpan && (!absoluteSpan.dataset || !absoluteSpan.dataset.k2AbsolutePart)) {
                     absoluteSpan = absoluteSpan.nextSibling;
                 }
 
-                if (absoluteSpan && absoluteSpan.dataset.k2AbsolutePart === 'true') {
+                if (absoluteSpan && absoluteSpan.dataset.k2AbsolutePart) {
                     const absoluteTime = formatTimestamp(datetime);
                     // eslint-disable-next-line no-param-reassign
                     absoluteSpan.textContent = ` (${absoluteTime})`;
@@ -79,16 +81,16 @@ function convertTimestamps(useAbsoluteTimestamps) {
         });
     } else {
         // Find all relative-time elements that have absolute timestamps added
-        const elements = document.querySelectorAll('relative-time[data-k2-absolute-added="true"]');
+        const elements = document.querySelectorAll('relative-time[data-k2-absolute-added]');
 
         Array.from(elements).forEach((el) => {
             // Find and remove the absolute timestamp span
             let absoluteSpan = el.nextSibling;
-            while (absoluteSpan && (!absoluteSpan.dataset || absoluteSpan.dataset.k2AbsolutePart !== 'true')) {
+            while (absoluteSpan && (!absoluteSpan.dataset || !absoluteSpan.dataset.k2AbsolutePart)) {
                 absoluteSpan = absoluteSpan.nextSibling;
             }
 
-            if (absoluteSpan && absoluteSpan.dataset.k2AbsolutePart === 'true') {
+            if (absoluteSpan && absoluteSpan.dataset.k2AbsolutePart) {
                 const parent = absoluteSpan.parentNode;
                 if (parent) {
                     parent.removeChild(absoluteSpan);

@@ -285,39 +285,33 @@ export default function () {
     };
 
     /**
-     * Applies timestamp format based on user preference
-     * Sets up Onyx connection to listen for preference changes and returns a function
-     * that can be called periodically to handle dynamically loaded timestamps
-     * @returns {Function} Function to call periodically for dynamic content
+     * Listens for preference changes and applies the configured timestamp format once.
+     * Call once during setup to register the Onyx listener and perform an initial conversion.
      */
-    Page.applyTimestampFormat = function () {
-        let currentPreference = false;
-
-        // Connect to Onyx to listen for preference changes
+    Page.setupTimestampFormat = function setupTimestampFormat() {
         ReactNativeOnyx.connect({
             key: ONYXKEYS.PREFERENCES,
             callback: (preferences) => {
                 if (!preferences) {
                     return;
                 }
-                currentPreference = preferences.useAbsoluteTimestamps || false;
-                convertTimestamps(currentPreference);
+                const preference = !!preferences.useAbsoluteTimestamps;
+                convertTimestamps(preference);
             },
         });
 
-        // Also try to get initial preference
         const initialPreference = Preferences.getUseAbsoluteTimestamps();
         if (initialPreference !== undefined) {
-            currentPreference = initialPreference;
-            convertTimestamps(currentPreference);
+            convertTimestamps(!!initialPreference);
         }
+    };
 
-        // Return a function that can be called periodically
-        // This function reads the current preference and converts timestamps
-        return function applyTimestampFormatPeriodic() {
-            const useAbsoluteTimestamps = Preferences.getUseAbsoluteTimestamps();
-            convertTimestamps(useAbsoluteTimestamps);
-        };
+    /**
+     * Applies the current timestamp format. Safe to invoke periodically for dynamic content.
+     */
+    Page.applyTimestampFormat = function applyTimestampFormat() {
+        const preference = Preferences.getUseAbsoluteTimestamps();
+        convertTimestamps(!!preference);
     };
 
     return Page;

@@ -12,7 +12,7 @@ ReactNativeOnyx.connect({
         }
 
         ghToken = preferences.ghToken;
-        useAbsoluteTimestamps = preferences.useAbsoluteTimestamps || false;
+        useAbsoluteTimestamps = !!preferences.useAbsoluteTimestamps;
     },
 });
 
@@ -29,7 +29,7 @@ function setGitHubToken(value) {
 }
 
 function getUseAbsoluteTimestamps() {
-    return useAbsoluteTimestamps || false;
+    return !!useAbsoluteTimestamps;
 }
 
 /**
