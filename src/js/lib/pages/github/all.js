@@ -29,6 +29,10 @@ export default function () {
             $('nav.js-repo-nav *[data-selected-links*="repo_pulls"]')
                 .parent().after(k2Button({url: currentUrl}));
         }
+
+        // Set up timestamp format conversion
+        setTimeout(() => AllPages.applyTimestampFormat(), 500);
+        setInterval(() => AllPages.applyTimestampFormat(), 5000);
     };
 
     return AllPages;
