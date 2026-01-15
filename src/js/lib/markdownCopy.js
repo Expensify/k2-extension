@@ -196,6 +196,15 @@ function handlePrMenu(menuList) {
         return;
     }
 
+    // EXCLUSION: Skip the '<> Code' dropdown (Local/Codespaces) on pull requests
+    // as this menu contains clipboard-copy for git clone commands, not comment text
+    if (menuList.getAttribute('src').includes('open_with_menu')
+        || menuList.querySelector('tab-container')
+        || menuList.querySelector('#local-tab, #cloud-tab')
+        || menuList.closest('get-repo')) {
+        return;
+    }
+
     // Wait for at least "Copy link" to exist (it works for both logged in and out)
     const copyLinkBtn = menuList.querySelector('clipboard-copy');
     if (!copyLinkBtn && !menuList.querySelector('.js-comment-quote-reply')) {
