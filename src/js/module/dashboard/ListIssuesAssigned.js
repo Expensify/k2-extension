@@ -212,7 +212,6 @@ class ListIssuesAssigned extends React.Component {
                             style={{
                                 marginLeft: '10px',
                                 padding: '4px 8px',
-                                border: '2px solid #22c55e',
                                 borderRadius: '4px',
                             }}
                         />
