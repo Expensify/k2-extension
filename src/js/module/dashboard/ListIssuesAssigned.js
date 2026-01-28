@@ -71,19 +71,13 @@ class ListIssuesAssigned extends React.Component {
         clearInterval(this.interval);
     }
 
+    handleSearchChange(event) {
+        this.setState({searchText: event.target.value});
+    }
+
     toggleHeldFilter() {
         this.setState(prevState => ({shouldHideHeldIssues: !prevState.shouldHideHeldIssues}));
         Issues.saveCheckboxes({shouldHideOnHold: !this.state.shouldHideHeldIssues});
-    }
-
-    toggleUnderReviewFilter() {
-        this.setState(prevState => ({shouldHideUnderReviewIssues: !prevState.shouldHideUnderReviewIssues}));
-        Issues.saveCheckboxes({shouldHideUnderReview: !this.state.shouldHideUnderReviewIssues});
-    }
-
-    toggleOwnedBySomeoneElseFilter() {
-        this.setState(prevState => ({shouldHideOwnedBySomeoneElseIssues: !prevState.shouldHideOwnedBySomeoneElseIssues}));
-        Issues.saveCheckboxes({shouldHideOwnedBySomeoneElse: !this.state.shouldHideOwnedBySomeoneElseIssues});
     }
 
     toggleNotOverdueFilter() {
@@ -91,8 +85,14 @@ class ListIssuesAssigned extends React.Component {
         Issues.saveCheckboxes({shouldHideNotOverdue: !this.state.shouldHideNotOverdueIssues});
     }
 
-    handleSearchChange(event) {
-        this.setState({searchText: event.target.value});
+    toggleOwnedBySomeoneElseFilter() {
+        this.setState(prevState => ({shouldHideOwnedBySomeoneElseIssues: !prevState.shouldHideOwnedBySomeoneElseIssues}));
+        Issues.saveCheckboxes({shouldHideOwnedBySomeoneElse: !this.state.shouldHideOwnedBySomeoneElseIssues});
+    }
+
+    toggleUnderReviewFilter() {
+        this.setState(prevState => ({shouldHideUnderReviewIssues: !prevState.shouldHideUnderReviewIssues}));
+        Issues.saveCheckboxes({shouldHideUnderReview: !this.state.shouldHideUnderReviewIssues});
     }
 
     fetch() {
@@ -206,7 +206,7 @@ class ListIssuesAssigned extends React.Component {
                         </div>
                         <input
                             type="text"
-                            placeholder="Free Text Search Here"
+                            placeholder="Filter Issues by Title"
                             value={this.state.searchText}
                             onChange={this.handleSearchChange}
                             style={{
