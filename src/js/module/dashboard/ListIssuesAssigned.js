@@ -46,12 +46,14 @@ class ListIssuesAssigned extends React.Component {
             shouldHideUnderReviewIssues: props.checkboxes.shouldHideUnderReview,
             shouldHideOwnedBySomeoneElseIssues: props.checkboxes.shouldHideOwnedBySomeoneElse,
             shouldHideNotOverdueIssues: props.checkboxes.shouldHideNotOverdue,
+            searchText: '',
         };
         this.fetch = this.fetch.bind(this);
         this.toggleHeldFilter = this.toggleHeldFilter.bind(this);
         this.toggleUnderReviewFilter = this.toggleUnderReviewFilter.bind(this);
         this.toggleOwnedBySomeoneElseFilter = this.toggleOwnedBySomeoneElseFilter.bind(this);
         this.toggleNotOverdueFilter = this.toggleNotOverdueFilter.bind(this);
+        this.applySearchFilter = this.applySearchFilter.bind(this);
     }
 
     componentDidMount() {
@@ -69,8 +71,8 @@ class ListIssuesAssigned extends React.Component {
         clearInterval(this.interval);
     }
 
-    fetch() {
-        Issues.getAllAssigned();
+    applySearchFilter(event) {
+        this.setState({searchText: event.target.value});
     }
 
     toggleHeldFilter() {
@@ -78,9 +80,9 @@ class ListIssuesAssigned extends React.Component {
         Issues.saveCheckboxes({shouldHideOnHold: !this.state.shouldHideHeldIssues});
     }
 
-    toggleUnderReviewFilter() {
-        this.setState(prevState => ({shouldHideUnderReviewIssues: !prevState.shouldHideUnderReviewIssues}));
-        Issues.saveCheckboxes({shouldHideUnderReview: !this.state.shouldHideUnderReviewIssues});
+    toggleNotOverdueFilter() {
+        this.setState(prevState => ({shouldHideNotOverdueIssues: !prevState.shouldHideNotOverdueIssues}));
+        Issues.saveCheckboxes({shouldHideNotOverdue: !this.state.shouldHideNotOverdueIssues});
     }
 
     toggleOwnedBySomeoneElseFilter() {
@@ -88,9 +90,13 @@ class ListIssuesAssigned extends React.Component {
         Issues.saveCheckboxes({shouldHideOwnedBySomeoneElse: !this.state.shouldHideOwnedBySomeoneElseIssues});
     }
 
-    toggleNotOverdueFilter() {
-        this.setState(prevState => ({shouldHideNotOverdueIssues: !prevState.shouldHideNotOverdueIssues}));
-        Issues.saveCheckboxes({shouldHideNotOverdue: !this.state.shouldHideNotOverdueIssues});
+    toggleUnderReviewFilter() {
+        this.setState(prevState => ({shouldHideUnderReviewIssues: !prevState.shouldHideUnderReviewIssues}));
+        Issues.saveCheckboxes({shouldHideUnderReview: !this.state.shouldHideUnderReviewIssues});
+    }
+
+    fetch() {
+        Issues.getAllAssigned();
     }
 
     filterIssues(issues) {
@@ -105,6 +111,11 @@ class ListIssuesAssigned extends React.Component {
                 return false;
             }
             if (this.state.shouldHideNotOverdueIssues && !_.find(item.labels, label => label.name.toLowerCase() === 'overdue')) {
+                return false;
+            }
+
+            // Free text search filter (case insensitive)
+            if (this.state.searchText && item.title.toLowerCase().indexOf(this.state.searchText.toLowerCase()) === -1) {
                 return false;
             }
             return true;
@@ -193,6 +204,13 @@ class ListIssuesAssigned extends React.Component {
                                 Not Overdue
                             </label>
                         </div>
+                        <input
+                            type="text"
+                            placeholder="Filter Issues by Title"
+                            className="search-filter-input"
+                            value={this.state.searchText}
+                            onChange={this.applySearchFilter}
+                        />
                     </form>
                 </div>
                 {!_.isEmpty(this.props.issues) && (
