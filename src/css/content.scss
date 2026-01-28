@@ -659,3 +659,38 @@ $color-dark-yellow: #DAA520;
 .custom-markdown-copy {
     cursor: pointer;
 }
+
+// Snooze button for PRs - allows hiding PRs until new activity
+.snooze-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.4;
+    padding: 0 8px 0 0;
+    color: $color-neutral;
+    font-size: 12px;
+    vertical-align: middle;
+    transition: opacity 150ms ease-in-out;
+
+    &:hover {
+        opacity: 1;
+    }
+
+    &.active {
+        opacity: 0.8;
+        color: $color-neutral-light;
+    }
+}
+
+// Snoozed panel items are grayed out until new activity is detected
+.panel-item.snoozed {
+    opacity: 0.4;
+
+    a {
+        color: $color-neutral-light !important;
+    }
+
+    .panel-item-meta {
+        color: color.adjust($color-neutral-light, $lightness: -10%);
+    }
+}

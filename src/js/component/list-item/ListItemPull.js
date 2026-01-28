@@ -1,6 +1,8 @@
 import React from 'react';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 import pullRequestPropTypes from '../../lib/pullRequestPropTypes';
+import * as PullRequests from '../../lib/actions/PullRequests';
 
 const propTypes = {
     /** Data about the pull request being displayed. The `data` and `pr` props are the same and can come from multiple
@@ -10,10 +12,18 @@ const propTypes = {
 
     /** Data about the pull request being displayed */
     pr: pullRequestPropTypes,
+
+    /** Snooze state for this PR (if snoozed) */
+    snoozeState: PropTypes.shape({
+        updatedAt: PropTypes.string,
+        commentsCount: PropTypes.number,
+        reviewsCount: PropTypes.number,
+    }),
 };
 const defaultProps = {
     data: null,
     pr: null,
+    snoozeState: null,
 };
 
 function ListItemPull(props) {
@@ -23,6 +33,42 @@ function ListItemPull(props) {
     if (!pr.id) {
         return null;
     }
+
+    // Check if this PR is snoozed and has no new activity
+    const {snoozeState} = props;
+    const hasSnoozeState = snoozeState
+        && snoozeState.updatedAt !== undefined
+        && snoozeState.commentsCount !== undefined
+        && snoozeState.reviewsCount !== undefined;
+
+    // A PR has new activity if any of these values differ from when it was snoozed
+    const hasNewActivity = hasSnoozeState && (
+        pr.updatedAt !== snoozeState.updatedAt
+        || pr.comments.totalCount !== snoozeState.commentsCount
+        || pr.reviews.totalCount !== snoozeState.reviewsCount
+    );
+
+    // PR is visually snoozed only if it has snooze state AND no new activity
+    const isSnoozed = hasSnoozeState && !hasNewActivity;
+
+    function handleSnoozeClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (isSnoozed) {
+            // Unsnooze the PR
+            PullRequests.unsnoozePR(pr.id);
+        } else {
+            // Snooze the PR with current state
+            PullRequests.snoozePR(
+                pr.id,
+                pr.updatedAt,
+                pr.comments.totalCount,
+                pr.reviews.totalCount,
+            );
+        }
+    }
+
     function getClassName() {
         let className = 'issue';
         const today = moment();
@@ -75,8 +121,17 @@ function ListItemPull(props) {
     }
 
     return (
-        <div className="panel-item">
+        <div className={`panel-item${isSnoozed ? ' snoozed' : ''}`}>
             <span className="panel-item-meta">
+                <button
+                    type="button"
+                    className={`snooze-button${isSnoozed ? ' active' : ''}`}
+                    onClick={handleSnoozeClick}
+                    title={isSnoozed ? 'Unsnooze this PR' : 'Snooze until new activity'}
+                >
+                    <span className={`octicon ${isSnoozed ? 'octicon-eye' : 'octicon-eye-closed'}`} />
+                </button>
+
                 <span className="age">
                     Updated:
                     {' '}

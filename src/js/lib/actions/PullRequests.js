@@ -106,7 +106,35 @@ function getReviewing() {
     });
 }
 
+/**
+ * Snooze a PR by storing its current state. The PR will appear grayed out
+ * until new activity is detected (different updatedAt, comments, or reviews count).
+ *
+ * @param {String} prId - The unique ID of the PR
+ * @param {String} updatedAt - The PR's current updatedAt timestamp
+ * @param {Number} commentsCount - The PR's current comment count
+ * @param {Number} reviewsCount - The PR's current review count
+ */
+function snoozePR(prId, updatedAt, commentsCount, reviewsCount) {
+    ReactNativeOnyx.merge(ONYXKEYS.PRS.SNOOZED, {
+        [prId]: {updatedAt, commentsCount, reviewsCount},
+    });
+}
+
+/**
+ * Unsnooze a PR by removing its stored state.
+ *
+ * @param {String} prId - The unique ID of the PR to unsnooze
+ */
+function unsnoozePR(prId) {
+    ReactNativeOnyx.merge(ONYXKEYS.PRS.SNOOZED, {
+        [prId]: null,
+    });
+}
+
 export {
     getAssigned,
     getReviewing,
+    snoozePR,
+    unsnoozePR,
 };
