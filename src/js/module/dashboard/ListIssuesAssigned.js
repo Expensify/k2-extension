@@ -46,12 +46,14 @@ class ListIssuesAssigned extends React.Component {
             shouldHideUnderReviewIssues: props.checkboxes.shouldHideUnderReview,
             shouldHideOwnedBySomeoneElseIssues: props.checkboxes.shouldHideOwnedBySomeoneElse,
             shouldHideNotOverdueIssues: props.checkboxes.shouldHideNotOverdue,
+            searchText: '',
         };
         this.fetch = this.fetch.bind(this);
         this.toggleHeldFilter = this.toggleHeldFilter.bind(this);
         this.toggleUnderReviewFilter = this.toggleUnderReviewFilter.bind(this);
         this.toggleOwnedBySomeoneElseFilter = this.toggleOwnedBySomeoneElseFilter.bind(this);
         this.toggleNotOverdueFilter = this.toggleNotOverdueFilter.bind(this);
+        this.handleSearchChange = this.handleSearchChange.bind(this);
     }
 
     componentDidMount() {
@@ -67,10 +69,6 @@ class ListIssuesAssigned extends React.Component {
             return;
         }
         clearInterval(this.interval);
-    }
-
-    fetch() {
-        Issues.getAllAssigned();
     }
 
     toggleHeldFilter() {
@@ -93,6 +91,14 @@ class ListIssuesAssigned extends React.Component {
         Issues.saveCheckboxes({shouldHideNotOverdue: !this.state.shouldHideNotOverdueIssues});
     }
 
+    handleSearchChange(event) {
+        this.setState({searchText: event.target.value});
+    }
+
+    fetch() {
+        Issues.getAllAssigned();
+    }
+
     filterIssues(issues) {
         return _.filter(issues, (item) => {
             if (this.state.shouldHideHeldIssues && item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '') {
@@ -105,6 +111,11 @@ class ListIssuesAssigned extends React.Component {
                 return false;
             }
             if (this.state.shouldHideNotOverdueIssues && !_.find(item.labels, label => label.name.toLowerCase() === 'overdue')) {
+                return false;
+            }
+
+            // Free text search filter (case insensitive)
+            if (this.state.searchText && item.title.toLowerCase().indexOf(this.state.searchText.toLowerCase()) === -1) {
                 return false;
             }
             return true;
@@ -193,6 +204,18 @@ class ListIssuesAssigned extends React.Component {
                                 Not Overdue
                             </label>
                         </div>
+                        <input
+                            type="text"
+                            placeholder="Free Text Search Here"
+                            value={this.state.searchText}
+                            onChange={this.handleSearchChange}
+                            style={{
+                                marginLeft: '10px',
+                                padding: '4px 8px',
+                                border: '2px solid #22c55e',
+                                borderRadius: '4px',
+                            }}
+                        />
                     </form>
                 </div>
                 {!_.isEmpty(this.props.issues) && (
