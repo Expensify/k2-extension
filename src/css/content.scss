@@ -566,6 +566,12 @@ $color-dark-yellow: #DAA520;
   border: 1px solid rgb(221, 221, 221);
 }
 
+.search-filter-input {
+  margin-left: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
 @media (prefers-color-scheme: dark) {
   .panel, .panel-item, .issue-filter {
      border-color: rgb(48, 54, 61);

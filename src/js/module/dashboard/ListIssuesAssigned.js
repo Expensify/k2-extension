@@ -53,7 +53,7 @@ class ListIssuesAssigned extends React.Component {
         this.toggleUnderReviewFilter = this.toggleUnderReviewFilter.bind(this);
         this.toggleOwnedBySomeoneElseFilter = this.toggleOwnedBySomeoneElseFilter.bind(this);
         this.toggleNotOverdueFilter = this.toggleNotOverdueFilter.bind(this);
-        this.handleSearchChange = this.handleSearchChange.bind(this);
+        this.applySearchFilter = this.applySearchFilter.bind(this);
     }
 
     componentDidMount() {
@@ -71,7 +71,7 @@ class ListIssuesAssigned extends React.Component {
         clearInterval(this.interval);
     }
 
-    handleSearchChange(event) {
+    applySearchFilter(event) {
         this.setState({searchText: event.target.value});
     }
 
@@ -207,13 +207,9 @@ class ListIssuesAssigned extends React.Component {
                         <input
                             type="text"
                             placeholder="Filter Issues by Title"
+                            className="search-filter-input"
                             value={this.state.searchText}
-                            onChange={this.handleSearchChange}
-                            style={{
-                                marginLeft: '10px',
-                                padding: '4px 8px',
-                                borderRadius: '4px',
-                            }}
+                            onChange={this.applySearchFilter}
                         />
                     </form>
                 </div>
