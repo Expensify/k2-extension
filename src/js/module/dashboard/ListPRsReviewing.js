@@ -14,9 +14,14 @@ const propTypes = {
 
     /** All the PRs assigned to the current user */
     prs: PropTypes.objectOf(IssuePropTypes),
+
+    /** Snoozed PR state keyed by PR ID */
+    // eslint-disable-next-line react/forbid-prop-types
+    snoozedPRs: PropTypes.object,
 };
 const defaultProps = {
     prs: null,
+    snoozedPRs: {},
 };
 
 class ListPRsReviewing extends React.Component {
@@ -65,7 +70,13 @@ class ListPRsReviewing extends React.Component {
 
                 {_.chain(this.props.prs)
                     .sortBy('updatedAt')
-                    .map(pr => <ListItemPull key={pr.id} pr={pr} />)
+                    .map(pr => (
+                        <ListItemPull
+                            key={pr.id}
+                            pr={pr}
+                            snoozeState={this.props.snoozedPRs ? this.props.snoozedPRs[pr.id] : null}
+                        />
+                    ))
                     .value()
                     .reverse()}
             </div>
@@ -79,5 +90,8 @@ ListPRsReviewing.defaultProps = defaultProps;
 export default withOnyx({
     prs: {
         key: ONYXKEYS.PRS.REVIEWING,
+    },
+    snoozedPRs: {
+        key: ONYXKEYS.PRS.SNOOZED,
     },
 })(ListPRsReviewing);
