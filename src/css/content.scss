@@ -665,9 +665,8 @@ $color-dark-yellow: #DAA520;
     background: none;
     border: none;
     cursor: pointer;
-    opacity: 0.4;
-    padding: 0 8px 0 0;
-    color: $color-neutral;
+    opacity: 0.5;
+    padding: 0 0 0 8px;
     font-size: 12px;
     vertical-align: middle;
     transition: opacity 150ms ease-in-out;
@@ -678,7 +677,6 @@ $color-dark-yellow: #DAA520;
 
     &.active {
         opacity: 0.8;
-        color: $color-neutral-light;
     }
 }
 

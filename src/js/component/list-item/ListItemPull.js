@@ -123,15 +123,6 @@ function ListItemPull(props) {
     return (
         <div className={`panel-item${isSnoozed ? ' snoozed' : ''}`}>
             <span className="panel-item-meta">
-                <button
-                    type="button"
-                    className={`snooze-button${isSnoozed ? ' active' : ''}`}
-                    onClick={handleSnoozeClick}
-                    title={isSnoozed ? 'Unsnooze this PR' : 'Snooze until new activity'}
-                >
-                    <span className={`octicon ${isSnoozed ? 'octicon-eye' : 'octicon-eye-closed'}`} />
-                </button>
-
                 <span className="age">
                     Updated:
                     {' '}
@@ -164,6 +155,16 @@ function ListItemPull(props) {
                         {mergeability}
                     </span>
                 )}
+
+                <button
+                    type="button"
+                    className={`snooze-button${isSnoozed ? ' active' : ''}`}
+                    onClick={handleSnoozeClick}
+                    title={isSnoozed ? 'Unsnooze this PR' : 'Snooze until new activity'}
+                    aria-label={isSnoozed ? 'Unsnooze this PR' : 'Snooze until new activity'}
+                >
+                    😴
+                </button>
             </span>
 
             <a href={pr.url} className={getClassName()} target="_blank" rel="noreferrer noopener">
