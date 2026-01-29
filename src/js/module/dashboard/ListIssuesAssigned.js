@@ -100,6 +100,13 @@ class ListIssuesAssigned extends React.Component {
     }
 
     filterIssues(issues) {
+        // Parse search text into include and exclude terms
+        // Terms starting with "-" are exclusions (e.g., "-bug" excludes "bug")
+        // Other terms are inclusions
+        const searchTerms = _.filter(this.state.searchText.trim().split(/\s+/), term => term.length > 0);
+        const includeTerms = _.map(_.filter(searchTerms, term => !term.startsWith('-')), term => term.toLowerCase());
+        const excludeTerms = _.map(_.filter(searchTerms, term => term.startsWith('-') && term.length > 1), term => term.slice(1).toLowerCase());
+
         return _.filter(issues, (item) => {
             if (this.state.shouldHideHeldIssues && item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '') {
                 return false;
@@ -115,9 +122,19 @@ class ListIssuesAssigned extends React.Component {
             }
 
             // Free text search filter (case insensitive)
-            if (this.state.searchText && item.title.toLowerCase().indexOf(this.state.searchText.toLowerCase()) === -1) {
+            // Title must contain ALL include terms
+            const titleLower = item.title.toLowerCase();
+            const matchesAllIncludes = _.every(includeTerms, term => titleLower.indexOf(term) !== -1);
+            if (!matchesAllIncludes) {
                 return false;
             }
+
+            // Title must NOT contain ANY exclude terms
+            const matchesAnyExclude = _.some(excludeTerms, term => titleLower.indexOf(term) !== -1);
+            if (matchesAnyExclude) {
+                return false;
+            }
+
             return true;
         });
     }
