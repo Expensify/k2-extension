@@ -540,46 +540,6 @@ function getWorkflowRun(runId) {
     });
 }
 
-/**
- * The private Expensify/Expensify repo URL (for employees)
- */
-const PRIVATE_K2_REPO = '/Expensify/Expensify';
-
-/**
- * The public Expensify/App repo URL (for external contributors)
- */
-const PUBLIC_K2_REPO = '/Expensify/App';
-
-/**
- * Checks if the current user has access to the private Expensify/Expensify repository.
- * Results are cached in preferences to avoid repeated API calls.
- *
- * @returns {Promise<String>} - The K2 repo URL path ('/Expensify/Expensify' or '/Expensify/App')
- */
-async function checkK2RepoAccess() {
-    // Check if we already have a cached result
-    const cachedUrl = Preferences.getK2RepoUrl();
-    if (cachedUrl) {
-        return cachedUrl;
-    }
-
-    try {
-        // Try to access the private repo - this is a lightweight API call
-        await getOctokit().rest.repos.get({
-            owner: 'Expensify',
-            repo: 'Expensify',
-        });
-
-        // User has access to the private repo
-        Preferences.setK2RepoUrl(PRIVATE_K2_REPO);
-        return PRIVATE_K2_REPO;
-    } catch (error) {
-        // User doesn't have access (403 or 404) - use public App repo
-        Preferences.setK2RepoUrl(PUBLIC_K2_REPO);
-        return PUBLIC_K2_REPO;
-    }
-}
-
 export {
     addComment,
     getCheckRuns,
@@ -599,5 +559,4 @@ export {
     updateComment,
     getWorkflowRuns,
     getWorkflowRun,
-    checkK2RepoAccess,
 };
