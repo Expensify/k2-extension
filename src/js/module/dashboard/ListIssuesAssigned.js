@@ -119,12 +119,11 @@ class ListIssuesAssigned extends React.Component {
     /**
      * Parse search text into structured filters
      * Supports:
-     * - label:"Label Name" or label:labelname for label inclusion
-     * - -label:"Label Name" or -label:labelname for label exclusion
+     * - label:"Label Name" or label:labelname for label filtering (with - prefix for exclusion)
      * - Regular text terms for title search (with - prefix for exclusion)
      *
      * @param {string} searchText - The search text to parse
-     * @returns {Object} Object containing includeLabels, excludeLabels, includeTerms, excludeTerms arrays
+     * @returns {Object}
      */
     parseSearchText(searchText) {
         const includeLabels = [];
@@ -133,16 +132,17 @@ class ListIssuesAssigned extends React.Component {
         const excludeTerms = [];
 
         // Match label:"quoted value" or label:unquoted patterns (with optional - prefix)
-        const labelPattern = /(-?)label:(?:"([^"]+)"|(\S+))/gi;
+        // Named capture groups: exclude (-), quoted (value in quotes), unquoted (value without quotes)
+        const labelPattern = /(?<exclude>-?)label:(?:"(?<quoted>[^"]+)"|(?<unquoted>\S+))/gi;
         let remaining = searchText;
         const matches = searchText.match(labelPattern) || [];
 
         _.each(matches, (matchStr) => {
-            // Re-parse each match to extract components
-            const singleMatch = /(-?)label:(?:"([^"]+)"|(\S+))/i.exec(matchStr);
-            if (singleMatch) {
-                const isExclusion = singleMatch[1] === '-';
-                const labelValue = (singleMatch[2] || singleMatch[3]).toLowerCase();
+            // Re-parse each match to extract named capture groups
+            const singleMatch = /(?<exclude>-?)label:(?:"(?<quoted>[^"]+)"|(?<unquoted>\S+))/i.exec(matchStr);
+            if (singleMatch && singleMatch.groups) {
+                const isExclusion = singleMatch.groups.exclude === '-';
+                const labelValue = (singleMatch.groups.quoted || singleMatch.groups.unquoted).toLowerCase();
 
                 if (isExclusion) {
                     excludeLabels.push(labelValue);
