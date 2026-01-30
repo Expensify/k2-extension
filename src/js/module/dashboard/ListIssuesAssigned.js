@@ -122,6 +122,9 @@ class ListIssuesAssigned extends React.Component {
      * - label:"Label Name" or label:labelname for label inclusion
      * - -label:"Label Name" or -label:labelname for label exclusion
      * - Regular text terms for title search (with - prefix for exclusion)
+     *
+     * @param {string} searchText - The search text to parse
+     * @returns {Object} Object containing includeLabels, excludeLabels, includeTerms, excludeTerms arrays
      */
     parseSearchText(searchText) {
         const includeLabels = [];
@@ -132,21 +135,25 @@ class ListIssuesAssigned extends React.Component {
         // Match label:"quoted value" or label:unquoted patterns (with optional - prefix)
         const labelPattern = /(-?)label:(?:"([^"]+)"|(\S+))/gi;
         let remaining = searchText;
-        let match;
+        const matches = searchText.match(labelPattern) || [];
 
-        while ((match = labelPattern.exec(searchText)) !== null) {
-            const isExclusion = match[1] === '-';
-            const labelValue = (match[2] || match[3]).toLowerCase();
+        _.each(matches, (matchStr) => {
+            // Re-parse each match to extract components
+            const singleMatch = /(-?)label:(?:"([^"]+)"|(\S+))/i.exec(matchStr);
+            if (singleMatch) {
+                const isExclusion = singleMatch[1] === '-';
+                const labelValue = (singleMatch[2] || singleMatch[3]).toLowerCase();
 
-            if (isExclusion) {
-                excludeLabels.push(labelValue);
-            } else {
-                includeLabels.push(labelValue);
+                if (isExclusion) {
+                    excludeLabels.push(labelValue);
+                } else {
+                    includeLabels.push(labelValue);
+                }
+
+                // Remove matched pattern from remaining text
+                remaining = remaining.replace(matchStr, ' ');
             }
-
-            // Remove matched pattern from remaining text
-            remaining = remaining.replace(match[0], ' ');
-        }
+        });
 
         // Parse remaining text for regular title search terms
         const textTerms = _.filter(remaining.trim().split(/\s+/), term => term.length > 0);
@@ -158,11 +165,18 @@ class ListIssuesAssigned extends React.Component {
             }
         });
 
-        return {includeLabels, excludeLabels, includeTerms, excludeTerms};
+        return {
+            includeLabels,
+            excludeLabels,
+            includeTerms,
+            excludeTerms,
+        };
     }
 
     filterIssues(issues) {
-        const {includeLabels, excludeLabels, includeTerms, excludeTerms} = this.parseSearchText(this.state.searchText);
+        const {
+            includeLabels, excludeLabels, includeTerms, excludeTerms,
+        } = this.parseSearchText(this.state.searchText);
 
         return _.filter(issues, (item) => {
             if (this.state.shouldHideHeldIssues && item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '') {
