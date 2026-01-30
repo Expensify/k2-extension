@@ -46,6 +46,10 @@ class ListIssuesAssigned extends React.Component {
             shouldHideUnderReviewIssues: props.checkboxes.shouldHideUnderReview,
             shouldHideOwnedBySomeoneElseIssues: props.checkboxes.shouldHideOwnedBySomeoneElse,
             shouldHideNotOverdueIssues: props.checkboxes.shouldHideNotOverdue,
+
+            // searchInputText is the immediate value shown in the input field
+            // searchText is the debounced value used for filtering
+            searchInputText: '',
             searchText: '',
         };
         this.fetch = this.fetch.bind(this);
@@ -54,6 +58,7 @@ class ListIssuesAssigned extends React.Component {
         this.toggleOwnedBySomeoneElseFilter = this.toggleOwnedBySomeoneElseFilter.bind(this);
         this.toggleNotOverdueFilter = this.toggleNotOverdueFilter.bind(this);
         this.applySearchFilter = this.applySearchFilter.bind(this);
+        this.applyDebouncedSearchFilter = _.debounce(this.applyDebouncedSearchFilter.bind(this), 300);
     }
 
     componentDidMount() {
@@ -65,14 +70,26 @@ class ListIssuesAssigned extends React.Component {
     }
 
     componentWillUnmount() {
-        if (!this.interval) {
-            return;
+        if (this.interval) {
+            clearInterval(this.interval);
         }
-        clearInterval(this.interval);
+
+        // Cancel any pending debounced search
+        this.applyDebouncedSearchFilter.cancel();
     }
 
     applySearchFilter(event) {
-        this.setState({searchText: event.target.value});
+        const value = event.target.value;
+
+        // Update input text immediately for responsive UI
+        this.setState({searchInputText: value});
+
+        // Debounce the actual filtering
+        this.applyDebouncedSearchFilter(value);
+    }
+
+    applyDebouncedSearchFilter(value) {
+        this.setState({searchText: value});
     }
 
     toggleHeldFilter() {
@@ -225,7 +242,7 @@ class ListIssuesAssigned extends React.Component {
                             type="text"
                             placeholder="Filter Issues by Title"
                             className="search-filter-input"
-                            value={this.state.searchText}
+                            value={this.state.searchInputText}
                             onChange={this.applySearchFilter}
                         />
                     </form>
