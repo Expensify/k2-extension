@@ -116,13 +116,53 @@ class ListIssuesAssigned extends React.Component {
         Issues.getAllAssigned();
     }
 
+    /**
+     * Parse search text into structured filters
+     * Supports:
+     * - label:"Label Name" or label:labelname for label inclusion
+     * - -label:"Label Name" or -label:labelname for label exclusion
+     * - Regular text terms for title search (with - prefix for exclusion)
+     */
+    parseSearchText(searchText) {
+        const includeLabels = [];
+        const excludeLabels = [];
+        const includeTerms = [];
+        const excludeTerms = [];
+
+        // Match label:"quoted value" or label:unquoted patterns (with optional - prefix)
+        const labelPattern = /(-?)label:(?:"([^"]+)"|(\S+))/gi;
+        let remaining = searchText;
+        let match;
+
+        while ((match = labelPattern.exec(searchText)) !== null) {
+            const isExclusion = match[1] === '-';
+            const labelValue = (match[2] || match[3]).toLowerCase();
+
+            if (isExclusion) {
+                excludeLabels.push(labelValue);
+            } else {
+                includeLabels.push(labelValue);
+            }
+
+            // Remove matched pattern from remaining text
+            remaining = remaining.replace(match[0], ' ');
+        }
+
+        // Parse remaining text for regular title search terms
+        const textTerms = _.filter(remaining.trim().split(/\s+/), term => term.length > 0);
+        _.each(textTerms, (term) => {
+            if (term.startsWith('-') && term.length > 1) {
+                excludeTerms.push(term.slice(1).toLowerCase());
+            } else {
+                includeTerms.push(term.toLowerCase());
+            }
+        });
+
+        return {includeLabels, excludeLabels, includeTerms, excludeTerms};
+    }
+
     filterIssues(issues) {
-        // Parse search text into include and exclude terms
-        // Terms starting with "-" are exclusions (e.g., "-bug" excludes "bug")
-        // Other terms are inclusions
-        const searchTerms = _.filter(this.state.searchText.trim().split(/\s+/), term => term.length > 0);
-        const includeTerms = _.map(_.filter(searchTerms, term => !term.startsWith('-')), term => term.toLowerCase());
-        const excludeTerms = _.map(_.filter(searchTerms, term => term.startsWith('-') && term.length > 1), term => term.slice(1).toLowerCase());
+        const {includeLabels, excludeLabels, includeTerms, excludeTerms} = this.parseSearchText(this.state.searchText);
 
         return _.filter(issues, (item) => {
             if (this.state.shouldHideHeldIssues && item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '') {
@@ -135,6 +175,21 @@ class ListIssuesAssigned extends React.Component {
                 return false;
             }
             if (this.state.shouldHideNotOverdueIssues && !_.find(item.labels, label => label.name.toLowerCase() === 'overdue')) {
+                return false;
+            }
+
+            // Get all label names for this issue (lowercase for comparison)
+            const itemLabels = _.map(item.labels, label => label.name.toLowerCase());
+
+            // Must have ALL include labels
+            const hasAllIncludeLabels = _.every(includeLabels, label => _.some(itemLabels, itemLabel => itemLabel.indexOf(label) !== -1));
+            if (!hasAllIncludeLabels) {
+                return false;
+            }
+
+            // Must NOT have ANY exclude labels
+            const hasAnyExcludeLabel = _.some(excludeLabels, label => _.some(itemLabels, itemLabel => itemLabel.indexOf(label) !== -1));
+            if (hasAnyExcludeLabel) {
                 return false;
             }
 
