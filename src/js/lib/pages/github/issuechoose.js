@@ -85,6 +85,18 @@ export default function () {
     }
 
     /**
+     * Check whether a dialog element is the issue template chooser.
+     * Looks for known heading text that GitHub renders in the template chooser overlay.
+     *
+     * @param {Element} dialog - A dialog or role="dialog" element
+     * @returns {boolean}
+     */
+    function isTemplateChooserDialog(dialog) {
+        const text = dialog.textContent || '';
+        return text.includes('Create new issue') || text.includes('Templates and forms');
+    }
+
+    /**
      * Find template items inside an overlay/dialog element.
      * Used when GitHub shows the template chooser as a dialog on the /issues page
      * rather than navigating to /issues/new/choose.
@@ -101,6 +113,12 @@ export default function () {
 
         _.each(Array.from(dialogs), (dialog) => {
             if (result) {
+                return;
+            }
+
+            // Only target the template chooser dialog, not other GitHub dialogs
+            // (search, feedback, keyboard shortcuts, etc.)
+            if (!isTemplateChooserDialog(dialog)) {
                 return;
             }
 
@@ -306,12 +324,20 @@ export default function () {
         if (isIssuesListPage()) {
             // On the /issues page, the template chooser appears as a dialog overlay
             // when "New Issue" is clicked. Use a MutationObserver to detect it.
+            // The callback is debounced to avoid running on every DOM mutation
+            // (GitHub issues pages can have frequent mutations from polling, etc.)
+            let debounceTimer = null;
             const observer = new MutationObserver(() => {
-                // Only try enhancing when a dialog is visible and not already enhanced
-                if (!document.querySelector('dialog, [role="dialog"]')) {
+                if (debounceTimer) {
                     return;
                 }
-                enhance();
+                debounceTimer = setTimeout(() => {
+                    debounceTimer = null;
+                    if (!document.querySelector('dialog, [role="dialog"]')) {
+                        return;
+                    }
+                    enhance();
+                }, 200);
             });
 
             observer.observe(document.body, {childList: true, subtree: true});
