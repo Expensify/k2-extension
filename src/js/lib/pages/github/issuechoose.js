@@ -269,15 +269,26 @@ export default function () {
 
         const {container, items} = result;
 
-        // 1. Sort items alphabetically by title
-        const sorted = _.sortBy(items, item => getItemTitle(item).toLowerCase());
+        // 1. Remove any native "Blank issue" items so we don't get duplicates
+        // when we add our own at the top
+        const filteredItems = _.filter(items, (item) => {
+            const title = getItemTitle(item).toLowerCase();
+            if (title === 'blank issue') {
+                item.remove();
+                return false;
+            }
+            return true;
+        });
+
+        // 2. Sort items alphabetically by title
+        const sorted = _.sortBy(filteredItems, item => getItemTitle(item).toLowerCase());
         _.each(sorted, item => container.appendChild(item));
 
-        // 2. Add a "Blank issue" link at the top
+        // 3. Add a "Blank issue" link at the top
         addBlankIssueButton(container);
 
-        // 3. Add search/filter box
-        addSearchBox(container, items);
+        // 4. Add search/filter box
+        addSearchBox(container, filteredItems);
 
         return true;
     }
