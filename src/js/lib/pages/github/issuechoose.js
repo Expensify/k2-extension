@@ -2,7 +2,11 @@ import _ from 'underscore';
 import Base from './_base';
 
 /**
- * This page handler enhances the issue template chooser at /issues/new/choose.
+ * This page handler enhances the issue template chooser.
+ * It works on both:
+ * - The dedicated /issues/new/choose page
+ * - The "New Issue" overlay dialog that appears on /issues pages
+ *
  * It adds:
  * 1. Alphabetical sorting of templates
  * 2. A "Blank issue" button at the top of the list
@@ -13,51 +17,44 @@ import Base from './_base';
 export default function () {
     const IssueChoosePage = new Base();
 
-    IssueChoosePage.urlPath = '^(/[\\w-]+/[\\w-.]+/issues/new/choose)';
+    // Match both /issues (for the overlay dialog) and /issues/new/choose (for the full page)
+    IssueChoosePage.urlPath = '^(/[\\w-]+/[\\w-.]+/issues(/new/choose)?)$';
 
     /**
-     * Get the title text of a template item for sorting and filtering
+     * Get the title text of a template item for sorting and filtering.
+     * Checks for semantic elements first (strong, b, h3, h4), then falls back
+     * to the first line of text (handles Primer React styled-span titles).
      *
      * @param {Element} element - A template list item element
      * @returns {string} The title text
      */
     function getItemTitle(element) {
+        // Try semantic title elements first (used on /issues/new/choose page)
         const titleEl = element.querySelector('strong, b, h3, h4');
         if (titleEl) {
             return titleEl.textContent.trim();
         }
+
+        // Fall back to first line of text (handles Primer React dialog items
+        // where titles are styled spans, not semantic elements)
         return element.textContent.trim().split('\n')[0].trim();
     }
 
     /**
-     * Find the container element that holds all template items.
-     * Works by finding template links and determining their common parent.
+     * Walk up the DOM from a set of links to find their common parent container
+     * where each direct child contains roughly one template link.
      *
+     * @param {Element[]} templateLinks - The template link elements
+     * @param {Element} [stopAt] - Optional ancestor to stop walking at
      * @returns {{container: Element, items: Element[]} | null}
      */
-    function findTemplateList() {
-        // Find links pointing to issue creation with templates
-        // These have hrefs like /owner/repo/issues/new?template=something
-        const links = Array.from(document.querySelectorAll('a[href*="/issues/new"]'));
-        // eslint-disable-next-line rulesdir/prefer-underscore-method
-        const templateLinks = _.filter(links, (link) => {
-            const href = link.getAttribute('href') || '';
-            return href.includes('/issues/new?') || /\/issues\/new\/[^c][^h]/.test(href);
-        });
-
-        if (templateLinks.length < 2) {
-            return null;
-        }
-
-        // Walk up the DOM from the first link to find a container whose direct
-        // children correspond to the template items
+    function findContainerForLinks(templateLinks, stopAt) {
         let container = null;
         let items = [];
 
-        // Collect all ancestor candidates first, then test them
         const candidates = [];
         let node = templateLinks[0].parentElement;
-        while (node && node !== document.body) {
+        while (node && node !== document.body && node !== stopAt) {
             candidates.push(node);
             node = node.parentElement;
         }
@@ -85,6 +82,71 @@ export default function () {
             return null;
         }
         return {container, items};
+    }
+
+    /**
+     * Find template items inside an overlay/dialog element.
+     * Used when GitHub shows the template chooser as a dialog on the /issues page
+     * rather than navigating to /issues/new/choose.
+     *
+     * In the dialog, template links don't have /issues/new?template= hrefs
+     * and use Primer React components (styled spans instead of strong/b elements),
+     * so we identify them as all <a> links in the dialog with sufficient text content.
+     *
+     * @returns {{container: Element, items: Element[]} | null}
+     */
+    function findTemplateListInOverlay() {
+        const dialogs = document.querySelectorAll('dialog, [role="dialog"]');
+        let result = null;
+
+        _.each(Array.from(dialogs), (dialog) => {
+            if (result) {
+                return;
+            }
+
+            // In the dialog, action buttons (Close, Copy link) are <button> elements,
+            // so all <a> links are template items. Filter out any links with very
+            // short text (navigation/icon links) just in case.
+            const allLinks = Array.from(dialog.querySelectorAll('a'));
+            const templateLinks = _.filter(allLinks, (link) => {
+                const text = link.textContent.trim();
+                return text.length >= 3;
+            });
+
+            if (templateLinks.length < 2) {
+                return;
+            }
+
+            result = findContainerForLinks(templateLinks, dialog);
+        });
+
+        return result;
+    }
+
+    /**
+     * Find the container element that holds all template items.
+     * Tries two strategies:
+     * 1. href-based: finds links pointing to /issues/new?template=... (works on /issues/new/choose)
+     * 2. overlay-based: finds template links inside a dialog by their structure (works on /issues overlay)
+     *
+     * @returns {{container: Element, items: Element[]} | null}
+     */
+    function findTemplateList() {
+        // Strategy 1: Find links pointing to issue creation with templates
+        // These have hrefs like /owner/repo/issues/new?template=something
+        const links = Array.from(document.querySelectorAll('a[href*="/issues/new"]'));
+        // eslint-disable-next-line rulesdir/prefer-underscore-method
+        const templateLinks = _.filter(links, (link) => {
+            const href = link.getAttribute('href') || '';
+            return href.includes('/issues/new?') || /\/issues\/new\/[^c][^h]/.test(href);
+        });
+
+        if (templateLinks.length >= 2) {
+            return findContainerForLinks(templateLinks);
+        }
+
+        // Strategy 2: Find template items in "New Issue" overlay dialog
+        return findTemplateListInOverlay();
     }
 
     /**
@@ -158,8 +220,22 @@ export default function () {
             }
         }
 
+        // Ensure clicks navigate directly to the blank issue page
+        // This prevents overlay event delegation from intercepting the click
+        blankItem.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.location.href = blankUrl;
+        });
+
         // Update the title text
-        const titleEl = blankItem.querySelector('strong, b, h3, h4');
+        // Try semantic elements first, then fall back to first text-bearing span
+        let titleEl = blankItem.querySelector('strong, b, h3, h4');
+        if (!titleEl) {
+            // In Primer React dialogs, titles are styled spans.
+            // Find the first leaf element with text content.
+            const allEls = Array.from(blankItem.querySelectorAll('*'));
+            titleEl = _.find(allEls, el => el.children.length === 0 && el.textContent.trim().length > 2);
+        }
         if (titleEl) {
             titleEl.textContent = 'Blank issue';
         }
@@ -206,7 +282,32 @@ export default function () {
         return true;
     }
 
+    /**
+     * Check if we're on the /issues page (not /issues/new/choose)
+     *
+     * @returns {boolean}
+     */
+    function isIssuesListPage() {
+        return /^\/[\w-]+\/[\w-.]+\/issues\/?$/.test(window.location.pathname);
+    }
+
     IssueChoosePage.setup = function () {
+        if (isIssuesListPage()) {
+            // On the /issues page, the template chooser appears as a dialog overlay
+            // when "New Issue" is clicked. Use a MutationObserver to detect it.
+            const observer = new MutationObserver(() => {
+                // Only try enhancing when a dialog is visible and not already enhanced
+                if (!document.querySelector('dialog, [role="dialog"]')) {
+                    return;
+                }
+                enhance();
+            });
+
+            observer.observe(document.body, {childList: true, subtree: true});
+            return;
+        }
+
+        // On /issues/new/choose, poll until the template list is rendered
         let attempts = 0;
         const maxAttempts = 30;
 
