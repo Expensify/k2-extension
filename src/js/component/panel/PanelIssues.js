@@ -70,6 +70,16 @@ function getOrderedFilteredIssues({
         return [];
     }
 
+    // Apply title filter first (case-insensitive includes)
+    if (filters && filters.titleFilter && typeof filters.titleFilter === 'string') {
+        const query = filters.titleFilter.trim().toLowerCase();
+        if (query) {
+            preparedIssues = _.filter(preparedIssues, (item) => (
+                item.title && item.title.toLowerCase().indexOf(query) !== -1
+            ));
+        }
+    }
+
     // Apply filters
     if (applyFilters && filters && !_.isEmpty(filters)) {
         preparedIssues = _.filter(preparedIssues, (item) => {
