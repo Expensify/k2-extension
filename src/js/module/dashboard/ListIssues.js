@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// import Filters from './Filters';
+import Filters from './Filters';
 import ListIssuesAssigned from './ListIssuesAssigned';
 import ListPRsAssigned from './ListPRsAssigned';
 import ListPRsReviewing from './ListPRsReviewing';
@@ -22,6 +22,8 @@ function ListIssues(props) {
 
             <ListPRsReviewing pollInterval={props.pollInterval * 2.5} />
 
+            <Filters />
+
             <ListIssuesAssigned pollInterval={props.pollInterval} />
 
             <ListPRsAssigned pollInterval={props.pollInterval * 2.5} />
@@ -29,9 +31,7 @@ function ListIssues(props) {
             <ListIssuesHotPicks pollInterval={props.pollInterval * 2.5} />
 
             {/* Hide these for now while we focus on NewDot */}
-            {/* <Filters />
-
-            <ListIssuesEngineering pollInterval={props.pollInterval * 2.5} /> */}
+            {/* <ListIssuesEngineering pollInterval={props.pollInterval * 2.5} /> */}
         </div>
     );
 }
