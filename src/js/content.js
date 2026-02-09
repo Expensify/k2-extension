@@ -7,6 +7,7 @@ import ghAll from './lib/pages/github/all';
 import ghPr from './lib/pages/github/pr';
 import ghIssue from './lib/pages/github/issue';
 import ghIssuenew from './lib/pages/github/issuenew';
+import ghIssueChoose from './lib/pages/github/issuechoose';
 import ghMain from './lib/pages/github/main';
 
 const pages = [
@@ -14,6 +15,7 @@ const pages = [
     ghPr(),
     ghIssue(),
     ghIssuenew(),
+    ghIssueChoose(),
     ghMain(),
 ];
 

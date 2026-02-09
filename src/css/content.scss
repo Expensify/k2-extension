@@ -665,3 +665,51 @@ $color-dark-yellow: #DAA520;
 .custom-markdown-copy {
     cursor: pointer;
 }
+
+// Issue template chooser enhancements (search, sort, blank issue)
+.k2-template-search {
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted, #d0d7de));
+
+    .k2-template-search-input {
+        width: 100%;
+        padding: 5px 12px;
+        font-size: 14px;
+        line-height: 20px;
+        border: 1px solid var(--borderColor-default, var(--color-border-default, #d0d7de));
+        border-radius: 6px;
+        background-color: var(--bgColor-default, var(--color-canvas-default, #ffffff));
+        color: var(--fgColor-default, var(--color-fg-default, #1f2328));
+
+        &::placeholder {
+            color: var(--fgColor-muted, var(--color-fg-muted, #656d76));
+        }
+
+        &:focus {
+            outline: none;
+            border-color: var(--borderColor-accent-emphasis, var(--color-accent-emphasis, #0969da));
+            box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
+        }
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .k2-template-search {
+        border-bottom-color: var(--borderColor-muted, #30363d);
+
+        .k2-template-search-input {
+            border-color: var(--borderColor-default, #30363d);
+            background-color: var(--bgColor-default, #0d1117);
+            color: var(--fgColor-default, #e6edf3);
+
+            &::placeholder {
+                color: var(--fgColor-muted, #8b949e);
+            }
+
+            &:focus {
+                border-color: var(--borderColor-accent-emphasis, #1f6feb);
+                box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.3);
+            }
+        }
+    }
+}
