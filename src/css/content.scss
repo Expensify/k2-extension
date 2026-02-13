@@ -713,3 +713,45 @@ $color-dark-yellow: #DAA520;
         }
     }
 }
+
+// K2 navigation tab styling (matches GitHub's React-based navigation)
+li.k2-extension {
+    display: flex;
+    align-items: center;
+}
+
+.k2-nav-link {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--fgColor-default, #1f2328);
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+
+    &:hover {
+        color: var(--fgColor-default, #1f2328);
+        text-decoration: none;
+        border-bottom-color: var(--borderColor-neutral-muted, #d0d7de);
+    }
+
+    &.selected,
+    &[aria-current="page"] {
+        font-weight: 600;
+        border-bottom-color: var(--underlineNav-borderColor-active, #fd8c73);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .k2-nav-link {
+        color: var(--fgColor-default, #e6edf3);
+
+        &:hover {
+            color: var(--fgColor-default, #e6edf3);
+            border-bottom-color: var(--borderColor-neutral-muted, #30363d);
+        }
+    }
+}
