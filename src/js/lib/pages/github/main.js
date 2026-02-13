@@ -24,15 +24,14 @@ export default function () {
             return;
         }
 
-        // Deselect whatever button is currently selected
-        const selected = $('.js-selected-navigation-item.selected');
-        selected.removeClass('selected');
-        selected.removeAttr('aria-current');
+        // Deselect whatever tab is currently selected in GitHub's React-based navigation
+        $('nav[aria-label="Repository"] a[aria-current="page"]').removeAttr('aria-current');
+        $('nav[aria-label="Repository"] a.selected').removeClass('selected');
 
-        // Select our k2 button
-        const k2tab = $('.js-selected-navigation-item.k2-extension');
-        k2tab.addClass('selected');
-        k2tab.attr('aria-current', 'page');
+        // Select our K2 tab
+        const k2link = $('.k2-nav-link');
+        k2link.addClass('selected');
+        k2link.attr('aria-current', 'page');
 
         document.title = 'K2';
 
