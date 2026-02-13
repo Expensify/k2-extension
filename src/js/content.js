@@ -20,11 +20,35 @@ const pages = [
 ];
 
 /**
+ * Clean up K2 state when NOT on K2 page
+ * This runs on EVERY navigation to ensure proper cleanup
+ */
+function cleanupK2State() {
+    const isOnK2 = window.location.hash.indexOf('#k2') === 0;
+
+    if (!isOnK2) {
+        // Remove K2 active state from body and html
+        document.body.classList.remove('k2-page-active');
+        document.documentElement.classList.remove('k2-page-active');
+
+        // Remove selected state from K2 nav link
+        const k2Link = document.querySelector('.k2-nav-link');
+        if (k2Link) {
+            k2Link.classList.remove('selected');
+            k2Link.removeAttribute('aria-current');
+        }
+    }
+}
+
+/**
  * Get all of the page classes and call their init methods
  *
  * @returns {void}
  */
 function setupPages() {
+    // Always cleanup K2 state first on every navigation
+    cleanupK2State();
+
     for (let i = 0; i < pages.length; i++) {
         pages[i].init();
     }
@@ -34,9 +58,9 @@ function setupPages() {
 messenger.startMessageListener();
 
 // The nav event is triggered anytime a page is navigated on GitHub
-messenger.on('nav', setupPages);
+messenger.on('nav', () => setupPages());
 
 // Listen for hash changes (e.g., clicking the K2 tab) to re-run page setup
-window.addEventListener('hashchange', setupPages);
+window.addEventListener('hashchange', () => setupPages());
 
 setupPages();
