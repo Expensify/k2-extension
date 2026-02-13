@@ -21,14 +21,17 @@ export default function () {
     MainPage.setup = function () {
         // If not on K2 page, clean up and exit
         if (window.location.hash.search('#k2') !== 0) {
-            $('body').removeClass('k2-page-active');
+            document.body.classList.remove('k2-page-active');
+            document.documentElement.classList.remove('k2-page-active');
             $('.k2-nav-link').removeClass('selected').removeAttr('aria-current');
             return;
         }
 
         // Add a class to the body to indicate we're on the K2 page
         // This allows CSS to override GitHub's tab selection styling
-        $('body').addClass('k2-page-active');
+        // Use direct DOM manipulation for reliability
+        document.body.classList.add('k2-page-active');
+        document.documentElement.classList.add('k2-page-active');
 
         // Try to deselect GitHub's tabs and select K2
         $('nav[aria-label="Repository"] a[aria-current="page"]').removeAttr('aria-current');

@@ -747,7 +747,9 @@ li.k2-extension {
 }
 
 // When on K2 page, override GitHub's tab selection styling
-body.k2-page-active {
+// Target both body and html in case one doesn't work
+body.k2-page-active,
+html.k2-page-active {
     // Remove ALL selected styling from GitHub's tabs (including underline/border)
     nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link),
     nav[aria-label="Repository"] li:has(a[aria-current="page"]:not(.k2-nav-link)) {
@@ -784,7 +786,8 @@ body.k2-page-active {
         }
     }
 
-    body.k2-page-active .k2-nav-link {
+    body.k2-page-active .k2-nav-link,
+    html.k2-page-active .k2-nav-link {
         background-color: var(--bgColor-neutral-muted, rgba(110, 118, 129, 0.4)) !important;
     }
 }
