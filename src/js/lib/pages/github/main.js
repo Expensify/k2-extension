@@ -19,20 +19,21 @@ export default function () {
      * Add buttons to the page and setup the event handler
      */
     MainPage.setup = function () {
-        // Only do stuff if we are on the kernal page
+        // If not on K2 page, exit (cleanup is handled by content.js)
         if (window.location.hash.search('#k2') !== 0) {
             return;
         }
 
-        // Deselect whatever button is currently selected
-        const selected = $('.js-selected-navigation-item.selected');
-        selected.removeClass('selected');
-        selected.removeAttr('aria-current');
+        // Mark body so CSS can override GitHub's tab selection
+        document.body.classList.add('k2-page-active');
 
-        // Select our k2 button
-        const k2tab = $('.js-selected-navigation-item.k2-extension');
-        k2tab.addClass('selected');
-        k2tab.attr('aria-current', 'page');
+        // Deselect GitHub's tabs and select K2
+        $('nav[aria-label="Repository"] a[aria-current="page"]').removeAttr('aria-current');
+        $('nav[aria-label="Repository"] a.selected').removeClass('selected');
+
+        const k2link = $('.k2-nav-link');
+        k2link.addClass('selected');
+        k2link.attr('aria-current', 'page');
 
         document.title = 'K2';
 

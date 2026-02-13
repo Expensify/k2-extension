@@ -24,14 +24,26 @@ export default function () {
         // it breaks every so often
         const currentUrl = '/Expensify/Expensify';
 
-        // Check if K2 button already exists to avoid duplicates
-        if ($('li.k2-extension').length) {
-            return;
+        // Insert K2 button after the Pull requests tab, retrying if the nav hasn't rendered yet
+        if (!$('li.k2-extension').length) {
+            const pullsTab = $('nav[aria-label="Repository"] a[href*="/pulls"]').closest('li');
+            if (pullsTab.length) {
+                pullsTab.after(k2Button({url: currentUrl}));
+            } else {
+                let retries = 0;
+                const interval = setInterval(() => {
+                    if ($('li.k2-extension').length || ++retries >= 10) {
+                        clearInterval(interval);
+                        return;
+                    }
+                    const tab = $('nav[aria-label="Repository"] a[href*="/pulls"]').closest('li');
+                    if (tab.length) {
+                        tab.after(k2Button({url: currentUrl}));
+                        clearInterval(interval);
+                    }
+                }, 100);
+            }
         }
-
-        // Insert the K2 button after the Pull requests tab in GitHub's React-based navigation
-        $('nav[aria-label="Repository"] a[href*="/pulls"]')
-            .closest('li').after(k2Button({url: currentUrl}));
 
         // Set up timestamp format conversion
         setTimeout(() => AllPages.applyTimestampFormat(), 500);

@@ -714,7 +714,7 @@ $color-dark-yellow: #DAA520;
     }
 }
 
-// K2 navigation tab styling (matches GitHub's React-based navigation)
+// K2 navigation tab
 li.k2-extension {
     display: flex;
     align-items: center;
@@ -742,7 +742,20 @@ li.k2-extension {
     &.selected,
     &[aria-current="page"] {
         font-weight: 600;
-        background-color: var(--bgColor-neutral-muted, rgba(175, 184, 193, 0.2));
+    }
+}
+
+// When on K2 page, override GitHub's tab styling so only K2 looks selected
+body.k2-page-active {
+    nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link) {
+        font-weight: 400 !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link)::after,
+    nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link)::before {
+        display: none !important;
     }
 }
 
@@ -752,11 +765,6 @@ li.k2-extension {
 
         &:hover {
             color: var(--fgColor-default, #e6edf3);
-            background-color: var(--bgColor-neutral-muted, rgba(110, 118, 129, 0.4));
-        }
-
-        &.selected,
-        &[aria-current="page"] {
             background-color: var(--bgColor-neutral-muted, rgba(110, 118, 129, 0.4));
         }
     }
