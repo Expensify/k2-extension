@@ -748,10 +748,18 @@ li.k2-extension {
 
 // When on K2 page, override GitHub's tab selection styling
 body.k2-page-active {
-    // Remove selected styling from GitHub's tabs
-    nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link) {
+    // Remove ALL selected styling from GitHub's tabs (including underline/border)
+    nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link),
+    nav[aria-label="Repository"] li:has(a[aria-current="page"]:not(.k2-nav-link)) {
         font-weight: 400 !important;
         background-color: transparent !important;
+        border-bottom-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    // Also target the specific GitHub class for underline items
+    nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link)::after {
+        display: none !important;
     }
 
     // Ensure K2 tab shows as selected
