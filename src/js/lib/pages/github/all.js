@@ -24,12 +24,14 @@ export default function () {
         // it breaks every so often
         const currentUrl = '/Expensify/Expensify';
 
-        // Insert the kernel button right after the pull request button in the
-        // navigation if it's there. Also make sure to not show it multiple times
-        if (!$('nav.js-repo-nav li.k2-extension').length) {
-            $('nav.js-repo-nav *[data-selected-links*="repo_pulls"]')
-                .parent().after(k2Button({url: currentUrl}));
+        // Check if K2 button already exists to avoid duplicates
+        if ($('li.k2-extension').length) {
+            return;
         }
+
+        // Insert the K2 button after the Pull requests tab in GitHub's React-based navigation
+        $('nav[aria-label="Repository"] a[href*="/pulls"]')
+            .closest('li').after(k2Button({url: currentUrl}));
 
         // Set up timestamp format conversion
         setTimeout(() => AllPages.applyTimestampFormat(), 500);
