@@ -58,4 +58,37 @@ messenger.on('nav', () => setupPages());
 // Listen for hash changes (e.g., clicking the K2 tab) to re-run page setup
 window.addEventListener('hashchange', () => setupPages());
 
+// Handle K2 link clicks directly — GitHub's React nav intercepts clicks and uses
+// pushState (which doesn't fire hashchange), so we must handle it ourselves.
+document.addEventListener('click', (e) => {
+    const link = e.target.closest('.k2-nav-link');
+    if (!link) {
+        return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Extract the target pathname from the link's href (without the hash)
+    const linkUrl = new URL(link.href, window.location.origin);
+    const targetPathname = linkUrl.pathname;
+
+    // Check if we're on the right pathname AND the .repository-content container exists.
+    // If the container is missing (e.g., after GitHub's SPA navigation from Code tab),
+    // we need a full page reload to get GitHub to render the proper DOM.
+    const repoContent = document.querySelector('.repository-content');
+    if (window.location.pathname === targetPathname && repoContent) {
+        window.location.hash = '#k2';
+        setupPages();
+    } else if (window.location.pathname === targetPathname) {
+        // Same pathname but missing .repository-content - need to force reload.
+        // Just setting href won't reload because browser sees same pathname as hash-only change.
+        window.location.hash = '#k2';
+        window.location.reload();
+    } else {
+        // Different pathname - navigate to the K2 page
+        window.location.href = link.href;
+    }
+});
+
 setupPages();
