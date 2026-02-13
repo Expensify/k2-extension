@@ -35,4 +35,8 @@ messenger.startMessageListener();
 
 // The nav event is triggered anytime a page is navigated on GitHub
 messenger.on('nav', setupPages);
+
+// Listen for hash changes (e.g., clicking the K2 tab) to re-run page setup
+window.addEventListener('hashchange', setupPages);
+
 setupPages();
