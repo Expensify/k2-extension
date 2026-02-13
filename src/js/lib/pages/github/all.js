@@ -1,7 +1,6 @@
 import $ from 'jquery';
 import Base from './_base';
 import k2Button from '../../../template/button.github.k2.html';
-import k2ButtonNew from '../../../template/button.github.k2.new.html';
 import * as markdownCopy from '../../markdownCopy';
 
 /**
@@ -30,17 +29,9 @@ export default function () {
             return;
         }
 
-        // Try the new GitHub React-based navigation first (used on some repos)
-        // This nav uses aria-label="Repository" and prc-* classes
-        const newNavPullsLink = $('nav[aria-label="Repository"] a[href*="/pulls"]');
-        if (newNavPullsLink.length) {
-            newNavPullsLink.closest('li').after(k2ButtonNew({url: currentUrl}));
-        } else {
-            // Fall back to old GitHub navigation structure
-            // This nav uses js-repo-nav class and data-selected-links attribute
-            $('nav.js-repo-nav *[data-selected-links*="repo_pulls"]')
-                .parent().after(k2Button({url: currentUrl}));
-        }
+        // Insert the K2 button after the Pull requests tab in GitHub's React-based navigation
+        $('nav[aria-label="Repository"] a[href*="/pulls"]')
+            .closest('li').after(k2Button({url: currentUrl}));
 
         // Set up timestamp format conversion
         setTimeout(() => AllPages.applyTimestampFormat(), 500);
