@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import Base from './_base';
 import k2Button from '../../../template/button.github.k2.html';
+import k2ButtonNew from '../../../template/button.github.k2.new.html';
 import * as markdownCopy from '../../markdownCopy';
 
 /**
@@ -24,9 +25,19 @@ export default function () {
         // it breaks every so often
         const currentUrl = '/Expensify/Expensify';
 
-        // Insert the kernel button right after the pull request button in the
-        // navigation if it's there. Also make sure to not show it multiple times
-        if (!$('nav.js-repo-nav li.k2-extension').length) {
+        // Check if K2 button already exists to avoid duplicates
+        if ($('li.k2-extension').length) {
+            return;
+        }
+
+        // Try the new GitHub React-based navigation first (used on some repos)
+        // This nav uses aria-label="Repository" and prc-* classes
+        const newNavPullsLink = $('nav[aria-label="Repository"] a[href*="/pulls"]');
+        if (newNavPullsLink.length) {
+            newNavPullsLink.closest('li').after(k2ButtonNew({url: currentUrl}));
+        } else {
+            // Fall back to old GitHub navigation structure
+            // This nav uses js-repo-nav class and data-selected-links attribute
             $('nav.js-repo-nav *[data-selected-links*="repo_pulls"]')
                 .parent().after(k2Button({url: currentUrl}));
         }
