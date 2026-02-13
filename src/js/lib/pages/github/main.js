@@ -16,16 +16,10 @@ function injectDynamicK2Styles() {
 
     // Get computed styles from the selected tab
     const computedStyles = window.getComputedStyle(selectedGitHubTab);
-    const beforeStyles = window.getComputedStyle(selectedGitHubTab, '::before');
 
-    // Extract key style values
+    // Extract key style values (these are reliably captured)
     const fontWeight = computedStyles.fontWeight;
     const color = computedStyles.color;
-
-    // For the underline, we need ::before pseudo-element styles
-    const underlineColor = beforeStyles.backgroundColor || beforeStyles.borderColor || '#fd8c73';
-    const underlineHeight = beforeStyles.height || '2px';
-    const underlineBorderRadius = beforeStyles.borderRadius || '6px';
 
     // Create or update the dynamic style element
     let styleEl = document.getElementById('k2-dynamic-styles');
@@ -41,20 +35,6 @@ function injectDynamicK2Styles() {
         .k2-nav-link[aria-current="page"] {
             font-weight: ${fontWeight} !important;
             color: ${color} !important;
-        }
-
-        .k2-nav-link.selected::before,
-        .k2-nav-link[aria-current="page"]::before {
-            content: "" !important;
-            position: absolute !important;
-            bottom: 0 !important;
-            left: 50% !important;
-            transform: translateX(-50%) !important;
-            width: calc(100% - 16px) !important;
-            height: ${underlineHeight} !important;
-            background-color: ${underlineColor} !important;
-            border-radius: ${underlineBorderRadius} !important;
-            display: block !important;
         }
     `;
 }
