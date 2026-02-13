@@ -20,23 +20,18 @@ const pages = [
 ];
 
 /**
- * Clean up K2 state when NOT on K2 page
- * This runs on EVERY navigation to ensure proper cleanup
+ * Clean up K2 state when NOT on K2 page.
+ * Runs on every navigation because MainPage.setup only matches the repo root URL.
  */
 function cleanupK2State() {
-    const isOnK2 = window.location.hash.indexOf('#k2') === 0;
-
-    if (!isOnK2) {
-        // Remove K2 active state from body and html
-        document.body.classList.remove('k2-page-active');
-        document.documentElement.classList.remove('k2-page-active');
-
-        // Remove selected state from K2 nav link
-        const k2Link = document.querySelector('.k2-nav-link');
-        if (k2Link) {
-            k2Link.classList.remove('selected');
-            k2Link.removeAttribute('aria-current');
-        }
+    if (window.location.hash.indexOf('#k2') === 0) {
+        return;
+    }
+    document.body.classList.remove('k2-page-active');
+    const k2Link = document.querySelector('.k2-nav-link');
+    if (k2Link) {
+        k2Link.classList.remove('selected');
+        k2Link.removeAttribute('aria-current');
     }
 }
 

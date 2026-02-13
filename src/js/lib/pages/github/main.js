@@ -3,43 +3,6 @@ import Base from './_base';
 import Dashboard from '../../../module/dashboard/index';
 
 /**
- * Captures computed styles from a GitHub selected tab and injects them as CSS for K2 tab
- * This allows K2 to automatically adapt to GitHub's styling changes
- */
-function injectDynamicK2Styles() {
-    // Find a GitHub tab that's currently selected (before we deselect it)
-    const selectedGitHubTab = document.querySelector('nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link)');
-
-    if (!selectedGitHubTab) {
-        return;
-    }
-
-    // Get computed styles from the selected tab
-    const computedStyles = window.getComputedStyle(selectedGitHubTab);
-
-    // Extract key style values (these are reliably captured)
-    const fontWeight = computedStyles.fontWeight;
-    const color = computedStyles.color;
-
-    // Create or update the dynamic style element
-    let styleEl = document.getElementById('k2-dynamic-styles');
-    if (!styleEl) {
-        styleEl = document.createElement('style');
-        styleEl.id = 'k2-dynamic-styles';
-        document.head.appendChild(styleEl);
-    }
-
-    // Inject CSS that applies GitHub's current styles to K2 tab
-    styleEl.textContent = `
-        .k2-nav-link.selected,
-        .k2-nav-link[aria-current="page"] {
-            font-weight: ${fontWeight} !important;
-            color: ${color} !important;
-        }
-    `;
-}
-
-/**
  * This class displays the K2 Dashboard
  *
  * @returns {Object}
@@ -61,19 +24,12 @@ export default function () {
             return;
         }
 
-        // Capture GitHub's tab styles BEFORE deselecting (for dynamic styling)
-        injectDynamicK2Styles();
-
-        // Add a class to the body to indicate we're on the K2 page
+        // Mark body so CSS can override GitHub's tab selection
         document.body.classList.add('k2-page-active');
-        document.documentElement.classList.add('k2-page-active');
 
         // Deselect GitHub's tabs and select K2
-        const currentPageLinks = $('nav[aria-label="Repository"] a[aria-current="page"]');
-        currentPageLinks.removeAttr('aria-current');
-
-        const selectedLinks = $('nav[aria-label="Repository"] a.selected');
-        selectedLinks.removeClass('selected');
+        $('nav[aria-label="Repository"] a[aria-current="page"]').removeAttr('aria-current');
+        $('nav[aria-label="Repository"] a.selected').removeClass('selected');
 
         const k2link = $('.k2-nav-link');
         k2link.addClass('selected');
