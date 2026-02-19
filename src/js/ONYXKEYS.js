@@ -21,4 +21,7 @@ export default {
     },
 
     MILESTONES: 'milestones',
+
+    /** Saved filter presets (saved searches) */
+    SAVED_SEARCHES: 'savedSearches',
 };

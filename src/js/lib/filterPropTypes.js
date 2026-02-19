@@ -12,4 +12,7 @@ export default PropTypes.shape({
 
     /** A milestone the issues should belong to */
     milestone: PropTypes.string,
+
+    /** Optional title search to filter issues by title (case-insensitive includes) */
+    titleFilter: PropTypes.string,
 });
