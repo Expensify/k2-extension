@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 // import Filters from './Filters';
 import ListIssuesAssigned from './ListIssuesAssigned';
 import ListPRsAssigned from './ListPRsAssigned';
-import ListPRsReviewing from './ListPRsReviewing';
 
 // import ListIssuesEngineering from './ListIssuesEngineering';
 import Legend from './Legend';
@@ -19,8 +18,6 @@ function ListIssues(props) {
     return (
         <div className="issueList">
             <Legend />
-
-            <ListPRsReviewing pollInterval={props.pollInterval * 2.5} />
 
             <ListIssuesAssigned pollInterval={props.pollInterval} />
 

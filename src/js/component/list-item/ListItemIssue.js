@@ -62,22 +62,22 @@ class ListItemIssue extends React.Component {
         this.parseIssue();
         return (
             <div className="panel-item">
-                {this.isCurrentUserOwner && (
-                    <span className="owner">
-                        {'★ '}
-                    </span>
-                )}
-                {this.issueHasOwner && !this.isCurrentUserOwner && (
-                    <span>
-                        {'☆ '}
-                    </span>
-                )}
                 <a
                     href={this.props.issue.url}
                     className={this.getClassName()}
                     target="_blank"
                     rel="noopener noreferrer"
                 >
+                    {this.isCurrentUserOwner && (
+                        <span className="owner">
+                            {'★ '}
+                        </span>
+                    )}
+                    {this.issueHasOwner && !this.isCurrentUserOwner && (
+                        <span>
+                            {'☆ '}
+                        </span>
+                    )}
                     {this.isHourly}
                     {this.isDaily}
                     {this.isWeekly}

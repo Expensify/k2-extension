@@ -32,6 +32,188 @@ $color-dark-yellow: #DAA520;
     padding: 0 180px;
 }
 
+// Dashboard-only visual refresh: simpler surfaces and less visual noise
+.k2dashboard {
+  .issueList {
+    position: relative;
+  }
+
+  .panel {
+    border: 0;
+    border-radius: 10px;
+    background: $color-white;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+  }
+
+  .panel-title {
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 0;
+  }
+
+  .panel-title-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.05);
+    color: $color-black;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .panel.daily .panel-title,
+  .panel.weekly .panel-title,
+  .panel.monthly .panel-title,
+  .panel.waq .panel-title,
+  .panel.your-pull-requests .panel-title {
+    background: transparent;
+    color: inherit;
+  }
+
+  .panel.daily .panel-title-pill {
+    background: $color-orange;
+    color: $color-white;
+  }
+
+  .panel.weekly .panel-title-pill {
+    background: $color-green;
+    color: $color-white;
+  }
+
+  .panel.monthly .panel-title-pill {
+    background: $color-purple;
+    color: $color-white;
+  }
+
+  .panel.waq .panel-title-pill {
+    background: color.adjust($color-neutral-lighter, $lightness: -4%);
+    color: $color-black;
+  }
+
+  .panel-item {
+    border-top: 0;
+    padding: 5px 10px;
+  }
+
+  .panel-item + .panel-item {
+    margin-top: 0;
+  }
+
+  .panel-item-meta {
+    font-size: 11px;
+    color: color.adjust($color-neutral, $lightness: -12%);
+  }
+
+  .issue-filter {
+    border: 0;
+    background: rgba(0, 0, 0, 0.02);
+    padding: 10px 12px;
+    color: rgba(0, 0, 0, 0.78);
+  }
+
+  .issue-filter .form-inline {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    width: 100%;
+  }
+
+  .issue-filter .form-inline > .checkbox {
+    margin: 0;
+  }
+
+  .issue-filter .form-inline label {
+    margin: 0;
+    color: rgba(0, 0, 0, 0.76);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .issue-filter .form-inline input[type=checkbox] {
+    margin-right: 6px;
+  }
+
+  .legend {
+    width: 182px;
+    opacity: 0.92;
+
+    .btn {
+      border: 0;
+      box-shadow: none;
+    }
+  }
+
+  .search-filter-input {
+    margin-left: auto;
+    min-width: 260px;
+    height: 38px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    background: $color-white;
+    color: rgba(0, 0, 0, 0.82);
+    box-shadow: none;
+  }
+
+  .search-filter-input::placeholder {
+    color: rgba(0, 0, 0, 0.56);
+  }
+
+  .panel.daily .panel-item > .issue,
+  .panel.weekly .panel-item > .issue,
+  .panel.monthly .panel-item > .issue,
+  .panel.waq .panel-item > .issue,
+  .panel.your-pull-requests .panel-item > .issue {
+    position: relative;
+    display: inline-block;
+    padding-left: 12px;
+  }
+
+  .panel.daily .panel-item > .issue::before,
+  .panel.weekly .panel-item > .issue::before,
+  .panel.monthly .panel-item > .issue::before,
+  .panel.waq .panel-item > .issue::before,
+  .panel.your-pull-requests .panel-item > .issue::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.42em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    opacity: 0.9;
+  }
+
+  .panel.daily .panel-item > .issue::before {
+    background: $color-orange;
+    box-shadow: 0 0 0 3px rgba(235, 100, 32, 0.14);
+  }
+
+  .panel.weekly .panel-item > .issue::before {
+    background: $color-green;
+    box-shadow: 0 0 0 3px rgba(0, 152, 0, 0.14);
+  }
+
+  .panel.monthly .panel-item > .issue::before {
+    background: $color-purple;
+    box-shadow: 0 0 0 3px rgba(168, 90, 212, 0.14);
+  }
+
+  .panel.waq .panel-item > .issue::before {
+    background: color.adjust($color-neutral, $lightness: -10%);
+    box-shadow: 0 0 0 3px rgba(153, 153, 153, 0.12);
+  }
+
+  .panel.your-pull-requests .panel-item > .issue::before {
+    background: color.adjust($color-neutral, $lightness: -10%);
+    box-shadow: 0 0 0 3px rgba(153, 153, 153, 0.12);
+  }
+}
+
 .passwordform {
     max-width: 1000px;
 }
@@ -576,8 +758,13 @@ $color-dark-yellow: #DAA520;
   .panel, .panel-item, .issue-filter {
      border-color: rgb(48, 54, 61);
   }
-  .issue-filter {
-     color: rgb(230, 237, 243)
+
+  // Keep strong contrast for the filter controls since this bar is intentionally light.
+  .k2dashboard .issue-filter,
+  .k2dashboard .issue-filter .form-inline label,
+  .k2dashboard .search-filter-input,
+  .k2dashboard .search-filter-input::placeholder {
+    color: rgba(0, 0, 0, 0.82);
   }
 }
 

@@ -17,7 +17,9 @@ function Title(props) {
     return (
         <div>
             <h3 className="panel-title">
-                {`${props.text} ${props.count !== null ? `(${props.count})` : ''}`}
+                <span className="panel-title-pill">
+                    {`${props.text} ${props.count !== null ? `(${props.count})` : ''}`}
+                </span>
             </h3>
         </div>
     );

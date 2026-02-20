@@ -6,6 +6,7 @@ import * as Issues from '../../lib/actions/Issues';
 import PanelIssues from '../../component/panel/PanelIssues';
 import ONYXKEYS from '../../ONYXKEYS';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
+import ListPRsReviewing from './ListPRsReviewing';
 
 const propTypes = {
     /** The number of milliseconds to refresh the data */
@@ -316,6 +317,7 @@ class ListIssuesAssigned extends React.Component {
                         />
                     </form>
                 </div>
+                <ListPRsReviewing pollInterval={this.props.pollInterval * 2.5} />
                 {!_.isEmpty(this.props.issues) && (
                     <div className="d-flex flex-row gap-3">
                         <PanelIssues

@@ -3,6 +3,8 @@ import ReactNativeOnyx from 'react-native-onyx';
 import * as Preferences from '../../lib/actions/Preferences';
 
 function Legend() {
+    const [showLegendItems, setShowLegendItems] = React.useState(true);
+
     function signOut() {
         Preferences.setGitHubToken('');
         ReactNativeOnyx.clear();
@@ -32,70 +34,83 @@ function Legend() {
             </a>
 
             <br />
-            <div className="issue reviewing">Under Review</div>
-            <div className="issue overdue">Overdue</div>
-            <div className="issue planning">Planning</div>
-            <div className="issue contributor-assigned">Contributor Assigned</div>
-            <div className="issue">
-                <sup>E</sup>
-                {' '}
-                External
-            </div>
-            <div>
-                <span className="owner">★</span>
-                {' '}
-                Issue owner
-            </div>
-            <div>
-                <span>☆</span>
-                {' '}
-                Issue is owned by someone else
-            </div>
-            <div className="issue">
-                <sup>I</sup>
-                {' '}
-                Improvement
-            </div>
-            <div className="issue">
-                <sup>T</sup>
-                {' '}
-                Task
-            </div>
-            <div className="issue">
-                <sup>F</sup>
-                {' '}
-                New Feature
-            </div>
-            <div>
-                <span className="label hourly">H</span>
-                {' '}
-                Hourly
-            </div>
-            <div>
-                <span className="label daily">D</span>
-                {' '}
-                Daily
-            </div>
-            <div>
-                <span className="label weekly">W</span>
-                {' '}
-                Weekly
-            </div>
-            <div>
-                <span className="label monthly">M</span>
-                {' '}
-                Monthly
-            </div>
-            <div>
-                <span className="label newhire">FP</span>
-                {' '}
-                First Pick
-            </div>
-            <div>
-                <span className="label whatsnext">WN</span>
-                {' '}
-                WhatsNext
-            </div>
+            <button
+                type="button"
+                onClick={() => setShowLegendItems(!showLegendItems)}
+                className="btn"
+            >
+                {showLegendItems ? 'Hide legend' : 'Show legend'}
+            </button>
+
+            {showLegendItems && (
+                <>
+                    <br />
+                    <div className="issue reviewing">Under Review</div>
+                    <div className="issue overdue">Overdue</div>
+                    <div className="issue planning">Planning</div>
+                    <div className="issue contributor-assigned">Contributor Assigned</div>
+                    <div className="issue">
+                        <sup>E</sup>
+                        {' '}
+                        External
+                    </div>
+                    <div>
+                        <span className="owner">★</span>
+                        {' '}
+                        Issue owner
+                    </div>
+                    <div>
+                        <span>☆</span>
+                        {' '}
+                        Issue is owned by someone else
+                    </div>
+                    <div className="issue">
+                        <sup>I</sup>
+                        {' '}
+                        Improvement
+                    </div>
+                    <div className="issue">
+                        <sup>T</sup>
+                        {' '}
+                        Task
+                    </div>
+                    <div className="issue">
+                        <sup>F</sup>
+                        {' '}
+                        New Feature
+                    </div>
+                    <div>
+                        <span className="label hourly">H</span>
+                        {' '}
+                        Hourly
+                    </div>
+                    <div>
+                        <span className="label daily">D</span>
+                        {' '}
+                        Daily
+                    </div>
+                    <div>
+                        <span className="label weekly">W</span>
+                        {' '}
+                        Weekly
+                    </div>
+                    <div>
+                        <span className="label monthly">M</span>
+                        {' '}
+                        Monthly
+                    </div>
+                    <div>
+                        <span className="label newhire">FP</span>
+                        {' '}
+                        First Pick
+                    </div>
+                    <div>
+                        <span className="label whatsnext">WN</span>
+                        {' '}
+                        WhatsNext
+                    </div>
+                </>
+            )}
         </div>
     );
 }
