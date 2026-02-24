@@ -198,7 +198,8 @@ function handlePrMenu(menuList) {
 
     // EXCLUSION: Skip the '<> Code' dropdown (Local/Codespaces) on pull requests
     // as this menu contains clipboard-copy for git clone commands, not comment text
-    if (menuList.getAttribute('src').includes('open_with_menu')
+    const srcAttr = menuList.getAttribute('src');
+    if ((srcAttr && srcAttr.includes('open_with_menu'))
         || menuList.querySelector('tab-container')
         || menuList.querySelector('#local-tab, #cloud-tab')
         || menuList.closest('get-repo')) {

@@ -11,8 +11,12 @@
     "128": "icon128.png"
   },
 
+  "action": {},
+
   "permissions": [
-    "webNavigation"
+    "webNavigation",
+    "activeTab",
+    "scripting"
   ],
 
   "host_permissions": [

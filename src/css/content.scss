@@ -666,6 +666,11 @@ $color-dark-yellow: #DAA520;
     cursor: pointer;
 }
 
+// Payment indicator injected into GitHub user hovercards
+.k2-hovercard-payment span {
+    font-weight: 600;
+}
+
 // Issue template chooser enhancements (search, sort, blank issue)
 .k2-template-search {
     padding: 8px 16px;

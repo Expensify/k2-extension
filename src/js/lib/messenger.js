@@ -17,7 +17,10 @@ function startNavEventPublisher() {
                 active: true,
                 currentWindow: true,
             }, (tabs) => {
-                ksBrowser.tabs.sendMessage(tabs[0].id, 'nav');
+                if (!tabs || !tabs[0]) {
+                    return;
+                }
+                ksBrowser.tabs.sendMessage(tabs[0].id, 'nav').catch(() => {});
             });
         });
     });

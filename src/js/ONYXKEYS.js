@@ -21,4 +21,9 @@ export default {
     },
 
     MILESTONES: 'milestones',
+
+    MANUAL_REQUEST_USERS: 'manualRequestUsers',
+    CONTRACTOR_USERS: 'contractorUsers',
+    EMPLOYEE_USERS: 'employeeUsers',
+    PAYMENT_INFO_LAST_FETCHED: 'paymentInfoLastFetched',
 };

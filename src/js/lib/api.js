@@ -4,20 +4,31 @@ import {Octokit} from 'octokit';
 import * as Preferences from './actions/Preferences';
 
 let octokit;
+let cachedToken;
 
 /**
  * @returns {Octokit}
  */
 function getOctokit() {
-    if (!octokit) {
-        /* eslint-disable-next-line no-console */
-        console.log('authenticate with auth token', Preferences.getGitHubToken());
+    const token = Preferences.getGitHubToken();
+    if (!token) {
+        throw new Error('[K2] GitHub token not available – Onyx may not have loaded yet');
+    }
+    if (!octokit || cachedToken !== token) {
+        cachedToken = token;
         octokit = new Octokit({
-            auth: Preferences.getGitHubToken(),
+            auth: token,
             userAgent: 'expensify-k2-extension',
         });
     }
     return octokit;
+}
+
+/**
+ * @returns {Boolean} whether a GitHub token is available
+ */
+function isAuthenticated() {
+    return !!Preferences.getGitHubToken();
 }
 
 /**
@@ -540,6 +551,34 @@ function getWorkflowRun(runId) {
     });
 }
 
+/**
+ * Fetch a file's text content from a GitHub repository
+ * @param {String} owner
+ * @param {String} repo
+ * @param {String} path
+ * @returns {Promise<String>}
+ */
+/**
+ * Fetch all members of a GitHub organization team (handles pagination)
+ * @param {String} org
+ * @param {String} teamSlug
+ * @returns {Promise<String[]>} array of login usernames
+ */
+function getTeamMembers(org, teamSlug) {
+    const kit = getOctokit();
+    return kit.paginate(kit.rest.teams.listMembersInOrg, {
+        org,
+        team_slug: teamSlug,
+        per_page: 100,
+    }).then(members => _.map(members, m => m.login));
+}
+
+function getFileContents(owner, repo, path) {
+    return getOctokit().rest.repos.getContent({
+        owner, repo, path, mediaType: {format: 'raw'},
+    }).then(response => response.data);
+}
+
 export {
     addComment,
     getCheckRuns,
@@ -548,6 +587,7 @@ export {
     getDailyImprovements,
     getHotPickIssues,
     addLabel,
+    isAuthenticated,
     removeLabel,
     getMilestones,
     getCurrentUser,
@@ -557,6 +597,8 @@ export {
     getPreviousInstancesOfIssue,
     triggerWorkflow,
     updateComment,
+    getTeamMembers,
     getWorkflowRuns,
     getWorkflowRun,
+    getFileContents,
 };

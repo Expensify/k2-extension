@@ -2,6 +2,8 @@ import $ from 'jquery';
 import Base from './_base';
 import k2Button from '../../../template/button.github.k2.html';
 import * as markdownCopy from '../../markdownCopy';
+import * as ManualRequestUsers from '../../actions/ManualRequestUsers';
+import HoverCard from '../../../module/HoverCard/HoverCard';
 
 /**
  * This class manages the things that happen on *every* GitHub page. All it's doing is adding links to the
@@ -51,6 +53,20 @@ export default function () {
 
         // Set up "Copy as markdown" for comment menus
         markdownCopy.initMarkdownCopy();
+
+        // Fetch manual-request user list and start observing hovercards
+        ManualRequestUsers.fetchManualRequestUsers();
+        HoverCard.draw();
+
+        // Console shortcut: document.dispatchEvent(new Event('k2-refresh-payment-data'))
+        document.addEventListener('k2-refresh-payment-data', () => {
+            // eslint-disable-next-line no-console
+            console.log('[K2] Force-refreshing payment data…');
+            ManualRequestUsers.forceRefresh().then(() => {
+                // eslint-disable-next-line no-console
+                console.log('[K2] Payment data refreshed.');
+            });
+        });
     };
 
     return AllPages;
