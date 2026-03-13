@@ -21,7 +21,7 @@ const defaultProps = {
 
 class ListItemIssue extends React.Component {
     handlePanelClick(e) {
-        if (e.target.closest('a')) {
+        if (e.target.closest('a') || e.target.closest('.drag-handle')) {
             return;
         }
         const selection = window.getSelection();
@@ -79,6 +79,19 @@ class ListItemIssue extends React.Component {
         return (
             // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
             <div className="panel-item" onClick={e => this.handlePanelClick(e)}>
+                {this.props.dragListeners && (
+                    // eslint-disable-next-line react/jsx-props-no-spreading -- Spreading is required for dnd-kit drag-and-drop listeners
+                    <span className="drag-handle" {...this.props.dragListeners}>
+                        <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
+                            <circle cx="2" cy="2" r="1.5" />
+                            <circle cx="8" cy="2" r="1.5" />
+                            <circle cx="2" cy="7" r="1.5" />
+                            <circle cx="8" cy="7" r="1.5" />
+                            <circle cx="2" cy="12" r="1.5" />
+                            <circle cx="8" cy="12" r="1.5" />
+                        </svg>
+                    </span>
+                )}
                 {this.isCurrentUserOwner && (
                     <span className="owner">
                         {'★ '}
@@ -135,11 +148,6 @@ class ListItemIssue extends React.Component {
                             ))}
                         </div>
                     </div>
-                )}
-
-                {this.props.dragListeners && (
-                    // eslint-disable-next-line react/jsx-props-no-spreading -- Spreading is required for dnd-kit drag-and-drop listeners
-                    <span className="drag-handle" {...this.props.dragListeners}>⠿</span>
                 )}
             </div>
         );
