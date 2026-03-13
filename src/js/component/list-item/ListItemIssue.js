@@ -77,8 +77,18 @@ class ListItemIssue extends React.Component {
     render() {
         this.parseIssue();
         return (
-            // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-            <div className="panel-item" onClick={e => this.handlePanelClick(e)}>
+            <div
+                className="panel-item"
+                role="link"
+                tabIndex={0}
+                onClick={e => this.handlePanelClick(e)}
+                onKeyDown={(e) => {
+                    if (e.key !== 'Enter') {
+                        return;
+                    }
+                    this.handlePanelClick(e);
+                }}
+            >
                 {this.props.dragListeners && (
                     // eslint-disable-next-line react/jsx-props-no-spreading -- Spreading is required for dnd-kit drag-and-drop listeners
                     <span className="drag-handle" {...this.props.dragListeners}>
