@@ -9,9 +9,14 @@ const propTypes = {
 
     /** Whether or not the attendees should be shown */
     showAttendees: PropTypes.bool,
+
+    /** Drag event listeners from dnd-kit, attached to the drag handle */
+    // eslint-disable-next-line react/forbid-prop-types
+    dragListeners: PropTypes.object,
 };
 const defaultProps = {
     showAttendees: false,
+    dragListeners: null,
 };
 
 class ListItemIssue extends React.Component {
@@ -74,6 +79,10 @@ class ListItemIssue extends React.Component {
         return (
             // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
             <div className="panel-item" onClick={e => this.handlePanelClick(e)}>
+                {this.props.dragListeners && (
+                    // eslint-disable-next-line react/jsx-props-no-spreading -- Spreading is required for dnd-kit drag-and-drop listeners
+                    <span className="drag-handle" {...this.props.dragListeners}>⠿</span>
+                )}
                 {this.isCurrentUserOwner && (
                     <span className="owner">
                         {'★ '}

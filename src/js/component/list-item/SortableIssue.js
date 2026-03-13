@@ -34,11 +34,8 @@ function SortableIssue(props) {
 
             // eslint-disable-next-line react/jsx-props-no-spreading -- Spreading is required for dnd-kit drag-and-drop attributes
             {...attributes}
-
-            // eslint-disable-next-line react/jsx-props-no-spreading -- Spreading is required for dnd-kit drag-and-drop listeners
-            {...listeners}
         >
-            <ListItemIssue issue={issue} />
+            <ListItemIssue issue={issue} dragListeners={listeners} />
         </div>
     );
 }
