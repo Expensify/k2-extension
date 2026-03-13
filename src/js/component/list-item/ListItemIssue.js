@@ -15,6 +15,17 @@ const defaultProps = {
 };
 
 class ListItemIssue extends React.Component {
+    handlePanelClick(e) {
+        if (e.target.closest('a')) {
+            return;
+        }
+        const selection = window.getSelection();
+        if (selection && selection.toString().length > 0) {
+            return;
+        }
+        window.open(this.props.issue.url, '_blank', 'noopener,noreferrer');
+    }
+
     getClassName() {
         let className = 'issue';
 
@@ -61,7 +72,8 @@ class ListItemIssue extends React.Component {
     render() {
         this.parseIssue();
         return (
-            <div className="panel-item">
+            // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+            <div className="panel-item" onClick={e => this.handlePanelClick(e)}>
                 {this.isCurrentUserOwner && (
                     <span className="owner">
                         {'★ '}
