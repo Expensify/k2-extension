@@ -27,13 +27,27 @@ $color-dark-yellow: #DAA520;
 
 .k2dashboard,
 .passwordform {
-    max-width: 1680px;
+    max-width: 100%;
     margin: 24px auto 0;
     padding: 0 180px;
 }
 
+body.k2-page-active {
+  // Hide GitHub repository header rows while K2 dashboard is active
+  #repository-container-header,
+  .gh-header,
+  .gh-header-show {
+    display: none !important;
+  }
+
+  .k2dashboard {
+    margin-top: 0;
+  }
+}
+
 // Dashboard-only visual refresh: simpler surfaces and less visual noise
 .k2dashboard {
+    background-color: #f6f8fa;
   .issueList {
     position: relative;
   }
@@ -140,6 +154,7 @@ $color-dark-yellow: #DAA520;
   .legend {
     width: 182px;
     opacity: 0.92;
+    top: 10px !important;
 
     .btn {
       border: 0;

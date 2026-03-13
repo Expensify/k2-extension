@@ -3,7 +3,7 @@ import ReactNativeOnyx from 'react-native-onyx';
 import * as Preferences from '../../lib/actions/Preferences';
 
 function Legend() {
-    const [showLegendItems, setShowLegendItems] = React.useState(true);
+    const [showLegendItems, setShowLegendItems] = React.useState(false);
 
     function signOut() {
         Preferences.setGitHubToken('');
