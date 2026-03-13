@@ -9,12 +9,28 @@ const propTypes = {
 
     /** Whether or not the attendees should be shown */
     showAttendees: PropTypes.bool,
+
+    /** Drag event listeners from dnd-kit, attached to the drag handle */
+    // eslint-disable-next-line react/forbid-prop-types
+    dragListeners: PropTypes.object,
 };
 const defaultProps = {
     showAttendees: false,
+    dragListeners: null,
 };
 
 class ListItemIssue extends React.Component {
+    handlePanelClick(e) {
+        if (e.target.closest('a') || e.target.closest('.drag-handle')) {
+            return;
+        }
+        const selection = window.getSelection();
+        if (selection && selection.toString().length > 0) {
+            return;
+        }
+        window.open(this.props.issue.url, '_blank', 'noopener,noreferrer');
+    }
+
     getClassName() {
         let className = 'issue';
 
@@ -61,7 +77,31 @@ class ListItemIssue extends React.Component {
     render() {
         this.parseIssue();
         return (
-            <div className="panel-item">
+            <div
+                className="panel-item"
+                role="link"
+                tabIndex={0}
+                onClick={e => this.handlePanelClick(e)}
+                onKeyDown={(e) => {
+                    if (e.key !== 'Enter') {
+                        return;
+                    }
+                    this.handlePanelClick(e);
+                }}
+            >
+                {this.props.dragListeners && (
+                    // eslint-disable-next-line react/jsx-props-no-spreading -- Spreading is required for dnd-kit drag-and-drop listeners
+                    <span className="drag-handle" {...this.props.dragListeners}>
+                        <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor">
+                            <circle cx="2" cy="2" r="1.5" />
+                            <circle cx="8" cy="2" r="1.5" />
+                            <circle cx="2" cy="7" r="1.5" />
+                            <circle cx="8" cy="7" r="1.5" />
+                            <circle cx="2" cy="12" r="1.5" />
+                            <circle cx="8" cy="12" r="1.5" />
+                        </svg>
+                    </span>
+                )}
                 {this.isCurrentUserOwner && (
                     <span className="owner">
                         {'★ '}
