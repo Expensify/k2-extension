@@ -79,10 +79,6 @@ class ListItemIssue extends React.Component {
         return (
             // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
             <div className="panel-item" onClick={e => this.handlePanelClick(e)}>
-                {this.props.dragListeners && (
-                    // eslint-disable-next-line react/jsx-props-no-spreading -- Spreading is required for dnd-kit drag-and-drop listeners
-                    <span className="drag-handle" {...this.props.dragListeners}>⠿</span>
-                )}
                 {this.isCurrentUserOwner && (
                     <span className="owner">
                         {'★ '}
@@ -139,6 +135,11 @@ class ListItemIssue extends React.Component {
                             ))}
                         </div>
                     </div>
+                )}
+
+                {this.props.dragListeners && (
+                    // eslint-disable-next-line react/jsx-props-no-spreading -- Spreading is required for dnd-kit drag-and-drop listeners
+                    <span className="drag-handle" {...this.props.dragListeners}>⠿</span>
                 )}
             </div>
         );

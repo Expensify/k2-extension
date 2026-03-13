@@ -202,13 +202,23 @@ $color-dark-yellow: #DAA520;
     }
 }
 
+.panel-item {
+  position: relative;
+}
+
 .drag-handle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
   cursor: grab;
-  opacity: 0.3;
-  margin-right: 4px;
+  opacity: 0.2;
   user-select: none;
   &:hover {
-    opacity: 0.7;
+    opacity: 0.5;
   }
   &:active {
     cursor: grabbing;
