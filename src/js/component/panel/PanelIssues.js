@@ -220,6 +220,9 @@ function PanelIssues(props) {
                 <Title
                     text={props.title}
                     count={_.size(filteredData) || 0}
+                    onOpenAll={() => {
+                        _.each(filteredData, issue => window.open(issue.url, '_blank'));
+                    }}
                 />
                 {!_.size(filteredData) ? (
                     <div className="blankslate capped clean-background">

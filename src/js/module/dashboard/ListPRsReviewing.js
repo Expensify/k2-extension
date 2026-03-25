@@ -55,6 +55,9 @@ class ListPRsReviewing extends React.Component {
                 <Title
                     text="Review these PRs Daily"
                     count={_.size(this.props.prs) || 0}
+                    onOpenAll={() => {
+                        _.each(this.props.prs, pr => window.open(pr.url, '_blank'));
+                    }}
                 />
 
                 {!this.props.prs && (
