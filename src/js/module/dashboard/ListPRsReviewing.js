@@ -7,6 +7,7 @@ import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import Title from '../../component/panel-title/Title';
 import ListItemPull from '../../component/list-item/ListItemPull';
 import * as PullRequests from '../../lib/actions/PullRequests';
+import openAllUrls from '../../lib/openAllUrls';
 
 const propTypes = {
     /** The number of milliseconds to refresh the data */
@@ -55,9 +56,7 @@ class ListPRsReviewing extends React.Component {
                 <Title
                     text="Review these PRs Daily"
                     count={_.size(this.props.prs) || 0}
-                    onOpenAll={() => {
-                        _.each(this.props.prs, pr => window.open(pr.url, '_blank'));
-                    }}
+                    onOpenAll={() => openAllUrls(this.props.prs)}
                 />
 
                 {!this.props.prs && (

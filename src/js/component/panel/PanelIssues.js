@@ -24,6 +24,7 @@ import ONYXKEYS from '../../ONYXKEYS';
 import filterPropTypes from '../../lib/filterPropTypes';
 import * as Issues from '../../lib/actions/Issues';
 import SortableIssue from '../list-item/SortableIssue';
+import openAllUrls from '../../lib/openAllUrls';
 
 const propTypes = {
     /** A CSS class to add to this panel to give it some color */
@@ -220,9 +221,7 @@ function PanelIssues(props) {
                 <Title
                     text={props.title}
                     count={_.size(filteredData) || 0}
-                    onOpenAll={() => {
-                        _.each(filteredData, issue => window.open(issue.url, '_blank'));
-                    }}
+                    onOpenAll={() => openAllUrls(filteredData)}
                 />
                 {!_.size(filteredData) ? (
                     <div className="blankslate capped clean-background">
