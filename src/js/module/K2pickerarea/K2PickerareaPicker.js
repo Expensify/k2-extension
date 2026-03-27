@@ -36,7 +36,7 @@ class K2PickerareaPicker extends React.Component {
             },
             'Concierge (dont reopen)': {
                 className: `${defaultBtnClass} inactive k2-concierge-dont-reopen`,
-                shortName: '🤖 Concierge',
+                shortName: '❌ Concierge',
             },
         };
         // eslint-disable-next-line rulesdir/prefer-underscore-method
