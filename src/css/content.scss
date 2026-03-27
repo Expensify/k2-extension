@@ -188,6 +188,12 @@ $color-dark-yellow: #DAA520;
   font-size: 14px;
   margin: 0px;
   padding: $gutter ($gutter * 2);
+
+  &.panel-title-with-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 }
 
 .panel-item {

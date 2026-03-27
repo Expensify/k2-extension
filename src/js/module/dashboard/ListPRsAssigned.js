@@ -55,6 +55,9 @@ class ListPRsAssigned extends React.Component {
                 <Title
                     text="Your Pull Requests"
                     count={_.size(this.props.prs) || 0}
+                    onOpenAll={() => {
+                        _.each(this.props.prs, pr => window.open(pr.url, '_blank'));
+                    }}
                 />
 
                 {!this.props.prs && (
