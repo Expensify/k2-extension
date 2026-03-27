@@ -196,37 +196,6 @@ $color-dark-yellow: #DAA520;
   }
 }
 
-.open-all-btn {
-  font-size: 11px;
-  padding: 1px 8px;
-  border: 1px solid $color-neutral-light;
-  border-radius: 4px;
-  background: $color-white;
-  color: $color-neutral;
-  cursor: pointer;
-  white-space: nowrap;
-  line-height: 1.4;
-  transition: background-color 0.15s ease, color 0.15s ease;
-
-  &:hover {
-    background: darken($color-neutral-lighter, 5%);
-    color: $color-black;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .open-all-btn {
-    background: transparent;
-    border-color: rgb(48, 54, 61);
-    color: #8b949e;
-
-    &:hover {
-      background: rgba(110, 118, 129, 0.4);
-      color: #e6edf3;
-    }
-  }
-}
-
 .panel-item {
   border-top: 1px solid $color-neutral-light;
   display: block;

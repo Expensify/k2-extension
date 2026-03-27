@@ -25,7 +25,7 @@ function Title(props) {
                 {props.onOpenAll && props.count > 0 && (
                     <button
                         type="button"
-                        className="open-all-btn"
+                        className="btn btn-sm"
                         onClick={props.onOpenAll}
                         title={`Open all ${props.count} items in new tabs`}
                     >
