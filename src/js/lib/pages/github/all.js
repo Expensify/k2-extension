@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import Base from './_base';
 import k2Button from '../../../template/button.github.k2.html';
+
 /**
  * This class manages the things that happen on *every* GitHub page. All it's doing is adding links to the
  * dashboard into the top navigation.
