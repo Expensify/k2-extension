@@ -1,8 +1,6 @@
 import $ from 'jquery';
 import Base from './_base';
 import k2Button from '../../../template/button.github.k2.html';
-import * as markdownCopy from '../../markdownCopy';
-
 /**
  * This class manages the things that happen on *every* GitHub page. All it's doing is adding links to the
  * dashboard into the top navigation.
@@ -48,9 +46,6 @@ export default function () {
         // Set up timestamp format conversion
         setTimeout(() => AllPages.applyTimestampFormat(), 500);
         setInterval(() => AllPages.applyTimestampFormat(), 5000);
-
-        // Set up "Copy as markdown" for comment menus
-        markdownCopy.initMarkdownCopy();
     };
 
     return AllPages;
