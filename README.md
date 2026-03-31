@@ -46,6 +46,22 @@ npm i
 npm run web
 ```
 
+# Features
+
+## Copy as Markdown
+Adds a "Copy as markdown" button to the context menu (`...`) of any comment on GitHub PRs and Issues.
+
+**How it works:**
+- Click the `...` menu on any comment
+- Select "Copy as markdown"
+- The comment body flashes green to confirm, and the markdown is copied to your clipboard
+
+**Supported content:**
+- Task list checkboxes are preserved as `- [x]` / `- [ ]` (non-indented)
+- Syntax-highlighted code blocks retain their language (e.g., ` ```javascript``` `)
+- All standard markdown formatting (headings, links, lists, etc.)
+
+
 # Developing
 There are three NPM tasks to use with this project. All files are output to the `dist` folder.
 

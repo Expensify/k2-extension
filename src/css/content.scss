@@ -58,7 +58,8 @@ $color-periwinkle: #b6daf6;
 .k2-improvement,
 .k2-task,
 .k2-external,
-.k2-newfeature {
+.k2-newfeature,
+.k2-concierge-dont-reopen {
   background-image: none !important;
 }
 
@@ -76,6 +77,7 @@ $color-periwinkle: #b6daf6;
 .k2-task.active { background-color: #9C5959 !important; color: white; }
 .k2-newfeature.active { background-color: #A52A2A !important; color: white; }
 .k2-external.active { background-color: #A7B8EF !important; color: white; }
+.k2-concierge-dont-reopen.active { background-color: #f46d58 !important; color: white; }
 
 .k2-reviewing {
   &.active { background-color: $color-neutral; }
@@ -203,6 +205,12 @@ $color-periwinkle: #b6daf6;
   font-size: 14px;
   margin: 0px;
   padding: $gutter ($gutter * 2);
+
+  &.panel-title-with-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 }
 
 .panel-item {
@@ -596,6 +604,12 @@ $color-periwinkle: #b6daf6;
   background: none;
 }
 
+.search-filter-input {
+  margin-left: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
 @media (prefers-color-scheme: dark) {
   .panel, .panel-item, .issue-filter {
      border-color: rgb(48, 54, 61);
@@ -684,4 +698,112 @@ $color-periwinkle: #b6daf6;
 .k2-translation-failed {
     color: $color-red !important;
     font-weight: bold;
+}
+
+.custom-markdown-copy {
+    cursor: pointer;
+}
+
+// Issue template chooser enhancements (search, sort, blank issue)
+.k2-template-search {
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted, #d0d7de));
+
+    .k2-template-search-input {
+        width: 100%;
+        padding: 5px 12px;
+        font-size: 14px;
+        line-height: 20px;
+        border: 1px solid var(--borderColor-default, var(--color-border-default, #d0d7de));
+        border-radius: 6px;
+        background-color: var(--bgColor-default, var(--color-canvas-default, #ffffff));
+        color: var(--fgColor-default, var(--color-fg-default, #1f2328));
+
+        &::placeholder {
+            color: var(--fgColor-muted, var(--color-fg-muted, #656d76));
+        }
+
+        &:focus {
+            outline: none;
+            border-color: var(--borderColor-accent-emphasis, var(--color-accent-emphasis, #0969da));
+            box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
+        }
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .k2-template-search {
+        border-bottom-color: var(--borderColor-muted, #30363d);
+
+        .k2-template-search-input {
+            border-color: var(--borderColor-default, #30363d);
+            background-color: var(--bgColor-default, #0d1117);
+            color: var(--fgColor-default, #e6edf3);
+
+            &::placeholder {
+                color: var(--fgColor-muted, #8b949e);
+            }
+
+            &:focus {
+                border-color: var(--borderColor-accent-emphasis, #1f6feb);
+                box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.3);
+            }
+        }
+    }
+}
+
+// K2 navigation tab
+li.k2-extension {
+    display: flex;
+    align-items: center;
+}
+
+.k2-nav-link {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--fgColor-default, #1f2328);
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: 6px;
+    transition: background-color 0.1s ease;
+
+    &:hover {
+        color: var(--fgColor-default, #1f2328);
+        text-decoration: none;
+        background-color: var(--bgColor-neutral-muted, rgba(175, 184, 193, 0.2));
+    }
+
+    &.selected,
+    &[aria-current="page"] {
+        font-weight: 600;
+    }
+}
+
+// When on K2 page, override GitHub's tab styling so only K2 looks selected
+body.k2-page-active {
+    nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link) {
+        font-weight: 400 !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link)::after,
+    nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link)::before {
+        display: none !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .k2-nav-link {
+        color: var(--fgColor-default, #e6edf3);
+
+        &:hover {
+            color: var(--fgColor-default, #e6edf3);
+            background-color: var(--bgColor-neutral-muted, rgba(110, 118, 129, 0.4));
+        }
+    }
 }

@@ -46,12 +46,19 @@ class ListIssuesAssigned extends React.Component {
             shouldHideUnderReviewIssues: props.checkboxes.shouldHideUnderReview,
             shouldHideOwnedBySomeoneElseIssues: props.checkboxes.shouldHideOwnedBySomeoneElse,
             shouldHideNotOverdueIssues: props.checkboxes.shouldHideNotOverdue,
+
+            // searchInputText is the immediate value shown in the input field
+            // searchText is the debounced value used for filtering
+            searchInputText: '',
+            searchText: '',
         };
         this.fetch = this.fetch.bind(this);
         this.toggleHeldFilter = this.toggleHeldFilter.bind(this);
         this.toggleUnderReviewFilter = this.toggleUnderReviewFilter.bind(this);
         this.toggleOwnedBySomeoneElseFilter = this.toggleOwnedBySomeoneElseFilter.bind(this);
         this.toggleNotOverdueFilter = this.toggleNotOverdueFilter.bind(this);
+        this.applySearchFilter = this.applySearchFilter.bind(this);
+        this.applyDebouncedSearchFilter = _.debounce(this.applyDebouncedSearchFilter.bind(this), 300);
     }
 
     componentDidMount() {
@@ -63,14 +70,26 @@ class ListIssuesAssigned extends React.Component {
     }
 
     componentWillUnmount() {
-        if (!this.interval) {
-            return;
+        if (this.interval) {
+            clearInterval(this.interval);
         }
-        clearInterval(this.interval);
+
+        // Cancel any pending debounced search
+        this.applyDebouncedSearchFilter.cancel();
     }
 
-    fetch() {
-        Issues.getAllAssigned();
+    applySearchFilter(event) {
+        const value = event.target.value;
+
+        // Update input text immediately for responsive UI
+        this.setState({searchInputText: value});
+
+        // Debounce the actual filtering
+        this.applyDebouncedSearchFilter(value);
+    }
+
+    applyDebouncedSearchFilter(value) {
+        this.setState({searchText: value});
     }
 
     toggleHeldFilter() {
@@ -78,9 +97,9 @@ class ListIssuesAssigned extends React.Component {
         Issues.saveCheckboxes({shouldHideOnHold: !this.state.shouldHideHeldIssues});
     }
 
-    toggleUnderReviewFilter() {
-        this.setState(prevState => ({shouldHideUnderReviewIssues: !prevState.shouldHideUnderReviewIssues}));
-        Issues.saveCheckboxes({shouldHideUnderReview: !this.state.shouldHideUnderReviewIssues});
+    toggleNotOverdueFilter() {
+        this.setState(prevState => ({shouldHideNotOverdueIssues: !prevState.shouldHideNotOverdueIssues}));
+        Issues.saveCheckboxes({shouldHideNotOverdue: !this.state.shouldHideNotOverdueIssues});
     }
 
     toggleOwnedBySomeoneElseFilter() {
@@ -88,12 +107,77 @@ class ListIssuesAssigned extends React.Component {
         Issues.saveCheckboxes({shouldHideOwnedBySomeoneElse: !this.state.shouldHideOwnedBySomeoneElseIssues});
     }
 
-    toggleNotOverdueFilter() {
-        this.setState(prevState => ({shouldHideNotOverdueIssues: !prevState.shouldHideNotOverdueIssues}));
-        Issues.saveCheckboxes({shouldHideNotOverdue: !this.state.shouldHideNotOverdueIssues});
+    toggleUnderReviewFilter() {
+        this.setState(prevState => ({shouldHideUnderReviewIssues: !prevState.shouldHideUnderReviewIssues}));
+        Issues.saveCheckboxes({shouldHideUnderReview: !this.state.shouldHideUnderReviewIssues});
+    }
+
+    fetch() {
+        Issues.getAllAssigned();
+    }
+
+    /**
+     * Parse search text into structured filters
+     * Supports:
+     * - label:"Label Name" or label:labelname for label filtering (with - prefix for exclusion)
+     * - Regular text terms for title search (with - prefix for exclusion)
+     *
+     * @param {string} searchText - The search text to parse
+     * @returns {Object}
+     */
+    parseSearchText(searchText) {
+        const includeLabels = [];
+        const excludeLabels = [];
+        const includeTerms = [];
+        const excludeTerms = [];
+
+        // Match label:"quoted value" or label:unquoted patterns (with optional - prefix)
+        // Named capture groups: exclude (-), quoted (value in quotes), unquoted (value without quotes)
+        const labelPattern = /(?<exclude>-?)label:(?:"(?<quoted>[^"]+)"|(?<unquoted>\S+))/gi;
+        let remaining = searchText;
+        const matches = searchText.match(labelPattern) || [];
+
+        _.each(matches, (matchStr) => {
+            // Re-parse each match to extract named capture groups
+            const singleMatch = /(?<exclude>-?)label:(?:"(?<quoted>[^"]+)"|(?<unquoted>\S+))/i.exec(matchStr);
+            if (singleMatch && singleMatch.groups) {
+                const isExclusion = singleMatch.groups.exclude === '-';
+                const labelValue = (singleMatch.groups.quoted || singleMatch.groups.unquoted).toLowerCase();
+
+                if (isExclusion) {
+                    excludeLabels.push(labelValue);
+                } else {
+                    includeLabels.push(labelValue);
+                }
+
+                // Remove matched pattern from remaining text
+                remaining = remaining.replace(matchStr, ' ');
+            }
+        });
+
+        // Parse remaining text for regular title search terms
+        const textTerms = _.filter(remaining.trim().split(/\s+/), term => term.length > 0);
+        _.each(textTerms, (term) => {
+            if (term.startsWith('-') && term.length > 1) {
+                excludeTerms.push(term.slice(1).toLowerCase());
+            } else {
+                includeTerms.push(term.toLowerCase());
+            }
+        });
+
+        return {
+            includeLabels,
+            excludeLabels,
+            includeTerms,
+            excludeTerms,
+        };
     }
 
     filterIssues(issues) {
+        const {
+            includeLabels, excludeLabels, includeTerms, excludeTerms,
+        } = this.parseSearchText(this.state.searchText);
+
         return _.filter(issues, (item) => {
             if (this.state.shouldHideHeldIssues && item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '') {
                 return false;
@@ -107,6 +191,36 @@ class ListIssuesAssigned extends React.Component {
             if (this.state.shouldHideNotOverdueIssues && !_.find(item.labels, label => label.name.toLowerCase() === 'overdue')) {
                 return false;
             }
+
+            // Get all label names for this issue (lowercase for comparison)
+            const itemLabels = _.map(item.labels, label => label.name.toLowerCase());
+
+            // Must have ALL include labels
+            const hasAllIncludeLabels = _.every(includeLabels, label => _.some(itemLabels, itemLabel => itemLabel.indexOf(label) !== -1));
+            if (!hasAllIncludeLabels) {
+                return false;
+            }
+
+            // Must NOT have ANY exclude labels
+            const hasAnyExcludeLabel = _.some(excludeLabels, label => _.some(itemLabels, itemLabel => itemLabel.indexOf(label) !== -1));
+            if (hasAnyExcludeLabel) {
+                return false;
+            }
+
+            // Free text search filter (case insensitive)
+            // Title must contain ALL include terms
+            const titleLower = item.title.toLowerCase();
+            const matchesAllIncludes = _.every(includeTerms, term => titleLower.indexOf(term) !== -1);
+            if (!matchesAllIncludes) {
+                return false;
+            }
+
+            // Title must NOT contain ANY exclude terms
+            const matchesAnyExclude = _.some(excludeTerms, term => titleLower.indexOf(term) !== -1);
+            if (matchesAnyExclude) {
+                return false;
+            }
+
             return true;
         });
     }
@@ -193,6 +307,13 @@ class ListIssuesAssigned extends React.Component {
                                 Not Overdue
                             </label>
                         </div>
+                        <input
+                            type="text"
+                            placeholder="Filter Issues by Title"
+                            className="search-filter-input"
+                            value={this.state.searchInputText}
+                            onChange={this.applySearchFilter}
+                        />
                     </form>
                 </div>
                 {!_.isEmpty(this.props.issues) && (
