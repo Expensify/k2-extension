@@ -76,8 +76,6 @@ function ListItemPull(props) {
     }
 
     let travisStatus = '⚠️';
-    // eslint-disable-next-line no-console
-    console.log('meep meep checkConclusion:', pr.checkConclusion);
     switch (pr.checkConclusion) {
         case 'success':
             travisStatus = '✅';
