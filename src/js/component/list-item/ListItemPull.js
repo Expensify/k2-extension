@@ -40,7 +40,8 @@ function ListItemPull(props) {
         }
 
         if (pr.title.indexOf('[HOLD') > -1
-            || pr.title.indexOf('[WIP') > -1) {
+            || pr.title.indexOf('[WIP') > -1
+            || pr.isDraft) {
             className += ' hold';
         }
 
@@ -74,6 +75,23 @@ function ListItemPull(props) {
             break;
     }
 
+    let travisStatus = '⚠️';
+    // eslint-disable-next-line no-console
+    console.log('meep meep checkConclusion:', pr.checkConclusion);
+    switch (pr.checkConclusion) {
+        case 'success':
+            travisStatus = '✅';
+            break;
+        case 'failure':
+            travisStatus = '❌';
+            break;
+        case 'skipped':
+            travisStatus = '🔄';
+            break;
+        default:
+            break;
+    }
+
     return (
         <div className="panel-item">
             <span className="panel-item-meta">
@@ -95,15 +113,6 @@ function ListItemPull(props) {
                     {pr.reviews.totalCount}
                 </span>
 
-                {pr.checkConclusion && (
-                    <span className={`travis-status ${pr.checkConclusion}`}>
-                        Travis:
-                        {' '}
-                        {pr.checkConclusion}
-                        ,
-                    </span>
-                )}
-
                 {mergeability && (
                     <span className={`mergeable-state ${pr.reviewDecision} ${pr.mergeable} ${(mergeability === 'Draft' && 'DRAFT') || ''}`}>
                         {mergeability}
@@ -115,15 +124,21 @@ function ListItemPull(props) {
                     {' '}
                     {`${repoPrefix}`}
                 </span>
+
+                {pr.checkConclusion && pr.checkConclusion !== 'unknown' && (
+                    <span className={`travis-status ${pr.checkConclusion}`}>
+                        {travisStatus}
+                    </span>
+                )}
+
             </span>
 
             <a href={pr.url} className={getClassName(mergeability)} target="_blank" rel="noreferrer noopener">
                 <span className="octicon octicon-alert" />
+                {(pr.isDraft || pr.title.indexOf('[WIP') > -1) && <span className="Counter">draft</span>}
                 {`${pr.title}`}
                 {' '}
             </a>
-
-            {pr.isDraft && <span className="Counter">draft</span>}
         </div>
     );
 }

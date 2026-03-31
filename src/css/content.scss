@@ -20,7 +20,7 @@ $color-blue: #0000ff;
 $color-light-blue: #12a4d5;
 $color-darker-green: #2cb528;
 $color-dark-yellow: #DAA520;
-$color-dark-sea-green: #8FBC8B;
+$color-grey-green: #8ca88a;
 $color-mauve: #b1a5b2df;
 $color-periwinkle: #b6daf6;
 
@@ -271,7 +271,7 @@ $color-periwinkle: #b6daf6;
       }
   }
   &.approved {
-    color: $color-dark-sea-green !important;
+    color: $color-grey-green !important;
   }
   &.reviewing {
       color: $color-neutral-light !important;
@@ -359,6 +359,10 @@ $color-periwinkle: #b6daf6;
 
   &.MERGEABLE:not(.CHANGES_REQUESTED):not(.REVIEW_REQUIRED) {
     color: $color-darker-green;
+  }
+
+  &.MERGEABLE.CHANGES_REQUESTED {
+    color: $color-grey-green;
   }
 
   &.DRAFT {
