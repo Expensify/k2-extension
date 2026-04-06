@@ -55,7 +55,8 @@ $color-dark-yellow: #DAA520;
 .k2-improvement,
 .k2-task,
 .k2-external,
-.k2-newfeature {
+.k2-newfeature,
+.k2-concierge-dont-reopen {
   background-image: none !important;
 }
 
@@ -73,6 +74,7 @@ $color-dark-yellow: #DAA520;
 .k2-task.active { background-color: #9C5959 !important; color: white; }
 .k2-newfeature.active { background-color: #A52A2A !important; color: white; }
 .k2-external.active { background-color: #A7B8EF !important; color: white; }
+.k2-concierge-dont-reopen.active { background-color: #f46d58 !important; color: white; }
 
 .k2-reviewing {
   &.active { background-color: $color-neutral; }
@@ -188,6 +190,12 @@ $color-dark-yellow: #DAA520;
   font-size: 14px;
   margin: 0px;
   padding: $gutter ($gutter * 2);
+
+  &.panel-title-with-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 }
 
 .panel-item {
@@ -660,10 +668,6 @@ $color-dark-yellow: #DAA520;
 .k2-translation-failed {
     color: $color-red !important;
     font-weight: bold;
-}
-
-.custom-markdown-copy {
-    cursor: pointer;
 }
 
 // Issue template chooser enhancements (search, sort, blank issue)
