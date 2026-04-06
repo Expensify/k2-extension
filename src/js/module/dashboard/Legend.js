@@ -38,6 +38,7 @@ function Legend() {
                 href="https://github.com/Expensify/App/issues/new/choose"
                 target="_blank"
                 rel="noopener noreferrer"
+                style={{marginTop: '4px'}}
             >
                 New /app Issue
             </a>
