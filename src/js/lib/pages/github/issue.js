@@ -195,8 +195,11 @@ export default function () {
                 refreshPicker();
             }
 
-            // Assignee section in right side panel
-            if (!$('div[data-testid="sidebar-assignees-section"] .k2-element').length) {
+            // Re-render if the number of assignees doesn't match the number of star buttons
+            // (handles both newly added and removed assignees)
+            const assigneeCount = $('div[data-testid="issue-assignees"]').length;
+            const buttonCount = $('div[data-testid="sidebar-assignees-section"] .k2-button').length;
+            if (assigneeCount !== buttonCount) {
                 renderAssignees();
             }
         }, 1000);

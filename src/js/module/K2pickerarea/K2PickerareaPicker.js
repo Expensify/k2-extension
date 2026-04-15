@@ -34,6 +34,10 @@ class K2PickerareaPicker extends React.Component {
                 className: `${defaultBtnClass} inactive k2-hot-pick`,
                 shortName: '🔥 Hot Pick',
             },
+            'Concierge (dont reopen)': {
+                className: `${defaultBtnClass} inactive k2-concierge-dont-reopen`,
+                shortName: '❌ Concierge',
+            },
         };
         // eslint-disable-next-line rulesdir/prefer-underscore-method
         $('div[data-testid="issue-labels"] a > span').each((i, el) => {
