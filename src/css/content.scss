@@ -225,7 +225,8 @@ $color-dark-yellow: #DAA520;
   &.help-wanted,
   &.challenge-sent,
   &.hold,
-  &.nonowner {
+  &.nonowner,
+  &.reviewed {
     color: color.adjust($color-neutral-light, $lightness: -20%) !important;
     .issue-link {
       color: color.adjust($color-neutral-light, $lightness: -20%) !important;

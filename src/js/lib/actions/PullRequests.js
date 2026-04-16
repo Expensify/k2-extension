@@ -86,9 +86,11 @@ function getReviewing() {
         promises.push(API.getPullsByType('reviewed-by'));
 
         return Promise.all(promises).then((values) => {
+            const reviewRequested = _.mapObject(values[0], pr => ({...pr, isReviewRequested: true}));
+            const reviewedBy = _.mapObject(values[1], pr => ({...pr, isReviewRequested: false}));
             const allPRs = {
-                ...values[0],
-                ...values[1],
+                ...reviewedBy,
+                ...reviewRequested,
             };
 
             const prsAuthoredByOtherUsers = _.chain(allPRs)

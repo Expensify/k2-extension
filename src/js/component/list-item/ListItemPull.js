@@ -40,6 +40,10 @@ function ListItemPull(props) {
             className += ' hold';
         }
 
+        if (pr.isReviewRequested === false) {
+            className += ' reviewed';
+        }
+
         return className;
     }
 
