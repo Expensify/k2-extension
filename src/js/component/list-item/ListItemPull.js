@@ -40,10 +40,6 @@ function ListItemPull(props) {
             className += ' hold';
         }
 
-        if (pr.isReviewRequested === false) {
-            className += ' reviewed';
-        }
-
         return className;
     }
 
@@ -79,7 +75,7 @@ function ListItemPull(props) {
     }
 
     return (
-        <div className="panel-item">
+        <div className={`panel-item${pr.isReviewRequested === false ? ' reviewed' : ''}`}>
             <span className="panel-item-meta">
                 <span className="age">
                     Updated:

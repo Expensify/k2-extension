@@ -196,6 +196,12 @@ $color-dark-yellow: #DAA520;
         float: right !important;
         top: -5px;
     }
+  &.reviewed {
+    color: color.adjust($color-neutral-light, $lightness: -20%) !important;
+    .issue, .panel-item-meta {
+      color: color.adjust($color-neutral-light, $lightness: -20%) !important;
+    }
+  }
 }
 
 .panel-item-meta {
@@ -225,8 +231,7 @@ $color-dark-yellow: #DAA520;
   &.help-wanted,
   &.challenge-sent,
   &.hold,
-  &.nonowner,
-  &.reviewed {
+  &.nonowner {
     color: color.adjust($color-neutral-light, $lightness: -20%) !important;
     .issue-link {
       color: color.adjust($color-neutral-light, $lightness: -20%) !important;
