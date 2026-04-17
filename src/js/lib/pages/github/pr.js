@@ -1,5 +1,58 @@
 import $ from 'jquery';
 import Base from './_base';
+import ToggleTimestamps from '../../../module/ToggleTimestamps/ToggleTimestamps';
+
+/**
+ * Replaces all `- [ ]` with `- [x]` in textareas with specific names
+ */
+const replaceChecklistItems = () => {
+    // eslint-disable-next-line rulesdir/prefer-underscore-method
+    $('textarea[name="issue[body]"], textarea[name="issue_comment[body]"], textarea[name="comment[body]"], textarea[name="pull_request[body]"]').each((i, el) => {
+        const updatedText = $(el).val().replace(/- \[ \]/g, '- [x]');
+        $(el).val(updatedText);
+    });
+};
+
+const renderReplaceChecklistButton = () => {
+    if ($('.k2-replace-checklist').length) {
+        return;
+    }
+    const buttonHtml = '<button type="button" class="btn-link no-underline text-bold Link--primary k2-replace-checklist almost-transparent">Auto complete checklist</button>';
+    $('.discussion-sidebar-item').last().append(buttonHtml);
+    $('.k2-replace-checklist').off().on('click', replaceChecklistItems);
+};
+
+const refreshSidebar = function () {
+    // Add the timestamp toggle wrapper to the DOM if it doesn't exist
+    if ($('.k2toggletimestamps-wrapper').length) {
+        // Draw the toggle if wrapper exists but is empty
+        const wrapper = $('.k2toggletimestamps-wrapper');
+        if (wrapper.children().length === 0) {
+            new ToggleTimestamps().draw();
+        }
+        return;
+    }
+
+    // Add timestamp toggle wrapper at the bottom of the sidebar
+    const lastSidebarItem = $('.discussion-sidebar-item').last();
+    if (lastSidebarItem.length) {
+        lastSidebarItem.after('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+    } else {
+        // Fallback: append to sidebar container
+        const sidebar = $('.discussion-sidebar, [role="complementary"], .Layout-sidebar').first();
+        if (sidebar.length) {
+            sidebar.append('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+        }
+    }
+
+    // Draw the timestamp toggle if the wrapper exists and is empty
+    const wrapper = $('.k2toggletimestamps-wrapper');
+    if (!wrapper.length || wrapper.children().length > 0) {
+        return;
+    }
+
+    new ToggleTimestamps().draw();
+};
 
 const refreshHold = function () {
     const prTitle = $('.js-issue-title').text();
@@ -73,10 +126,13 @@ export default function () {
      * Add buttons to the page and setup the event handler
      */
     PrPage.setup = function () {
+        setTimeout(refreshSidebar, 500);
         setInterval(refreshHold, 1000);
+        setInterval(renderReplaceChecklistButton, 2000);
 
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
         setInterval(() => PrPage.renderCopyChecklistButtons('reviewer'), 2000);
+        setInterval(() => PrPage.renderTranslationWorkflowButtons(), 2000);
     };
 
     return PrPage;

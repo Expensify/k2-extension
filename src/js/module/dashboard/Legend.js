@@ -32,6 +32,18 @@ function Legend() {
             </a>
 
             <br />
+            <a
+                className="btn btn-primary"
+                aria-label="New /app Issue"
+                href="https://github.com/Expensify/App/issues/new/choose"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{marginTop: '4px'}}
+            >
+                New /app Issue
+            </a>
+
+            <br />
             <div className="issue reviewing">Under Review</div>
             <div className="issue overdue">Overdue</div>
             <div className="issue planning">Planning</div>

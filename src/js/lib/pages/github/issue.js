@@ -7,6 +7,7 @@ import K2picker from '../../../module/K2picker/K2picker';
 import K2pickerarea from '../../../module/K2pickerarea/K2pickerarea';
 import K2pickerType from '../../../module/K2pickertype/K2pickertype';
 import ToggleReview from '../../../module/ToggleReview/ToggleReview';
+import ToggleTimestamps from '../../../module/ToggleTimestamps/ToggleTimestamps';
 import K2comments from '../../../module/K2comments/K2comments';
 import K2previousissues from '../../../module/K2previousissues/K2previousissues';
 import ONYXKEYS from '../../../ONYXKEYS';
@@ -75,7 +76,7 @@ function replaceOwner(oldOwner, newOwner) {
  */
 const renderAssignees = (issueOwner) => {
     // Always start by erasing whatever was drawn before (so it always starts from a clean slate)
-    $('div[data-testid="sidebar-section"] .k2-element').remove();
+    $('.k2-button-remove-owner, .k2-button-make-owner').remove();
 
     let currentOwner = issueOwner;
 
@@ -129,8 +130,23 @@ const renderAssignees = (issueOwner) => {
 const refreshPicker = function () {
     // Add our wrappers to the DOM which all the React components will be rendered into
     if ($('.k2picker-wrapper')) {
-        $('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(4)') // Labels section in right side panel
-            .after(sidebarWrapperHTML);
+        $('div[data-testid="sidebar-projects-section"]') // Labels section in right side panel
+            .before(sidebarWrapperHTML);
+    }
+
+    // Add timestamp toggle wrapper at the bottom if it doesn't exist
+    if (!$('.k2toggletimestamps-wrapper').length) {
+        // Find the last sidebar item or sidebar container and append to bottom
+        const lastSidebarItem = $('.discussion-sidebar-item').last();
+        if (lastSidebarItem.length) {
+            lastSidebarItem.after('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+        } else {
+            // Fallback: append to sidebar container
+            const sidebar = $('.discussion-sidebar, [role="complementary"]').first();
+            if (sidebar.length) {
+                sidebar.append('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+            }
+        }
     }
 
     new K2picker().draw();
@@ -139,6 +155,12 @@ const refreshPicker = function () {
     new ToggleReview().draw();
     new K2comments().draw();
     new K2previousissues().draw();
+
+    // Draw timestamp toggle if wrapper exists and is empty
+    const timestampWrapper = $('.k2toggletimestamps-wrapper');
+    if (timestampWrapper.length && timestampWrapper.children().length === 0) {
+        new ToggleTimestamps().draw();
+    }
 };
 
 /**
@@ -173,8 +195,11 @@ export default function () {
                 refreshPicker();
             }
 
-            if (!$('div[data-testid="issue-viewer-metadata-pane"] > :nth-child(3) .k2-element') // Assignee section in right side panel
-                .length) {
+            // Re-render if the number of assignees doesn't match the number of star buttons
+            // (handles both newly added and removed assignees)
+            const assigneeCount = $('div[data-testid="issue-assignees"]').length;
+            const buttonCount = $('div[data-testid="sidebar-assignees-section"] .k2-button').length;
+            if (assigneeCount !== buttonCount) {
                 renderAssignees();
             }
         }, 1000);

@@ -5,7 +5,9 @@ import {withOnyx} from 'react-native-onyx';
 import ONYXKEYS from '../../ONYXKEYS';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import ListItemIssue from '../../component/list-item/ListItemIssue';
+import Title from '../../component/panel-title/Title';
 import * as Issues from '../../lib/actions/Issues';
+import openAllUrls from '../../lib/openAllUrls';
 
 const propTypes = {
     /** The number of milliseconds to refresh the data */
@@ -48,17 +50,11 @@ class ListIssuesHotPicks extends React.Component {
     render() {
         return (
             <div className="panel waq mb-3">
-                <div className="d-flex flex-row">
-                    <div className="col-12">
-                        <h3 className="panel-title">
-                            Hot Picks
-                            {' '}
-                            (
-                            {this.props.issues.length}
-                            )
-                        </h3>
-                    </div>
-                </div>
+                <Title
+                    text="Hot Picks"
+                    count={this.props.issues.length}
+                    onOpenAll={() => openAllUrls(this.props.issues)}
+                />
 
                 {!this.props.issues && (
                     <div className="blankslate capped clean-background">
