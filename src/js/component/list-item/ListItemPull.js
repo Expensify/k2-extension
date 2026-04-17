@@ -75,7 +75,7 @@ function ListItemPull(props) {
     }
 
     return (
-        <div className="panel-item">
+        <div className={`panel-item${pr.isReviewRequested === false ? ' reviewed' : ''}`}>
             <span className="panel-item-meta">
                 <span className="age">
                     Updated:
