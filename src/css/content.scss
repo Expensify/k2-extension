@@ -197,9 +197,9 @@ $color-dark-yellow: #DAA520;
         top: -5px;
     }
   &.reviewed {
-    color: color.adjust($color-neutral-light, $lightness: -20%) !important;
+    color: $color-neutral-light !important;
     .issue, .panel-item-meta {
-      color: color.adjust($color-neutral-light, $lightness: -20%) !important;
+      color: $color-neutral-light !important;
     }
   }
 }

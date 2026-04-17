@@ -22,9 +22,6 @@ export default PropTypes.shape({
     /** The status of PR reviews */
     reviewDecision: PropTypes.oneOf(['CHANGES_REQUESTED', 'APPROVED', 'REVIEW_REQUIRED']),
 
-    /** Whether the current user's review is actively requested on this PR */
-    isReviewRequested: PropTypes.bool,
-
     /** Info about comments on the PR */
     comments: PropTypes.shape({
         /** The number of comments on the PR */
