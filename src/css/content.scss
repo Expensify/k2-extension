@@ -201,6 +201,15 @@ $color-dark-yellow: #DAA520;
     .issue, .panel-item-meta {
       color: $color-neutral-light !important;
     }
+    .travis-status, .mergeable-state {
+      color: color.mix($color-neutral-light, $color-dark-yellow, 75%) !important;
+      &.success, &.MERGEABLE:not(.CHANGES_REQUESTED):not(.REVIEW_REQUIRED) {
+        color: color.mix($color-neutral-light, $color-darker-green, 75%) !important;
+      }
+      &.failure, &.CONFLICTING, &.CHANGES_REQUESTED {
+        color: color.mix($color-neutral-light, $color-alert, 75%) !important;
+      }
+    }
   }
 }
 
