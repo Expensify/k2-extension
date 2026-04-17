@@ -212,7 +212,7 @@ $color-dark-yellow: #DAA520;
     .issue, .panel-item-meta {
       color: $color-neutral-light !important;
     }
-    .travis-status, .mergeable-state {
+    .github-actions-status, .mergeable-state {
       color: color.mix($color-neutral-light, $color-dark-yellow, 75%) !important;
       &.success, &.MERGEABLE:not(.CHANGES_REQUESTED):not(.REVIEW_REQUIRED) {
         color: color.mix($color-neutral-light, $color-darker-green, 75%) !important;
@@ -321,7 +321,7 @@ $color-dark-yellow: #DAA520;
   }
 }
 
-.travis-status {
+.github-actions-status {
   color: $color-orange;
 
   &.success {
