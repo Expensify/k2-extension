@@ -252,7 +252,8 @@ body.k2-page-active {
 .k2-improvement,
 .k2-task,
 .k2-external,
-.k2-newfeature {
+.k2-newfeature,
+.k2-concierge-dont-reopen {
   background-image: none !important;
 }
 
@@ -270,6 +271,7 @@ body.k2-page-active {
 .k2-task.active { background-color: #9C5959 !important; color: white; }
 .k2-newfeature.active { background-color: #A52A2A !important; color: white; }
 .k2-external.active { background-color: #A7B8EF !important; color: white; }
+.k2-concierge-dont-reopen.active { background-color: #f46d58 !important; color: white; }
 
 .k2-reviewing {
   &.active { background-color: $color-neutral; }
@@ -385,6 +387,12 @@ body.k2-page-active {
   font-size: 14px;
   margin: 0px;
   padding: $gutter ($gutter * 2);
+
+  &.panel-title-with-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 }
 
 .panel-item {
@@ -396,6 +404,21 @@ body.k2-page-active {
         float: right !important;
         top: -5px;
     }
+  &.reviewed {
+    color: $color-neutral-light !important;
+    .issue, .panel-item-meta {
+      color: $color-neutral-light !important;
+    }
+    .github-actions-status, .mergeable-state {
+      color: color.mix($color-neutral-light, $color-dark-yellow, 75%) !important;
+      &.success, &.MERGEABLE:not(.CHANGES_REQUESTED):not(.REVIEW_REQUIRED) {
+        color: color.mix($color-neutral-light, $color-darker-green, 75%) !important;
+      }
+      &.failure, &.CONFLICTING, &.CHANGES_REQUESTED {
+        color: color.mix($color-neutral-light, $color-alert, 75%) !important;
+      }
+    }
+  }
 }
 
 .panel-item-meta {
@@ -495,7 +518,7 @@ body.k2-page-active {
   }
 }
 
-.travis-status {
+.github-actions-status {
   color: $color-orange;
 
   &.success {
@@ -862,10 +885,6 @@ body.k2-page-active {
 .k2-translation-failed {
     color: $color-red !important;
     font-weight: bold;
-}
-
-.custom-markdown-copy {
-    cursor: pointer;
 }
 
 // Issue template chooser enhancements (search, sort, blank issue)
