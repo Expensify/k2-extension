@@ -55,7 +55,7 @@ const refreshSidebar = function () {
 };
 
 const refreshHold = function () {
-    const prTitle = $('.js-issue-title').text();
+    const prTitle = $('h1[data-component="PH_Title"] span.markdown-title').text();
 
     const isNewMergeUI = $('div[data-testid="mergebox-partial"]').length;
 
@@ -87,7 +87,7 @@ const refreshHold = function () {
     }
 
     if (prTitle.toLowerCase().indexOf('[hold') > -1 || prTitle.toLowerCase().indexOf('[wip') > -1) {
-        $('div[data-testid="mergebox-partial"] > div > div:last-of-type') // Entire PR merge section
+        $('div[data-testid="mergebox-border-container"]') // Entire PR merge section
             .removeClass('borderColor-success-emphasis');
         $('div[data-testid="mergebox-partial"] > div > div > div button').first() // Merge pull request button
             .css({backgroundColor: 'var(--bgColor-neutral-muted)', borderColor: 'var(--bgColor-neutral-muted)'})
