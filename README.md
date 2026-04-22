@@ -87,7 +87,7 @@ steps:
 1. Done!
 
 ## Firefox
-https://stackoverflow.com/c/expensify/questions/7043/7044#7044
+https://stackoverflow.com/c/expensify/questions/7043/7044#7044  
 
 Finally, send an email to all@expensify.com with the update instructions.
 
