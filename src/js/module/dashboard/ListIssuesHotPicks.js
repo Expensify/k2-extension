@@ -13,38 +13,75 @@ const propTypes = {
     /** The number of milliseconds to refresh the data */
     pollInterval: PropTypes.number.isRequired,
 
+    /** Initial delay before first fetch (ms) to stagger API calls */
+    initialDelay: PropTypes.number,
+
     /** All the Hot Pick issues */
     issues: PropTypes.arrayOf(IssuePropTypes),
 };
 const defaultProps = {
     issues: [],
+    initialDelay: 0,
 };
 
 class ListIssuesHotPicks extends React.Component {
     constructor(props) {
         super(props);
 
-        // By default show only issues assigned to the current user
         this.fetch = this.fetch.bind(this);
+        this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
     }
 
     componentDidMount() {
-        this.fetch();
+        this.initialTimeout = setTimeout(() => {
+            this.fetch();
+
+            if (this.props.pollInterval && !this.interval) {
+                this.interval = setInterval(
+                    this.fetch,
+                    this.props.pollInterval,
+                );
+            }
+        }, this.props.initialDelay);
+
+        document.addEventListener(
+            'visibilitychange',
+            this.handleVisibilityChange,
+        );
     }
 
     componentWillUnmount() {
-        if (!this.interval) {
-            return;
+        document.removeEventListener(
+            'visibilitychange',
+            this.handleVisibilityChange,
+        );
+        if (this.initialTimeout) {
+            clearTimeout(this.initialTimeout);
         }
-        clearInterval(this.interval);
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
+    }
+
+    handleVisibilityChange() {
+        if (document.hidden) {
+            if (this.interval) {
+                clearInterval(this.interval);
+                this.interval = null;
+            }
+        } else {
+            this.fetch();
+            if (this.props.pollInterval && !this.interval) {
+                this.interval = setInterval(
+                    this.fetch,
+                    this.props.pollInterval,
+                );
+            }
+        }
     }
 
     fetch() {
         Issues.getHotPicks();
-
-        if (this.props.pollInterval && !this.interval) {
-            this.interval = setInterval(this.fetch, this.props.pollInterval);
-        }
     }
 
     render() {
@@ -68,10 +105,15 @@ class ListIssuesHotPicks extends React.Component {
                     </div>
                 ) : (
                     <>
-                        {_.map(this.props.issues, issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)}
+                        {_.map(this.props.issues, issue => (
+                            <ListItemIssue
+                                key={issue.id}
+                                issue={issue}
+                                showAttendees
+                            />
+                        ))}
                     </>
                 )}
-
             </div>
         );
     }

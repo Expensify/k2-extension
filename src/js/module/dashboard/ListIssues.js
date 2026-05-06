@@ -16,17 +16,30 @@ const propTypes = {
 };
 
 function ListIssues(props) {
+    const staggerDelay = 2000;
+
     return (
         <div className="issueList">
             <Legend />
 
-            <ListPRsReviewing pollInterval={props.pollInterval * 2.5} />
+            <ListPRsReviewing
+                pollInterval={props.pollInterval * 2.5}
+                initialDelay={staggerDelay * 0}
+            />
 
-            <ListIssuesAssigned pollInterval={props.pollInterval} />
+            <ListIssuesAssigned
+                pollInterval={props.pollInterval}
+                initialDelay={staggerDelay * 1}
+            />
+            <ListPRsAssigned
+                pollInterval={props.pollInterval * 2.5}
+                initialDelay={staggerDelay * 3}
+            />
 
-            <ListPRsAssigned pollInterval={props.pollInterval * 2.5} />
-
-            <ListIssuesHotPicks pollInterval={props.pollInterval * 2.5} />
+            <ListIssuesHotPicks
+                pollInterval={props.pollInterval * 2.5}
+                initialDelay={staggerDelay * 4}
+            />
 
             {/* Hide these for now while we focus on NewDot */}
             {/* <Filters />

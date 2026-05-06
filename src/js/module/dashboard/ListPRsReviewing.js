@@ -13,11 +13,15 @@ const propTypes = {
     /** The number of milliseconds to refresh the data */
     pollInterval: PropTypes.number.isRequired,
 
+    /** Initial delay before first fetch (ms) to stagger API calls */
+    initialDelay: PropTypes.number,
+
     /** All the PRs assigned to the current user */
     prs: PropTypes.objectOf(IssuePropTypes),
 };
 const defaultProps = {
     prs: null,
+    initialDelay: 0,
 };
 
 class ListPRsReviewing extends React.Component {
@@ -25,25 +29,59 @@ class ListPRsReviewing extends React.Component {
         super(props);
 
         this.fetch = this.fetch.bind(this);
+        this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
     }
 
     componentDidMount() {
-        this.fetch();
+        this.initialTimeout = setTimeout(() => {
+            this.fetch();
+
+            if (this.props.pollInterval && !this.interval) {
+                this.interval = setInterval(
+                    this.fetch,
+                    this.props.pollInterval,
+                );
+            }
+        }, this.props.initialDelay);
+
+        document.addEventListener(
+            'visibilitychange',
+            this.handleVisibilityChange,
+        );
     }
 
     componentWillUnmount() {
-        if (!this.interval) {
-            return;
+        document.removeEventListener(
+            'visibilitychange',
+            this.handleVisibilityChange,
+        );
+        if (this.initialTimeout) {
+            clearTimeout(this.initialTimeout);
         }
-        clearInterval(this.interval);
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
+    }
+
+    handleVisibilityChange() {
+        if (document.hidden) {
+            if (this.interval) {
+                clearInterval(this.interval);
+                this.interval = null;
+            }
+        } else {
+            this.fetch();
+            if (this.props.pollInterval && !this.interval) {
+                this.interval = setInterval(
+                    this.fetch,
+                    this.props.pollInterval,
+                );
+            }
+        }
     }
 
     fetch() {
         PullRequests.getReviewing();
-
-        if (this.props.pollInterval && !this.interval) {
-            this.interval = setInterval(this.fetch, this.props.pollInterval);
-        }
     }
 
     render() {
