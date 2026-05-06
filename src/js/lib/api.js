@@ -508,6 +508,108 @@ function getPreviousInstancesOfIssue(titleParts) {
 }
 
 /**
+ * Get all open issues that mention the current user and they haven't replied to
+ *
+ * @returns {Promise}
+ */
+function getIssuesMentioning() {
+    const currentUser = getCurrentUser();
+    let query = '';
+    query += ' state:open';
+    query += ' is:issue';
+    query += ` mentions:${currentUser}`;
+    query += ' org:Expensify';
+
+    const graphQLQuery = `
+        query($cursor:String) {
+            search(
+                query: "${query}"
+                type: ISSUE
+                first: 100
+                after:$cursor
+            ) {
+                pageInfo {
+                    endCursor
+                    hasNextPage
+                }
+                nodes {
+                    ... on Issue {
+                        title
+                        id
+                        url
+                        createdAt
+                        updatedAt
+                        body
+                        assignees(first: 100) {
+                          nodes {
+                            avatarUrl
+                            login
+                          }
+                        }
+                        labels(first: 100) {
+                            nodes {
+                                name
+                            }
+                        }
+                        milestone {
+                            id
+                        }
+                        comments(last: 30) {
+                            nodes {
+                                body
+                                createdAt
+                                author {
+                                    login
+                                    avatarUrl
+                                }
+                            }
+                            totalCount
+                        }
+                    }
+                }
+            }
+        }
+    `;
+
+    return getFullResultsUsingPagination(graphQLQuery)
+        .then(formatIssueResults)
+        .then((issues) => {
+            const issuesToFilter = _.filter(issues, (issue) => {
+                const comments = issue.comments.nodes;
+
+                // Find the last comment that mentions the current user
+                const lastMentionIndex = _.reduce(
+                    comments,
+                    (foundIndex, comment, index) => {
+                        if (
+                            comment.body
+                            && comment.body.includes(`@${currentUser}`)
+                            && comment.author.login !== currentUser
+                        ) {
+                            return index;
+                        }
+                        return foundIndex;
+                    },
+                    -1,
+                );
+
+                // No mention found in recent comments — skip this issue
+                if (lastMentionIndex === -1) {
+                    return false;
+                }
+
+                // Check if the user has replied after the last mention
+                const hasRepliedSince = _.some(
+                    comments.slice(lastMentionIndex + 1),
+                    comment => comment.author.login === currentUser,
+                );
+                return !hasRepliedSince;
+            });
+            return _.indexBy(issuesToFilter, 'id');
+        });
+}
+
+/**
  * Get all issues assigned to the current user
  *
  * @returns {Promise}
@@ -705,4 +807,5 @@ export {
     getWorkflowRuns,
     getWorkflowRun,
     checkK2RepoAccess,
+    getIssuesMentioning,
 };

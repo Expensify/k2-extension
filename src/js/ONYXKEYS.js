@@ -12,6 +12,7 @@ export default {
 
     ISSUES: {
         ASSIGNED: 'issueAssigned',
+        NEEDS_REPLY: 'issueNeedsReply',
         DAILY_IMPROVEMENTS: 'issueDailyImprovements',
         ENGINEERING: 'issueEngineering',
         FILTER: 'issueFilter',

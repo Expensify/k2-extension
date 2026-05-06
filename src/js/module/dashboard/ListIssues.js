@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 // import Filters from './Filters';
 import ListIssuesAssigned from './ListIssuesAssigned';
+import ListIssuesNeedsReply from './ListIssuesNeedsReply';
 import ListPRsAssigned from './ListPRsAssigned';
 import ListPRsReviewing from './ListPRsReviewing';
 
@@ -31,6 +32,12 @@ function ListIssues(props) {
                 pollInterval={props.pollInterval}
                 initialDelay={staggerDelay * 1}
             />
+
+            <ListIssuesNeedsReply
+                pollInterval={props.pollInterval * 2.5}
+                initialDelay={staggerDelay * 2}
+            />
+
             <ListPRsAssigned
                 pollInterval={props.pollInterval * 2.5}
                 initialDelay={staggerDelay * 3}
