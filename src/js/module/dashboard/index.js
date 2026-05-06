@@ -15,7 +15,7 @@ function showDashboard() {
     }
 
     const root = createRoot($('.k2dashboard').show()[0]);
-    root.render(<ListIssues pollInterval={60000} />);
+    root.render(<ListIssues pollInterval={180000} />);
 }
 
 /**
@@ -34,8 +34,12 @@ function showPasswordForm() {
 
 export default () => ({
     draw() {
-        const passwordFormWasDrawn = $('.repository-content').children('.passwordform').length;
-        const dashboardWasDrawn = $('.repository-content').children('.k2dashboard').length;
+        const passwordFormWasDrawn = $('.repository-content').children(
+            '.passwordform',
+        ).length;
+        const dashboardWasDrawn = $('.repository-content').children(
+            '.k2dashboard',
+        ).length;
 
         if (passwordFormWasDrawn || dashboardWasDrawn) {
             return;

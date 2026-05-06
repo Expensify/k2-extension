@@ -4,79 +4,72 @@ import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
 import ActionThrottle from '../ActionThrottle';
 
-function getChecks(prs, onyxKey) {
-    const checkRunPromises = _.reduce(prs, (finalPromiseArray, pr) => {
-        finalPromiseArray.push(
-            API.getCheckRuns(pr.repository.name, pr.headRefOid).then((response) => {
-                if (!response.data.check_runs || !response.data.check_runs.length) {
-                    return;
-                }
-                ReactNativeOnyx.merge(onyxKey, {
-                    [pr.id]: {
-                        checkConclusion: _.reduce(
-                            response.data.check_runs,
-                            (previousValue, currentValue) => {
-                                const conclusion = currentValue.conclusion;
+/**
+ * Extract check conclusion from the GraphQL statusCheckRollup state.
+ * Maps GitHub's StatusState enum to our conclusion format.
+ *
+ * @param {Object} pr - Pull request object from GraphQL response
+ * @returns {String} - 'success', 'failure', 'pending', or 'unknown'
+ */
+function getCheckConclusionFromGraphQL(pr) {
+    const commits = pr.commits && pr.commits.nodes;
+    if (!commits || commits.length === 0) {
+        return 'unknown';
+    }
 
-                                // If any check runs are failing, mark it failed
-                                if (conclusion === 'failure' || previousValue === 'failure') {
-                                    return 'failure';
-                                }
+    const statusCheckRollup = commits[0] && commits[0].commit && commits[0].commit.statusCheckRollup;
+    if (!statusCheckRollup) {
+        return 'unknown';
+    }
 
-                                // If the current check run is successful, mark it success. If the previous one is
-                                // successful, this one could only be successful or skipped, and either way, we
-                                // want to mark the whole thing as successful
-                                if (conclusion === 'success' || previousValue === 'success') {
-                                    return 'success';
-                                }
+    // GitHub StatusState enum values: EXPECTED, ERROR, FAILURE, PENDING, SUCCESS
+    const state = statusCheckRollup.state;
+    switch (state) {
+        case 'SUCCESS':
+            return 'success';
+        case 'FAILURE':
+        case 'ERROR':
+            return 'failure';
+        case 'PENDING':
+        case 'EXPECTED':
+            return 'pending';
+        default:
+            return 'unknown';
+    }
+}
 
-                                // If the check is skipped, mark it skipped
-                                if (conclusion === 'skipped') {
-                                    return 'skipped';
-                                }
-
-                                // All possible states include: action_required, cancelled, failure, neutral,
-                                // success, skipped, stale, timed_out. We may wish to consider some of these states
-                                // failures, such as "cancelled". If we get here, we have reached a state we have
-                                // not handled above and therefore consider "unknown." In that case, return
-                                // previousValue which should be set to the seed value of 'unknown'.
-                                return previousValue;
-                            },
-                            'unknown',
-                        ),
-                    },
-                });
-            }),
-        );
-        return finalPromiseArray;
-    }, []);
-    return Promise.all(checkRunPromises);
+/**
+ * Process PRs to add checkConclusion from GraphQL data (no extra API calls needed).
+ * This replaces the old getChecks() function which made N separate REST API calls.
+ *
+ * @param {Object} prs - Object of PRs indexed by ID
+ * @returns {Object} - Same PRs with checkConclusion added
+ */
+function addCheckConclusionsToPRs(prs) {
+    return _.mapObject(prs, pr => ({
+        ...pr,
+        checkConclusion: getCheckConclusionFromGraphQL(pr),
+    }));
 }
 
 function getAssigned() {
-    ActionThrottle('getAssigned', () => (
-        API.getPullsByType('assignee')
-            .then(prs => (
-                API.getPullsByType('author')
-                    .then((authorPrs) => {
-                        _.each(authorPrs, (authorPr) => {
-                            if (authorPr.assignees.nodes.length > 0) {
-                                return;
-                            }
+    ActionThrottle('getAssigned', () => API.getPullsByType('assignee').then(prs => API.getPullsByType('author').then((authorPrs) => {
+        _.each(authorPrs, (authorPr) => {
+            if (authorPr.assignees.nodes.length > 0) {
+                return;
+            }
 
-                            // eslint-disable-next-line no-param-reassign
-                            prs[authorPr.id] = authorPr;
-                        });
+            // eslint-disable-next-line no-param-reassign
+            prs[authorPr.id] = authorPr;
+        });
 
-                        // Always use set() here because there is no way to remove issues from Onyx
-                        // that get closed and are no longer assigned
-                        ReactNativeOnyx.set(ONYXKEYS.PRS.ASSIGNED, prs);
+        // Add check conclusions from GraphQL data (no extra API calls needed)
+        const prsWithChecks = addCheckConclusionsToPRs(prs);
 
-                        // Get the check-runs for each PR and then merge that information into the PR information in Onyx.
-                        return getChecks(prs, ONYXKEYS.PRS.ASSIGNED);
-                    })
-            ))
-    ));
+        // Always use set() here because there is no way to remove issues from Onyx
+        // that get closed and are no longer assigned
+        ReactNativeOnyx.set(ONYXKEYS.PRS.ASSIGNED, prsWithChecks);
+    })));
 }
 
 function getReviewing() {
@@ -96,17 +89,16 @@ function getReviewing() {
                 .indexBy('id')
                 .value();
 
+            // Add check conclusions from GraphQL data (no extra API calls needed)
+            const prsWithChecks = addCheckConclusionsToPRs(
+                prsAuthoredByOtherUsers,
+            );
+
             // Always use set() here because there is no way to remove issues from Onyx
             // that get closed and are no longer assigned
-            ReactNativeOnyx.set(ONYXKEYS.PRS.REVIEWING, prsAuthoredByOtherUsers);
-
-            // Get the check-runs for each PR and then merge that information into the PR information in Onyx.
-            return getChecks(prsAuthoredByOtherUsers, ONYXKEYS.PRS.REVIEWING);
+            ReactNativeOnyx.set(ONYXKEYS.PRS.REVIEWING, prsWithChecks);
         });
     });
 }
 
-export {
-    getAssigned,
-    getReviewing,
-};
+export {getAssigned, getReviewing};

@@ -2,6 +2,8 @@ import $ from 'jquery';
 import _ from 'underscore';
 import {Octokit} from 'octokit';
 import * as Preferences from './actions/Preferences';
+import * as RateLimitMonitor from './RateLimitMonitor';
+import * as CacheManager from './CacheManager';
 
 let octokit;
 
@@ -11,10 +13,21 @@ let octokit;
 function getOctokit() {
     if (!octokit) {
         /* eslint-disable-next-line no-console */
-        console.log('authenticate with auth token', Preferences.getGitHubToken());
+        console.log(
+            'authenticate with auth token',
+            Preferences.getGitHubToken(),
+        );
         octokit = new Octokit({
             auth: Preferences.getGitHubToken(),
             userAgent: 'expensify-k2-extension',
+        });
+
+        // Hook into all responses to track rate limit headers
+        octokit.hook.after('request', (response) => {
+            if (!response || !response.headers) {
+                return;
+            }
+            RateLimitMonitor.updateFromHeaders(response.headers);
         });
     }
     return octokit;
@@ -27,7 +40,9 @@ function getOctokit() {
  */
 function getCurrentUser() {
     const params = new URLSearchParams(window.location.search);
-    const currentUser = params.get('currentUser') ? params.get('currentUser') : $('meta[name=user-login]').attr('content');
+    const currentUser = params.get('currentUser')
+        ? params.get('currentUser')
+        : $('meta[name=user-login]').attr('content');
     return currentUser.replace('@', '');
 }
 
@@ -46,16 +61,26 @@ function getRequestParams() {
     return {
         owner: (matches && matches.groups && matches.groups.owner) || '',
         repo: (matches && matches.groups && matches.groups.repo) || '',
-        issue_number: (matches && matches.groups && matches.groups.issue_number) || '',
+        issue_number:
+            (matches && matches.groups && matches.groups.issue_number) || '',
     };
 }
 
 /**
  * Return all of our milestone data
+ * Results are cached for 5 minutes since milestones rarely change.
  *
  * @returns {Promise}
  */
-function getMilestones() {
+async function getMilestones() {
+    const cacheKey = 'graphql:milestones';
+
+    // Check cache first
+    const cached = await CacheManager.get(cacheKey);
+    if (cached) {
+        return cached.data;
+    }
+
     const graphQLQuery = `
 {
     repository(name: "expensify", owner: "expensify") {
@@ -69,18 +94,33 @@ function getMilestones() {
 }
     `;
 
-    return getOctokit().graphql(graphQLQuery)
+    return getOctokit()
+        .graphql(graphQLQuery)
         .then((data) => {
             // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-            const results = _.reduce(data.repository.milestones.nodes, (milestones, milestonesNode) => {
-                milestones.push({
-                    ...milestonesNode,
-                });
-                return milestones;
-            }, []);
+            const results = _.reduce(
+                data.repository.milestones.nodes,
+                (milestones, milestonesNode) => {
+                    milestones.push({
+                        ...milestonesNode,
+                    });
+                    return milestones;
+                },
+                [],
+            );
 
             // Index the results by their ID so they are easier to access as a collection
-            return _.indexBy(results, 'id');
+            const indexedResults = _.indexBy(results, 'id');
+
+            // Cache for 5 minutes (milestones rarely change)
+            CacheManager.set(
+                cacheKey,
+                indexedResults,
+                null,
+                CacheManager.TTL.LONG,
+            );
+
+            return indexedResults;
         });
 }
 
@@ -98,13 +138,16 @@ function getFullResultsUsingPagination(query) {
 
         // This does all the pagination on the graphQL query
         function fetchPageOfIssues(cursor) {
-            getOctokit().graphql(query, {cursor})
+            getOctokit()
+                .graphql(query, {cursor})
                 .then((queryResults) => {
                     results = results.concat(queryResults.search.nodes);
 
                     // When there is another page, this function needs to be called recursively to get the next page
                     if (queryResults.search.pageInfo.hasNextPage) {
-                        fetchPageOfIssues(queryResults.search.pageInfo.endCursor);
+                        fetchPageOfIssues(
+                            queryResults.search.pageInfo.endCursor,
+                        );
                         return;
                     }
 
@@ -124,24 +167,36 @@ function getFullResultsUsingPagination(query) {
  * @returns {Object}
  */
 function formatIssueResults(rawIssueData) {
-    const cleanData = _.reduce(rawIssueData, (cleanSearchResults, searchNode) => {
-        cleanSearchResults.push({
-            ...searchNode,
-            labels: _.reduce(searchNode.labels.nodes, (cleanLabels, labelNode) => {
-                cleanLabels.push({
-                    ...labelNode,
-                });
-                return cleanLabels;
-            }, []),
-            assignees: _.reduce(searchNode.assignees.nodes, (cleanAssignees, assigneeNode) => {
-                cleanAssignees.push({
-                    ...assigneeNode,
-                });
-                return cleanAssignees;
-            }, []),
-        });
-        return cleanSearchResults;
-    }, []);
+    const cleanData = _.reduce(
+        rawIssueData,
+        (cleanSearchResults, searchNode) => {
+            cleanSearchResults.push({
+                ...searchNode,
+                labels: _.reduce(
+                    searchNode.labels.nodes,
+                    (cleanLabels, labelNode) => {
+                        cleanLabels.push({
+                            ...labelNode,
+                        });
+                        return cleanLabels;
+                    },
+                    [],
+                ),
+                assignees: _.reduce(
+                    searchNode.assignees.nodes,
+                    (cleanAssignees, assigneeNode) => {
+                        cleanAssignees.push({
+                            ...assigneeNode,
+                        });
+                        return cleanAssignees;
+                    },
+                    [],
+                ),
+            });
+            return cleanSearchResults;
+        },
+        [],
+    );
 
     // Index the results by ID so that they can be accessed as a collection easier
     return _.indexBy(cleanData, 'id');
@@ -195,24 +250,32 @@ function getHotPickIssues() {
         }
     `;
 
-    return getFullResultsUsingPagination(graphQLQuery)
-        .then(formatIssueResults);
+    return getFullResultsUsingPagination(graphQLQuery).then(formatIssueResults);
 }
 
 /**
  * Get all the pull requests where the current user is either assigned
- * or the author
+ * or the author. Results are cached for 2 minutes.
  *
  * @param {string} type 'assignee' or 'author'
  * @returns {Promise}
  */
-function getPullsByType(type) {
+async function getPullsByType(type) {
+    const user = getCurrentUser();
+    const cacheKey = `graphql:pulls:${type}:${user}`;
+
+    // Check cache first
+    const cached = await CacheManager.get(cacheKey);
+    if (cached) {
+        return cached.data;
+    }
+
     let query = '';
     query += ' state:open';
     query += ' type:pr';
 
     query += ' org:expensify';
-    query += ` ${type}:${getCurrentUser()}`;
+    query += ` ${type}:${user}`;
 
     const graphQLQuery = `
 query {
@@ -244,24 +307,48 @@ query {
                 reviews {
                     totalCount
                 }
+                commits(last: 1) {
+                    nodes {
+                        commit {
+                            statusCheckRollup {
+                                state
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 }
     `;
 
-    return getOctokit().graphql(graphQLQuery)
+    return getOctokit()
+        .graphql(graphQLQuery)
         .then((data) => {
             // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-            const results = _.reduce(data.search.nodes, (pullRequests, searchNodes) => {
-                pullRequests.push({
-                    ...searchNodes,
-                });
-                return pullRequests;
-            }, []);
+            const results = _.reduce(
+                data.search.nodes,
+                (pullRequests, searchNodes) => {
+                    pullRequests.push({
+                        ...searchNodes,
+                    });
+                    return pullRequests;
+                },
+                [],
+            );
 
             // Index the results by their ID so they are easier to access as a collection
-            return _.indexBy(results, 'id');
+            const indexedResults = _.indexBy(results, 'id');
+
+            // Cache for 2 minutes
+            CacheManager.set(
+                cacheKey,
+                indexedResults,
+                null,
+                CacheManager.TTL.MEDIUM,
+            );
+
+            return indexedResults;
         });
 }
 
@@ -357,8 +444,7 @@ function getIssues(assignee = 'none', labels = []) {
         }
     `;
 
-    return getFullResultsUsingPagination(graphQLQuery)
-        .then(formatIssueResults);
+    return getFullResultsUsingPagination(graphQLQuery).then(formatIssueResults);
 }
 
 /**
@@ -418,8 +504,7 @@ function getPreviousInstancesOfIssue(titleParts) {
         }
     `;
 
-    return getFullResultsUsingPagination(graphQLQuery)
-        .then(formatIssueResults);
+    return getFullResultsUsingPagination(graphQLQuery).then(formatIssueResults);
 }
 
 /**
@@ -446,7 +531,10 @@ function getEngineeringIssues() {
  * @returns {Promise}
  */
 function addLabel(label) {
-    return getOctokit().rest.issues.addLabels({...getRequestParams(), labels: [label]});
+    return getOctokit().rest.issues.addLabels({
+        ...getRequestParams(),
+        labels: [label],
+    });
 }
 
 /**
@@ -455,7 +543,10 @@ function addLabel(label) {
  * @returns {Promise}
  */
 function removeLabel(label) {
-    return getOctokit().rest.issues.removeLabel({...getRequestParams(), name: label});
+    return getOctokit().rest.issues.removeLabel({
+        ...getRequestParams(),
+        name: label,
+    });
 }
 
 /**
@@ -470,7 +561,10 @@ function getDailyImprovements() {
  * @returns {Promise}
  */
 function addComment(comment) {
-    return getOctokit().rest.issues.createComment({...getRequestParams(), body: comment});
+    return getOctokit().rest.issues.createComment({
+        ...getRequestParams(),
+        body: comment,
+    });
 }
 
 /**
@@ -551,6 +645,46 @@ function getWorkflowRun(runId) {
     });
 }
 
+/**
+ * The private Expensify/Expensify repo URL (for employees)
+ */
+const PRIVATE_K2_REPO = '/Expensify/Expensify';
+
+/**
+ * The public Expensify/App repo URL (for external contributors)
+ */
+const PUBLIC_K2_REPO = '/Expensify/App';
+
+/**
+ * Checks if the current user has access to the private Expensify/Expensify repository.
+ * Results are cached in preferences to avoid repeated API calls.
+ *
+ * @returns {Promise<String>} - The K2 repo URL path ('/Expensify/Expensify' or '/Expensify/App')
+ */
+async function checkK2RepoAccess() {
+    // Check if we already have a cached result
+    const cachedUrl = Preferences.getK2RepoUrl();
+    if (cachedUrl) {
+        return cachedUrl;
+    }
+
+    try {
+        // Try to access the private repo - this is a lightweight API call
+        await getOctokit().rest.repos.get({
+            owner: 'Expensify',
+            repo: 'Expensify',
+        });
+
+        // User has access to the private repo
+        Preferences.setK2RepoUrl(PRIVATE_K2_REPO);
+        return PRIVATE_K2_REPO;
+    } catch (error) {
+        // User doesn't have access (403 or 404) - use public App repo
+        Preferences.setK2RepoUrl(PUBLIC_K2_REPO);
+        return PUBLIC_K2_REPO;
+    }
+}
+
 export {
     addComment,
     getCheckRuns,
@@ -570,4 +704,5 @@ export {
     updateComment,
     getWorkflowRuns,
     getWorkflowRun,
+    checkK2RepoAccess,
 };

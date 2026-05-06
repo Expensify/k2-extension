@@ -3,6 +3,7 @@ import ONYXKEYS from '../../ONYXKEYS';
 
 let ghToken;
 let useAbsoluteTimestamps;
+let k2RepoUrl;
 ReactNativeOnyx.connect({
     key: ONYXKEYS.PREFERENCES,
     callback: (preferences) => {
@@ -13,6 +14,7 @@ ReactNativeOnyx.connect({
 
         ghToken = preferences.ghToken;
         useAbsoluteTimestamps = !!preferences.useAbsoluteTimestamps;
+        k2RepoUrl = preferences.k2RepoUrl || null;
     },
 });
 
@@ -37,7 +39,21 @@ function getUseAbsoluteTimestamps() {
  */
 function setUseAbsoluteTimestamps(value) {
     useAbsoluteTimestamps = value;
-    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {useAbsoluteTimestamps: value});
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {
+        useAbsoluteTimestamps: value,
+    });
+}
+
+function getK2RepoUrl() {
+    return k2RepoUrl;
+}
+
+/**
+ * @param {String} value
+ */
+function setK2RepoUrl(value) {
+    k2RepoUrl = value;
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {k2RepoUrl: value});
 }
 
 export {
@@ -45,4 +61,6 @@ export {
     setGitHubToken,
     getUseAbsoluteTimestamps,
     setUseAbsoluteTimestamps,
+    getK2RepoUrl,
+    setK2RepoUrl,
 };
