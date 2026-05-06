@@ -91,6 +91,7 @@ class ListIssuesHotPicks extends React.Component {
                     text="Hot Picks"
                     count={this.props.issues.length}
                     onOpenAll={() => openAllUrls(this.props.issues)}
+                    items={this.props.issues}
                 />
 
                 {!this.props.issues && (

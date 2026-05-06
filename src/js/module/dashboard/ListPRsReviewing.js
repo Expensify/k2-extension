@@ -95,6 +95,7 @@ class ListPRsReviewing extends React.Component {
                     text="Review these PRs Daily"
                     count={_.size(this.props.prs) || 0}
                     onOpenAll={() => openAllUrls(this.props.prs)}
+                    items={this.props.prs ? _.values(this.props.prs) : null}
                 />
 
                 {!this.props.prs && (

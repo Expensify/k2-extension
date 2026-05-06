@@ -12,7 +12,11 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import React, {
-    useMemo, useState, useEffect, useCallback, useRef,
+    useMemo,
+    useState,
+    useEffect,
+    useCallback,
+    useRef,
 } from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
@@ -74,7 +78,9 @@ function getOrderedFilteredIssues({
     // Apply filters
     if (applyFilters && filters && !_.isEmpty(filters)) {
         preparedIssues = _.filter(preparedIssues, (item) => {
-            const isImprovement = _.findWhere(item.labels, {name: 'Improvement'});
+            const isImprovement = _.findWhere(item.labels, {
+                name: 'Improvement',
+            });
             const isTask = _.findWhere(item.labels, {name: 'Task'});
             const isFeature = _.findWhere(item.labels, {name: 'NewFeature'});
             const isOnMilestone = item.milestone && item.milestone.id === filters.milestone;
@@ -83,21 +89,27 @@ function getOrderedFilteredIssues({
             if (filters.milestone && !isOnMilestone) {
                 return false;
             }
-            return (filters.improvement && isImprovement)
+            return (
+                (filters.improvement && isImprovement)
                 || (filters.task && isTask)
-                || (filters.feature && isFeature);
+                || (filters.feature && isFeature)
+            );
         });
     }
 
     // Use localOrder if available, while waiting for Onyx to update
     if (localOrder.length && localOrder.length === _.size(preparedIssues)) {
         const dataById = _.indexBy(preparedIssues, 'id');
-        return _.filter(_.map(localOrder, id => dataById[id]), Boolean);
+        return _.filter(
+            _.map(localOrder, id => dataById[id]),
+            Boolean,
+        );
     }
 
     // Iteratee for sorting by owner (secondary sort, for un-prioritized issues)
     const ownerSortIteratee = (item) => {
-        const priorityValue = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined)
+        const priorityValue = priorities[item.url ?? '']
+            && priorities[item.url].priority !== undefined
             ? priorities[item.url].priority
             : Number.MAX_SAFE_INTEGER;
         if (priorityValue === Number.MAX_SAFE_INTEGER) {
@@ -112,7 +124,8 @@ function getOrderedFilteredIssues({
     // Iteratee for sorting by priority (primary sort)
     const priorityIteratee = (item) => {
         // If an issue doesn't have a priority, return -1 so that is appears at the top of the list, which will prompt the user to set a priority
-        const priorityValue = priorities[item.url ?? ''] && (priorities[item.url].priority !== undefined)
+        const priorityValue = priorities[item.url ?? '']
+            && priorities[item.url].priority !== undefined
             ? priorities[item.url].priority
             : -1;
 
@@ -128,7 +141,9 @@ function getOrderedFilteredIssues({
 }
 
 function PanelIssues(props) {
-    const [priorities = {}] = useOnyx(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`);
+    const [priorities = {}] = useOnyx(
+        `${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`,
+    );
     const [activeId, setActiveId] = useState(null);
     const prevPrioritiesRef = useRef();
 
@@ -152,19 +167,16 @@ function PanelIssues(props) {
         prevPrioritiesRef.current = priorities;
     }, [priorities, localOrder]);
 
-    const filteredData = useMemo(() => getOrderedFilteredIssues({
-        issues: props.data,
-        filters: props.filters,
-        priorities,
-        localOrder,
-        applyFilters: props.applyFilters,
-    }), [
-        props.data,
-        props.applyFilters,
-        props.filters,
-        priorities,
-        localOrder,
-    ]);
+    const filteredData = useMemo(
+        () => getOrderedFilteredIssues({
+            issues: props.data,
+            filters: props.filters,
+            priorities,
+            localOrder,
+            applyFilters: props.applyFilters,
+        }),
+        [props.data, props.applyFilters, props.filters, priorities, localOrder],
+    );
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -175,41 +187,50 @@ function PanelIssues(props) {
     );
 
     const issueIds = _.map(filteredData, issue => issue.id.toString());
-    const activeIssue = activeId ? _.find(filteredData, issue => issue.id.toString() === activeId) : null;
+    const activeIssue = activeId
+        ? _.find(filteredData, issue => issue.id.toString() === activeId)
+        : null;
 
-    const updatePriorities = useCallback((event) => {
-        // In dnd-kit, `event.active` represents the item being dragged, and `event.over` represents the item currently being hovered over (the potential drop target).
-        const active = event.active;
-        const over = event.over;
-        setActiveId(null);
+    const updatePriorities = useCallback(
+        (event) => {
+            // In dnd-kit, `event.active` represents the item being dragged, and `event.over` represents the item currently being hovered over (the potential drop target).
+            const active = event.active;
+            const over = event.over;
+            setActiveId(null);
 
-        // Early return: If there is no item being hovered over (e.g., dropped outside a valid target), or if the dragged item is dropped back in its original position.
-        if (!over || active.id === over.id) {
-            return;
-        }
+            // Early return: If there is no item being hovered over (e.g., dropped outside a valid target), or if the dragged item is dropped back in its original position.
+            if (!over || active.id === over.id) {
+                return;
+            }
 
-        // Early return: If either the dragged or target item is not found in the list.
-        const oldIndex = issueIds.indexOf(active.id);
-        const newIndex = issueIds.indexOf(over.id);
-        if (oldIndex === -1 || newIndex === -1) {
-            return;
-        }
+            // Early return: If either the dragged or target item is not found in the list.
+            const oldIndex = issueIds.indexOf(active.id);
+            const newIndex = issueIds.indexOf(over.id);
+            if (oldIndex === -1 || newIndex === -1) {
+                return;
+            }
 
-        // Update local order immediately for UI feedback
-        const newOrder = arrayMove(_.pluck(filteredData, 'id'), oldIndex, newIndex);
-        setLocalOrder(newOrder);
+            // Update local order immediately for UI feedback
+            const newOrder = arrayMove(
+                _.pluck(filteredData, 'id'),
+                oldIndex,
+                newIndex,
+            );
+            setLocalOrder(newOrder);
 
-        // Also update priorities in Onyx
-        const reorderedData = arrayMove(filteredData, oldIndex, newIndex);
-        const newPriorities = {};
-        for (let i = 0; i < reorderedData.length; i++) {
-            const issue = reorderedData[i];
-            newPriorities[issue.url] = {
-                priority: i,
-            };
-        }
-        Issues.setPriorities(newPriorities, props.title);
-    }, [setActiveId, issueIds, filteredData, props.title]);
+            // Also update priorities in Onyx
+            const reorderedData = arrayMove(filteredData, oldIndex, newIndex);
+            const newPriorities = {};
+            for (let i = 0; i < reorderedData.length; i++) {
+                const issue = reorderedData[i];
+                newPriorities[issue.url] = {
+                    priority: i,
+                };
+            }
+            Issues.setPriorities(newPriorities, props.title);
+        },
+        [setActiveId, issueIds, filteredData, props.title],
+    );
 
     if (!_.size(filteredData) && props.hideOnEmpty) {
         return null;
@@ -222,6 +243,7 @@ function PanelIssues(props) {
                     text={props.title}
                     count={_.size(filteredData) || 0}
                     onOpenAll={() => openAllUrls(filteredData)}
+                    items={filteredData}
                 />
                 {!_.size(filteredData) ? (
                     <div className="blankslate capped clean-background">
@@ -238,16 +260,19 @@ function PanelIssues(props) {
                             items={issueIds}
                             strategy={verticalListSortingStrategy}
                         >
-                            {_.map(filteredData, issue => <SortableIssue key={issue.id} issue={issue} />)}
+                            {_.map(filteredData, issue => (
+                                <SortableIssue key={issue.id} issue={issue} />
+                            ))}
                         </SortableContext>
                         <DragOverlay>
                             {activeIssue ? (
-                                <div style={{
-                                    lineHeight: 1.2,
-                                    background: '#fff',
-                                    opacity: 1,
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                                }}
+                                <div
+                                    style={{
+                                        lineHeight: 1.2,
+                                        background: '#fff',
+                                        opacity: 1,
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                                    }}
                                 >
                                     <ListItemIssue issue={activeIssue} />
                                 </div>
