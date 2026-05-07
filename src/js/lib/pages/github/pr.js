@@ -1,14 +1,19 @@
 import $ from 'jquery';
 import Base from './_base';
 import ToggleTimestamps from '../../../module/ToggleTimestamps/ToggleTimestamps';
+import WorkflowMenu from '../../../module/WorkflowMenu/WorkflowMenu';
 
 /**
  * Replaces all `- [ ]` with `- [x]` in textareas with specific names
  */
 const replaceChecklistItems = () => {
     // eslint-disable-next-line rulesdir/prefer-underscore-method
-    $('textarea[name="issue[body]"], textarea[name="issue_comment[body]"], textarea[name="comment[body]"], textarea[name="pull_request[body]"]').each((i, el) => {
-        const updatedText = $(el).val().replace(/- \[ \]/g, '- [x]');
+    $(
+        'textarea[name="issue[body]"], textarea[name="issue_comment[body]"], textarea[name="comment[body]"], textarea[name="pull_request[body]"]',
+    ).each((i, el) => {
+        const updatedText = $(el)
+            .val()
+            .replace(/- \[ \]/g, '- [x]');
         $(el).val(updatedText);
     });
 };
@@ -36,12 +41,18 @@ const refreshSidebar = function () {
     // Add timestamp toggle wrapper at the bottom of the sidebar
     const lastSidebarItem = $('.discussion-sidebar-item').last();
     if (lastSidebarItem.length) {
-        lastSidebarItem.after('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+        lastSidebarItem.after(
+            '<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>',
+        );
     } else {
         // Fallback: append to sidebar container
-        const sidebar = $('.discussion-sidebar, [role="complementary"], .Layout-sidebar').first();
+        const sidebar = $(
+            '.discussion-sidebar, [role="complementary"], .Layout-sidebar',
+        ).first();
         if (sidebar.length) {
-            sidebar.append('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+            sidebar.append(
+                '<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>',
+            );
         }
     }
 
@@ -54,6 +65,36 @@ const refreshSidebar = function () {
     new ToggleTimestamps().draw();
 };
 
+const refreshWorkflowMenu = function () {
+    // Only render the workflow menu on Expensify/App PRs
+    if (!window.location.pathname.startsWith('/Expensify/App/pull/')) {
+        return;
+    }
+
+    // The timestamp toggle is the anchor we attach below; bail if it isn't there yet
+    const timestampWrapper = $('.k2toggletimestamps-wrapper');
+    if (!timestampWrapper.length) {
+        return;
+    }
+
+    // Add the workflow menu wrapper to the DOM if it doesn't exist
+    if (!$('.k2workflowmenu-wrapper').length) {
+        timestampWrapper.after(
+            '<div class="discussion-sidebar-item js-discussion-sidebar-item k2workflowmenu-wrapper"></div>',
+        );
+    }
+
+    // Draw the menu if the wrapper is empty
+    const wrapper = $('.k2workflowmenu-wrapper');
+    if (!wrapper.length || wrapper.children().length > 0) {
+        return;
+    }
+
+    const prUrlMatch = window.location.href.match(/^(.*?\/pull\/\d+)/);
+    const prUrl = prUrlMatch ? prUrlMatch[1] : window.location.href;
+    new WorkflowMenu().draw(prUrl);
+};
+
 const refreshHold = function () {
     const prTitle = $('.js-issue-title').text();
 
@@ -61,7 +102,10 @@ const refreshHold = function () {
 
     // Classic merge experience
     if (!isNewMergeUI) {
-        if (prTitle.toLowerCase().indexOf('[hold') > -1 || prTitle.toLowerCase().indexOf('[wip') > -1) {
+        if (
+            prTitle.toLowerCase().indexOf('[hold') > -1
+            || prTitle.toLowerCase().indexOf('[wip') > -1
+        ) {
             $('.branch-action') // Entire PR merge section
                 .removeClass('branch-action-state-clean')
                 .addClass('branch-action-state-dirty');
@@ -69,7 +113,9 @@ const refreshHold = function () {
                 .removeClass('btn-primary')
                 .attr('disabled', 'disabled');
             // eslint-disable-next-line rulesdir/prefer-underscore-method
-            $('.branch-action-item').last().find('.completeness-indicator') // "Merging status" section above the merge button
+            $('.branch-action-item')
+                .last()
+                .find('.completeness-indicator') // "Merging status" section above the merge button
                 .removeClass('completeness-indicator-success')
                 .addClass('completeness-indicator-problem')
                 .end()
@@ -77,7 +123,9 @@ const refreshHold = function () {
                 .text('This pull request has a hold on it and cannot be merged')
                 .end()
                 .find('.status-meta') // Body text for the "merging status" section
-                .html('Remove the HOLD or WIP label from the title of the PR to make it mergeable')
+                .html(
+                    'Remove the HOLD or WIP label from the title of the PR to make it mergeable',
+                )
                 .end()
                 .find('.octicon')
                 .removeClass('octicon-check')
@@ -86,26 +134,49 @@ const refreshHold = function () {
         return;
     }
 
-    if (prTitle.toLowerCase().indexOf('[hold') > -1 || prTitle.toLowerCase().indexOf('[wip') > -1) {
+    if (
+        prTitle.toLowerCase().indexOf('[hold') > -1
+        || prTitle.toLowerCase().indexOf('[wip') > -1
+    ) {
         $('div[data-testid="mergebox-partial"] > div > div:last-of-type') // Entire PR merge section
             .removeClass('borderColor-success-emphasis');
-        $('div[data-testid="mergebox-partial"] > div > div > div button').first() // Merge pull request button
-            .css({backgroundColor: 'var(--bgColor-neutral-muted)', borderColor: 'var(--bgColor-neutral-muted)'})
+        $('div[data-testid="mergebox-partial"] > div > div > div button')
+            .first() // Merge pull request button
+            .css({
+                backgroundColor: 'var(--bgColor-neutral-muted)',
+                borderColor: 'var(--bgColor-neutral-muted)',
+            })
             .attr('disabled', 'disabled');
-        $('div[data-testid="mergebox-partial"] > div > div button[data-component="IconButton"]').first() // Dropdown button next to merge button
-            .css({backgroundColor: 'var(--bgColor-neutral-muted)', borderColor: 'var(--bgColor-neutral-muted)'})
+        $(
+            'div[data-testid="mergebox-partial"] > div > div button[data-component="IconButton"]',
+        )
+            .first() // Dropdown button next to merge button
+            .css({
+                backgroundColor: 'var(--bgColor-neutral-muted)',
+                borderColor: 'var(--bgColor-neutral-muted)',
+            })
             .attr('disabled', 'disabled');
         $('div[data-testid="mergebox-partial"] > div > div > div > div > div') // Container for merge pull request button
             .css({borderColor: 'var(--bgColor-neutral-muted)'});
-        $('div[data-testid="mergeability-icon-wrapper"] div').css({backgroundColor: 'var(--bgColor-neutral-emphasis)'}); // Icon on the left side of the merge panel
-        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type svg') // "Merging status" section above the merge button
+        $('div[data-testid="mergeability-icon-wrapper"] div').css({
+            backgroundColor: 'var(--bgColor-neutral-emphasis)',
+        }); // Icon on the left side of the merge panel
+        $(
+            'div[data-testid="mergebox-partial"] > div > div > section:last-of-type svg',
+        ) // "Merging status" section above the merge button
             .parent()
             .removeClass('bgColor-success-emphasis')
             .css({backgroundColor: 'var(--bgColor-neutral-emphasis)'});
-        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type h3') // Header for the "merging status" section
+        $(
+            'div[data-testid="mergebox-partial"] > div > div > section:last-of-type h3',
+        ) // Header for the "merging status" section
             .text('This pull request has a hold on it and cannot be merged');
-        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type p') // Body text for the "merging status" section
-            .html('Remove the HOLD or WIP label from the title of the PR to make it mergeable');
+        $(
+            'div[data-testid="mergebox-partial"] > div > div > section:last-of-type p',
+        ) // Body text for the "merging status" section
+            .html(
+                'Remove the HOLD or WIP label from the title of the PR to make it mergeable',
+            );
     }
 };
 
@@ -127,6 +198,8 @@ export default function () {
      */
     PrPage.setup = function () {
         setTimeout(refreshSidebar, 500);
+        setTimeout(refreshWorkflowMenu, 700);
+        setInterval(refreshWorkflowMenu, 5000);
         setInterval(refreshHold, 1000);
         setInterval(renderReplaceChecklistButton, 2000);
 
@@ -137,4 +210,3 @@ export default function () {
 
     return PrPage;
 }
-

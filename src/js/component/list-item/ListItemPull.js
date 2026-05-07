@@ -1,6 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import pullRequestPropTypes from '../../lib/pullRequestPropTypes';
+import WorkflowDispatchMenu from './WorkflowDispatchMenu';
 
 const propTypes = {
     /** Data about the pull request being displayed. The `data` and `pr` props are the same and can come from multiple
@@ -19,6 +20,7 @@ const defaultProps = {
 function ListItemPull(props) {
     const pr = props.pr || props.data;
     const repoPrefix = pr.repository ? `[${pr.repository.name}]` : '';
+    const isAppPR = pr.repository && pr.repository.name === 'App';
 
     if (!pr.id) {
         return null;
@@ -29,14 +31,16 @@ function ListItemPull(props) {
         const days = 7;
 
         // See if it's overdue
-        const isOverdue = moment(pr.updatedAt).isBefore(today.subtract(days, 'days'), 'day');
+        const isOverdue = moment(pr.updatedAt).isBefore(
+            today.subtract(days, 'days'),
+            'day',
+        );
 
         if (isOverdue) {
             className += ' overdue';
         }
 
-        if (pr.title.indexOf('[HOLD') > -1
-            || pr.title.indexOf('[WIP') > -1) {
+        if (pr.title.indexOf('[HOLD') > -1 || pr.title.indexOf('[WIP') > -1) {
             className += ' hold';
         }
 
@@ -77,6 +81,7 @@ function ListItemPull(props) {
     return (
         <div className="panel-item">
             <span className="panel-item-meta">
+                {isAppPR && <WorkflowDispatchMenu prUrl={pr.url} />}
                 <span className="age">
                     Updated:
                     {' '}
@@ -105,13 +110,20 @@ function ListItemPull(props) {
                 )}
 
                 {mergeability && (
-                    <span className={`mergeable-state ${pr.reviewDecision} ${pr.mergeable} ${(mergeability === 'Draft' && 'DRAFT') || ''}`}>
+                    <span
+                        className={`mergeable-state ${pr.reviewDecision} ${pr.mergeable} ${(mergeability === 'Draft' && 'DRAFT') || ''}`}
+                    >
                         {mergeability}
                     </span>
                 )}
             </span>
 
-            <a href={pr.url} className={getClassName()} target="_blank" rel="noreferrer noopener">
+            <a
+                href={pr.url}
+                className={getClassName()}
+                target="_blank"
+                rel="noreferrer noopener"
+            >
                 <span className="octicon octicon-alert" />
                 {`${repoPrefix} ${pr.title}`}
                 {' '}

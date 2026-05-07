@@ -685,19 +685,28 @@ function setCurrentIssueBody(body) {
 }
 
 /**
- * @param {String} workflow
+ * @param {String} workflowId
+ * @param {Object} [options]
+ * @param {String} [options.owner] - Repo owner. Defaults to the owner parsed from the current page URL.
+ * @param {String} [options.repo] - Repo name. Defaults to the repo parsed from the current page URL.
+ * @param {String} [options.ref] - Git ref to dispatch against. Defaults to 'main'.
+ * @param {Object} [options.inputs] - Workflow inputs. Defaults to {PULL_REQUEST_URL} for the current PR.
  * @returns {Promise}
  */
-function triggerWorkflow(workflow) {
-    const {owner, repo, issue_number} = getRequestParams();
+function triggerWorkflow(workflowId, options = {}) {
+    const params = getRequestParams();
+    const owner = options.owner || params.owner;
+    const repo = options.repo || params.repo;
+    const ref = options.ref || 'main';
+    const inputs = options.inputs || {
+        PULL_REQUEST_URL: `https://github.com/${owner}/${repo}/pull/${params.issue_number}`,
+    };
     return getOctokit().rest.actions.createWorkflowDispatch({
         owner,
         repo,
-        workflow_id: workflow,
-        ref: 'main',
-        inputs: {
-            PULL_REQUEST_URL: `https://github.com/${owner}/${repo}/pull/${issue_number}`,
-        },
+        workflow_id: workflowId,
+        ref,
+        inputs,
     });
 }
 
