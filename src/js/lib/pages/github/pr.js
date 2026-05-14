@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import Base from './_base';
 import ToggleTimestamps from '../../../module/ToggleTimestamps/ToggleTimestamps';
+import * as autoLoadMoreComments from '../../autoLoadMoreComments';
 
 /**
  * Replaces all `- [ ]` with `- [x]` in textareas with specific names
@@ -133,6 +134,8 @@ export default function () {
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
         setInterval(() => PrPage.renderCopyChecklistButtons('reviewer'), 2000);
         setInterval(() => PrPage.renderTranslationWorkflowButtons(), 2000);
+
+        autoLoadMoreComments.initAutoLoadMoreComments();
     };
 
     return PrPage;
