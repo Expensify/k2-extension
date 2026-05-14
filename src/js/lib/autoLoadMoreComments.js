@@ -13,8 +13,12 @@ const SCOPES = [
     '.review-thread-component',
 ].join(', ');
 
-// Survives across ticks so we don't re-click a button while GitHub is still tearing it down.
+// Survives across observer callbacks so we don't re-click a button while GitHub is still
+// tearing it down and replacing it.
 const clicked = new WeakSet();
+
+let observer = null;
+let scanScheduled = false;
 
 function isVisible(el) {
     return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
@@ -44,8 +48,26 @@ function scan() {
     });
 }
 
+// Coalesce bursts of mutations into a single scan per animation frame so that the rapid
+// stream of DOM changes during page load doesn't trigger a scan per node.
+function scheduleScan() {
+    if (scanScheduled) {
+        return;
+    }
+    scanScheduled = true;
+    requestAnimationFrame(() => {
+        scanScheduled = false;
+        scan();
+    });
+}
+
 function initAutoLoadMoreComments() {
-    setInterval(scan, 1000);
+    if (observer) {
+        return;
+    }
+    scheduleScan();
+    observer = new MutationObserver(scheduleScan);
+    observer.observe(document.body, {childList: true, subtree: true});
 }
 
 // eslint-disable-next-line import/prefer-default-export
