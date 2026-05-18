@@ -110,7 +110,18 @@ function getReviewing() {
     });
 }
 
+/**
+ * @param {Object} checkboxes
+ * @param {Boolean} [checkboxes.shouldHideDraft]
+ * @param {Boolean} [checkboxes.shouldHideAlreadyReviewed]
+ * @param {Boolean} [checkboxes.shouldHideOnHold]
+ */
+function saveCheckboxes(checkboxes) {
+    ReactNativeOnyx.merge(ONYXKEYS.PRS.CHECKBOXES, checkboxes);
+}
+
 export {
     getAssigned,
     getReviewing,
+    saveCheckboxes,
 };

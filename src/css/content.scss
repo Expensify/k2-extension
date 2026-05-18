@@ -604,6 +604,12 @@ $color-dark-yellow: #DAA520;
   }
 }
 
+[data-color-mode="light"] {
+  .issue-filter {
+    color: rgb(153, 153, 153);
+  }
+}
+
 .loader {
     width: 14px;
     aspect-ratio: 1;
