@@ -8,6 +8,7 @@ const LOAD_MORE_TEXT = /^(load more|show\s+(\d+|hidden)\s+(hidden|earlier|more|p
 const SCOPES = [
     '.js-discussion',
     '[data-testid="issue-viewer-timeline"]',
+    '[data-testid="issue-timeline-container"]',
     '[data-testid="pull-request-timeline"]',
     '.js-resolvable-timeline-thread-container',
     '.review-thread-component',
