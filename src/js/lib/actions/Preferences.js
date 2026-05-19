@@ -3,6 +3,8 @@ import ONYXKEYS from '../../ONYXKEYS';
 
 let ghToken;
 let useAbsoluteTimestamps;
+let autoLoadMoreComments;
+let showOpenAllButtons;
 ReactNativeOnyx.connect({
     key: ONYXKEYS.PREFERENCES,
     callback: (preferences) => {
@@ -13,6 +15,8 @@ ReactNativeOnyx.connect({
 
         ghToken = preferences.ghToken;
         useAbsoluteTimestamps = !!preferences.useAbsoluteTimestamps;
+        autoLoadMoreComments = preferences.autoLoadMoreComments;
+        showOpenAllButtons = preferences.showOpenAllButtons;
     },
 });
 
@@ -40,9 +44,39 @@ function setUseAbsoluteTimestamps(value) {
     ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {useAbsoluteTimestamps: value});
 }
 
+// Defaults to true so users who haven't set the preference keep the original behaviour.
+function getAutoLoadMoreComments() {
+    return autoLoadMoreComments !== false;
+}
+
+/**
+ * @param {Boolean} value
+ */
+function setAutoLoadMoreComments(value) {
+    autoLoadMoreComments = value;
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {autoLoadMoreComments: value});
+}
+
+// Defaults to true so users who haven't set the preference keep the original behaviour.
+function getShowOpenAllButtons() {
+    return showOpenAllButtons !== false;
+}
+
+/**
+ * @param {Boolean} value
+ */
+function setShowOpenAllButtons(value) {
+    showOpenAllButtons = value;
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {showOpenAllButtons: value});
+}
+
 export {
     getGitHubToken,
     setGitHubToken,
     getUseAbsoluteTimestamps,
     setUseAbsoluteTimestamps,
+    getAutoLoadMoreComments,
+    setAutoLoadMoreComments,
+    getShowOpenAllButtons,
+    setShowOpenAllButtons,
 };

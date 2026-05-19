@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactNativeOnyx from 'react-native-onyx';
 import * as Preferences from '../../lib/actions/Preferences';
+import ToggleOpenAll from '../ToggleOpenAll/Toggle';
 
 function Legend() {
     function signOut() {
@@ -42,6 +43,8 @@ function Legend() {
             >
                 New /app Issue
             </a>
+
+            <ToggleOpenAll />
 
             <br />
             <div className="issue reviewing">Under Review</div>
