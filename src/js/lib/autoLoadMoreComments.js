@@ -1,4 +1,7 @@
 import $ from 'jquery';
+import ReactNativeOnyx from 'react-native-onyx';
+import ONYXKEYS from '../ONYXKEYS';
+import * as Preferences from './actions/Preferences';
 
 // Matches the visible text on every comment-pagination control we want to auto-click.
 // Anchored at the start of the trimmed text so we don't match buttons that merely contain
@@ -20,6 +23,7 @@ const clicked = new WeakSet();
 
 let observer = null;
 let scanScheduled = false;
+let preferenceSubscribed = false;
 
 function isVisible(el) {
     return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
@@ -62,13 +66,43 @@ function scheduleScan() {
     });
 }
 
-function initAutoLoadMoreComments() {
+function start() {
     if (observer) {
         return;
     }
     scheduleScan();
     observer = new MutationObserver(scheduleScan);
     observer.observe(document.body, {childList: true, subtree: true});
+}
+
+function stop() {
+    if (!observer) {
+        return;
+    }
+    observer.disconnect();
+    observer = null;
+}
+
+function initAutoLoadMoreComments() {
+    if (preferenceSubscribed) {
+        return;
+    }
+    preferenceSubscribed = true;
+
+    if (Preferences.getAutoLoadMoreComments()) {
+        start();
+    }
+
+    ReactNativeOnyx.connect({
+        key: ONYXKEYS.PREFERENCES,
+        callback: () => {
+            if (Preferences.getAutoLoadMoreComments()) {
+                start();
+            } else {
+                stop();
+            }
+        },
+    });
 }
 
 // eslint-disable-next-line import/prefer-default-export
