@@ -15,7 +15,7 @@ ReactNativeOnyx.connect({
 
         ghToken = preferences.ghToken;
         useAbsoluteTimestamps = !!preferences.useAbsoluteTimestamps;
-        autoLoadMoreComments = preferences.autoLoadMoreComments;
+        autoLoadMoreComments = preferences.autoLoadMoreComments || false;
         showOpenAllButtons = preferences.showOpenAllButtons;
     },
 });
