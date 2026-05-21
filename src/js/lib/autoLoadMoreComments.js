@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import _ from 'underscore';
 import ReactNativeOnyx from 'react-native-onyx';
 import ONYXKEYS from '../ONYXKEYS';
 import * as Preferences from './actions/Preferences';
@@ -70,8 +71,9 @@ function start() {
     if (observer) {
         return;
     }
-    scheduleScan();
-    observer = new MutationObserver(scheduleScan);
+    const debouncedScheduleScan = _.debounce(scheduleScan, 1000);
+    debouncedScheduleScan();
+    observer = new MutationObserver(debouncedScheduleScan);
     observer.observe(document.body, {childList: true, subtree: true});
 }
 
