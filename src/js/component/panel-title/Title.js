@@ -1,6 +1,8 @@
 import React, {useState, useEffect, useRef} from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
+import {useOnyx} from 'react-native-onyx';
+import ONYXKEYS from '../../ONYXKEYS';
 
 const propTypes = {
     /** The text to display */
@@ -30,6 +32,8 @@ const defaultProps = {
 function Title(props) {
     const [copied, setCopied] = useState(false);
     const timeoutRef = useRef(null);
+    const [preferences] = useOnyx(ONYXKEYS.PREFERENCES);
+    const showOpenAllButtons = !preferences || preferences.showOpenAllButtons !== false;
 
     useEffect(
         () => () => {
@@ -51,8 +55,9 @@ function Title(props) {
         timeoutRef.current = setTimeout(() => setCopied(false), 2000);
     }
 
-    const showActions = (props.onOpenAll && props.count > 0)
-        || (props.items && props.count > 0);
+    const canOpenAll = props.onOpenAll && props.count > 0 && showOpenAllButtons;
+    const canCopy = props.items && props.count > 0;
+    const showActions = canOpenAll || canCopy;
 
     return (
         <div>
@@ -66,7 +71,7 @@ function Title(props) {
                             alignItems: 'center',
                         }}
                     >
-                        {props.items && props.count > 0 && (
+                        {canCopy && (
                             <button
                                 type="button"
                                 className="btn btn-sm tooltipped tooltipped-s"
@@ -85,7 +90,7 @@ function Title(props) {
                                 />
                             </button>
                         )}
-                        {props.onOpenAll && props.count > 0 && (
+                        {canOpenAll && (
                             <button
                                 type="button"
                                 className="btn btn-sm"

@@ -2,6 +2,8 @@ import $ from 'jquery';
 import Base from './_base';
 import ToggleTimestamps from '../../../module/ToggleTimestamps/ToggleTimestamps';
 import WorkflowMenu from '../../../module/WorkflowMenu/WorkflowMenu';
+import ToggleAutoLoadMore from '../../../module/ToggleAutoLoadMore/ToggleAutoLoadMore';
+import * as autoLoadMoreComments from '../../autoLoadMoreComments';
 
 /**
  * Replaces all `- [ ]` with `- [x]` in textareas with specific names
@@ -28,41 +30,57 @@ const renderReplaceChecklistButton = () => {
 };
 
 const refreshSidebar = function () {
-    // Add the timestamp toggle wrapper to the DOM if it doesn't exist
-    if ($('.k2toggletimestamps-wrapper').length) {
-        // Draw the toggle if wrapper exists but is empty
-        const wrapper = $('.k2toggletimestamps-wrapper');
-        if (wrapper.children().length === 0) {
-            new ToggleTimestamps().draw();
-        }
-        return;
-    }
-
-    // Add timestamp toggle wrapper at the bottom of the sidebar
-    const lastSidebarItem = $('.discussion-sidebar-item').last();
-    if (lastSidebarItem.length) {
-        lastSidebarItem.after(
-            '<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>',
-        );
-    } else {
-        // Fallback: append to sidebar container
-        const sidebar = $(
-            '.discussion-sidebar, [role="complementary"], .Layout-sidebar',
-        ).first();
-        if (sidebar.length) {
-            sidebar.append(
+    // Add the timestamp toggle wrapper at the bottom of the sidebar if it doesn't exist
+    if (!$('.k2toggletimestamps-wrapper').length) {
+        const lastSidebarItem = $('.discussion-sidebar-item').last();
+        if (lastSidebarItem.length) {
+            lastSidebarItem.after(
                 '<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>',
             );
+        } else {
+            const sidebar = $(
+                '.discussion-sidebar, [role="complementary"], .Layout-sidebar',
+            ).first();
+            if (sidebar.length) {
+                sidebar.append(
+                    '<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>',
+                );
+            }
         }
     }
 
-    // Draw the timestamp toggle if the wrapper exists and is empty
-    const wrapper = $('.k2toggletimestamps-wrapper');
-    if (!wrapper.length || wrapper.children().length > 0) {
-        return;
+    // Add the auto-load-more toggle wrapper directly after the timestamp wrapper if it doesn't exist
+    if (!$('.k2autoloadmore-wrapper').length) {
+        const timestampWrapper = $('.k2toggletimestamps-wrapper');
+        if (timestampWrapper.length) {
+            timestampWrapper.after(
+                '<div class="discussion-sidebar-item js-discussion-sidebar-item k2autoloadmore-wrapper"></div>',
+            );
+        } else {
+            const sidebar = $(
+                '.discussion-sidebar, [role="complementary"], .Layout-sidebar',
+            ).first();
+            if (sidebar.length) {
+                sidebar.append(
+                    '<div class="discussion-sidebar-item js-discussion-sidebar-item k2autoloadmore-wrapper"></div>',
+                );
+            }
+        }
     }
 
-    new ToggleTimestamps().draw();
+    // Draw each toggle if its wrapper exists and is empty
+    const timestampWrapper = $('.k2toggletimestamps-wrapper');
+    if (timestampWrapper.length && timestampWrapper.children().length === 0) {
+        new ToggleTimestamps().draw();
+    }
+
+    const autoLoadMoreWrapper = $('.k2autoloadmore-wrapper');
+    if (
+        autoLoadMoreWrapper.length
+        && autoLoadMoreWrapper.children().length === 0
+    ) {
+        new ToggleAutoLoadMore().draw();
+    }
 };
 
 const refreshWorkflowMenu = function () {
@@ -96,7 +114,9 @@ const refreshWorkflowMenu = function () {
 };
 
 const refreshHold = function () {
-    const prTitle = $('.js-issue-title').text();
+    const prTitle = $(
+        'h1[data-component="PH_Title"] span.markdown-title',
+    ).text();
 
     const isNewMergeUI = $('div[data-testid="mergebox-partial"]').length;
 
@@ -138,7 +158,7 @@ const refreshHold = function () {
         prTitle.toLowerCase().indexOf('[hold') > -1
         || prTitle.toLowerCase().indexOf('[wip') > -1
     ) {
-        $('div[data-testid="mergebox-partial"] > div > div:last-of-type') // Entire PR merge section
+        $('div[data-testid="mergebox-border-container"]') // Entire PR merge section
             .removeClass('borderColor-success-emphasis');
         $('div[data-testid="mergebox-partial"] > div > div > div button')
             .first() // Merge pull request button
@@ -206,6 +226,8 @@ export default function () {
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
         setInterval(() => PrPage.renderCopyChecklistButtons('reviewer'), 2000);
         setInterval(() => PrPage.renderTranslationWorkflowButtons(), 2000);
+
+        autoLoadMoreComments.initAutoLoadMoreComments();
     };
 
     return PrPage;

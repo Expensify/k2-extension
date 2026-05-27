@@ -4,6 +4,8 @@ import ONYXKEYS from '../../ONYXKEYS';
 let ghToken;
 let useAbsoluteTimestamps;
 let k2RepoUrl;
+let autoLoadMoreComments;
+let showOpenAllButtons;
 ReactNativeOnyx.connect({
     key: ONYXKEYS.PREFERENCES,
     callback: (preferences) => {
@@ -15,6 +17,8 @@ ReactNativeOnyx.connect({
         ghToken = preferences.ghToken;
         useAbsoluteTimestamps = !!preferences.useAbsoluteTimestamps;
         k2RepoUrl = preferences.k2RepoUrl || null;
+        autoLoadMoreComments = preferences.autoLoadMoreComments || false;
+        showOpenAllButtons = preferences.showOpenAllButtons;
     },
 });
 
@@ -56,6 +60,34 @@ function setK2RepoUrl(value) {
     ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {k2RepoUrl: value});
 }
 
+// Defaults to true so users who haven't set the preference keep the original behaviour.
+function getAutoLoadMoreComments() {
+    return autoLoadMoreComments !== false;
+}
+
+/**
+ * @param {Boolean} value
+ */
+function setAutoLoadMoreComments(value) {
+    autoLoadMoreComments = value;
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {
+        autoLoadMoreComments: value,
+    });
+}
+
+// Defaults to true so users who haven't set the preference keep the original behaviour.
+function getShowOpenAllButtons() {
+    return showOpenAllButtons !== false;
+}
+
+/**
+ * @param {Boolean} value
+ */
+function setShowOpenAllButtons(value) {
+    showOpenAllButtons = value;
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {showOpenAllButtons: value});
+}
+
 export {
     getGitHubToken,
     setGitHubToken,
@@ -63,4 +95,8 @@ export {
     setUseAbsoluteTimestamps,
     getK2RepoUrl,
     setK2RepoUrl,
+    getAutoLoadMoreComments,
+    setAutoLoadMoreComments,
+    getShowOpenAllButtons,
+    setShowOpenAllButtons,
 };
