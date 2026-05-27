@@ -26,6 +26,9 @@ const propTypes = {
 
         /** Should issues that are not overdue be hidden? */
         shouldHideNotOverdue: PropTypes.bool,
+
+        /** Should issues with "[Due for payment ...]" in title be hidden? */
+        shouldHideDueForPayment: PropTypes.bool,
     }),
 };
 const defaultProps = {
@@ -35,6 +38,7 @@ const defaultProps = {
         shouldHideUnderReview: false,
         shouldHideOwnedBySomeoneElse: false,
         shouldHideNotOverdue: false,
+        shouldHideDueForPayment: false,
     },
 };
 
@@ -46,6 +50,7 @@ class ListIssuesAssigned extends React.Component {
             shouldHideUnderReviewIssues: props.checkboxes.shouldHideUnderReview,
             shouldHideOwnedBySomeoneElseIssues: props.checkboxes.shouldHideOwnedBySomeoneElse,
             shouldHideNotOverdueIssues: props.checkboxes.shouldHideNotOverdue,
+            shouldHideDueForPaymentIssues: props.checkboxes.shouldHideDueForPayment,
 
             // searchInputText is the immediate value shown in the input field
             // searchText is the debounced value used for filtering
@@ -57,6 +62,7 @@ class ListIssuesAssigned extends React.Component {
         this.toggleUnderReviewFilter = this.toggleUnderReviewFilter.bind(this);
         this.toggleOwnedBySomeoneElseFilter = this.toggleOwnedBySomeoneElseFilter.bind(this);
         this.toggleNotOverdueFilter = this.toggleNotOverdueFilter.bind(this);
+        this.toggleDueForPaymentFilter = this.toggleDueForPaymentFilter.bind(this);
         this.applySearchFilter = this.applySearchFilter.bind(this);
         this.applyDebouncedSearchFilter = _.debounce(this.applyDebouncedSearchFilter.bind(this), 300);
     }
@@ -110,6 +116,11 @@ class ListIssuesAssigned extends React.Component {
     toggleUnderReviewFilter() {
         this.setState(prevState => ({shouldHideUnderReviewIssues: !prevState.shouldHideUnderReviewIssues}));
         Issues.saveCheckboxes({shouldHideUnderReview: !this.state.shouldHideUnderReviewIssues});
+    }
+
+    toggleDueForPaymentFilter() {
+        this.setState(prevState => ({shouldHideDueForPaymentIssues: !prevState.shouldHideDueForPaymentIssues}));
+        Issues.saveCheckboxes({shouldHideDueForPayment: !this.state.shouldHideDueForPaymentIssues});
     }
 
     fetch() {
@@ -189,6 +200,9 @@ class ListIssuesAssigned extends React.Component {
                 return false;
             }
             if (this.state.shouldHideNotOverdueIssues && !_.find(item.labels, label => label.name.toLowerCase() === 'overdue')) {
+                return false;
+            }
+            if (this.state.shouldHideDueForPaymentIssues && item.title.toLowerCase().indexOf('[due for payment') > -1) {
                 return false;
             }
 
@@ -305,6 +319,18 @@ class ListIssuesAssigned extends React.Component {
                                     checked={this.state.shouldHideNotOverdueIssues ? 'checked' : undefined}
                                 />
                                 Not Overdue
+                            </label>
+                        </div>
+                        <div className="checkbox">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    name="shouldHideIfDueForPayment"
+                                    id="shouldHideIfDueForPayment"
+                                    onChange={this.toggleDueForPaymentFilter}
+                                    checked={this.state.shouldHideDueForPaymentIssues ? 'checked' : undefined}
+                                />
+                                Due for Payment
                             </label>
                         </div>
                         <input

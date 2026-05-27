@@ -143,6 +143,7 @@ function getEngineering() {
  * @param {String} [checkboxes.shouldHideUnderReview]
  * @param {String} [checkboxes.shouldHideOwnedBySomeoneElse]
  * @param {String} [checkboxes.shouldHideNotOverdue]
+ * @param {String} [checkboxes.shouldHideDueForPayment]
  */
 function saveCheckboxes(checkboxes) {
     ReactNativeOnyx.merge(ONYXKEYS.ISSUES.CHECKBOXES, checkboxes);
