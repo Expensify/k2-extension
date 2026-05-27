@@ -8,6 +8,7 @@ export default {
     PRS: {
         ASSIGNED: 'prsAssigned',
         REVIEWING: 'prsReviewing',
+        CHECKBOXES: 'prsCheckboxes',
     },
 
     ISSUES: {
