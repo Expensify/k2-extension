@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactNativeOnyx from 'react-native-onyx';
 import * as Preferences from '../../lib/actions/Preferences';
+import ToggleOpenAll from '../ToggleOpenAll/Toggle';
 
 function Legend() {
     function signOut() {
@@ -30,6 +31,20 @@ function Legend() {
             >
                 New Issue
             </a>
+
+            <br />
+            <a
+                className="btn btn-primary"
+                aria-label="New /app Issue"
+                href="https://github.com/Expensify/App/issues/new/choose"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{marginTop: '4px'}}
+            >
+                New /app Issue
+            </a>
+
+            <ToggleOpenAll />
 
             <br />
             <div className="issue reviewing">Under Review</div>

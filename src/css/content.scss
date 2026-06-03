@@ -222,6 +222,21 @@ $color-periwinkle: #b6daf6;
         float: right !important;
         top: -5px;
     }
+  &.reviewed {
+    color: $color-neutral-light !important;
+    .issue, .panel-item-meta {
+      color: $color-neutral-light !important;
+    }
+    .github-actions-status, .mergeable-state {
+      color: color.mix($color-neutral-light, $color-dark-yellow, 75%) !important;
+      &.success, &.MERGEABLE:not(.CHANGES_REQUESTED):not(.REVIEW_REQUIRED) {
+        color: color.mix($color-neutral-light, $color-darker-green, 75%) !important;
+      }
+      &.failure, &.CONFLICTING, &.CHANGES_REQUESTED {
+        color: color.mix($color-neutral-light, $color-alert, 75%) !important;
+      }
+    }
+  }
 }
 
 .panel-item-meta {
@@ -336,7 +351,7 @@ $color-periwinkle: #b6daf6;
   }
 }
 
-.travis-status {
+.github-actions-status {
   color: $color-orange;
 
   &.success {
@@ -623,6 +638,12 @@ $color-periwinkle: #b6daf6;
   }
 }
 
+[data-color-mode="light"] {
+  .issue-filter {
+    color: rgb(153, 153, 153);
+  }
+}
+
 .loader {
     width: 14px;
     aspect-ratio: 1;
@@ -702,10 +723,6 @@ $color-periwinkle: #b6daf6;
 .k2-translation-failed {
     color: $color-red !important;
     font-weight: bold;
-}
-
-.custom-markdown-copy {
-    cursor: pointer;
 }
 
 // Issue template chooser enhancements (search, sort, blank issue)

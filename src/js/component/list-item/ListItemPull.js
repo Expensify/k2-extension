@@ -91,7 +91,7 @@ function ListItemPull(props) {
     }
 
     return (
-        <div className="panel-item">
+        <div className={`panel-item${pr.isReviewRequested === false ? ' reviewed' : ''}`}>
             <span className="panel-item-meta">
                 <span className="age">
                     Updated:
@@ -110,6 +110,15 @@ function ListItemPull(props) {
                     {' '}
                     {pr.reviews.totalCount}
                 </span>
+
+                {pr.checkConclusion && (
+                    <span className={`github-actions-status ${pr.checkConclusion}`}>
+                        Github Actions:
+                        {' '}
+                        {pr.checkConclusion}
+                        ,
+                    </span>
+                )}
 
                 {mergeability && (
                     <span className={`mergeable-state ${pr.reviewDecision} ${pr.mergeable} ${(mergeability === 'Draft' && 'DRAFT') || ''}`}>
