@@ -236,6 +236,20 @@ body.k2-page-active {
 .almost-transparent {
   opacity: 0.1;
 }
+
+.k2-hide-comment-buttons {
+  display: inline-flex;
+  gap: 4px;
+  margin-right: 8px;
+  align-items: center;
+
+  .k2-hide-comment-button {
+    padding: 0 6px;
+    font-size: 12px;
+    line-height: 20px;
+    height: 22px;
+  }
+}
 .k2-inactive {
   opacity: 0.2;
 }

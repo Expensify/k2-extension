@@ -3,6 +3,7 @@ import Base from './_base';
 import ToggleTimestamps from '../../../module/ToggleTimestamps/ToggleTimestamps';
 import ToggleAutoLoadMore from '../../../module/ToggleAutoLoadMore/ToggleAutoLoadMore';
 import * as autoLoadMoreComments from '../../autoLoadMoreComments';
+import * as hideCommentButtons from '../../hideCommentButtons';
 
 /**
  * Replaces all `- [ ]` with `- [x]` in textareas with specific names
@@ -144,6 +145,7 @@ export default function () {
         setInterval(() => PrPage.renderTranslationWorkflowButtons(), 2000);
 
         autoLoadMoreComments.initAutoLoadMoreComments();
+        hideCommentButtons.initHideCommentButtons();
     };
 
     return PrPage;
