@@ -2,7 +2,7 @@
 
 installedNodeVersion="$(node -v)"
 installedNpmVersion="$(npm -v)"
-desiredNodeVersion="v20.20.0"
+desiredNodeVersion="v20.20.2"
 desiredNpmVersion="10.8.2"
 
 if [[ "$installedNodeVersion" != "$desiredNodeVersion" ]]; then
