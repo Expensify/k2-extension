@@ -1,6 +1,10 @@
 import $ from 'jquery';
 import _ from 'underscore';
+import ReactNativeOnyx from 'react-native-onyx';
 import * as API from '../../api';
+import * as Preferences from '../../actions/Preferences';
+import ONYXKEYS from '../../../ONYXKEYS';
+import convertTimestamps from '../../timestampConverter';
 
 /**
  * This class is to be extended by each of the distinct types of webpages that the extension works on
@@ -11,6 +15,7 @@ export default function () {
 
     const REVIEWER_CHECKLIST_URL = 'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/REVIEWER_CHECKLIST.md';
     const BUGZERO_CHECKLIST_URL = 'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/BUGZERO_CHECKLIST.md';
+    const NO_CHECKLIST_NEEDED_TEMPLATE = '### No Checklist Needed\n\n<C+ Please state the reason why checklist is not needed for this issue>';
 
     /**
      * Gets the contents of the reviewer checklist from GitHub and then posts it as a comment to the current PR
@@ -40,6 +45,34 @@ export default function () {
             await API.addComment(fileContents);
         } catch (error) {
             console.error('Error fetching the checklist:', error);
+        } finally {
+            // Restore the original button content
+            button.innerHTML = originalContent;
+        }
+    };
+
+    /**
+     * Posts a `### No Checklist Needed` comment template on the current issue.
+     * The C+ then edits the comment to fill in the reason.
+     * @param {Event} e
+     */
+    const postNoChecklistNeededTemplate = async (e) => {
+        e.preventDefault();
+
+        // Get the button element
+        const button = e.target;
+
+        // Save the original content of the button
+        const originalContent = button.innerHTML;
+
+        // Replace the button content with a loader
+        button.innerHTML = '<div class="loader" />';
+
+        try {
+            // Call the API to add the comment
+            await API.addComment(NO_CHECKLIST_NEEDED_TEMPLATE);
+        } catch (error) {
+            console.error('Error posting no-checklist-needed template:', error);
         } finally {
             // Restore the original button content
             button.innerHTML = originalContent;
@@ -259,6 +292,26 @@ export default function () {
     };
 
     /**
+     * Renders a button that, when clicked, posts a `### No Checklist Needed` template comment.
+     * The C+ then edits the comment to fill in the reason.
+     */
+    Page.renderNoChecklistNeededButton = function () {
+        // Look through all the comments on the page to find one that has the [no checklist button] placeholder
+        // eslint-disable-next-line rulesdir/prefer-underscore-method
+        $('.markdown-body > p').each((i, el) => {
+            const commentHtml = $(el).html();
+
+            if (commentHtml && commentHtml.indexOf('[no checklist button]') > -1) {
+                const newHtml = commentHtml.replace('[no checklist button]', '<button type="button" class="btn btn-sm k2-no-checklist-needed">HERE</button>');
+                $(el).html(newHtml);
+
+                // Always remove all handlers first so we know there is exactly one attached
+                $('.k2-no-checklist-needed').off().on('click', postNoChecklistNeededTemplate);
+            }
+        });
+    };
+
+    /**
      * Renders buttons for triggering the translation workflow
      */
     Page.renderTranslationWorkflowButtons = function () {
@@ -278,6 +331,36 @@ export default function () {
                 $('.k2-translation-workflow').off().on('click', runTranslationWorkflow);
             }
         });
+    };
+
+    /**
+     * Listens for preference changes and applies the configured timestamp format once.
+     * Call once during setup to register the Onyx listener and perform an initial conversion.
+     */
+    Page.setupTimestampFormat = function setupTimestampFormat() {
+        ReactNativeOnyx.connect({
+            key: ONYXKEYS.PREFERENCES,
+            callback: (preferences) => {
+                if (!preferences) {
+                    return;
+                }
+                const preference = !!preferences.useAbsoluteTimestamps;
+                convertTimestamps(preference);
+            },
+        });
+
+        const initialPreference = Preferences.getUseAbsoluteTimestamps();
+        if (initialPreference !== undefined) {
+            convertTimestamps(!!initialPreference);
+        }
+    };
+
+    /**
+     * Applies the current timestamp format. Safe to invoke periodically for dynamic content.
+     */
+    Page.applyTimestampFormat = function applyTimestampFormat() {
+        const preference = Preferences.getUseAbsoluteTimestamps();
+        convertTimestamps(!!preference);
     };
 
     return Page;

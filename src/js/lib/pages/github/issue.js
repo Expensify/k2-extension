@@ -7,10 +7,13 @@ import K2picker from '../../../module/K2picker/K2picker';
 import K2pickerarea from '../../../module/K2pickerarea/K2pickerarea';
 import K2pickerType from '../../../module/K2pickertype/K2pickertype';
 import ToggleReview from '../../../module/ToggleReview/ToggleReview';
+import ToggleTimestamps from '../../../module/ToggleTimestamps/ToggleTimestamps';
+import ToggleAutoLoadMore from '../../../module/ToggleAutoLoadMore/ToggleAutoLoadMore';
 import K2comments from '../../../module/K2comments/K2comments';
 import K2previousissues from '../../../module/K2previousissues/K2previousissues';
 import ONYXKEYS from '../../../ONYXKEYS';
 import * as API from '../../api';
+import * as autoLoadMoreComments from '../../autoLoadMoreComments';
 
 let clearErrorTimeoutID;
 function catchError(e) {
@@ -133,12 +136,52 @@ const refreshPicker = function () {
             .before(sidebarWrapperHTML);
     }
 
+    // Add timestamp toggle wrapper at the bottom if it doesn't exist
+    if (!$('.k2toggletimestamps-wrapper').length) {
+        // Find the last sidebar item or sidebar container and append to bottom
+        const lastSidebarItem = $('.discussion-sidebar-item').last();
+        if (lastSidebarItem.length) {
+            lastSidebarItem.after('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+        } else {
+            // Fallback: append to sidebar container
+            const sidebar = $('.discussion-sidebar, [role="complementary"]').first();
+            if (sidebar.length) {
+                sidebar.append('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+            }
+        }
+    }
+
+    // Add auto-load-more toggle wrapper directly after the timestamp wrapper if it doesn't exist
+    if (!$('.k2autoloadmore-wrapper').length) {
+        const timestampWrapper = $('.k2toggletimestamps-wrapper');
+        if (timestampWrapper.length) {
+            timestampWrapper.after('<div class="discussion-sidebar-item js-discussion-sidebar-item k2autoloadmore-wrapper"></div>');
+        } else {
+            const sidebar = $('.discussion-sidebar, [role="complementary"]').first();
+            if (sidebar.length) {
+                sidebar.append('<div class="discussion-sidebar-item js-discussion-sidebar-item k2autoloadmore-wrapper"></div>');
+            }
+        }
+    }
+
     new K2picker().draw();
     new K2pickerType().draw();
     new K2pickerarea().draw();
     new ToggleReview().draw();
     new K2comments().draw();
     new K2previousissues().draw();
+
+    // Draw timestamp toggle if wrapper exists and is empty
+    const timestampWrapper = $('.k2toggletimestamps-wrapper');
+    if (timestampWrapper.length && timestampWrapper.children().length === 0) {
+        new ToggleTimestamps().draw();
+    }
+
+    // Draw auto-load-more toggle if wrapper exists and is empty
+    const autoLoadMoreWrapper = $('.k2autoloadmore-wrapper');
+    if (autoLoadMoreWrapper.length && autoLoadMoreWrapper.children().length === 0) {
+        new ToggleAutoLoadMore().draw();
+    }
 };
 
 /**
@@ -173,14 +216,20 @@ export default function () {
                 refreshPicker();
             }
 
-            // Assignee section in right side panel
-            if (!$('div[data-testid="sidebar-assignees-section"] .k2-element').length) {
+            // Re-render if the number of assignees doesn't match the number of star buttons
+            // (handles both newly added and removed assignees)
+            const assigneeCount = $('div[data-testid="issue-assignees"]').length;
+            const buttonCount = $('div[data-testid="sidebar-assignees-section"] .k2-button').length;
+            if (assigneeCount !== buttonCount) {
                 renderAssignees();
             }
         }, 1000);
 
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
         setInterval(() => IssuePage.renderCopyChecklistButtons('bugzero'), 2000);
+        setInterval(() => IssuePage.renderNoChecklistNeededButton(), 2000);
+
+        autoLoadMoreComments.initAutoLoadMoreComments();
     };
 
     return IssuePage;

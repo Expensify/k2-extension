@@ -23,12 +23,30 @@ export default function () {
         // it breaks every so often
         const currentUrl = '/Expensify/Expensify';
 
-        // Insert the kernel button right after the pull request button in the
-        // navigation if it's there. Also make sure to not show it multiple times
-        if (!$('nav.js-repo-nav li.k2-extension').length) {
-            $('nav.js-repo-nav *[data-selected-links*="repo_pulls"]')
-                .parent().after(k2Button({url: currentUrl}));
+        // Insert K2 button after the Pull requests tab, retrying if the nav hasn't rendered yet
+        if (!$('li.k2-extension').length) {
+            const pullsTab = $('nav[aria-label="Repository"] a[href*="/pulls"]').closest('li');
+            if (pullsTab.length) {
+                pullsTab.after(k2Button({url: currentUrl}));
+            } else {
+                let retries = 0;
+                const interval = setInterval(() => {
+                    if ($('li.k2-extension').length || ++retries >= 10) {
+                        clearInterval(interval);
+                        return;
+                    }
+                    const tab = $('nav[aria-label="Repository"] a[href*="/pulls"]').closest('li');
+                    if (tab.length) {
+                        tab.after(k2Button({url: currentUrl}));
+                        clearInterval(interval);
+                    }
+                }, 100);
+            }
         }
+
+        // Set up timestamp format conversion
+        setTimeout(() => AllPages.applyTimestampFormat(), 500);
+        setInterval(() => AllPages.applyTimestampFormat(), 5000);
     };
 
     return AllPages;

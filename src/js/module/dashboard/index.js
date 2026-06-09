@@ -59,6 +59,7 @@ export default () => ({
     draw() {
         const passwordFormWasDrawn = $('.repository-content').children('.passwordform').length;
         const dashboardWasDrawn = $('.repository-content').children('.k2dashboard').length;
+
         if (passwordFormWasDrawn || dashboardWasDrawn) {
             return;
         }
