@@ -67,9 +67,16 @@ document.addEventListener('visibilitychange', () => {
     GitHubOAuth.refreshIfNeeded();
 });
 
-// Testing hook: in DevTools, select the K2 content script context and call
-// window.k2ForceTokenRefresh() to verify the refresh flow works end-to-end
+// Testing hooks to verify the refresh flow works end-to-end:
+// 1. From the K2 content script context in DevTools (Chrome: console context
+//    dropdown): window.k2ForceTokenRefresh()
+// 2. From the default page console in any browser (no context switching
+//    needed): document.dispatchEvent(new Event('k2:force-token-refresh'))
+// Either way, the result is logged to the page console.
 window.k2ForceTokenRefresh = GitHubOAuth.forceRefresh;
+document.addEventListener('k2:force-token-refresh', () => {
+    GitHubOAuth.forceRefresh().catch(() => {});
+});
 
 // The nav event is triggered anytime a page is navigated on GitHub
 messenger.on('nav', () => setupPages());
