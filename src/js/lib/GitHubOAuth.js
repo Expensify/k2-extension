@@ -21,6 +21,20 @@ const REFRESH_SKEW_MS = 5 * 60 * 1000;
 // invalidate the session.
 let inflightRefreshPromise = null;
 
+// Timestamp of the last successful token issuance (sign-in or refresh). Used to
+// detect "the token we just got is being rejected" - in that case another
+// rotation won't help and would only burn the refresh token chain.
+let lastTokenIssuedAt = 0;
+const TOKEN_JUST_ISSUED_MS = 30 * 1000;
+
+/**
+ * Whether a token was issued (via sign-in or refresh) within the last few seconds
+ * @returns {boolean}
+ */
+function wasTokenJustRefreshed() {
+    return (Date.now() - lastTokenIssuedAt) < TOKEN_JUST_ISSUED_MS;
+}
+
 /**
  * Initiate OAuth flow with GitHub using background script
  * @returns {Promise<string>} OAuth token
@@ -65,6 +79,7 @@ function initiateOAuth() {
                         refreshToken: tokenData.refresh_token,
                         expiresAt: tokenData.expires_in ? Date.now() + (tokenData.expires_in * 1000) : null,
                     });
+                    lastTokenIssuedAt = Date.now();
 
                     resolve(tokenData.access_token);
                 } catch (error) {
@@ -208,6 +223,7 @@ function refreshTokenViaBackground() {
                     refreshToken: tokenData.refresh_token,
                     expiresAt: tokenData.expires_in ? Date.now() + (tokenData.expires_in * 1000) : null,
                 });
+                lastTokenIssuedAt = Date.now();
 
                 resolve(tokenData.access_token);
             },
@@ -260,7 +276,12 @@ async function refreshIfNeeded() {
  */
 async function forceRefresh() {
     try {
-        return await refreshTokenViaBackground();
+        const token = await refreshTokenViaBackground();
+        const expiresAt = Preferences.getAuthData().expiresAt;
+
+        // eslint-disable-next-line no-console
+        console.info(`K2: token refreshed successfully, expires at ${expiresAt ? new Date(expiresAt).toISOString() : 'never'}`);
+        return token;
     } catch (e) {
         // eslint-disable-next-line no-console
         console.warn('Token refresh failed', e);
@@ -433,4 +454,5 @@ export {
     refreshToken,
     refreshTokenViaBackground,
     forceRefresh,
+    wasTokenJustRefreshed,
 };

@@ -5,44 +5,80 @@ import * as Preferences from './actions/Preferences';
 import * as GitHubOAuth from './GitHubOAuth';
 
 /**
- * @returns {Octokit}
+ * Custom Octokit auth strategy that resolves the token at request time instead
+ * of baking it into the instance at construction. The hook receives the bare
+ * inner request function, so retrying inside it does NOT re-run any auth hooks
+ * (avoiding stale-token contamination), and we can await a token refresh before
+ * the request is sent.
+ *
+ * @returns {Function} auth function with a `hook` property (Octokit authStrategy contract)
  */
-function getOctokit() {
-    // Kick off a proactive token refresh if the OAuth token is expired or about
-    // to expire. Not awaited (this function is sync and called from many places);
-    // if the current request races the refresh and fails with a 401, the error
-    // hook below refreshes and retries.
-    GitHubOAuth.refreshIfNeeded();
-
-    // getGitHubToken() returns the OAuth token when present and valid, and falls
-    // back to a legacy Personal Access Token otherwise
-    const octokit = new Octokit({
-        auth: Preferences.getGitHubToken(),
-        userAgent: 'expensify-k2-extension',
+function createDynamicAuth() {
+    const auth = async () => ({
+        type: 'token',
+        tokenType: 'oauth',
+        token: Preferences.getGitHubToken() || '',
     });
 
-    // On a 401, refresh the OAuth token once and retry the request with a fresh
-    // Octokit instance (the auth token is baked into the instance at creation)
-    octokit.hook.error('request', async (error, options) => {
-        const alreadyRetried = options.request && options.request.k2RetriedAfterRefresh;
-        if (error.status !== 401 || alreadyRetried) {
-            throw error;
+    auth.hook = async (request, route, parameters) => {
+        // Proactively refresh the OAuth token when it's expired or about to
+        // expire, so requests rarely ever see a 401
+        await GitHubOAuth.refreshIfNeeded();
+
+        const endpoint = request.endpoint.merge(route, parameters);
+
+        // getGitHubToken() returns the OAuth token when present and valid, and
+        // falls back to a legacy Personal Access Token otherwise
+        const tokenUsed = Preferences.getGitHubToken();
+        if (tokenUsed) {
+            endpoint.headers.authorization = `token ${tokenUsed}`;
         }
 
         try {
-            await GitHubOAuth.refreshTokenViaBackground();
-        } catch (refreshError) {
-            // Refresh isn't possible (e.g. PAT user) or failed - surface the original 401
-            throw error;
+            return await request(endpoint);
+        } catch (error) {
+            if (error.status !== 401) {
+                throw error;
+            }
+
+            let retryToken = Preferences.getGitHubToken();
+            if (!retryToken || retryToken === tokenUsed) {
+                // The stored token is the one that just failed, so rotate it.
+                // But if it was *just* rotated, another rotation won't fix the
+                // 401 and would burn the single-use refresh token chain.
+                if (GitHubOAuth.wasTokenJustRefreshed()) {
+                    throw error;
+                }
+                try {
+                    await GitHubOAuth.refreshTokenViaBackground();
+                } catch (refreshError) {
+                    // Refresh isn't possible (e.g. PAT user) or failed - surface the original 401
+                    throw error;
+                }
+                retryToken = Preferences.getGitHubToken();
+                if (!retryToken || retryToken === tokenUsed) {
+                    throw error;
+                }
+            }
+
+            // Retry once with the new token. `request` here is the bare inner
+            // request, so no other hook can overwrite this header.
+            endpoint.headers.authorization = `token ${retryToken}`;
+            return request(endpoint);
         }
+    };
 
-        return getOctokit().request({
-            ...options,
-            request: {...options.request, k2RetriedAfterRefresh: true},
-        });
+    return auth;
+}
+
+/**
+ * @returns {Octokit}
+ */
+function getOctokit() {
+    return new Octokit({
+        authStrategy: createDynamicAuth,
+        userAgent: 'expensify-k2-extension',
     });
-
-    return octokit;
 }
 
 /**
