@@ -1,30 +1,45 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import {Octokit} from 'octokit';
-import ReactNativeOnyx from 'react-native-onyx';
-import ONYXKEYS from '../ONYXKEYS';
-
-let octokit;
-let newToken;
-
-ReactNativeOnyx.connect({
-    key: ONYXKEYS.PREFERENCES,
-    callback: (preferences) => {
-        if (!preferences) {
-            return;
-        }
-        const token = preferences.auth.token;
-        newToken = token;
-    },
-});
+import * as Preferences from './actions/Preferences';
+import * as GitHubOAuth from './GitHubOAuth';
 
 /**
  * @returns {Octokit}
  */
 function getOctokit() {
-    octokit = new Octokit({
-        auth: newToken,
+    // Kick off a proactive token refresh if the OAuth token is expired or about
+    // to expire. Not awaited (this function is sync and called from many places);
+    // if the current request races the refresh and fails with a 401, the error
+    // hook below refreshes and retries.
+    GitHubOAuth.refreshIfNeeded();
+
+    // getGitHubToken() returns the OAuth token when present and valid, and falls
+    // back to a legacy Personal Access Token otherwise
+    const octokit = new Octokit({
+        auth: Preferences.getGitHubToken(),
         userAgent: 'expensify-k2-extension',
+    });
+
+    // On a 401, refresh the OAuth token once and retry the request with a fresh
+    // Octokit instance (the auth token is baked into the instance at creation)
+    octokit.hook.error('request', async (error, options) => {
+        const alreadyRetried = options.request && options.request.k2RetriedAfterRefresh;
+        if (error.status !== 401 || alreadyRetried) {
+            throw error;
+        }
+
+        try {
+            await GitHubOAuth.refreshTokenViaBackground();
+        } catch (refreshError) {
+            // Refresh isn't possible (e.g. PAT user) or failed - surface the original 401
+            throw error;
+        }
+
+        return getOctokit().request({
+            ...options,
+            request: {...options.request, k2RetriedAfterRefresh: true},
+        });
     });
 
     return octokit;

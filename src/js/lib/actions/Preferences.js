@@ -67,6 +67,14 @@ function getAuthType() {
 }
 
 /**
+ * Get a copy of the current auth data (type, token, refreshToken, expiresAt)
+ * @returns {Object}
+ */
+function getAuthData() {
+    return {...authData};
+}
+
+/**
  * Set Personal Access Token
  * @param {String} value
  */
@@ -144,6 +152,7 @@ export {
     getGitHubToken,
     setGitHubToken,
     getAuthType,
+    getAuthData,
     setAuthData,
     clearAuth,
     isAuthenticated,

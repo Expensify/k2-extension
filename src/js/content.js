@@ -53,8 +53,23 @@ function setupPages() {
 // The message listener needs to be started so that the background script can trigger events to happen in the extension
 messenger.startMessageListener();
 
-// Start background token auto-refresh
-GitHubOAuth.startAutoRefresh();
+// Refresh the OAuth token when needed. Event-driven rather than interval-based:
+// MV3 service workers (and background tab timers) get suspended, so instead we
+// check at startup and whenever the tab regains focus/visibility - which covers
+// returning to an inactive tab and waking a laptop from sleep. API calls also
+// refresh lazily (see lib/api.js).
+GitHubOAuth.refreshIfNeeded();
+window.addEventListener('focus', () => GitHubOAuth.refreshIfNeeded());
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') {
+        return;
+    }
+    GitHubOAuth.refreshIfNeeded();
+});
+
+// Testing hook: in DevTools, select the K2 content script context and call
+// window.k2ForceTokenRefresh() to verify the refresh flow works end-to-end
+window.k2ForceTokenRefresh = GitHubOAuth.forceRefresh;
 
 // The nav event is triggered anytime a page is navigated on GitHub
 messenger.on('nav', () => setupPages());

@@ -1,6 +1,4 @@
-import ReactNativeOnyx from 'react-native-onyx';
 import * as Preferences from './actions/Preferences';
-import ONYXKEYS from '../ONYXKEYS';
 import ksBrowser from './browser';
 
 /**
@@ -16,17 +14,12 @@ const GITHUB_OAUTH_CONFIG = {
 };
 
 // Refresh window (ms) before expiry to proactively refresh
-const REFRESH_SKEW_MS = 60 * 1000;
-let refreshIntervalId = null;
-let onyxAuthData = null;
+const REFRESH_SKEW_MS = 5 * 60 * 1000;
 
-// Keep local copy of auth data from Onyx store
-ReactNativeOnyx.connect({
-    key: ONYXKEYS.PREFERENCES,
-    callback: (preferences) => {
-        onyxAuthData = (preferences && preferences.auth) ? preferences.auth : null;
-    },
-});
+// Tracks an in-flight refresh so concurrent callers share a single request.
+// GitHub App refresh tokens are single-use, so two parallel refreshes would
+// invalidate the session.
+let inflightRefreshPromise = null;
 
 /**
  * Initiate OAuth flow with GitHub using background script
@@ -91,42 +84,142 @@ function isOAuthAvailable() {
 }
 
 /**
- * Refresh the OAuth token using the refresh token (if available)
- * @returns {Promise<string>} New access token
+ * Refresh the OAuth token using the refresh token. This is a pure network call:
+ * it does NOT touch storage, because it runs in the background script context,
+ * which does not share an Onyx store with the content script. The caller (content
+ * script) is responsible for persisting the returned token data.
+ *
+ * Errors are tagged with `isAuthError: true` when the refresh token itself was
+ * rejected (i.e. the user must re-authenticate), as opposed to transient
+ * network failures.
+ *
+ * @param {string} refreshTokenValue - The refresh token to use
+ * @returns {Promise<Object>} Full token data ({access_token, refresh_token, expires_in})
  */
-async function refreshToken() {
-    const refreshTokenValue = onyxAuthData && onyxAuthData.refreshToken;
+async function refreshToken(refreshTokenValue) {
     if (!refreshTokenValue) {
-        throw new Error('No refresh token available');
+        const error = new Error('No refresh token provided');
+        error.isAuthError = true;
+        throw error;
     }
 
-    const resp = await fetch(`${GITHUB_OAUTH_CONFIG.APP_OAUTH_URL}/oauth/github/refresh`, {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            refresh_token: refreshTokenValue,
-        }),
-    });
-    if (!resp.ok) {
-        throw new Error(`Refresh failed: ${resp.statusText}`);
+    let resp;
+    try {
+        resp = await fetch(`${GITHUB_OAUTH_CONFIG.APP_OAUTH_URL}/oauth/github/refresh`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                refresh_token: refreshTokenValue,
+            }),
+        });
+    } catch (networkError) {
+        // Network failure (offline, laptop just woke, etc.) - NOT an auth error
+        throw new Error(`Refresh request failed: ${networkError.message}`);
     }
+
+    if (!resp.ok) {
+        const error = new Error(`Refresh failed: ${resp.status} ${resp.statusText}`);
+
+        // A 4xx from the worker means the refresh token was rejected
+        error.isAuthError = resp.status >= 400 && resp.status < 500;
+        throw error;
+    }
+
     const data = await resp.json();
+    if (data && data.error) {
+        // GitHub returns OAuth errors (e.g. bad_refresh_token) in the response body
+        const error = new Error(`Refresh failed: ${data.error_description || data.error}`);
+        error.isAuthError = true;
+        throw error;
+    }
     if (!data || !data.access_token || !data.refresh_token) {
         throw new Error('Invalid refresh response: missing access_token or refresh_token');
     }
 
-    // Update stored auth
-    Preferences.setAuthData({
-        type: 'oauth',
-        token: data.access_token,
-        refreshToken: data.refresh_token,
-        expiresAt: data.expires_in ? Date.now() + (data.expires_in * 1000) : null,
+    return data;
+}
+
+/**
+ * Refresh token via background script (for content script context).
+ * The background script only performs the network call (to avoid CSP issues);
+ * the new token data is persisted here, in the content script context, which
+ * owns the Onyx store.
+ *
+ * Concurrent callers share a single in-flight refresh.
+ *
+ * @returns {Promise<string>} New access token
+ */
+function refreshTokenViaBackground() {
+    if (inflightRefreshPromise) {
+        return inflightRefreshPromise;
+    }
+
+    inflightRefreshPromise = new Promise((resolve, reject) => {
+        if ((!ksBrowser) || !ksBrowser.runtime || !ksBrowser.runtime.sendMessage) {
+            reject(new Error('Browser runtime API not available'));
+            return;
+        }
+
+        const authData = Preferences.getAuthData();
+        const refreshTokenValue = authData && authData.refreshToken;
+        if (!refreshTokenValue) {
+            reject(new Error('No refresh token available'));
+            return;
+        }
+
+        // Send message to background script to perform the network refresh.
+        // Receiving the message also wakes the service worker if it was suspended.
+        ksBrowser.runtime.sendMessage(
+            {action: 'refresh-token', refreshToken: refreshTokenValue},
+            (response) => {
+                if (ksBrowser.runtime.lastError) {
+                    reject(new Error(ksBrowser.runtime.lastError.message));
+                    return;
+                }
+
+                if (!response) {
+                    reject(new Error('No response from background script'));
+                    return;
+                }
+
+                if (!response.success) {
+                    // Only sign the user out when the refresh token itself was
+                    // rejected. Transient network errors keep credentials so we
+                    // can retry later.
+                    if (response.isAuthError) {
+                        Preferences.clearAuth();
+                    }
+                    reject(new Error(response.error || 'Refresh failed'));
+                    return;
+                }
+
+                const tokenData = response.tokenData;
+                if (!tokenData || !tokenData.access_token || !tokenData.refresh_token) {
+                    reject(new Error('Invalid token data received from background script'));
+                    return;
+                }
+
+                Preferences.setAuthData({
+                    type: 'oauth',
+                    token: tokenData.access_token,
+                    refreshToken: tokenData.refresh_token,
+                    expiresAt: tokenData.expires_in ? Date.now() + (tokenData.expires_in * 1000) : null,
+                });
+
+                resolve(tokenData.access_token);
+            },
+        );
     });
 
-    return data.access_token;
+    // Always clear the in-flight marker once settled
+    inflightRefreshPromise = inflightRefreshPromise.finally(() => {
+        inflightRefreshPromise = null;
+    });
+
+    return inflightRefreshPromise;
 }
 
 /**
@@ -134,8 +227,8 @@ async function refreshToken() {
  * @returns {boolean}
  */
 function shouldRefresh() {
-    const authData = onyxAuthData;
-    if (!authData || authData.type !== 'oauth' || !authData.token) {
+    const authData = Preferences.getAuthData();
+    if (!authData || authData.type !== 'oauth' || !authData.token || !authData.refreshToken) {
         return false;
     }
     if (!authData.expiresAt) {
@@ -145,13 +238,15 @@ function shouldRefresh() {
 }
 
 /**
- * Attempt to refresh token if needed
+ * Attempt to refresh token if needed. Safe to call often (startup, tab focus,
+ * before API calls): it no-ops unless the token is expired or about to expire,
+ * and concurrent calls share a single refresh.
  * @returns {Promise<void>}
  */
 async function refreshIfNeeded() {
     try {
         if (shouldRefresh()) {
-            await refreshToken();
+            await refreshTokenViaBackground();
         }
     } catch (e) {
         // eslint-disable-next-line no-console
@@ -160,13 +255,17 @@ async function refreshIfNeeded() {
 }
 
 /**
- * Start periodic background refresh checks
+ * Force refresh token regardless of expiry (testing hook)
+ * @returns {Promise<string>} New access token
  */
-function startAutoRefresh() {
-    if (refreshIntervalId) {
-        return;
+async function forceRefresh() {
+    try {
+        return await refreshTokenViaBackground();
+    } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn('Token refresh failed', e);
+        throw e;
     }
-    refreshIntervalId = setInterval(refreshIfNeeded, 60 * 1000);
 }
 
 /**
@@ -331,5 +430,7 @@ export {
     revokeToken,
     handleOAuthFlow,
     refreshIfNeeded,
-    startAutoRefresh,
+    refreshToken,
+    refreshTokenViaBackground,
+    forceRefresh,
 };
