@@ -271,25 +271,6 @@ async function refreshIfNeeded() {
 }
 
 /**
- * Force refresh token regardless of expiry (testing hook)
- * @returns {Promise<string>} New access token
- */
-async function forceRefresh() {
-    try {
-        const token = await refreshTokenViaBackground();
-        const expiresAt = Preferences.getAuthData().expiresAt;
-
-        // eslint-disable-next-line no-console
-        console.info(`K2: token refreshed successfully, expires at ${expiresAt ? new Date(expiresAt).toISOString() : 'never'}`);
-        return token;
-    } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn('Token refresh failed', e);
-        throw e;
-    }
-}
-
-/**
  * Extract error from callback URL
  * @param {string} url - Callback URL from OAuth flow
  * @returns {string|null} Error message
@@ -453,6 +434,5 @@ export {
     refreshIfNeeded,
     refreshToken,
     refreshTokenViaBackground,
-    forceRefresh,
     wasTokenJustRefreshed,
 };
