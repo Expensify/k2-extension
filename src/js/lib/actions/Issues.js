@@ -4,7 +4,6 @@ import _ from 'underscore';
 import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
 import ActionThrottle from '../ActionThrottle';
-import * as IssueOwner from '../issueOwner';
 
 function getHotPicks() {
     ActionThrottle('getHotPicks', () => (
@@ -62,11 +61,20 @@ function getAllAssigned() {
             .then((issues) => {
                 const currentUser = API.getCurrentUser();
                 const issuesMarkedWithOwner = _.reduce(issues, (finalObject, issue) => {
+                    const regexResult = issue.body.match(/Current Issue Owner:\s@(?<owner>[a-z0-9-]+)/i);
+                    const parsedOwner = regexResult && regexResult.groups && regexResult.groups.owner;
+
+                    // An owner only counts if they are also an assignee, matching the overdue issue meeting logic.
+                    // This keeps a stale owner (still in the body but no longer assigned) from counting as the owner.
+                    const assigneeLogins = _.pluck(issue.assignees, 'login');
+                    const currentOwner = parsedOwner && _.contains(assigneeLogins, parsedOwner) ? parsedOwner : null;
+
                     const result = finalObject;
 
                     result[issue.id] = {
                         ...issue,
-                        ...IssueOwner.resolveIssueOwner(issue.body, issue.assignees, currentUser),
+                        issueHasOwner: !!currentOwner,
+                        currentUserIsOwner: currentOwner && currentOwner === currentUser,
                     };
 
                     return result;
