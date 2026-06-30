@@ -20,5 +20,10 @@ module.exports = {
       presets: defaultPresets,
       plugins: defaultPlugins,
     },
+    test: {
+      sourceType: "unambiguous",
+      presets: defaultPresets,
+      plugins: defaultPlugins,
+    },
   },
 };

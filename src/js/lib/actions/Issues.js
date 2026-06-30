@@ -4,6 +4,7 @@ import _ from 'underscore';
 import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
 import ActionThrottle from '../ActionThrottle';
+import * as IssueOwner from '../issueOwner';
 
 function getHotPicks() {
     ActionThrottle('getHotPicks', () => (
@@ -61,15 +62,11 @@ function getAllAssigned() {
             .then((issues) => {
                 const currentUser = API.getCurrentUser();
                 const issuesMarkedWithOwner = _.reduce(issues, (finalObject, issue) => {
-                    const regexResult = issue.body.match(/Current Issue Owner:\s@(?<owner>[a-z0-9-]+)/i);
-                    const currentOwner = regexResult && regexResult.groups && regexResult.groups.owner;
-
                     const result = finalObject;
 
                     result[issue.id] = {
                         ...issue,
-                        issueHasOwner: !!currentOwner,
-                        currentUserIsOwner: currentOwner && currentOwner === currentUser,
+                        ...IssueOwner.resolveIssueOwner(issue.body, issue.assignees, currentUser),
                     };
 
                     return result;
