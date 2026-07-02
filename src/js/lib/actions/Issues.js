@@ -72,9 +72,14 @@ function getAllAssigned() {
                 const regexResult = issue.body.match(
                     /Current Issue Owner:\s@(?<owner>[a-z0-9-]+)/i,
                 );
-                const currentOwner = regexResult
+                const parsedOwner = regexResult
                         && regexResult.groups
                         && regexResult.groups.owner;
+
+                    // An owner only counts if they are also an assignee, matching the overdue issue meeting logic.
+                    // This keeps a stale owner (still in the body but no longer assigned) from counting as the owner.
+                    const assigneeLogins = _.pluck(issue.assignees, 'login');
+                    const currentOwner = parsedOwner && _.contains(assigneeLogins, parsedOwner) ? parsedOwner : null;
 
                 const result = finalObject;
 
