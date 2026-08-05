@@ -241,20 +241,8 @@ query {
                 repository {
                     name
                 }
-                reviews(first: 100) {
+                reviews {
                     totalCount
-                    nodes {
-                        author {
-                            type: __typename
-                        }
-                    }
-                }
-                reviewRequests(first: 100) {
-                    nodes {
-                        requestedReviewer {
-                            type: __typename
-                        }
-                    }
                 }
             }
         }
