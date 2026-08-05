@@ -241,11 +241,20 @@ query {
                 repository {
                     name
                 }
-                reviews {
+                reviews(first: 100) {
                     totalCount
+                    nodes {
+                        author {
+                            type: __typename
+                        }
+                    }
                 }
-                reviewRequests {
-                    totalCount
+                reviewRequests(first: 100) {
+                    nodes {
+                        requestedReviewer {
+                            type: __typename
+                        }
+                    }
                 }
             }
         }
