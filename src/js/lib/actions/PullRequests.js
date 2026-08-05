@@ -4,9 +4,11 @@ import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
 import ActionThrottle from '../ActionThrottle';
 
-// Check runs whose results should not affect the overall check conclusion shown for a PR.
-// "Check independent approval" (from the "Verify peer review" workflow) fails until a peer
-// review happens, which is not a CI failure the author needs to act on.
+// Check runs whose results should not affect the overall check conclusion shown for a PR,
+// as long as the PR has an assignee. "Check independent approval" (from the "Verify peer
+// review" workflow) fails until a peer review happens, which is not a CI failure the author
+// needs to act on. A PR with no assignee has nobody lined up to review it, so the failure
+// stays visible as a prompt to find one.
 const IGNORED_CHECK_RUN_NAMES = ['Check independent approval'];
 
 function getChecks(prs, onyxKey) {
@@ -21,7 +23,7 @@ function getChecks(prs, onyxKey) {
                         checkConclusion: _.reduce(
                             response.data.check_runs,
                             (previousValue, currentValue) => {
-                                if (_.contains(IGNORED_CHECK_RUN_NAMES, currentValue.name)) {
+                                if (pr.assignees.nodes.length > 0 && _.contains(IGNORED_CHECK_RUN_NAMES, currentValue.name)) {
                                     return previousValue;
                                 }
 
