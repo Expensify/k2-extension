@@ -244,6 +244,9 @@ query {
                 reviews {
                     totalCount
                 }
+                reviewRequests {
+                    totalCount
+                }
             }
         }
     }
