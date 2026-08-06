@@ -4,6 +4,11 @@ import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
 import ActionThrottle from '../ActionThrottle';
 
+// Check runs whose results should not affect the overall check conclusion shown for a PR.
+// "Check independent approval" (from the "Verify peer review" workflow) fails until a peer
+// review happens, which is not a CI failure the author needs to act on.
+const IGNORED_CHECK_RUN_NAMES = ['Check independent approval'];
+
 function getChecks(prs, onyxKey) {
     const checkRunPromises = _.reduce(prs, (finalPromiseArray, pr) => {
         finalPromiseArray.push(
@@ -16,11 +21,21 @@ function getChecks(prs, onyxKey) {
                         checkConclusion: _.reduce(
                             response.data.check_runs,
                             (previousValue, currentValue) => {
+                                if (_.contains(IGNORED_CHECK_RUN_NAMES, currentValue.name)) {
+                                    return previousValue;
+                                }
+
                                 const conclusion = currentValue.conclusion;
 
                                 // If any check runs are failing, mark it failed
                                 if (conclusion === 'failure' || previousValue === 'failure') {
                                     return 'failure';
+                                }
+
+                                // Check runs only get a conclusion once they complete, so any run that isn't
+                                // completed yet means the overall result is still pending
+                                if (currentValue.status !== 'completed' || previousValue === 'pending') {
+                                    return 'pending';
                                 }
 
                                 // If the current check run is successful, mark it success. If the previous one is
