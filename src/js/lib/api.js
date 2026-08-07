@@ -266,6 +266,30 @@ query {
 }
 
 /**
+ * Get the SHA of the commit at the head of a pull request, which is the commit whose checks GitHub's
+ * favicon and merge box report on.
+ *
+ * @param {String} owner
+ * @param {String} repo
+ * @param {Number} pullRequestNumber
+ * @returns {Promise<String|null>}
+ */
+function getPullRequestHeadRefOid(owner, repo, pullRequestNumber) {
+    const graphQLQuery = `
+query($owner:String!, $repo:String!, $number:Int!) {
+    repository(owner: $owner, name: $repo) {
+        pullRequest(number: $number) {
+            headRefOid
+        }
+    }
+}
+    `;
+
+    return getOctokit().graphql(graphQLQuery, {owner, repo, number: pullRequestNumber})
+        .then(data => (data.repository && data.repository.pullRequest && data.repository.pullRequest.headRefOid) || null);
+}
+
+/**
  * Get every check run and commit status that feeds the status indicator GitHub shows for a single commit.
  * These are two separate concepts in the GitHub API, and the "status check rollup" is what combines them.
  *
@@ -635,4 +659,5 @@ export {
     getWorkflowRuns,
     getWorkflowRun,
     getStatusCheckRollup,
+    getPullRequestHeadRefOid,
 };

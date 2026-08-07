@@ -4,6 +4,7 @@ import ToggleTimestamps from '../../../module/ToggleTimestamps/ToggleTimestamps'
 import ToggleAutoLoadMore from '../../../module/ToggleAutoLoadMore/ToggleAutoLoadMore';
 import * as autoLoadMoreComments from '../../autoLoadMoreComments';
 import * as commitCheckStatuses from '../../commitCheckStatuses';
+import * as prFavicon from '../../prFavicon';
 
 /**
  * Replaces all `- [ ]` with `- [x]` in textareas with specific names
@@ -146,6 +147,7 @@ export default function () {
 
         autoLoadMoreComments.initAutoLoadMoreComments();
         commitCheckStatuses.initCommitCheckStatuses();
+        prFavicon.initPrFavicon();
     };
 
     return PrPage;
