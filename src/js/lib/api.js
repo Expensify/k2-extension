@@ -318,7 +318,7 @@ query($owner:String!, $repo:String!, $oid:GitObjectID!, $cursor:String) {
         // A commit that has no checks at all has a null rollup
         const rollup = data.repository && data.repository.object && data.repository.object.statusCheckRollup;
         if (!rollup) {
-            return [];
+            break;
         }
 
         contexts = contexts.concat(rollup.contexts.nodes);

@@ -25,8 +25,9 @@ const FAILED_CHECK_RUN_CONCLUSIONS = ['FAILURE', 'TIMED_OUT', 'CANCELLED', 'ACTI
 const FAILED_STATUS_CONTEXT_STATES = ['ERROR', 'FAILURE'];
 const UNFINISHED_STATUS_CONTEXT_STATES = ['PENDING', 'EXPECTED'];
 
-// A commit high up in a PR's history never changes, but the head commit's checks do, so verdicts
-// are only trusted for as long as it takes a check to plausibly finish and report a new result.
+// How long a commit stays green on one lookup. A commit high up in a PR's history never changes, but
+// the head commit's checks do, so a commit we have greened is re-checked once GitHub puts the red X
+// back and this much time has passed.
 const VERDICT_LIFETIME_MS = 60000;
 
 // Keyed by commit SHA, so that scrolling through a PR doesn't re-request the same commit's checks.
@@ -64,7 +65,14 @@ function isUnfinished(context) {
  * @returns {Boolean}
  */
 function onlyIgnoredChecksAreFailing(contexts) {
-    const contextsThatCount = _.reject(contexts, context => _.contains(CONST.IGNORED_CHECK_RUN_NAMES, getContextName(context)));
+    const [ignoredContexts, contextsThatCount] = _.partition(contexts, context => _.contains(CONST.IGNORED_CHECK_RUN_NAMES, getContextName(context)));
+
+    // An ignored check has to be the thing making GitHub show the commit as failed. Requiring that is also
+    // what keeps a response we couldn't read from turning a genuinely failing commit green.
+    if (!_.any(ignoredContexts, isFailing)) {
+        return false;
+    }
+
     return !_.any(contextsThatCount, context => isFailing(context) || isUnfinished(context));
 }
 
@@ -84,23 +92,30 @@ function scheduleScan() {
 }
 
 /**
- * The verdict for a commit, requesting it in the background when we don't have a fresh one yet.
- * Returns undefined while a commit has never been looked up.
+ * Whether a commit should be shown as passing right now, requesting a verdict in the background
+ * when we don't have a fresh one. Answers false until a verdict arrives, so a commit is only ever
+ * greened on a result we currently trust.
  *
  * @param {String} owner
  * @param {String} repo
  * @param {String} sha
- * @returns {Boolean|undefined}
+ * @returns {Boolean}
  */
-function getVerdict(owner, repo, sha) {
+function shouldShowAsPassing(owner, repo, sha) {
     const verdict = verdicts[sha];
-    const isStale = !verdict || (Date.now() - verdict.fetchedAt) > VERDICT_LIFETIME_MS;
 
-    if (isStale && !requestsInFlight[sha]) {
+    // A verdict of false leaves GitHub's own indicator in place, and that indicator is always live, so
+    // only a verdict we act on can go stale in a way that misleads. That keeps a PR full of genuinely
+    // failing commits from re-requesting every one of them for as long as the tab stays open.
+    if (verdict && (!verdict.shouldShowAsPassing || (Date.now() - verdict.fetchedAt) <= VERDICT_LIFETIME_MS)) {
+        return verdict.shouldShowAsPassing;
+    }
+
+    if (!requestsInFlight[sha]) {
         requestsInFlight[sha] = true;
         API.getStatusCheckRollup(owner, repo, sha)
             .then((contexts) => {
-                verdicts[sha] = {onlyIgnoredChecksFailed: onlyIgnoredChecksAreFailing(contexts), fetchedAt: Date.now()};
+                verdicts[sha] = {shouldShowAsPassing: onlyIgnoredChecksAreFailing(contexts), fetchedAt: Date.now()};
 
                 // The page is usually done changing by the time a verdict lands, so nothing else would scan again.
                 scheduleScan();
@@ -113,8 +128,7 @@ function getVerdict(owner, repo, sha) {
             });
     }
 
-    // A stale verdict is still shown while its replacement is on the way, so the indicator doesn't flicker.
-    return verdict && verdict.onlyIgnoredChecksFailed;
+    return false;
 }
 
 /**
@@ -145,7 +159,7 @@ function scan() {
             return;
         }
 
-        if (!getVerdict(matches[1], matches[2], matches[3])) {
+        if (!shouldShowAsPassing(matches[1], matches[2], matches[3])) {
             return;
         }
 
@@ -155,13 +169,13 @@ function scan() {
     });
 
     _.each(document.querySelectorAll(TIMELINE_FAILING_INDICATOR_SELECTOR), (indicator) => {
-        const detailsUrl = indicator.parentElement.getAttribute('data-deferred-details-content-url') || '';
+        const detailsUrl = indicator.closest('details.commit-build-statuses').getAttribute('data-deferred-details-content-url') || '';
         const matches = detailsUrl.match(TIMELINE_STATUS_URL_REGEX);
         if (!matches) {
             return;
         }
 
-        if (!getVerdict(matches[1], matches[2], matches[3])) {
+        if (!shouldShowAsPassing(matches[1], matches[2], matches[3])) {
             return;
         }
 
