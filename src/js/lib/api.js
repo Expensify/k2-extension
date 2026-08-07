@@ -292,6 +292,13 @@ query($owner:String!, $repo:String!, $oid:GitObjectID!, $cursor:String) {
                                 name
                                 status
                                 conclusion
+                                checkSuite {
+                                    workflowRun {
+                                        workflow {
+                                            resourcePath
+                                        }
+                                    }
+                                }
                             }
                             ... on StatusContext {
                                 context
@@ -315,10 +322,15 @@ query($owner:String!, $repo:String!, $oid:GitObjectID!, $cursor:String) {
             owner, repo, oid, cursor,
         });
 
-        // A commit that has no checks at all has a null rollup
         const rollup = data.repository && data.repository.object && data.repository.object.statusCheckRollup;
         if (!rollup) {
-            break;
+            // A commit that has no checks at all has a null rollup. Once pages have already been read,
+            // a missing one instead means an incomplete set, and callers must not mistake the checks we
+            // did manage to read for all of them.
+            if (contexts.length) {
+                throw new Error(`Incomplete status check rollup for ${oid}`);
+            }
+            return [];
         }
 
         contexts = contexts.concat(rollup.contexts.nodes);
