@@ -2,12 +2,8 @@ import _ from 'underscore';
 import ReactNativeOnyx from 'react-native-onyx';
 import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
+import CONST from '../../CONST';
 import ActionThrottle from '../ActionThrottle';
-
-// Check runs whose results should not affect the overall check conclusion shown for a PR.
-// "Check independent approval" (from the "Verify peer review" workflow) fails until a peer
-// review happens, which is not a CI failure the author needs to act on.
-const IGNORED_CHECK_RUN_NAMES = ['Check independent approval'];
 
 function getChecks(prs, onyxKey) {
     const checkRunPromises = _.reduce(prs, (finalPromiseArray, pr) => {
@@ -21,7 +17,7 @@ function getChecks(prs, onyxKey) {
                         checkConclusion: _.reduce(
                             response.data.check_runs,
                             (previousValue, currentValue) => {
-                                if (_.contains(IGNORED_CHECK_RUN_NAMES, currentValue.name)) {
+                                if (_.contains(CONST.IGNORED_CHECK_RUN_NAMES, currentValue.name)) {
                                     return previousValue;
                                 }
 

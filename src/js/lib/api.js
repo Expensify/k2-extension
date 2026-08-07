@@ -265,6 +265,81 @@ query {
         });
 }
 
+/**
+ * Get every check run and commit status that feeds the status indicator GitHub shows for a single commit.
+ * These are two separate concepts in the GitHub API, and the "status check rollup" is what combines them.
+ *
+ * @param {String} owner
+ * @param {String} repo
+ * @param {String} oid The full 40 character commit SHA
+ * @returns {Promise<Array<Object>>}
+ */
+async function getStatusCheckRollup(owner, repo, oid) {
+    const graphQLQuery = `
+query($owner:String!, $repo:String!, $oid:GitObjectID!, $cursor:String) {
+    repository(owner: $owner, name: $repo) {
+        object(oid: $oid) {
+            ... on Commit {
+                statusCheckRollup {
+                    contexts(first: 100, after: $cursor) {
+                        pageInfo {
+                            endCursor
+                            hasNextPage
+                        }
+                        nodes {
+                            type: __typename
+                            ... on CheckRun {
+                                name
+                                status
+                                conclusion
+                                checkSuite {
+                                    workflowRun {
+                                        workflow {
+                                            resourcePath
+                                        }
+                                    }
+                                }
+                            }
+                            ... on StatusContext {
+                                context
+                                state
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+    `;
+
+    let contexts = [];
+    let cursor = null;
+
+    do {
+        // eslint-disable-next-line no-await-in-loop
+        const data = await getOctokit().graphql(graphQLQuery, {
+            owner, repo, oid, cursor,
+        });
+
+        const rollup = data.repository && data.repository.object && data.repository.object.statusCheckRollup;
+        if (!rollup) {
+            // A commit that has no checks at all has a null rollup. Once pages have already been read,
+            // a missing one instead means an incomplete set, and callers must not mistake the checks we
+            // did manage to read for all of them.
+            if (contexts.length) {
+                throw new Error(`Incomplete status check rollup for ${oid}`);
+            }
+            return [];
+        }
+
+        contexts = contexts.concat(rollup.contexts.nodes);
+        cursor = rollup.contexts.pageInfo.hasNextPage ? rollup.contexts.pageInfo.endCursor : null;
+    } while (cursor);
+
+    return contexts;
+}
+
 function getCheckRuns(repo, headSHA) {
     return getOctokit().rest.checks.listForRef({
         owner: getRequestParams().owner,
@@ -559,4 +634,5 @@ export {
     updateComment,
     getWorkflowRuns,
     getWorkflowRun,
+    getStatusCheckRollup,
 };
