@@ -1,7 +1,9 @@
 import React from 'react';
 import _ from 'underscore';
 import moment from 'moment';
-import BtnGroup from '../../component/BtnGroup';
+import {
+    ActionList, ActionMenu, Banner, Stack,
+} from '@primer/react';
 import * as API from '../../lib/api';
 
 const previousIssueButtons = [
@@ -36,7 +38,6 @@ class PreviousIssuesButtons extends React.Component {
         super(props);
 
         this.state = {
-            isOpen: false,
             errorMessage: '',
             showError: false,
         };
@@ -176,50 +177,29 @@ class PreviousIssuesButtons extends React.Component {
 
     render() {
         return (
-            <div>
-                <BtnGroup isVertical>
-                    <button
-                        type="button"
-                        className={(this.state.isOpen) ? 'btn btn-sm selected' : 'btn btn-sm'}
-                        onClick={() => this.setState(prevState => ({isOpen: !prevState.isOpen}))}
-                    >
-                        <span role="img" aria-label="previous issues shortcuts">
-                            Previous Issues Shortcuts
-                            {' '}
-                            {this.state.isOpen ? '⬆️' : '⬇️'}
-                        </span>
-                    </button>
-
-                    {this.state.isOpen && (
-                        <>
+            <Stack gap="normal">
+                <ActionMenu>
+                    <ActionMenu.Button>Previous Issues Shortcuts</ActionMenu.Button>
+                    <ActionMenu.Overlay width="medium">
+                        <ActionList>
                             {_.map(previousIssueButtons, (previousIssueButton, index) => (
-                                <button
+                                <ActionList.Item
                                     key={index}
-                                    type="button"
-                                    className="btn btn-sm"
-                                    onClick={() => this.openIssue(previousIssueButton)}
+                                    onSelect={() => this.openIssue(previousIssueButton)}
                                 >
-                                    <span role="img" aria-label={previousIssueButton.ariaLabel}>
-                                        {previousIssueButton.title}
-                                    </span>
-                                </button>
+                                    {previousIssueButton.title}
+                                </ActionList.Item>
                             ))}
-                            {this.state.showError && (
-                                <div style={{
-                                    color: 'red',
-                                    fontSize: '12px',
-                                    marginTop: '5px',
-                                    opacity: this.state.showError ? 1 : 0,
-                                    transition: 'opacity 0.3s ease-in-out',
-                                }}
-                                >
-                                    {this.state.errorMessage}
-                                </div>
-                            )}
-                        </>
-                    )}
-                </BtnGroup>
-            </div>
+                        </ActionList>
+                    </ActionMenu.Overlay>
+                </ActionMenu>
+                {this.state.showError && (
+                    <Banner
+                        title={this.state.errorMessage}
+                        variant="critical"
+                    />
+                )}
+            </Stack>
         );
     }
 }

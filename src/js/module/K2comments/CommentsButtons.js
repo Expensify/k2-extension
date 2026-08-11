@@ -1,6 +1,8 @@
 import React from 'react';
 import _ from 'underscore';
-import BtnGroup from '../../component/BtnGroup';
+import {
+    ActionList, ActionMenu, Banner, Button, Stack,
+} from '@primer/react';
 import * as Issues from '../../lib/actions/Issues';
 import * as API from '../../lib/api';
 
@@ -63,7 +65,6 @@ class CommentsButtons extends React.Component {
         super(props);
 
         this.state = {
-            isOpen: false,
             isButtonSelected: false,
             shouldShowConfirmationMessage: false,
             participationComment: '',
@@ -89,65 +90,46 @@ class CommentsButtons extends React.Component {
 
     render() {
         return (
-            <div>
-                <BtnGroup isVertical>
-                    <button
-                        type="button"
-                        className={(this.state.isOpen || this.state.isButtonSelected) ? 'btn btn-sm selected' : 'btn btn-sm'}
-                        onClick={() => this.setState(prevState => ({isOpen: !prevState.isOpen, isButtonSelected: false}))}
-                    >
-                        <span role="img" aria-label="reviewed doc emojis">
-                            {`${this.state.isButtonSelected ? this.state.selectedButton.title : 'Comments Shortcuts'}  ${this.state.isOpen ? '⬆️' : '⬇️'}`}
-                        </span>
-                    </button>
-                    {this.state.isOpen && (
-                        this.state.isButtonSelected ? (
-                            <button
-                                type="button"
-                                className="btn btn-sm"
-                                onClick={() => this.setState({participationComment: '', isButtonSelected: false, selectedButton: {}})}
-                            >
-                                <span role="img" aria-label={this.state.selectedButton.ariaLabel}>
-                                    {this.state.selectedButton.title}
-                                </span>
-                            </button>
-                        ) : (
-                            _.map(participationButtons, (participationButton, index) => (
-                                <button
+            <Stack gap="normal">
+                <ActionMenu>
+                    <ActionMenu.Button>
+                        {this.state.isButtonSelected ? this.state.selectedButton.title : 'Comments Shortcuts'}
+                    </ActionMenu.Button>
+                    <ActionMenu.Overlay width="medium">
+                        <ActionList selectionVariant="single">
+                            {_.map(participationButtons, (participationButton, index) => (
+                                <ActionList.Item
                                     key={index}
-                                    type="button"
-                                    className="btn btn-sm"
-                                    onClick={() => this.setState({
-                                        participationComment: participationButton.type, isButtonSelected: true, selectedButton: participationButton, isOpen: false,
+                                    selected={this.state.isButtonSelected && this.state.participationComment === participationButton.type}
+                                    onSelect={() => this.setState({
+                                        participationComment: participationButton.type, isButtonSelected: true, selectedButton: participationButton,
                                     })}
                                 >
                                     <span role="img" aria-label={participationButton.ariaLabel}>
                                         {participationButton.title}
                                     </span>
-                                </button>
-                            ))
-                        )
-                    )}
-                </BtnGroup>
+                                </ActionList.Item>
+                            ))}
+                        </ActionList>
+                    </ActionMenu.Overlay>
+                </ActionMenu>
                 {(this.state.isButtonSelected && !this.state.shouldShowConfirmationMessage) && (
-                    <button
-                        type="button"
-                        className="btn btn-sm btn-primary mt-3"
+                    <Button
+                        variant="primary"
+                        size="small"
                         onClick={() => this.addParticipationComment(this.state.participationComment)}
                     >
-                        <span role="img" aria-label="Send Message">
-                            Send Message
-                        </span>
-                    </button>
+                        Send Message
+                    </Button>
                 )}
                 {this.state.shouldShowConfirmationMessage && (
-                    <div className="mt-3 text-center">
-                        Comment added!
-                        <br />
-                        Please wait a moment for it to appear
-                    </div>
+                    <Banner
+                        title="Comment added!"
+                        description="Please wait a moment for it to appear"
+                        variant="success"
+                    />
                 )}
-            </div>
+            </Stack>
         );
     }
 }
