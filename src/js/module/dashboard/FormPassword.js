@@ -1,7 +1,9 @@
+/* eslint-disable react/no-danger */
+
 import React from 'react';
 import PropTypes from 'prop-types';
+import loginIllustration from '../../../../assets/simple-illustration__submit-daily.svg';
 import * as GitHubOAuth from '../../lib/GitHubOAuth';
-import Title from '../../component/panel-title/Title';
 
 const propTypes = {
     /** A callback function that is triggered after sign in succeeds */
@@ -29,7 +31,7 @@ class FormPassword extends React.Component {
     async handleOAuth() {
         if (!GitHubOAuth.isOAuthAvailable()) {
             this.setState({
-                error: 'OAuth is not available in this browser context.',
+                error: 'Sign in is not available in this browser context.',
             });
             return;
         }
@@ -53,7 +55,7 @@ class FormPassword extends React.Component {
             this.props.onFinished();
         } catch (error) {
             this.setState({
-                error: `OAuth authentication failed: ${error.message}`,
+                error: `Sign in failed: ${error.message}`,
                 isLoading: false,
             });
         }
@@ -63,43 +65,47 @@ class FormPassword extends React.Component {
         const isOAuthAvailable = GitHubOAuth.isOAuthAvailable();
 
         return (
-            <div className="columns">
-                <div className="one-third column centered">
-                    <div className="panel mb-3">
-                        <Title text="GitHub Authentication" />
-                        <div>
-                            {this.state.error && (
-                                <div className="panel-item">
-                                    <div className="flash flash-error">
-                                        {this.state.error}
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="panel-item">
-                                <p>
-                                    Sign in with your GitHub account to use K2.
-                                </p>
-                                {!isOAuthAvailable && (
-                                    <p className="text-small text-gray">
-                                        OAuth is not available in this browser context.
-                                    </p>
-                                )}
+            <div className="k2-login-shell">
+                <section className="k2-login-hero">
+                    <div className="k2-login-card">
+                        <div className="k2-login-card-header">
+                            <span
+                                aria-hidden="true"
+                                className="k2-login-illustration"
+                                dangerouslySetInnerHTML={{__html: loginIllustration}}
+                            />
+                            <div>
+                                <span className="k2-login-card-label">K2 Login</span>
+                                <h2>Welcome to K2</h2>
                             </div>
-
-                            <footer className="panel-footer form-actions">
-                                <button
-                                    className="btn btn-primary"
-                                    type="button"
-                                    onClick={this.handleOAuth}
-                                    disabled={this.state.isLoading || !isOAuthAvailable}
-                                >
-                                    {this.state.isLoading ? 'Authenticating…' : 'Sign in with GitHub'}
-                                </button>
-                            </footer>
                         </div>
+
+                        {this.state.error && (
+                            <div className="flash flash-error k2-login-error">
+                                {this.state.error}
+                            </div>
+                        )}
+
+                        <p className="k2-login-card-copy">
+                            Sign in with GitHub to view your K2 dashboard and assigned work.
+                        </p>
+
+                        {!isOAuthAvailable && (
+                            <p className="k2-login-unavailable">
+                                Sign in is not available in this browser context.
+                            </p>
+                        )}
+
+                        <button
+                            className="btn btn-primary k2-login-button"
+                            type="button"
+                            onClick={this.handleOAuth}
+                            disabled={this.state.isLoading || !isOAuthAvailable}
+                        >
+                            {this.state.isLoading ? 'Authenticating...' : 'Continue with GitHub'}
+                        </button>
                     </div>
-                </div>
+                </section>
             </div>
         );
     }

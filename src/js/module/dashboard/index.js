@@ -31,8 +31,10 @@ function showPasswordForm() {
     $('.repository-content').children('.k2dashboard').remove();
 
     if (!$('.repository-content').children('.passwordform').length) {
-        $('.repository-content').append('<div class="passwordform">');
+        $('.repository-content').append('<div class="passwordform k2-passwordform">');
     }
+
+    $('.repository-content').children('.passwordform').addClass('k2-passwordform');
 
     const root = createRoot($('.passwordform').show()[0]);
     root.render(<FormPassword onFinished={showDashboard} />);

@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import Base from './_base';
+import calendarSvg from '../../../../../assets/calendar.svg';
 import k2Button from '../../../template/button.github.k2.html';
 
 /**
@@ -27,7 +28,7 @@ export default function () {
         if (!$('li.k2-extension').length) {
             const pullsTab = $('nav[aria-label="Repository"] a[href*="/pulls"]').closest('li');
             if (pullsTab.length) {
-                pullsTab.after(k2Button({url: currentUrl}));
+                pullsTab.after(k2Button({url: currentUrl, calendarSvg}));
             } else {
                 let retries = 0;
                 const interval = setInterval(() => {
@@ -37,7 +38,7 @@ export default function () {
                     }
                     const tab = $('nav[aria-label="Repository"] a[href*="/pulls"]').closest('li');
                     if (tab.length) {
-                        tab.after(k2Button({url: currentUrl}));
+                        tab.after(k2Button({url: currentUrl, calendarSvg}));
                         clearInterval(interval);
                     }
                 }, 100);
