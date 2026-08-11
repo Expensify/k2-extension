@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import React from 'react';
-import {createRoot} from 'react-dom/client';
 import ReactNativeOnyx from 'react-native-onyx';
 import ListIssues from './ListIssues';
 import FormPassword from './FormPassword';
 import ONYXKEYS from '../../ONYXKEYS';
+import renderPrimerRoot from '../../lib/renderPrimerRoot';
 
 /**
  * Display our dashboard with the list of issues
@@ -17,8 +17,7 @@ function showDashboard() {
         $('.repository-content').append('<div class="k2dashboard">');
     }
 
-    const root = createRoot($('.k2dashboard').show()[0]);
-    root.render(<ListIssues pollInterval={60000} />);
+    renderPrimerRoot($('.k2dashboard').show()[0], <ListIssues pollInterval={60000} />);
 }
 
 /**
@@ -36,8 +35,7 @@ function showPasswordForm() {
 
     $('.repository-content').children('.passwordform').addClass('k2-passwordform');
 
-    const root = createRoot($('.passwordform').show()[0]);
-    root.render(<FormPassword onFinished={showDashboard} />);
+    renderPrimerRoot($('.passwordform').show()[0], <FormPassword onFinished={showDashboard} />);
 }
 
 /**
