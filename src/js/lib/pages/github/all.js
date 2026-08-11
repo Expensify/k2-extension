@@ -20,30 +20,40 @@ export default function () {
      * Add buttons to the page and setup the event handler
      */
     AllPages.setup = function () {
-        // Hardcode because it doesn't change, and depending on GitHub markup means
-        // it breaks every so often
-        const currentUrl = '/Expensify/Expensify';
+        let k2Tab = $('li.k2-extension');
 
-        // Insert K2 button after the Pull requests tab, retrying if the nav hasn't rendered yet
-        if (!$('li.k2-extension').length) {
-            const pullsTab = $('nav[aria-label="Repository"] a[href*="/pulls"]').closest('li');
-            if (pullsTab.length) {
-                pullsTab.after(k2Button({url: currentUrl, calendarSvg}));
-            } else {
-                let retries = 0;
-                const interval = setInterval(() => {
-                    if ($('li.k2-extension').length || ++retries >= 10) {
-                        clearInterval(interval);
-                        return;
-                    }
-                    const tab = $('nav[aria-label="Repository"] a[href*="/pulls"]').closest('li');
-                    if (tab.length) {
-                        tab.after(k2Button({url: currentUrl, calendarSvg}));
-                        clearInterval(interval);
-                    }
-                }, 100);
-            }
+        if (!k2Tab.length) {
+            // Keep the K2 tab outside GitHub's managed list because inserting it into that list breaks search.
+            $('body').append(k2Button({url: '/Expensify/Expensify', calendarSvg}));
+            k2Tab = $('li.k2-extension');
         }
+
+        const positionK2Tab = () => {
+            const pullsTab = $('nav[aria-label="Repository"] a[href*="/pulls"]').first();
+
+            if (!pullsTab.length) {
+                k2Tab.hide();
+                return;
+            }
+
+            // Use the Pull requests position so the isolated K2 tab looks like part of GitHub's tab list.
+            const rectangle = pullsTab[0].getBoundingClientRect();
+            k2Tab.css({
+                display: 'flex',
+                position: 'fixed',
+                top: rectangle.top,
+                left: rectangle.right + 8,
+                height: rectangle.height,
+                zIndex: 1000,
+            });
+        };
+
+        positionK2Tab();
+
+        // Keep the isolated tab aligned when the window moves GitHub's tab list.
+        $(window)
+            .off('resize.k2-extension scroll.k2-extension')
+            .on('resize.k2-extension scroll.k2-extension', positionK2Tab);
 
         // Set up timestamp format conversion
         setTimeout(() => AllPages.applyTimestampFormat(), 500);
