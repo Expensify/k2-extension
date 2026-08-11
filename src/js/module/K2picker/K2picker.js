@@ -1,5 +1,5 @@
 import React from 'react';
-import {createRoot} from 'react-dom/client';
+import renderPrimerRoot from '../../lib/renderPrimerRoot';
 import K2PickerPicker from './K2PickerPicker';
 
 /**
@@ -10,8 +10,7 @@ import K2PickerPicker from './K2PickerPicker';
 export default function () {
     return {
         draw() {
-            const root = createRoot(document.getElementsByClassName('k2picker-wrapper')[0]);
-            root.render(<K2PickerPicker />);
+            renderPrimerRoot(document.getElementsByClassName('k2picker-wrapper')[0], <K2PickerPicker />);
         },
     };
 }

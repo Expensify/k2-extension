@@ -1,12 +1,11 @@
 import React from 'react';
-import {createRoot} from 'react-dom/client';
+import renderPrimerRoot from '../../lib/renderPrimerRoot';
 import CommentsButtons from './CommentsButtons';
 
 export default function () {
     return {
         draw() {
-            const root = createRoot(document.getElementsByClassName('k2comments-wrapper')[0]);
-            root.render(<CommentsButtons />);
+            renderPrimerRoot(document.getElementsByClassName('k2comments-wrapper')[0], <CommentsButtons />);
         },
     };
 }

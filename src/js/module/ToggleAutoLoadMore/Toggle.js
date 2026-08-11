@@ -1,9 +1,8 @@
 import React from 'react';
 import ReactNativeOnyx from 'react-native-onyx';
+import {Stack, ToggleSwitch} from '@primer/react';
 import ONYXKEYS from '../../ONYXKEYS';
 import * as Preferences from '../../lib/actions/Preferences';
-
-const defaultBtnClass = 'btn btn-sm';
 
 class Toggle extends React.Component {
     constructor(props) {
@@ -40,20 +39,15 @@ class Toggle extends React.Component {
 
     render() {
         return (
-            <div style={{width: '100%'}}>
-                <button
-                    type="button"
-                    className={this.state.autoLoadMoreComments
-                        ? `${defaultBtnClass} k2-auto-load-more selected`
-                        : `${defaultBtnClass} k2-auto-load-more`}
-                    onClick={() => this.handleToggle()}
-                    style={{width: '100%'}}
-                >
-                    {this.state.autoLoadMoreComments
-                        ? 'Auto-load comments: On'
-                        : 'Auto-load comments: Off'}
-                </button>
-            </div>
+            <Stack direction="horizontal" align="center" justify="space-between" gap="condensed">
+                <span id="k2-auto-load-more-label">Auto-load more comments</span>
+                <ToggleSwitch
+                    aria-labelledby="k2-auto-load-more-label"
+                    checked={this.state.autoLoadMoreComments}
+                    onChange={() => this.handleToggle()}
+                    size="small"
+                />
+            </Stack>
         );
     }
 }

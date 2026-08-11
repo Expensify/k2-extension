@@ -1,10 +1,9 @@
 import React from 'react';
 import ReactNativeOnyx from 'react-native-onyx';
+import {Stack, ToggleSwitch} from '@primer/react';
 import ONYXKEYS from '../../ONYXKEYS';
 import * as Preferences from '../../lib/actions/Preferences';
 import convertTimestamps from '../../lib/timestampConverter';
-
-const defaultBtnClass = 'btn btn-sm';
 
 class Toggle extends React.Component {
     constructor(props) {
@@ -55,20 +54,15 @@ class Toggle extends React.Component {
 
     render() {
         return (
-            <div style={{width: '100%'}}>
-                <button
-                    type="button"
-                    className={this.state.useAbsoluteTimestamps
-                        ? `${defaultBtnClass} k2-absolute-timestamps selected`
-                        : `${defaultBtnClass} k2-absolute-timestamps`}
-                    onClick={() => this.handleToggle()}
-                    style={{width: '100%'}}
-                >
-                    {this.state.useAbsoluteTimestamps
-                        ? 'Hide Timestamps'
-                        : 'Show Timestamps'}
-                </button>
-            </div>
+            <Stack direction="horizontal" align="center" justify="space-between" gap="condensed">
+                <span id="k2-absolute-timestamps-label">Show absolute timestamps</span>
+                <ToggleSwitch
+                    aria-labelledby="k2-absolute-timestamps-label"
+                    checked={this.state.useAbsoluteTimestamps}
+                    onChange={() => this.handleToggle()}
+                    size="small"
+                />
+            </Stack>
         );
     }
 }

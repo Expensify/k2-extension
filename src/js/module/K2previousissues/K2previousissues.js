@@ -1,12 +1,11 @@
 import React from 'react';
-import {createRoot} from 'react-dom/client';
+import renderPrimerRoot from '../../lib/renderPrimerRoot';
 import PreviousIssuesButtons from './PreviousIssuesButtons';
 
 export default function () {
     return {
         draw() {
-            const root = createRoot(document.getElementsByClassName('k2previousissues-wrapper')[0]);
-            root.render(<PreviousIssuesButtons />);
+            renderPrimerRoot(document.getElementsByClassName('k2previousissues-wrapper')[0], <PreviousIssuesButtons />);
         },
     };
 }

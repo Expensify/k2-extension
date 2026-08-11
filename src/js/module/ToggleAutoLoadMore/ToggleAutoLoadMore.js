@@ -1,12 +1,11 @@
 import React from 'react';
-import {createRoot} from 'react-dom/client';
+import renderPrimerRoot from '../../lib/renderPrimerRoot';
 import Toggle from './Toggle';
 
 export default function () {
     return {
         draw() {
-            const root = createRoot(document.getElementsByClassName('k2autoloadmore-wrapper')[0]);
-            root.render(<Toggle />);
+            renderPrimerRoot(document.getElementsByClassName('k2autoloadmore-wrapper')[0], <Toggle />);
         },
     };
 }

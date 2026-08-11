@@ -1,20 +1,23 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import React from 'react';
-import BtnGroup from '../../component/BtnGroup';
+import {SegmentedControl, Stack, Text} from '@primer/react';
 import * as API from '../../lib/api';
 
-const defaultBtnClass = 'btn btn-sm tooltipped tooltipped-n typepicker';
+const typeLabels = [
+    {label: 'Improvement', text: 'Improvement'},
+    {label: 'Task', text: 'Task'},
+    {label: 'NewFeature', text: 'New Feature'},
+];
 
 class K2PickertypePicker extends React.Component {
     constructor(props) {
         super(props);
-        this.initialState = {
-            Improvement: `${defaultBtnClass} k2-improvement`,
-            Task: `${defaultBtnClass} k2-task`,
-            NewFeature: `${defaultBtnClass} k2-newfeature`,
+        this.state = {
+            activeLabel: null,
         };
-        this.state = this.initialState;
+
+        this.selectLabel = this.selectLabel.bind(this);
     }
 
     /**
@@ -27,7 +30,7 @@ class K2PickertypePicker extends React.Component {
         // eslint-disable-next-line rulesdir/prefer-underscore-method
         $('div[data-testid="issue-labels"] a > span').each((i, el) => {
             const label = $(el).text().trim();
-            if (['Improvement', 'Task', 'NewFeature'].indexOf(label) > -1) {
+            if (_.findWhere(typeLabels, {label})) {
                 this.setActiveLabel(label);
             }
         });
@@ -37,20 +40,7 @@ class K2PickertypePicker extends React.Component {
      * @param {String} label
      */
     setActiveLabel(label) {
-        let newState = {};
-
-        // If that label is already active, then set everything back
-        // to the default (which removes all labels)
-        if (this.state[label].indexOf(' active') > -1) {
-            this.setState(this.initialState);
-            return;
-        }
-
-        // Set all the proper active/inactive classes
-        newState = _.mapObject(this.initialState, (val, key) => (key === label
-            ? `${defaultBtnClass} k2-${key.toLowerCase()} active`
-            : `${defaultBtnClass} k2-${key.toLowerCase()} inactive`));
-        this.setState(newState);
+        this.setState(prevState => ({activeLabel: prevState.activeLabel === label ? null : label}));
     }
 
     /**
@@ -65,13 +55,7 @@ class K2PickertypePicker extends React.Component {
      * @param {String} label
      */
     saveNewLabel(label) {
-        let previousLabel = null;
-        _.each(this.state, (val, key) => {
-            if (val.search('active') <= -1 || val.search('inactive') !== -1) {
-                return;
-            }
-            previousLabel = key;
-        });
+        const previousLabel = this.state.activeLabel;
         if (label !== previousLabel) {
             API.addLabel(label)
                 .then(() => {
@@ -85,38 +69,30 @@ class K2PickertypePicker extends React.Component {
         }
     }
 
+    /**
+     * @param {Number} index
+     */
+    selectLabel(index) {
+        const selectedType = typeLabels[index];
+        const label = selectedType ? selectedType.label : this.state.activeLabel;
+        if (label) {
+            this.clickNSave(label);
+        }
+    }
+
     render() {
         return (
-            <div>
-                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                <label>Type</label>
-                <BtnGroup>
-                    <button
-                        type="button"
-                        className={this.state.Improvement}
-                        aria-label="Improvement"
-                        onClick={() => this.clickNSave('Improvement')}
-                    >
-                        Improv.
-                    </button>
-                    <button
-                        type="button"
-                        className={this.state.Task}
-                        aria-label="Task"
-                        onClick={() => this.clickNSave('Task')}
-                    >
-                        Task
-                    </button>
-                    <button
-                        type="button"
-                        className={this.state.NewFeature}
-                        aria-label="New Feature"
-                        onClick={() => this.clickNSave('NewFeature')}
-                    >
-                        New Feat.
-                    </button>
-                </BtnGroup>
-            </div>
+            <Stack gap="condensed">
+                <Text weight="semibold">Type</Text>
+                <SegmentedControl aria-label="Type" fullWidth onChange={this.selectLabel} size="small">
+                    {_.map(typeLabels, type => (
+                        <SegmentedControl.Button key={type.label} selected={this.state.activeLabel === type.label}>
+                            {type.text}
+                        </SegmentedControl.Button>
+                    ))}
+                    <SegmentedControl.Button selected={!this.state.activeLabel}>None</SegmentedControl.Button>
+                </SegmentedControl>
+            </Stack>
         );
     }
 }

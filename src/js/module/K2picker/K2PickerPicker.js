@@ -1,28 +1,26 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import React from 'react';
-import BtnGroup from '../../component/BtnGroup';
+import {SegmentedControl, Stack, Text} from '@primer/react';
 import * as API from '../../lib/api';
 
-const defaultBtnClass = 'btn btn-sm tooltipped tooltipped-n';
+const priorityLabels = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
 
 class K2PickerPicker extends React.Component {
     constructor(props) {
         super(props);
-        this.initialState = {
-            Hourly: `${defaultBtnClass} k2-hourly`,
-            Daily: `${defaultBtnClass} k2-daily`,
-            Weekly: `${defaultBtnClass} k2-weekly`,
-            Monthly: `${defaultBtnClass} k2-monthly`,
+        this.state = {
+            activeLabel: null,
         };
-        this.state = this.initialState;
+
+        this.selectLabel = this.selectLabel.bind(this);
     }
 
     componentDidMount() {
         // eslint-disable-next-line rulesdir/prefer-underscore-method
         $('div[data-testid="issue-labels"] a > span').each((i, el) => {
             const label = $(el).text().trim();
-            if (['Hourly', 'Daily', 'Weekly', 'Monthly'].indexOf(label) > -1) {
+            if (_.contains(priorityLabels, label)) {
                 this.setActiveLabel(label);
             }
         });
@@ -32,20 +30,7 @@ class K2PickerPicker extends React.Component {
      * @param {String} label
      */
     setActiveLabel(label) {
-        let newState = {};
-
-        // If that label is already active, then set everything back
-        // to the default (which removes all labels)
-        if (this.state[label].indexOf(' active') > -1) {
-            this.setState(this.initialState);
-            return;
-        }
-
-        // Set all the proper active/inactive classes
-        newState = _.mapObject(this.initialState, (val, key) => (key === label
-            ? `${defaultBtnClass} k2-${key.toLowerCase()} active`
-            : `${defaultBtnClass} k2-${key.toLowerCase()} inactive`));
-        this.setState(newState);
+        this.setState(prevState => ({activeLabel: prevState.activeLabel === label ? null : label}));
     }
 
     /**
@@ -60,13 +45,7 @@ class K2PickerPicker extends React.Component {
      * @param {String} label
      */
     saveNewLabel(label) {
-        let previousLabel = null;
-        _.each(this.state, (val, key) => {
-            if (val.search('active') <= -1 || val.search('inactive') !== -1) {
-                return;
-            }
-            previousLabel = key;
-        });
+        const previousLabel = this.state.activeLabel;
         if (label !== previousLabel) {
             API.addLabel(label)
                 .then(() => {
@@ -80,46 +59,29 @@ class K2PickerPicker extends React.Component {
         }
     }
 
+    /**
+     * @param {Number} index
+     */
+    selectLabel(index) {
+        const label = priorityLabels[index] || this.state.activeLabel;
+        if (label) {
+            this.clickNSave(label);
+        }
+    }
+
     render() {
         return (
-            <div>
-                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                <label>Priority</label>
-                <BtnGroup>
-                    <button
-                        type="button"
-                        className={this.state.Hourly}
-                        aria-label="Hourly"
-                        onClick={() => this.clickNSave('Hourly')}
-                    >
-                        H
-                    </button>
-                    <button
-                        type="button"
-                        className={this.state.Daily}
-                        aria-label="Daily"
-                        onClick={() => this.clickNSave('Daily')}
-                    >
-                        D
-                    </button>
-                    <button
-                        type="button"
-                        className={this.state.Weekly}
-                        aria-label="Weekly"
-                        onClick={() => this.clickNSave('Weekly')}
-                    >
-                        W
-                    </button>
-                    <button
-                        type="button"
-                        className={this.state.Monthly}
-                        aria-label="Monthly"
-                        onClick={() => this.clickNSave('Monthly')}
-                    >
-                        M
-                    </button>
-                </BtnGroup>
-            </div>
+            <Stack gap="condensed">
+                <Text weight="semibold">Priority</Text>
+                <SegmentedControl aria-label="Priority" fullWidth onChange={this.selectLabel} size="small">
+                    {_.map(priorityLabels, label => (
+                        <SegmentedControl.Button key={label} selected={this.state.activeLabel === label}>
+                            {label}
+                        </SegmentedControl.Button>
+                    ))}
+                    <SegmentedControl.Button selected={!this.state.activeLabel}>None</SegmentedControl.Button>
+                </SegmentedControl>
+            </Stack>
         );
     }
 }

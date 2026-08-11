@@ -1,16 +1,14 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import React from 'react';
-import BtnGroup from '../../component/BtnGroup';
+import {Stack, ToggleSwitch} from '@primer/react';
 import * as API from '../../lib/api';
-
-const defaultBtnClass = 'btn btn-sm';
 
 class Toggle extends React.Component {
     constructor(props) {
         super(props);
         this.initialState = {
-            Reviewing: `${defaultBtnClass} k2-reviewing`,
+            Reviewing: false,
         };
         this.state = this.initialState;
     }
@@ -33,15 +31,15 @@ class Toggle extends React.Component {
 
         // If that label is already active, then set everything back
         // to the default (which removes all labels)
-        if (this.state[label].indexOf(' selected') > -1) {
+        if (this.state[label]) {
             this.setState(this.initialState);
             return;
         }
 
-        // Set all the proper active/inactive classes
+        // Set the active label
         newState = _.mapObject(this.initialState, (val, key) => (key === label
-            ? `${defaultBtnClass} k2-${key.toLowerCase()} selected`
-            : `${defaultBtnClass} k2-${key.toLowerCase()}`));
+            ? true
+            : val));
         this.setState(newState);
     }
 
@@ -51,7 +49,7 @@ class Toggle extends React.Component {
     saveNewLabel(label) {
         let previousLabel = null;
         _.each(this.state, (val, key) => {
-            if (val.search('selected') <= -1) {
+            if (!val) {
                 return;
             }
             previousLabel = key;
@@ -79,19 +77,15 @@ class Toggle extends React.Component {
 
     render() {
         return (
-            <div>
-                <BtnGroup>
-                    <button
-                        type="button"
-                        className={this.state.Reviewing}
-                        onClick={() => this.clickNSave('Reviewing')}
-                    >
-                        {(this.state.Reviewing.indexOf('selected') > -1)
-                            ? 'Remove "Reviewing" Label'
-                            : 'Add "Reviewing" Label'}
-                    </button>
-                </BtnGroup>
-            </div>
+            <Stack direction="horizontal" align="center" justify="space-between" gap="condensed">
+                <span id="k2-reviewing-label">Reviewing label</span>
+                <ToggleSwitch
+                    aria-labelledby="k2-reviewing-label"
+                    checked={this.state.Reviewing}
+                    onChange={() => this.clickNSave('Reviewing')}
+                    size="small"
+                />
+            </Stack>
         );
     }
 }
