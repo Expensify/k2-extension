@@ -28,6 +28,33 @@ let lastTokenIssuedAt = 0;
 const TOKEN_JUST_ISSUED_MS = 30 * 1000;
 
 /**
+ * Whether a runtime message failed because the background receiver is not available.
+ * This happens transiently when an unpacked/temporary extension is reloaded
+ * while an old content script is still alive on the page.
+ * @param {string} message
+ * @returns {boolean}
+ */
+function isRuntimeReceiverUnavailableMessage(message) {
+    return !!message
+        && (
+            message.indexOf('Receiving end does not exist') !== -1
+            || message.indexOf('Could not establish connection') !== -1
+            || message.indexOf('Extension context invalidated') !== -1
+        );
+}
+
+/**
+ * Build an error for runtime message failures, tagging expected no-receiver cases.
+ * @param {string} message
+ * @returns {Error}
+ */
+function buildRuntimeMessageError(message) {
+    const error = new Error(message);
+    error.isRuntimeReceiverUnavailable = isRuntimeReceiverUnavailableMessage(message);
+    return error;
+}
+
+/**
  * Whether a token was issued (via sign-in or refresh) within the last few seconds
  * @returns {boolean}
  */
@@ -51,7 +78,7 @@ function initiateOAuth() {
             {action: 'initiate-oauth'},
             (response) => {
                 if (ksBrowser.runtime.lastError) {
-                    reject(new Error(ksBrowser.runtime.lastError.message));
+                    reject(buildRuntimeMessageError(ksBrowser.runtime.lastError.message));
                     return;
                 }
 
@@ -174,6 +201,7 @@ function refreshTokenViaBackground() {
 
     inflightRefreshPromise = new Promise((resolve, reject) => {
         if ((!ksBrowser) || !ksBrowser.runtime || !ksBrowser.runtime.sendMessage) {
+            Preferences.clearAuth();
             reject(new Error('Browser runtime API not available'));
             return;
         }
@@ -181,6 +209,7 @@ function refreshTokenViaBackground() {
         const authData = Preferences.getAuthData();
         const refreshTokenValue = authData && authData.refreshToken;
         if (!refreshTokenValue) {
+            Preferences.clearAuth();
             reject(new Error('No refresh token available'));
             return;
         }
@@ -191,28 +220,29 @@ function refreshTokenViaBackground() {
             {action: 'refresh-token', refreshToken: refreshTokenValue},
             (response) => {
                 if (ksBrowser.runtime.lastError) {
-                    reject(new Error(ksBrowser.runtime.lastError.message));
+                    const runtimeError = buildRuntimeMessageError(ksBrowser.runtime.lastError.message);
+                    if (!runtimeError.isRuntimeReceiverUnavailable) {
+                        Preferences.clearAuth();
+                    }
+                    reject(runtimeError);
                     return;
                 }
 
                 if (!response) {
+                    Preferences.clearAuth();
                     reject(new Error('No response from background script'));
                     return;
                 }
 
                 if (!response.success) {
-                    // Only sign the user out when the refresh token itself was
-                    // rejected. Transient network errors keep credentials so we
-                    // can retry later.
-                    if (response.isAuthError) {
-                        Preferences.clearAuth();
-                    }
+                    Preferences.clearAuth();
                     reject(new Error(response.error || 'Refresh failed'));
                     return;
                 }
 
                 const tokenData = response.tokenData;
                 if (!tokenData || !tokenData.access_token || !tokenData.refresh_token) {
+                    Preferences.clearAuth();
                     reject(new Error('Invalid token data received from background script'));
                     return;
                 }
@@ -265,6 +295,10 @@ async function refreshIfNeeded() {
             await refreshTokenViaBackground();
         }
     } catch (e) {
+        if (e && e.isRuntimeReceiverUnavailable) {
+            return;
+        }
+
         // eslint-disable-next-line no-console
         console.warn('Token refresh failed', e);
     }
