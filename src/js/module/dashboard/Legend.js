@@ -1,128 +1,95 @@
 import React from 'react';
 import ReactNativeOnyx from 'react-native-onyx';
+import _ from 'underscore';
+import {
+    Button, Heading, Label, Stack, Text,
+} from '@primer/react';
+import {IssueOpenedIcon, SignOutIcon} from '@primer/octicons-react';
 import * as Preferences from '../../lib/actions/Preferences';
 import * as GitHubOAuth from '../../lib/GitHubOAuth';
 import ToggleOpenAll from '../ToggleOpenAll/Toggle';
 
-function Legend() {
-    async function signOut() {
-        try {
-            // Revoke OAuth token if using OAuth
-            if (Preferences.getAuthType() === 'oauth') {
-                await GitHubOAuth.revokeToken();
-            }
-        } catch (error) {
-            // Silently handle error - token revocation is best effort
-        }
+const statusItems = [
+    {label: 'Under review', variant: 'secondary'},
+    {label: 'Overdue', variant: 'danger'},
+    {label: 'Planning', variant: 'attention'},
+    {label: 'Contributor assigned', variant: 'accent'},
+    {label: 'External', variant: 'secondary'},
+    {label: 'Improvement', variant: 'done'},
+    {label: 'Task', variant: 'attention'},
+    {label: 'New feature', variant: 'sponsors'},
+];
 
-        // Clear all authentication data
-        Preferences.clearAuth();
-        ReactNativeOnyx.clear();
-        window.location.reload();
+const priorityItems = [
+    {label: 'Hourly', variant: 'danger'},
+    {label: 'Daily', variant: 'severe'},
+    {label: 'Weekly', variant: 'success'},
+    {label: 'Monthly', variant: 'sponsors'},
+    {label: 'First Pick', variant: 'accent'},
+    {label: 'WhatsNext', variant: 'done'},
+];
+
+async function signOut() {
+    try {
+        if (Preferences.getAuthType() === 'oauth') {
+            await GitHubOAuth.revokeToken();
+        }
+    } catch (error) {
+        // Token revocation is best effort; local credentials must still be cleared.
     }
 
+    Preferences.clearAuth();
+    ReactNativeOnyx.clear();
+    window.location.reload();
+}
+
+function Legend() {
     return (
-        <div className="legend">
-            <button
-                type="button"
-                onClick={signOut}
-                className="btn tooltipped tooltipped-sw"
-                aria-label="Sign Out"
-            >
-                Sign Out
-            </button>
-            <br />
-            <br />
-            <a
-                className="btn btn-primary"
-                aria-label="New Issue"
-                href="https://github.com/Expensify/Expensify/issues/new/choose"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                New Issue
-            </a>
-
-            <br />
-            <a
-                className="btn btn-primary"
-                aria-label="New /app Issue"
-                href="https://github.com/Expensify/App/issues/new/choose"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{marginTop: '4px'}}
-            >
-                New /app Issue
-            </a>
-
+        <Stack className="k2-legend" gap="normal">
+            <Stack gap="condensed">
+                <Button
+                    as="a"
+                    href="https://github.com/Expensify/Expensify/issues/new/choose"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    leadingVisual={IssueOpenedIcon}
+                    variant="primary"
+                >
+                    New issue
+                </Button>
+                <Button
+                    as="a"
+                    href="https://github.com/Expensify/App/issues/new/choose"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    leadingVisual={IssueOpenedIcon}
+                >
+                    New /app issue
+                </Button>
+                <Button leadingVisual={SignOutIcon} onClick={signOut}>Sign out</Button>
+            </Stack>
             <ToggleOpenAll />
-
-            <br />
-            <div className="issue reviewing">Under Review</div>
-            <div className="issue overdue">Overdue</div>
-            <div className="issue planning">Planning</div>
-            <div className="issue contributor-assigned">Contributor Assigned</div>
-            <div className="issue">
-                <sup>E</sup>
-                {' '}
-                External
+            <div>
+                <Heading as="h3" className="k2-legend-heading">Status</Heading>
+                <Stack gap="condensed">
+                    {_.map(statusItems, item => (
+                        <Stack key={item.label} direction="horizontal" align="center" gap="condensed">
+                            <Label variant={item.variant} size="small">{item.label}</Label>
+                        </Stack>
+                    ))}
+                    <Text className="k2-owner-key">★ You own the issue</Text>
+                    <Text>☆ Owned by someone else</Text>
+                </Stack>
             </div>
             <div>
-                <span className="owner">★</span>
-                {' '}
-                Issue owner
+                <Heading as="h3" className="k2-legend-heading">Priority</Heading>
+                <Stack gap="condensed">
+                    {_.map(priorityItems, item => (
+                        <Label key={item.label} variant={item.variant} size="small">{item.label}</Label>
+                    ))}
+                </Stack>
             </div>
-            <div>
-                <span>☆</span>
-                {' '}
-                Issue is owned by someone else
-            </div>
-            <div className="issue">
-                <sup>I</sup>
-                {' '}
-                Improvement
-            </div>
-            <div className="issue">
-                <sup>T</sup>
-                {' '}
-                Task
-            </div>
-            <div className="issue">
-                <sup>F</sup>
-                {' '}
-                New Feature
-            </div>
-            <div>
-                <span className="label hourly">H</span>
-                {' '}
-                Hourly
-            </div>
-            <div>
-                <span className="label daily">D</span>
-                {' '}
-                Daily
-            </div>
-            <div>
-                <span className="label weekly">W</span>
-                {' '}
-                Weekly
-            </div>
-            <div>
-                <span className="label monthly">M</span>
-                {' '}
-                Monthly
-            </div>
-            <div>
-                <span className="label newhire">FP</span>
-                {' '}
-                First Pick
-            </div>
-            <div>
-                <span className="label whatsnext">WN</span>
-                {' '}
-                WhatsNext
-            </div>
-        </div>
+        </Stack>
     );
 }
 

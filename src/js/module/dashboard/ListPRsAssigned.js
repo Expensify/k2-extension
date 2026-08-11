@@ -8,6 +8,7 @@ import Title from '../../component/panel-title/Title';
 import ListItemPull from '../../component/list-item/ListItemPull';
 import * as PullRequests from '../../lib/actions/PullRequests';
 import openAllUrls from '../../lib/openAllUrls';
+import EmptyState from '../../component/EmptyState';
 
 const propTypes = {
     /** The number of milliseconds to refresh the data */
@@ -52,7 +53,7 @@ class ListPRsAssigned extends React.Component {
         }
 
         return (
-            <div className="panel your-pull-requests mb-3">
+            <section className="k2-panel" aria-label="Your pull requests">
                 <Title
                     text="Your Pull Requests"
                     count={_.size(this.props.prs) || 0}
@@ -60,9 +61,7 @@ class ListPRsAssigned extends React.Component {
                 />
 
                 {!this.props.prs && (
-                    <div className="blankslate capped clean-background">
-                        Loading
-                    </div>
+                    <EmptyState isLoading />
                 )}
 
                 {_.chain(this.props.prs)
@@ -70,7 +69,7 @@ class ListPRsAssigned extends React.Component {
                     .map(pr => <ListItemPull key={pr.id} pr={pr} />)
                     .value()
                     .reverse()}
-            </div>
+            </section>
         );
     }
 }

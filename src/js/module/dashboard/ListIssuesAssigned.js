@@ -2,7 +2,12 @@ import React from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
+import {
+    Checkbox, CheckboxGroup, FormControl, Stack, TextInput,
+} from '@primer/react';
+import {SearchIcon} from '@primer/octicons-react';
 import * as Issues from '../../lib/actions/Issues';
+import EmptyState from '../../component/EmptyState';
 import PanelIssues from '../../component/panel/PanelIssues';
 import ONYXKEYS from '../../ONYXKEYS';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
@@ -27,6 +32,8 @@ const propTypes = {
         /** Should issues that are not overdue be hidden? */
         shouldHideNotOverdue: PropTypes.bool,
     }),
+
+    layout: PropTypes.oneOf(['classic', 'readable']),
 };
 const defaultProps = {
     issues: null,
@@ -36,6 +43,7 @@ const defaultProps = {
         shouldHideOwnedBySomeoneElse: false,
         shouldHideNotOverdue: false,
     },
+    layout: 'classic',
 };
 
 class ListIssuesAssigned extends React.Component {
@@ -234,95 +242,54 @@ class ListIssuesAssigned extends React.Component {
             _.pick(this.props.issues, issue => _.intersection(_.map(issue.labels, label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0),
         );
 
-        // Doesn't matter what the column size is if there are no columns, just make sure we don't divide by 0
-        const numColumns = _.filter([hourlyIssues, dailyIssues, weeklyIssues, monthlyIssues], col => !_.isEmpty(col)).length;
-        const columnSize = numColumns === 0 ? -1 : 12 / numColumns;
-
         if (!this.props.issues) {
-            return (
-                <div className="blankslate capped clean-background">
-                    Loading
-                </div>
-            );
+            return <EmptyState isLoading />;
         }
 
         if (!_.size(this.props.issues)) {
-            return (
-                <div className="blankslate capped clean-background">
-                    No items
-                </div>
-            );
+            return <EmptyState />;
         }
 
         return (
-            <div className="mb-3">
-                <div className="panel-title issue-filter mb-2">
-                    <form className="form-inline">
-                        Hide:
-                        <div className="checkbox">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    name="shouldHideIfHeld"
-                                    id="shouldHideIfHeld"
-                                    onChange={this.toggleHeldFilter}
-                                    checked={this.state.shouldHideHeldIssues ? 'checked' : undefined}
-                                />
-                                On Hold
-                            </label>
-                        </div>
-                        <div className="checkbox">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    name="shouldHideIfUnderReview"
-                                    id="shouldHideIfUnderReview"
-                                    onChange={this.toggleUnderReviewFilter}
-                                    checked={this.state.shouldHideUnderReviewIssues ? 'checked' : undefined}
-                                />
-                                Under Review
-                            </label>
-                        </div>
-                        <div className="checkbox">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    name="shouldHideIfOwnedBySomeoneElse"
-                                    id="shouldHideIfOwnedBySomeoneElse"
-                                    onChange={this.toggleOwnedBySomeoneElseFilter}
-                                    checked={this.state.shouldHideOwnedBySomeoneElseIssues ? 'checked' : undefined}
-                                />
-                                Owned by Someone Else
-                            </label>
-                        </div>
-                        <div className="checkbox">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    name="shouldHideIfNotOverdue"
-                                    id="shouldHideIfNotOverdue"
-                                    onChange={this.toggleNotOverdueFilter}
-                                    checked={this.state.shouldHideNotOverdueIssues ? 'checked' : undefined}
-                                />
-                                Not Overdue
-                            </label>
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="Filter Issues by Title"
-                            className="search-filter-input"
-                            value={this.state.searchInputText}
-                            onChange={this.applySearchFilter}
-                        />
-                    </form>
-                </div>
+            <Stack gap="condensed">
+                <Stack className="k2-filter-bar" direction="horizontal" align="center" justify="space-between" wrap="wrap" gap="condensed">
+                    <CheckboxGroup>
+                        <CheckboxGroup.Label visuallyHidden>Hide assigned issues</CheckboxGroup.Label>
+                        <Stack direction="horizontal" align="center" wrap="wrap" gap="condensed">
+                            <span className="k2-filter-label">Hide:</span>
+                            <FormControl>
+                                <Checkbox checked={this.state.shouldHideHeldIssues} onChange={this.toggleHeldFilter} />
+                                <FormControl.Label>On hold</FormControl.Label>
+                            </FormControl>
+                            <FormControl>
+                                <Checkbox checked={this.state.shouldHideUnderReviewIssues} onChange={this.toggleUnderReviewFilter} />
+                                <FormControl.Label>Under review</FormControl.Label>
+                            </FormControl>
+                            <FormControl>
+                                <Checkbox checked={this.state.shouldHideOwnedBySomeoneElseIssues} onChange={this.toggleOwnedBySomeoneElseFilter} />
+                                <FormControl.Label>Owned by someone else</FormControl.Label>
+                            </FormControl>
+                            <FormControl>
+                                <Checkbox checked={this.state.shouldHideNotOverdueIssues} onChange={this.toggleNotOverdueFilter} />
+                                <FormControl.Label>Not overdue</FormControl.Label>
+                            </FormControl>
+                        </Stack>
+                    </CheckboxGroup>
+                    <TextInput
+                        aria-label="Filter issues by title or label"
+                        leadingVisual={SearchIcon}
+                        placeholder="Filter issues by title or label"
+                        value={this.state.searchInputText}
+                        onChange={this.applySearchFilter}
+                    />
+                </Stack>
                 {!_.isEmpty(this.props.issues) && (
-                    <div className="d-flex flex-row gap-3">
+                    <div className={`k2-priority-grid${this.props.layout === 'readable' ? ' k2-priority-grid-readable' : ''}`}>
                         <PanelIssues
                             title="Hourly"
                             key="hourly"
                             extraClass="hourly"
-                            wrapperClass={`col-${columnSize}`}
+                            wrapperClass=""
                             hideOnEmpty
                             data={hourlyIssues}
                         />
@@ -330,7 +297,7 @@ class ListIssuesAssigned extends React.Component {
                             title="Daily"
                             key="daily"
                             extraClass="daily"
-                            wrapperClass={`col-${columnSize}`}
+                            wrapperClass=""
                             hideOnEmpty
                             data={dailyIssues}
                         />
@@ -338,7 +305,7 @@ class ListIssuesAssigned extends React.Component {
                             title="Weekly"
                             key="weekly"
                             extraClass="weekly"
-                            wrapperClass={`col-${columnSize}`}
+                            wrapperClass=""
                             hideOnEmpty
                             data={weeklyIssues}
                         />
@@ -346,7 +313,7 @@ class ListIssuesAssigned extends React.Component {
                             title="Monthly"
                             key="monthly"
                             extraClass="monthly"
-                            wrapperClass={`col-${columnSize}`}
+                            wrapperClass=""
                             hideOnEmpty
                             data={monthlyIssues}
                         />
@@ -356,11 +323,11 @@ class ListIssuesAssigned extends React.Component {
                     title="No Priority"
                     key="no-priority"
                     extraClass="no-priority"
-                    wrapperClass="pt-4"
+                    wrapperClass="k2-no-priority"
                     hideOnEmpty
                     data={issuesNoLabel}
                 />
-            </div>
+            </Stack>
         );
     }
 }

@@ -2,6 +2,7 @@ import {
     DndContext,
     closestCenter,
     PointerSensor,
+    KeyboardSensor,
     useSensor,
     useSensors,
     DragOverlay,
@@ -10,6 +11,7 @@ import {
     arrayMove,
     SortableContext,
     verticalListSortingStrategy,
+    sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 import React, {
     useMemo, useState, useEffect, useCallback, useRef,
@@ -25,6 +27,7 @@ import filterPropTypes from '../../lib/filterPropTypes';
 import * as Issues from '../../lib/actions/Issues';
 import SortableIssue from '../list-item/SortableIssue';
 import openAllUrls from '../../lib/openAllUrls';
+import EmptyState from '../EmptyState';
 
 const propTypes = {
     /** A CSS class to add to this panel to give it some color */
@@ -172,6 +175,9 @@ function PanelIssues(props) {
                 distance: 5,
             },
         }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        }),
     );
 
     const issueIds = _.map(filteredData, issue => issue.id.toString());
@@ -217,16 +223,14 @@ function PanelIssues(props) {
 
     return (
         <div className={props.wrapperClass}>
-            <div className={`panel ${props.extraClass}`}>
+            <section className={`k2-panel k2-panel-${props.extraClass}`} aria-label={`${props.title} issues`}>
                 <Title
                     text={props.title}
                     count={_.size(filteredData) || 0}
                     onOpenAll={() => openAllUrls(filteredData)}
                 />
                 {!_.size(filteredData) ? (
-                    <div className="blankslate capped clean-background">
-                        No items
-                    </div>
+                    <EmptyState />
                 ) : (
                     <DndContext
                         sensors={sensors}
@@ -242,20 +246,14 @@ function PanelIssues(props) {
                         </SortableContext>
                         <DragOverlay>
                             {activeIssue ? (
-                                <div style={{
-                                    lineHeight: 1.2,
-                                    background: '#fff',
-                                    opacity: 1,
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                                }}
-                                >
+                                <div className="k2-drag-overlay">
                                     <ListItemIssue issue={activeIssue} />
                                 </div>
                             ) : null}
                         </DragOverlay>
                     </DndContext>
                 )}
-            </div>
+            </section>
         </div>
     );
 }

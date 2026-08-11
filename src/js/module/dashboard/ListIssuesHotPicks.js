@@ -8,6 +8,7 @@ import ListItemIssue from '../../component/list-item/ListItemIssue';
 import Title from '../../component/panel-title/Title';
 import * as Issues from '../../lib/actions/Issues';
 import openAllUrls from '../../lib/openAllUrls';
+import EmptyState from '../../component/EmptyState';
 
 const propTypes = {
     /** The number of milliseconds to refresh the data */
@@ -49,7 +50,7 @@ class ListIssuesHotPicks extends React.Component {
 
     render() {
         return (
-            <div className="panel waq mb-3">
+            <section className="k2-panel" aria-label="Hot Picks">
                 <Title
                     text="Hot Picks"
                     count={this.props.issues.length}
@@ -57,22 +58,18 @@ class ListIssuesHotPicks extends React.Component {
                 />
 
                 {!this.props.issues && (
-                    <div className="blankslate capped clean-background">
-                        Loading
-                    </div>
+                    <EmptyState isLoading />
                 )}
 
                 {!this.props.issues.length ? (
-                    <div className="blankslate capped clean-background">
-                        No items
-                    </div>
+                    <EmptyState />
                 ) : (
                     <>
                         {_.map(this.props.issues, issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)}
                     </>
                 )}
 
-            </div>
+            </section>
         );
     }
 }

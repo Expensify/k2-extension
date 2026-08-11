@@ -1,8 +1,9 @@
-/* eslint-disable react/no-danger */
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import loginIllustration from '../../../../assets/simple-illustration__submit-daily.svg';
+import {
+    Banner, Button, Heading, Spinner, Stack, Text,
+} from '@primer/react';
+import {MarkGithubIcon} from '@primer/octicons-react';
 import * as GitHubOAuth from '../../lib/GitHubOAuth';
 
 const propTypes = {
@@ -65,48 +66,51 @@ class FormPassword extends React.Component {
         const isOAuthAvailable = GitHubOAuth.isOAuthAvailable();
 
         return (
-            <div className="k2-login-shell">
-                <section className="k2-login-hero">
-                    <div className="k2-login-card">
-                        <div className="k2-login-card-header">
-                            <span
-                                aria-hidden="true"
-                                className="k2-login-illustration"
-                                dangerouslySetInnerHTML={{__html: loginIllustration}}
-                            />
-                            <div>
-                                <span className="k2-login-card-label">K2 Login</span>
-                                <h2>Welcome to K2</h2>
-                            </div>
-                        </div>
+            <section className="k2-login-shell" aria-labelledby="k2-login-heading">
+                <Stack className="k2-login-card" align="center" gap="normal" padding="normal">
+                    <MarkGithubIcon size={48} />
+                    <Stack align="center" gap="condensed">
+                        <Heading id="k2-login-heading" as="h1">Welcome to K2</Heading>
+                        <Text className="k2-login-copy">
+                            Sign in with GitHub to view your dashboard and assigned work.
+                        </Text>
+                    </Stack>
 
-                        {this.state.error && (
-                            <div className="flash flash-error k2-login-error">
-                                {this.state.error}
-                            </div>
-                        )}
+                    {this.state.error && (
+                        <Banner
+                            title="Sign in failed"
+                            description={this.state.error}
+                            variant="critical"
+                            className="k2-login-message"
+                        />
+                    )}
 
-                        <p className="k2-login-card-copy">
-                            Sign in with GitHub to view your K2 dashboard and assigned work.
-                        </p>
+                    {!isOAuthAvailable && (
+                        <Banner
+                            title="Sign in unavailable"
+                            description="GitHub sign in is not available in this browser context."
+                            variant="warning"
+                            className="k2-login-message"
+                        />
+                    )}
 
-                        {!isOAuthAvailable && (
-                            <p className="k2-login-unavailable">
-                                Sign in is not available in this browser context.
-                            </p>
-                        )}
-
-                        <button
-                            className="btn btn-primary k2-login-button"
-                            type="button"
-                            onClick={this.handleOAuth}
-                            disabled={this.state.isLoading || !isOAuthAvailable}
-                        >
-                            {this.state.isLoading ? 'Authenticating...' : 'Continue with GitHub'}
-                        </button>
-                    </div>
-                </section>
-            </div>
+                    <Button
+                        variant="primary"
+                        size="large"
+                        leadingVisual={this.state.isLoading ? undefined : MarkGithubIcon}
+                        onClick={this.handleOAuth}
+                        disabled={this.state.isLoading || !isOAuthAvailable}
+                        className="k2-login-button"
+                    >
+                        {this.state.isLoading ? (
+                            <Stack direction="horizontal" align="center" gap="condensed">
+                                <Spinner size="small" />
+                                Authenticating
+                            </Stack>
+                        ) : 'Continue with GitHub'}
+                    </Button>
+                </Stack>
+            </section>
         );
     }
 }

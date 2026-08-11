@@ -24,19 +24,20 @@ function SortableIssue(props) {
         transform: CSS.Transform.toString(transform),
         transition,
         zIndex: isDragging ? 2 : 1,
-        background: isDragging ? '#f0f0f0' : undefined,
     };
 
     return (
         <div
             ref={setNodeRef}
             style={style}
+            className={isDragging ? 'k2-sortable-item k2-sortable-item-dragging' : 'k2-sortable-item'}
 
             // eslint-disable-next-line react/jsx-props-no-spreading -- Spreading is required for dnd-kit drag-and-drop attributes
             {...attributes}
 
             // eslint-disable-next-line react/jsx-props-no-spreading -- Spreading is required for dnd-kit drag-and-drop listeners
             {...listeners}
+            aria-label={`Reorder ${issue.title}`}
         >
             <ListItemIssue issue={issue} />
         </div>

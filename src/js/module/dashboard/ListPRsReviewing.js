@@ -2,12 +2,17 @@ import React from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
+import {
+    Checkbox, CheckboxGroup, FormControl, Stack, TextInput,
+} from '@primer/react';
+import {SearchIcon} from '@primer/octicons-react';
 import ONYXKEYS from '../../ONYXKEYS';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import Title from '../../component/panel-title/Title';
 import ListItemPull from '../../component/list-item/ListItemPull';
 import * as PullRequests from '../../lib/actions/PullRequests';
 import openAllUrls from '../../lib/openAllUrls';
+import EmptyState from '../../component/EmptyState';
 
 const propTypes = {
     /** The number of milliseconds to refresh the data */
@@ -155,57 +160,36 @@ class ListPRsReviewing extends React.Component {
         const filteredPRs = this.props.prs ? this.filterPRs(this.props.prs) : [];
 
         return (
-            <div className="mb-3">
-                <div className="panel-title issue-filter mb-2">
-                    <form className="form-inline">
-                        Hide:
-                        <div className="checkbox">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    name="shouldHideDraft"
-                                    id="shouldHideDraft"
-                                    onChange={this.toggleDraftFilter}
-                                    checked={this.state.shouldHideDraft ? 'checked' : undefined}
-                                />
-                                Draft
-                            </label>
-                        </div>
-                        <div className="checkbox">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    name="shouldHideAlreadyReviewed"
-                                    id="shouldHideAlreadyReviewed"
-                                    onChange={this.toggleAlreadyReviewedFilter}
-                                    checked={this.state.shouldHideAlreadyReviewed ? 'checked' : undefined}
-                                />
-                                Already reviewed
-                            </label>
-                        </div>
-                        <div className="checkbox">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    name="shouldHideOnHold"
-                                    id="shouldHideOnHold"
-                                    onChange={this.toggleOnHoldFilter}
-                                    checked={this.state.shouldHideOnHold ? 'checked' : undefined}
-                                />
-                                On Hold
-                            </label>
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="Filter PRs by Title"
-                            className="search-filter-input"
-                            value={this.state.searchInputText}
-                            onChange={this.applySearchFilter}
-                        />
-                    </form>
-                </div>
+            <div>
+                <Stack className="k2-filter-bar" direction="horizontal" align="center" justify="space-between" wrap="wrap" gap="condensed">
+                    <CheckboxGroup>
+                        <CheckboxGroup.Label visuallyHidden>Hide pull requests</CheckboxGroup.Label>
+                        <Stack direction="horizontal" align="center" wrap="wrap" gap="condensed">
+                            <span className="k2-filter-label">Hide:</span>
+                            <FormControl>
+                                <Checkbox checked={this.state.shouldHideDraft} onChange={this.toggleDraftFilter} />
+                                <FormControl.Label>Draft</FormControl.Label>
+                            </FormControl>
+                            <FormControl>
+                                <Checkbox checked={this.state.shouldHideAlreadyReviewed} onChange={this.toggleAlreadyReviewedFilter} />
+                                <FormControl.Label>Already reviewed</FormControl.Label>
+                            </FormControl>
+                            <FormControl>
+                                <Checkbox checked={this.state.shouldHideOnHold} onChange={this.toggleOnHoldFilter} />
+                                <FormControl.Label>On hold</FormControl.Label>
+                            </FormControl>
+                        </Stack>
+                    </CheckboxGroup>
+                    <TextInput
+                        aria-label="Filter pull requests by title"
+                        leadingVisual={SearchIcon}
+                        placeholder="Filter PRs by title"
+                        value={this.state.searchInputText}
+                        onChange={this.applySearchFilter}
+                    />
+                </Stack>
 
-                <div className="panel daily">
+                <section className="k2-panel k2-panel-daily" aria-label="Pull requests to review daily">
                     <Title
                         text="Review these PRs Daily"
                         count={_.size(filteredPRs)}
@@ -213,9 +197,7 @@ class ListPRsReviewing extends React.Component {
                     />
 
                     {!this.props.prs && (
-                        <div className="blankslate capped clean-background">
-                            Loading
-                        </div>
+                        <EmptyState isLoading />
                     )}
 
                     {_.chain(filteredPRs)
@@ -223,7 +205,7 @@ class ListPRsReviewing extends React.Component {
                         .map(pr => <ListItemPull key={pr.id} pr={pr} />)
                         .value()
                         .reverse()}
-                </div>
+                </section>
             </div>
         );
     }

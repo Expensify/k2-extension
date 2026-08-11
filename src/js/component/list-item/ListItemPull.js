@@ -1,123 +1,105 @@
 import React from 'react';
 import moment from 'moment';
+import {
+    CounterLabel, Label, LabelGroup, Link, RelativeTime, Stack,
+} from '@primer/react';
+import {GitPullRequestIcon} from '@primer/octicons-react';
 import pullRequestPropTypes from '../../lib/pullRequestPropTypes';
 
 const propTypes = {
-    /** Data about the pull request being displayed. The `data` and `pr` props are the same and can come from multiple
-     * sources. The new refactored code users `pr` because it's more semantically correct, but old data uses `data`.
-     * Once all the refactoring is done to move all this data to Onyx, then `data` can be removed. */
     data: pullRequestPropTypes,
-
-    /** Data about the pull request being displayed */
     pr: pullRequestPropTypes,
 };
+
 const defaultProps = {
     data: null,
     pr: null,
 };
 
+function getMergeability(pr) {
+    if (pr.isDraft) {
+        return {label: 'Draft', variant: 'secondary'};
+    }
+    if (pr.reviewDecision === 'CHANGES_REQUESTED') {
+        return {label: 'Changes requested', variant: 'danger'};
+    }
+    if (pr.reviewDecision === 'REVIEW_REQUIRED') {
+        return {label: 'Needs review', variant: 'attention'};
+    }
+    if (pr.mergeable === 'MERGEABLE') {
+        return {label: 'Approved', variant: 'success'};
+    }
+    if (pr.mergeable === 'CONFLICTING') {
+        return {label: 'Merge conflicts', variant: 'danger'};
+    }
+    if (pr.mergeable === 'UNKNOWN') {
+        return {label: 'Mergeability unknown', variant: 'secondary'};
+    }
+    return {label: 'Done reviewing', variant: 'done'};
+}
+
+function getCheckVariant(checkConclusion) {
+    if (checkConclusion === 'success') {
+        return 'success';
+    }
+    if (checkConclusion === 'failure') {
+        return 'danger';
+    }
+    return 'secondary';
+}
+
 function ListItemPull(props) {
     const pr = props.pr || props.data;
-    const repoPrefix = pr.repository ? `[${pr.repository.name}]` : '';
-
     if (!pr.id) {
         return null;
     }
-    function getClassName() {
-        let className = 'issue';
-        const today = moment();
-        const days = 7;
 
-        // See if it's overdue
-        const isOverdue = moment(pr.updatedAt).isBefore(today.subtract(days, 'days'), 'day');
-
-        if (isOverdue) {
-            className += ' overdue';
-        }
-
-        if (pr.title.indexOf('[HOLD') > -1
-            || pr.title.indexOf('[WIP') > -1) {
-            className += ' hold';
-        }
-
-        return className;
-    }
-
-    let mergeability = 'Done reviewing';
-
-    switch (pr.mergeable) {
-        case 'MERGEABLE':
-            mergeability = 'Approved';
-            break;
-        case 'CONFLICTING':
-            mergeability = 'Merge Conflicts';
-            break;
-        case 'UNKNOWN':
-            mergeability = 'Mergeability Unknown';
-            break;
-        default:
-            break;
-    }
-
-    switch (pr.reviewDecision) {
-        case 'CHANGES_REQUESTED':
-            mergeability = 'Changes Requested';
-            break;
-        case 'REVIEW_REQUIRED':
-            mergeability = 'Needs Review';
-            break;
-        default:
-            break;
-    }
-
-    if (pr.isDraft) {
-        mergeability = 'Draft';
-    }
+    const repository = pr.repository ? `[${pr.repository.name}] ` : '';
+    const isOverdue = moment(pr.updatedAt).isBefore(moment().subtract(7, 'days'), 'day');
+    const isHeld = pr.title.includes('[HOLD') || pr.title.includes('[WIP');
+    const mergeability = getMergeability(pr);
 
     return (
-        <div className={`panel-item${pr.isReviewRequested === false ? ' reviewed' : ''}`}>
-            <span className="panel-item-meta">
-                <span className="age">
-                    Updated:
-                    {' '}
-                    {moment(pr.updatedAt).fromNow()}
-                </span>
-
-                <span className="comments">
-                    Comments:
-                    {' '}
-                    {pr.comments.totalCount}
-                </span>
-
-                <span className="comments">
-                    Reviews:
-                    {' '}
-                    {pr.reviews.totalCount}
-                </span>
-
-                {pr.checkConclusion && (
-                    <span className={`github-actions-status ${pr.checkConclusion}`}>
-                        Github Actions:
-                        {' '}
-                        {pr.checkConclusion}
-                        ,
-                    </span>
-                )}
-
-                {mergeability && (
-                    <span className={`mergeable-state ${pr.reviewDecision} ${pr.mergeable} ${(mergeability === 'Draft' && 'DRAFT') || ''}`}>
-                        {mergeability}
-                    </span>
-                )}
-            </span>
-
-            <a href={pr.url} className={getClassName()} target="_blank" rel="noreferrer noopener">
-                <span className="octicon octicon-alert" />
-                {`${repoPrefix} ${pr.title}`}
-                {' '}
-            </a>
-
-            {mergeability === 'Draft' && <span className="Counter">draft</span>}
+        <div className={`k2-work-item${pr.isReviewRequested === false ? ' k2-work-item-reviewed' : ''}`}>
+            <Stack direction="horizontal" gap="condensed" align="start">
+                <GitPullRequestIcon className="k2-work-item-icon" />
+                <Stack.Item grow>
+                    <Link
+                        href={pr.url}
+                        className={`k2-work-item-title${isHeld ? ' k2-work-item-muted' : ''}${isOverdue ? ' k2-work-item-overdue' : ''}`}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                    >
+                        {`${repository}${pr.title}`}
+                    </Link>
+                    <Stack className="k2-work-item-meta" direction="horizontal" gap="condensed" align="center" wrap="wrap">
+                        <span>
+                            Updated
+                            {' '}
+                            <RelativeTime date={new Date(pr.updatedAt)} />
+                        </span>
+                        <span>
+                            Comments
+                            {' '}
+                            <CounterLabel>{pr.comments.totalCount}</CounterLabel>
+                        </span>
+                        <span>
+                            Reviews
+                            {' '}
+                            <CounterLabel>{pr.reviews.totalCount}</CounterLabel>
+                        </span>
+                    </Stack>
+                    <LabelGroup className="k2-work-item-labels" aria-label="Pull request status">
+                        {isOverdue && <Label variant="danger" size="small">Overdue</Label>}
+                        {pr.checkConclusion && (
+                            <Label variant={getCheckVariant(pr.checkConclusion)} size="small">
+                                {`Checks: ${pr.checkConclusion}`}
+                            </Label>
+                        )}
+                        <Label variant={mergeability.variant} size="small">{mergeability.label}</Label>
+                    </LabelGroup>
+                </Stack.Item>
+            </Stack>
         </div>
     );
 }

@@ -1,6 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactNativeOnyx from 'react-native-onyx';
+import {
+    Button, CounterLabel, Heading, Stack,
+} from '@primer/react';
+import {LinkExternalIcon} from '@primer/octicons-react';
 import ONYXKEYS from '../../ONYXKEYS';
 import * as Preferences from '../../lib/actions/Preferences';
 
@@ -48,21 +52,22 @@ class Title extends React.Component {
     render() {
         const {text, count, onOpenAll} = this.props;
         return (
-            <div>
-                <h3 className="panel-title panel-title-with-actions">
-                    <span>{`${text} ${count !== null ? `(${count})` : ''}`}</span>
-                    {onOpenAll && count > 0 && this.state.showOpenAllButtons && (
-                        <button
-                            type="button"
-                            className="btn btn-sm"
-                            onClick={onOpenAll}
-                            title={`Open all ${count} items in new tabs`}
-                        >
-                            Open All
-                        </button>
-                    )}
-                </h3>
-            </div>
+            <Stack className="k2-section-header" direction="horizontal" align="center" justify="space-between" gap="condensed">
+                <Stack direction="horizontal" align="center" gap="condensed">
+                    <Heading as="h2" className="k2-section-heading">{text}</Heading>
+                    {count !== null && <CounterLabel>{count}</CounterLabel>}
+                </Stack>
+                {onOpenAll && count > 0 && this.state.showOpenAllButtons && (
+                    <Button
+                        size="small"
+                        leadingVisual={LinkExternalIcon}
+                        onClick={onOpenAll}
+                        title={`Open all ${count} items in new tabs`}
+                    >
+                        Open All
+                    </Button>
+                )}
+            </Stack>
         );
     }
 }

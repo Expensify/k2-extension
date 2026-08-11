@@ -1,14 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
-// import Filters from './Filters';
-import ListIssuesAssigned from './ListIssuesAssigned';
-import ListPRsAssigned from './ListPRsAssigned';
-import ListPRsReviewing from './ListPRsReviewing';
-
-// import ListIssuesEngineering from './ListIssuesEngineering';
-import Legend from './Legend';
-import ListIssuesHotPicks from './ListIssuesHotPicks';
+import {useOnyx} from 'react-native-onyx';
+import DashboardHeader from './DashboardHeader';
+import * as DashboardLayouts from './DashboardLayouts';
+import ONYXKEYS from '../../ONYXKEYS';
+import * as Preferences from '../../lib/actions/Preferences';
 
 const propTypes = {
     /** The number of milliseconds to refresh the list of issues */
@@ -16,22 +12,20 @@ const propTypes = {
 };
 
 function ListIssues(props) {
+    const [preferences = {}] = useOnyx(ONYXKEYS.PREFERENCES);
+    const layout = preferences.dashboardLayout || Preferences.getDashboardLayout();
+
+    let Layout = DashboardLayouts.ClassicLayout;
+    if (layout === 'focus') {
+        Layout = DashboardLayouts.FocusLayout;
+    } else if (layout === 'readable') {
+        Layout = DashboardLayouts.ReadableLayout;
+    }
+
     return (
-        <div className="issueList">
-            <Legend />
-
-            <ListPRsReviewing pollInterval={props.pollInterval * 2.5} />
-
-            <ListIssuesAssigned pollInterval={props.pollInterval} />
-
-            <ListPRsAssigned pollInterval={props.pollInterval * 2.5} />
-
-            <ListIssuesHotPicks pollInterval={props.pollInterval * 2.5} />
-
-            {/* Hide these for now while we focus on NewDot */}
-            {/* <Filters />
-
-            <ListIssuesEngineering pollInterval={props.pollInterval * 2.5} /> */}
+        <div className={`issueList k2-dashboard k2-dashboard-${layout}`}>
+            <DashboardHeader layout={layout} onLayoutChange={Preferences.setDashboardLayout} />
+            <Layout pollInterval={props.pollInterval} />
         </div>
     );
 }

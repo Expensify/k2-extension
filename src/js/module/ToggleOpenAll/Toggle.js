@@ -1,9 +1,8 @@
 import React from 'react';
 import ReactNativeOnyx from 'react-native-onyx';
+import {Stack, ToggleSwitch} from '@primer/react';
 import ONYXKEYS from '../../ONYXKEYS';
 import * as Preferences from '../../lib/actions/Preferences';
-
-const defaultBtnClass = 'btn btn-sm';
 
 class Toggle extends React.Component {
     constructor(props) {
@@ -40,20 +39,15 @@ class Toggle extends React.Component {
 
     render() {
         return (
-            <div style={{width: '100%', marginTop: '4px'}}>
-                <button
-                    type="button"
-                    className={this.state.showOpenAllButtons
-                        ? `${defaultBtnClass} k2-show-open-all selected`
-                        : `${defaultBtnClass} k2-show-open-all`}
-                    onClick={() => this.handleToggle()}
-                    style={{width: '100%'}}
-                >
-                    {this.state.showOpenAllButtons
-                        ? 'Open All buttons: On'
-                        : 'Open All buttons: Off'}
-                </button>
-            </div>
+            <Stack direction="horizontal" align="center" justify="space-between" gap="condensed">
+                <span id="k2-open-all-label">Show Open All buttons</span>
+                <ToggleSwitch
+                    aria-labelledby="k2-open-all-label"
+                    checked={this.state.showOpenAllButtons}
+                    onChange={() => this.handleToggle()}
+                    size="small"
+                />
+            </Stack>
         );
     }
 }
