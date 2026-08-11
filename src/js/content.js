@@ -3,7 +3,6 @@
 import styles from '../css/content.scss';
 
 import * as messenger from './lib/messenger';
-import * as GitHubOAuth from './lib/GitHubOAuth';
 import ghAll from './lib/pages/github/all';
 import ghPr from './lib/pages/github/pr';
 import ghIssue from './lib/pages/github/issue';
@@ -52,20 +51,6 @@ function setupPages() {
 
 // The message listener needs to be started so that the background script can trigger events to happen in the extension
 messenger.startMessageListener();
-
-// Refresh the OAuth token when needed. Event-driven rather than interval-based:
-// MV3 service workers (and background tab timers) get suspended, so instead we
-// check at startup and whenever the tab regains focus/visibility - which covers
-// returning to an inactive tab and waking a laptop from sleep. API calls also
-// refresh lazily (see lib/api.js).
-GitHubOAuth.refreshIfNeeded();
-window.addEventListener('focus', () => GitHubOAuth.refreshIfNeeded());
-document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState !== 'visible') {
-        return;
-    }
-    GitHubOAuth.refreshIfNeeded();
-});
 
 // The nav event is triggered anytime a page is navigated on GitHub
 messenger.on('nav', () => setupPages());

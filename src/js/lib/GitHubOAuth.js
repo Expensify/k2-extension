@@ -13,6 +13,8 @@ const GITHUB_OAUTH_CONFIG = {
     APP_OAUTH_URL: 'https://ksv2.exfy.io',
 };
 
+const OAUTH_STORAGE_KEY = 'k2OAuthAuth';
+
 // Refresh window (ms) before expiry to proactively refresh
 const REFRESH_SKEW_MS = 5 * 60 * 1000;
 
@@ -63,6 +65,37 @@ function wasTokenJustRefreshed() {
 }
 
 /**
+ * Persist token data in the content-script Onyx mirror.
+ * @param {Object} tokenData
+ */
+function setContentAuthDataFromTokenData(tokenData) {
+    Preferences.setAuthData({
+        type: 'oauth',
+        token: tokenData.access_token,
+        refreshToken: tokenData.refresh_token,
+        expiresAt: tokenData.expires_in ? Date.now() + (tokenData.expires_in * 1000) : null,
+    });
+    lastTokenIssuedAt = Date.now();
+}
+
+/**
+ * Best-effort request to clear the background OAuth store.
+ * @returns {Promise<void>}
+ */
+function clearBackgroundAuth() {
+    return new Promise((resolve) => {
+        if ((!ksBrowser) || !ksBrowser.runtime || !ksBrowser.runtime.sendMessage) {
+            resolve();
+            return;
+        }
+
+        ksBrowser.runtime.sendMessage({action: 'clear-oauth'}, () => {
+            resolve();
+        });
+    });
+}
+
+/**
  * Initiate OAuth flow with GitHub using background script
  * @returns {Promise<string>} OAuth token
  */
@@ -100,13 +133,7 @@ function initiateOAuth() {
                         return;
                     }
 
-                    Preferences.setAuthData({
-                        type: 'oauth',
-                        token: tokenData.access_token,
-                        refreshToken: tokenData.refresh_token,
-                        expiresAt: tokenData.expires_in ? Date.now() + (tokenData.expires_in * 1000) : null,
-                    });
-                    lastTokenIssuedAt = Date.now();
+                    setContentAuthDataFromTokenData(tokenData);
 
                     resolve(tokenData.access_token);
                 } catch (error) {
@@ -185,10 +212,9 @@ async function refreshToken(refreshTokenValue) {
 }
 
 /**
- * Refresh token via background script (for content script context).
- * The background script only performs the network call (to avoid CSP issues);
- * the new token data is persisted here, in the content script context, which
- * owns the Onyx store.
+ * Request a valid OAuth token from the background script. The background script
+ * owns extension-wide token storage and refresh coordination; the content script
+ * mirrors returned token data into Onyx so the existing UI reacts to auth state.
  *
  * Concurrent callers share a single in-flight refresh.
  *
@@ -201,41 +227,30 @@ function refreshTokenViaBackground() {
 
     inflightRefreshPromise = new Promise((resolve, reject) => {
         if ((!ksBrowser) || !ksBrowser.runtime || !ksBrowser.runtime.sendMessage) {
-            Preferences.clearAuth();
             reject(new Error('Browser runtime API not available'));
             return;
         }
 
         const authData = Preferences.getAuthData();
-        const refreshTokenValue = authData && authData.refreshToken;
-        if (!refreshTokenValue) {
-            Preferences.clearAuth();
-            reject(new Error('No refresh token available'));
-            return;
-        }
 
-        // Send message to background script to perform the network refresh.
-        // Receiving the message also wakes the service worker if it was suspended.
         ksBrowser.runtime.sendMessage(
-            {action: 'refresh-token', refreshToken: refreshTokenValue},
+            {action: 'get-valid-oauth-token', authData},
             (response) => {
                 if (ksBrowser.runtime.lastError) {
                     const runtimeError = buildRuntimeMessageError(ksBrowser.runtime.lastError.message);
-                    if (!runtimeError.isRuntimeReceiverUnavailable) {
-                        Preferences.clearAuth();
-                    }
                     reject(runtimeError);
                     return;
                 }
 
                 if (!response) {
-                    Preferences.clearAuth();
                     reject(new Error('No response from background script'));
                     return;
                 }
 
                 if (!response.success) {
-                    Preferences.clearAuth();
+                    if (response.isAuthError) {
+                        Preferences.clearAuth();
+                    }
                     reject(new Error(response.error || 'Refresh failed'));
                     return;
                 }
@@ -247,13 +262,7 @@ function refreshTokenViaBackground() {
                     return;
                 }
 
-                Preferences.setAuthData({
-                    type: 'oauth',
-                    token: tokenData.access_token,
-                    refreshToken: tokenData.refresh_token,
-                    expiresAt: tokenData.expires_in ? Date.now() + (tokenData.expires_in * 1000) : null,
-                });
-                lastTokenIssuedAt = Date.now();
+                setContentAuthDataFromTokenData(tokenData);
 
                 resolve(tokenData.access_token);
             },
@@ -456,11 +465,13 @@ async function revokeToken() {
             }),
         });
     } finally {
+        await clearBackgroundAuth();
         Preferences.clearAuth();
     }
 }
 
 export {
+    OAUTH_STORAGE_KEY,
     initiateOAuth,
     isOAuthAvailable,
     revokeToken,
