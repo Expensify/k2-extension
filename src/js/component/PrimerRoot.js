@@ -13,13 +13,26 @@ const propTypes = {
 
 function getGitHubTheme() {
     const documentElement = document.documentElement;
-    const colorMode = documentElement.getAttribute('data-color-mode') === 'dark' ? 'dark' : 'light';
+    const requestedColorMode = documentElement.getAttribute('data-color-mode');
+    const colorMode = requestedColorMode === 'dark'
+        || (requestedColorMode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ? 'dark'
+        : 'light';
     const themeAttribute = colorMode === 'dark' ? 'data-dark-theme' : 'data-light-theme';
     const supportedThemes = colorMode === 'dark'
         ? ['dark', 'dark_dimmed', 'dark_high_contrast']
         : ['light', 'light_high_contrast'];
     const requestedTheme = documentElement.getAttribute(themeAttribute);
-    const colorScheme = supportedThemes.includes(requestedTheme) ? requestedTheme : colorMode;
+    let colorScheme = requestedTheme;
+    if (!supportedThemes.includes(colorScheme)) {
+        if (requestedTheme && requestedTheme.includes('high_contrast')) {
+            colorScheme = `${colorMode}_high_contrast`;
+        } else if (colorMode === 'dark' && requestedTheme && requestedTheme.includes('dimmed')) {
+            colorScheme = 'dark_dimmed';
+        } else {
+            colorScheme = colorMode;
+        }
+    }
 
     return {colorMode, colorScheme};
 }
@@ -29,12 +42,18 @@ function PrimerRoot({children}) {
 
     useEffect(() => {
         const observer = new MutationObserver(() => setTheme(getGitHubTheme()));
+        const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const updateTheme = () => setTheme(getGitHubTheme());
         observer.observe(document.documentElement, {
             attributes: true,
             attributeFilter: ['data-color-mode', 'data-light-theme', 'data-dark-theme'],
         });
+        colorSchemeQuery.addEventListener('change', updateTheme);
 
-        return () => observer.disconnect();
+        return () => {
+            observer.disconnect();
+            colorSchemeQuery.removeEventListener('change', updateTheme);
+        };
     }, []);
 
     const isDark = theme.colorMode === 'dark';

@@ -38,7 +38,7 @@ export default function () {
         const originalContent = button.innerHTML;
 
         // Replace the button content with a loader
-        button.innerHTML = '<div class="loader" />';
+        button.innerHTML = '<div class="k2-loader" />';
 
         try {
             // Fetch the checklist contents
@@ -70,7 +70,7 @@ export default function () {
         const originalContent = button.innerHTML;
 
         // Replace the button content with a loader
-        button.innerHTML = '<div class="loader" />';
+        button.innerHTML = '<div class="k2-loader" />';
 
         try {
             // Call the API to add the comment
@@ -99,7 +99,7 @@ export default function () {
         const originalContent = button.innerHTML;
 
         // Replace the button content with a loader
-        button.innerHTML = '<div class="loader" />';
+        button.innerHTML = '<div class="k2-loader" />';
 
         try {
             const response = await API.getCurrentIssueDescription();
@@ -132,7 +132,7 @@ export default function () {
         const originalContent = button.innerHTML;
 
         // Replace the button content with a loader and disable it
-        button.innerHTML = '<div class="loader" />';
+        button.innerHTML = '<div class="k2-loader" />';
         button.disabled = true;
 
         // Find the comment element and get it's ID from the permalink anchor
