@@ -10,6 +10,7 @@ import filterOptions from './filterOptions';
 const itemPropType = PropTypes.shape({
     id: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
+    description: PropTypes.string,
     active: PropTypes.bool.isRequired,
     onSelect: PropTypes.func.isRequired,
 });
@@ -137,7 +138,7 @@ function FilterBar({
             <Stack className="k2-filter-bar" direction="horizontal" align="center" justify="space-between" wrap="wrap" gap="condensed" padding="normal">
                 <SegmentedControl aria-label="Filter view" onChange={selectPreset}>
                     {_.map(presets, preset => (
-                        <SegmentedControl.Button key={preset.id} selected={preset.active}>
+                        <SegmentedControl.Button key={preset.id} selected={preset.active} title={preset.description}>
                             {preset.label}
                         </SegmentedControl.Button>
                     ))}
@@ -166,7 +167,7 @@ function FilterBar({
             <Stack direction="horizontal" align="center" justify="space-between" wrap="wrap" gap="condensed">
                 <SegmentedControl aria-label="Quick filter view" onChange={selectPreset}>
                     {_.map(presets, preset => (
-                        <SegmentedControl.Button key={preset.id} selected={preset.active}>
+                        <SegmentedControl.Button key={preset.id} selected={preset.active} title={preset.description}>
                             {preset.label}
                         </SegmentedControl.Button>
                     ))}

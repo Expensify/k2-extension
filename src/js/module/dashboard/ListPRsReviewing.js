@@ -221,20 +221,30 @@ class ListPRsReviewing extends React.Component {
             {
                 id: 'actionable',
                 label: 'Actionable',
+                description: 'Excludes drafts, PRs already reviewed, and PRs on hold or marked WIP.',
                 active: isCustomView && this.state.shouldHideDraft && this.state.shouldHideAlreadyReviewed && this.state.shouldHideOnHold,
                 onSelect: () => this.applyPreset('actionable'),
             },
             {
                 id: 'all',
                 label: 'All',
+                description: 'Shows every PR in the review queue.',
                 active: isCustomView && !this.state.shouldHideDraft && !this.state.shouldHideAlreadyReviewed && !this.state.shouldHideOnHold,
                 onSelect: () => this.applyPreset('all'),
             },
             {
-                id: 'reviewed-only', label: 'Reviewed', active: this.state.viewFilter === 'reviewed', onSelect: () => this.applyPreset('reviewed'),
+                id: 'reviewed-only',
+                label: 'Reviewed',
+                description: 'Shows only PRs you have already reviewed.',
+                active: this.state.viewFilter === 'reviewed',
+                onSelect: () => this.applyPreset('reviewed'),
             },
             {
-                id: 'draft-only', label: 'Draft', active: this.state.viewFilter === 'draft', onSelect: () => this.applyPreset('draft'),
+                id: 'draft-only',
+                label: 'Draft',
+                description: 'Shows only draft PRs.',
+                active: this.state.viewFilter === 'draft',
+                onSelect: () => this.applyPreset('draft'),
             },
         ];
         const structuredMenus = [

@@ -322,6 +322,7 @@ class ListIssuesAssigned extends React.Component {
             {
                 id: 'actionable',
                 label: 'Actionable',
+                description: 'Shows issues you own or that are unowned, excluding on hold and under review.',
                 active: this.state.shouldHideHeldIssues
                     && this.state.shouldHideUnderReviewIssues
                     && this.state.shouldHideOwnedBySomeoneElseIssues
@@ -331,6 +332,7 @@ class ListIssuesAssigned extends React.Component {
             {
                 id: 'overdue',
                 label: 'Overdue',
+                description: 'Shows only issues labeled Overdue.',
                 active: !this.state.shouldHideHeldIssues
                     && !this.state.shouldHideUnderReviewIssues
                     && !this.state.shouldHideOwnedBySomeoneElseIssues
@@ -340,6 +342,7 @@ class ListIssuesAssigned extends React.Component {
             {
                 id: 'mine',
                 label: 'Mine',
+                description: 'Shows issues you own plus issues that do not have an owner.',
                 active: !this.state.shouldHideHeldIssues
                     && !this.state.shouldHideUnderReviewIssues
                     && this.state.shouldHideOwnedBySomeoneElseIssues
@@ -349,6 +352,7 @@ class ListIssuesAssigned extends React.Component {
             {
                 id: 'all',
                 label: 'All',
+                description: 'Shows all assigned issues without status or ownership exclusions.',
                 active: !this.state.shouldHideHeldIssues
                     && !this.state.shouldHideUnderReviewIssues
                     && !this.state.shouldHideOwnedBySomeoneElseIssues
