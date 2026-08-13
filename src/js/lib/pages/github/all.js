@@ -47,12 +47,51 @@ export default function () {
             });
         };
 
+        const scheduleK2TabPosition = () => {
+            if (AllPages.k2TabPositionFrame) {
+                return;
+            }
+
+            AllPages.k2TabPositionFrame = window.requestAnimationFrame(() => {
+                AllPages.k2TabPositionFrame = null;
+                positionK2Tab();
+            });
+        };
+
+        if (AllPages.k2TabScrollHandler) {
+            document.removeEventListener('scroll', AllPages.k2TabScrollHandler, true);
+        }
+
+        if (AllPages.k2TabPositionObserver) {
+            AllPages.k2TabPositionObserver.disconnect();
+        }
+
+        if (AllPages.k2TabResizeObserver) {
+            AllPages.k2TabResizeObserver.disconnect();
+        }
+
         positionK2Tab();
 
-        // Keep the isolated tab aligned when the window moves GitHub's tab list.
+        // Keep the isolated tab aligned when GitHub reflows or scrolls its tab list.
+        AllPages.k2TabScrollHandler = scheduleK2TabPosition;
+        document.addEventListener('scroll', AllPages.k2TabScrollHandler, true);
+
         $(window)
             .off('resize.k2-extension scroll.k2-extension')
-            .on('resize.k2-extension scroll.k2-extension', positionK2Tab);
+            .on('resize.k2-extension scroll.k2-extension', scheduleK2TabPosition);
+
+        const repositoryNavigation = $('nav[aria-label="Repository"]').first();
+        if (repositoryNavigation.length) {
+            AllPages.k2TabPositionObserver = new MutationObserver(scheduleK2TabPosition);
+            AllPages.k2TabPositionObserver.observe(repositoryNavigation[0], {
+                attributes: true,
+                childList: true,
+                subtree: true,
+            });
+
+            AllPages.k2TabResizeObserver = new ResizeObserver(scheduleK2TabPosition);
+            AllPages.k2TabResizeObserver.observe(repositoryNavigation[0]);
+        }
 
         // Set up timestamp format conversion
         setTimeout(() => AllPages.applyTimestampFormat(), 500);
