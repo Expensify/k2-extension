@@ -129,21 +129,8 @@ $color-dark-yellow: #DAA520;
     opacity: 0.58;
 }
 
-.k2-issue-row-content {
-    align-items: baseline;
-    display: flex;
-    gap: 8px;
-    justify-content: space-between;
-    min-width: 0;
-}
-
-.k2-issue-row-content .k2-work-item-title {
-    min-width: 0;
-}
-
 .k2-issue-type-labels {
-    flex: 0 0 auto;
-    margin-left: auto;
+    width: 100%;
 }
 
 .k2-issue-leading {

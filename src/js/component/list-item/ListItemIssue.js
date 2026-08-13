@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {
-    Avatar, AvatarStack, Label, LabelGroup, Link, Stack,
+    Avatar, AvatarStack, Label, Link, Stack,
 } from '@primer/react';
 import {StarFillIcon, StarIcon} from '@primer/octicons-react';
 import IssuePropTypes from './IssuePropTypes';
@@ -62,25 +62,23 @@ function ListItemIssue({issue, showAttendees, showPriority}) {
                         {ownerIcon}
                     </span>
                     {showPriority && <Label variant={priority[1]} size="small">{priority[0]}</Label>}
+                    {!!issueTypeLabels.length && (
+                        <Stack className="k2-issue-type-labels" align="center" gap="tight" aria-label="Issue type">
+                            {_.map(issueTypeLabels, ([label, shortName, variant, title]) => (
+                                <Label key={label} variant={variant} size="small" title={title}>{shortName}</Label>
+                            ))}
+                        </Stack>
+                    )}
                 </Stack>
                 <Stack.Item grow>
-                    <div className="k2-issue-row-content">
-                        <Link
-                            href={issue.url}
-                            className={`k2-work-item-title${isMuted ? ' k2-work-item-muted' : ''}${isOverdue ? ' k2-work-item-overdue' : ''}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            {issue.title}
-                        </Link>
-                        {!!issueTypeLabels.length && (
-                            <LabelGroup className="k2-issue-type-labels" aria-label="Issue type">
-                                {_.map(issueTypeLabels, ([label, shortName, variant, title]) => (
-                                    <Label key={label} variant={variant} size="small" title={title}>{shortName}</Label>
-                                ))}
-                            </LabelGroup>
-                        )}
-                    </div>
+                    <Link
+                        href={issue.url}
+                        className={`k2-work-item-title${isMuted ? ' k2-work-item-muted' : ''}${isOverdue ? ' k2-work-item-overdue' : ''}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {issue.title}
+                    </Link>
                 </Stack.Item>
                 {showAttendees && issue.assignees.length > 0 && (
                     <AvatarStack alignRight size={20} aria-label={`Assigned to ${_.pluck(issue.assignees, 'login').join(', ')}`}>
