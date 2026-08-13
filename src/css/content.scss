@@ -102,7 +102,7 @@ $color-dark-yellow: #DAA520;
 }
 
 .k2-issue-work-item {
-    padding: 8px 12px;
+    padding: 6px 10px;
 }
 
 .k2-section-header + .k2-work-item,
@@ -144,6 +144,11 @@ $color-dark-yellow: #DAA520;
 .k2-issue-type-labels {
     flex: 0 0 auto;
     margin-left: auto;
+}
+
+.k2-issue-leading {
+    flex: 0 0 auto;
+    min-width: 16px;
 }
 
 .k2-work-item-meta {

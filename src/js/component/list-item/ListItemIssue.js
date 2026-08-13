@@ -10,27 +10,32 @@ import IssuePropTypes from './IssuePropTypes';
 const propTypes = {
     issue: IssuePropTypes.isRequired,
     showAttendees: PropTypes.bool,
+    showPriority: PropTypes.bool,
 };
 
 const defaultProps = {
     showAttendees: false,
+    showPriority: false,
 };
 
 function hasLabel(issue, labelName) {
     return _.some(issue.labels, label => label.name.toLowerCase() === labelName.toLowerCase());
 }
 
-function ListItemIssue({issue, showAttendees}) {
+function ListItemIssue({issue, showAttendees, showPriority}) {
     const isOverdue = hasLabel(issue, 'Overdue');
     const isHeld = issue.title.toLowerCase().includes('[hold');
     const isChallengeSent = hasLabel(issue, 'Take Home Challenge Sent');
     const isHelpWanted = hasLabel(issue, 'Help Wanted');
     const isMuted = isHeld || isChallengeSent || isHelpWanted || (issue.issueHasOwner && !issue.currentUserIsOwner);
     let ownerIcon = null;
+    let ownerDescription = 'Issue has no owner';
     if (issue.currentUserIsOwner) {
         ownerIcon = <StarFillIcon />;
+        ownerDescription = 'You own this issue';
     } else if (issue.issueHasOwner) {
         ownerIcon = <StarIcon />;
+        ownerDescription = 'Owned by someone else';
     }
     const issueTypeLabels = _.filter([
         ['External', 'E', 'secondary', 'External'],
@@ -38,17 +43,26 @@ function ListItemIssue({issue, showAttendees}) {
         ['Task', 'T', 'attention', 'Task'],
         ['NewFeature', 'F', 'sponsors', 'New Feature'],
     ], ([label]) => hasLabel(issue, label));
+    const priority = _.find([
+        ['Hourly', 'danger'],
+        ['Daily', 'severe'],
+        ['Weekly', 'success'],
+        ['Monthly', 'done'],
+    ], ([label]) => hasLabel(issue, label)) || ['No priority', 'secondary'];
 
     return (
         <div className="k2-work-item k2-issue-work-item">
             <Stack direction="horizontal" gap="condensed" align="start">
-                <span
-                    className={issue.currentUserIsOwner ? 'k2-owner-icon k2-owner-icon-current' : 'k2-owner-icon'}
-                    title={issue.currentUserIsOwner ? 'You own this issue' : 'Owned by someone else'}
-                    aria-label={issue.currentUserIsOwner ? 'You own this issue' : 'Owned by someone else'}
-                >
-                    {ownerIcon}
-                </span>
+                <Stack className="k2-issue-leading" align="center" gap="tight">
+                    <span
+                        className={issue.currentUserIsOwner ? 'k2-owner-icon k2-owner-icon-current' : 'k2-owner-icon'}
+                        title={ownerDescription}
+                        aria-label={ownerDescription}
+                    >
+                        {ownerIcon}
+                    </span>
+                    {showPriority && <Label variant={priority[1]} size="small">{priority[0]}</Label>}
+                </Stack>
                 <Stack.Item grow>
                     <div className="k2-issue-row-content">
                         <Link

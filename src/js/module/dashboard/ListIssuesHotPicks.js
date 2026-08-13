@@ -65,7 +65,7 @@ class ListIssuesHotPicks extends React.Component {
                     <EmptyState />
                 ) : (
                     <>
-                        {_.map(this.props.issues, issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)}
+                        {_.map(this.props.issues, issue => <ListItemIssue key={issue.id} issue={issue} showAttendees showPriority />)}
                     </>
                 )}
 
