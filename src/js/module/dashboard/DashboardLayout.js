@@ -9,10 +9,9 @@ import Legend from './Legend';
 
 const propTypes = {
     pollInterval: PropTypes.number.isRequired,
-    filterUIOption: PropTypes.string.isRequired,
 };
 
-function DashboardLayout({pollInterval, filterUIOption}) {
+function DashboardLayout({pollInterval}) {
     return (
         <PageLayout containerWidth="full" padding="none" columnGap="normal">
             <PageLayout.Pane position="start" width="small" aria-label="Dashboard actions and legend">
@@ -20,8 +19,8 @@ function DashboardLayout({pollInterval, filterUIOption}) {
             </PageLayout.Pane>
             <PageLayout.Content padding="none">
                 <Stack gap="normal">
-                    <ListPRsReviewing pollInterval={pollInterval * 2.5} filterUIOption={filterUIOption} />
-                    <ListIssuesAssigned pollInterval={pollInterval} filterUIOption={filterUIOption} />
+                    <ListPRsReviewing pollInterval={pollInterval * 2.5} />
+                    <ListIssuesAssigned pollInterval={pollInterval} />
                     <ListPRsAssigned pollInterval={pollInterval * 2.5} />
                     <ListIssuesHotPicks pollInterval={pollInterval * 2.5} />
                 </Stack>

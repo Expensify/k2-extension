@@ -6,7 +6,7 @@ import ONYXKEYS from '../../ONYXKEYS';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import Title from '../../component/panel-title/Title';
 import ListItemPull from '../../component/list-item/ListItemPull';
-import FilterBar from '../../component/filters/FilterBar';
+import PresetFilterBar from '../../component/filters/PresetFilterBar';
 import * as PullRequests from '../../lib/actions/PullRequests';
 import openAllUrls from '../../lib/openAllUrls';
 import EmptyState from '../../component/EmptyState';
@@ -28,15 +28,13 @@ const propTypes = {
         /** Should PRs that are on hold be hidden? */
         shouldHideOnHold: PropTypes.bool,
     }),
-
-    filterUIOption: PropTypes.string.isRequired,
 };
 const defaultProps = {
     prs: null,
     checkboxes: {
-        shouldHideDraft: false,
-        shouldHideAlreadyReviewed: false,
-        shouldHideOnHold: false,
+        shouldHideDraft: true,
+        shouldHideAlreadyReviewed: true,
+        shouldHideOnHold: true,
     },
 };
 
@@ -57,9 +55,6 @@ class ListPRsReviewing extends React.Component {
         };
 
         this.fetch = this.fetch.bind(this);
-        this.toggleDraftFilter = this.toggleDraftFilter.bind(this);
-        this.toggleAlreadyReviewedFilter = this.toggleAlreadyReviewedFilter.bind(this);
-        this.toggleOnHoldFilter = this.toggleOnHoldFilter.bind(this);
         this.applySearchFilter = this.applySearchFilter.bind(this);
         this.applyDebouncedSearchFilter = _.debounce(this.applyDebouncedSearchFilter.bind(this), 300);
         this.filterPRs = this.filterPRs.bind(this);
@@ -92,18 +87,6 @@ class ListPRsReviewing extends React.Component {
 
     applyDebouncedSearchFilter(value) {
         this.setState({searchText: value});
-    }
-
-    toggleDraftFilter() {
-        this.updateFilters({shouldHideDraft: !this.state.shouldHideDraft});
-    }
-
-    toggleAlreadyReviewedFilter() {
-        this.updateFilters({shouldHideAlreadyReviewed: !this.state.shouldHideAlreadyReviewed});
-    }
-
-    toggleOnHoldFilter() {
-        this.updateFilters({shouldHideOnHold: !this.state.shouldHideOnHold});
     }
 
     updateFilters(filters, viewFilter = 'custom') {
@@ -197,25 +180,6 @@ class ListPRsReviewing extends React.Component {
         }
 
         const filteredPRs = this.props.prs ? this.filterPRs(this.props.prs) : [];
-        const filters = [
-            {
-                id: 'draft', label: 'Hide drafts', active: this.state.shouldHideDraft, onSelect: this.toggleDraftFilter,
-            },
-            {
-                id: 'reviewed', label: 'Hide reviewed', active: this.state.shouldHideAlreadyReviewed, onSelect: this.toggleAlreadyReviewedFilter,
-            },
-            {
-                id: 'hold', label: 'Hide on hold', active: this.state.shouldHideOnHold, onSelect: this.toggleOnHoldFilter,
-            },
-        ];
-        if (this.state.viewFilter === 'reviewed' || this.state.viewFilter === 'draft') {
-            filters.push({
-                id: `${this.state.viewFilter}-only`,
-                label: `${this.state.viewFilter === 'reviewed' ? 'Reviewed' : 'Draft'} only`,
-                active: true,
-                onSelect: this.clearFilters,
-            });
-        }
         const isCustomView = this.state.viewFilter === 'custom';
         const presets = [
             {
@@ -224,13 +188,6 @@ class ListPRsReviewing extends React.Component {
                 description: 'Excludes drafts, PRs already reviewed, and PRs on hold or marked WIP.',
                 active: isCustomView && this.state.shouldHideDraft && this.state.shouldHideAlreadyReviewed && this.state.shouldHideOnHold,
                 onSelect: () => this.applyPreset('actionable'),
-            },
-            {
-                id: 'all',
-                label: 'All',
-                description: 'Shows every PR in the review queue.',
-                active: isCustomView && !this.state.shouldHideDraft && !this.state.shouldHideAlreadyReviewed && !this.state.shouldHideOnHold,
-                onSelect: () => this.applyPreset('all'),
             },
             {
                 id: 'reviewed-only',
@@ -246,60 +203,22 @@ class ListPRsReviewing extends React.Component {
                 active: this.state.viewFilter === 'draft',
                 onSelect: () => this.applyPreset('draft'),
             },
-        ];
-        const structuredMenus = [
             {
-                id: 'review-status',
-                label: 'Review status',
-                items: [
-                    {
-                        id: 'review-any', label: 'Any', active: isCustomView && !this.state.shouldHideAlreadyReviewed, onSelect: () => this.updateFilters({shouldHideAlreadyReviewed: false}),
-                    },
-                    {
-                        id: 'needs-review',
-                        label: 'Needs my review',
-                        active: isCustomView && this.state.shouldHideAlreadyReviewed,
-                        onSelect: () => this.updateFilters({shouldHideAlreadyReviewed: true}),
-                    },
-                    {
-                        id: 'reviewed-only', label: 'Reviewed only', active: this.state.viewFilter === 'reviewed', onSelect: () => this.applyPreset('reviewed'),
-                    },
-                ],
-            },
-            {
-                id: 'pr-state',
-                label: 'State',
-                items: [
-                    {
-                        id: 'state-any',
-                        label: 'Any',
-                        active: isCustomView && !this.state.shouldHideDraft && !this.state.shouldHideOnHold,
-                        onSelect: () => this.updateFilters({shouldHideDraft: false, shouldHideOnHold: false}),
-                    },
-                    {
-                        id: 'state-active',
-                        label: 'Active only',
-                        active: isCustomView && this.state.shouldHideDraft && this.state.shouldHideOnHold,
-                        onSelect: () => this.updateFilters({shouldHideDraft: true, shouldHideOnHold: true}),
-                    },
-                    {
-                        id: 'state-draft', label: 'Draft only', active: this.state.viewFilter === 'draft', onSelect: () => this.applyPreset('draft'),
-                    },
-                ],
+                id: 'all',
+                label: 'All',
+                description: 'Shows every PR in the review queue.',
+                active: isCustomView && !this.state.shouldHideDraft && !this.state.shouldHideAlreadyReviewed && !this.state.shouldHideOnHold,
+                onSelect: () => this.applyPreset('all'),
             },
         ];
 
         return (
             <div>
-                <FilterBar
-                    mode={this.props.filterUIOption}
+                <PresetFilterBar
                     searchPlaceholder="Filter PRs by title"
                     searchValue={this.state.searchInputText}
                     onSearch={this.applySearchFilter}
-                    onClear={this.clearFilters}
-                    filters={filters}
                     presets={presets}
-                    structuredMenus={structuredMenus}
                 />
 
                 <section className="k2-panel k2-panel-daily" aria-label="Pull requests to review daily">
