@@ -21,15 +21,10 @@ function hasLabel(issue, labelName) {
 }
 
 function ListItemIssue({issue, showAttendees}) {
-    const isExternal = hasLabel(issue, 'External');
-    const isUnderReview = hasLabel(issue, 'Reviewing');
     const isOverdue = hasLabel(issue, 'Overdue');
-    const isPlanning = hasLabel(issue, 'Planning');
-    const isWaitingForCustomer = hasLabel(issue, 'Waiting for customer');
     const isHeld = issue.title.toLowerCase().includes('[hold');
     const isChallengeSent = hasLabel(issue, 'Take Home Challenge Sent');
     const isHelpWanted = hasLabel(issue, 'Help Wanted');
-    const isContributorAssigned = isExternal && !isHelpWanted;
     const isMuted = isHeld || isChallengeSent || isHelpWanted || (issue.issueHasOwner && !issue.currentUserIsOwner);
     let ownerIcon = null;
     if (issue.currentUserIsOwner) {
@@ -37,21 +32,12 @@ function ListItemIssue({issue, showAttendees}) {
     } else if (issue.issueHasOwner) {
         ownerIcon = <StarIcon />;
     }
-    const priorityLabels = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
-    const priorityVariants = {
-        Hourly: 'danger',
-        Daily: 'severe',
-        Weekly: 'success',
-        Monthly: 'done',
-    };
-    const shortLabels = [
-        ['WhatsNext', 'WN', 'accent'],
-        ['FirstPick', 'FP', 'accent'],
-        ['External', 'E', 'secondary'],
-        ['Improvement', 'I', 'done'],
-        ['Task', 'T', 'attention'],
-        ['NewFeature', 'F', 'sponsors'],
-    ];
+    const issueTypeLabels = _.filter([
+        ['External', 'E', 'secondary', 'External'],
+        ['Improvement', 'I', 'done', 'Improvement'],
+        ['Task', 'T', 'attention', 'Task'],
+        ['NewFeature', 'F', 'sponsors', 'New Feature'],
+    ], ([label]) => hasLabel(issue, label));
 
     return (
         <div className="k2-work-item">
@@ -72,21 +58,13 @@ function ListItemIssue({issue, showAttendees}) {
                     >
                         {issue.title}
                     </Link>
-                    <LabelGroup className="k2-work-item-labels" aria-label="Issue metadata">
-                        {_.map(priorityLabels, label => hasLabel(issue, label) && (
-                            <Label key={label} className="k2-priority-label" variant={priorityVariants[label]} size="small">
-                                {label}
-                            </Label>
-                        ))}
-                        {_.map(shortLabels, ([label, shortName, variant]) => hasLabel(issue, label) && (
-                            <Label key={label} variant={variant} size="small" title={label}>{shortName}</Label>
-                        ))}
-                        {isUnderReview && <Label variant="secondary" size="small">Under review</Label>}
-                        {isOverdue && <Label variant="danger" size="small">Overdue</Label>}
-                        {isPlanning && <Label variant="attention" size="small">Planning</Label>}
-                        {isWaitingForCustomer && <Label variant="attention" size="small">Waiting</Label>}
-                        {isContributorAssigned && <Label variant="accent" size="small">Contributor assigned</Label>}
-                    </LabelGroup>
+                    {!!issueTypeLabels.length && (
+                        <LabelGroup className="k2-work-item-labels" aria-label="Issue type">
+                            {_.map(issueTypeLabels, ([label, shortName, variant, title]) => (
+                                <Label key={label} variant={variant} size="small" title={title}>{shortName}</Label>
+                            ))}
+                        </LabelGroup>
+                    )}
                 </Stack.Item>
                 {showAttendees && issue.assignees.length > 0 && (
                     <AvatarStack alignRight size={20} aria-label={`Assigned to ${_.pluck(issue.assignees, 'login').join(', ')}`}>
