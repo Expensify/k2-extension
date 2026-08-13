@@ -5,7 +5,6 @@ import ListIssuesAssigned from './ListIssuesAssigned';
 import ListIssuesHotPicks from './ListIssuesHotPicks';
 import ListPRsAssigned from './ListPRsAssigned';
 import ListPRsReviewing from './ListPRsReviewing';
-import Legend from './Legend';
 
 const propTypes = {
     pollInterval: PropTypes.number.isRequired,
@@ -13,10 +12,7 @@ const propTypes = {
 
 function DashboardLayout({pollInterval}) {
     return (
-        <PageLayout containerWidth="full" padding="none" columnGap="normal">
-            <PageLayout.Pane position="start" width="small" aria-label="Dashboard actions and legend">
-                <Legend />
-            </PageLayout.Pane>
+        <PageLayout containerWidth="full" padding="none">
             <PageLayout.Content padding="none">
                 <Stack gap="normal">
                     <ListPRsReviewing pollInterval={pollInterval * 2.5} />

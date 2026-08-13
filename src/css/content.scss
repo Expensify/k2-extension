@@ -153,8 +153,7 @@ $color-dark-yellow: #DAA520;
     min-width: 16px;
 }
 
-.k2-owner-icon-current,
-.k2-owner-key {
+.k2-owner-icon-current {
     color: var(--fgColor-attention) !important;
 }
 
@@ -205,13 +204,8 @@ $color-dark-yellow: #DAA520;
     text-align: center;
 }
 
-.k2-legend {
-    font-size: var(--text-body-size-small);
-}
-
-.k2-legend-heading {
-    font-size: var(--text-body-size-small);
-    margin: 0 0 8px;
+.k2-dashboard-actions {
+    margin-left: auto;
 }
 
 .k2-sortable-item {
