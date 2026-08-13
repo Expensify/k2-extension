@@ -32,8 +32,6 @@ const propTypes = {
         /** Should issues that are not overdue be hidden? */
         shouldHideNotOverdue: PropTypes.bool,
     }),
-
-    layout: PropTypes.oneOf(['classic', 'readable']),
 };
 const defaultProps = {
     issues: null,
@@ -43,7 +41,6 @@ const defaultProps = {
         shouldHideOwnedBySomeoneElse: false,
         shouldHideNotOverdue: false,
     },
-    layout: 'classic',
 };
 
 class ListIssuesAssigned extends React.Component {
@@ -284,7 +281,7 @@ class ListIssuesAssigned extends React.Component {
                     />
                 </Stack>
                 {!_.isEmpty(this.props.issues) && (
-                    <div className={`k2-priority-grid${this.props.layout === 'readable' ? ' k2-priority-grid-readable' : ''}`}>
+                    <div className="k2-priority-grid">
                         <PanelIssues
                             title="Hourly"
                             key="hourly"

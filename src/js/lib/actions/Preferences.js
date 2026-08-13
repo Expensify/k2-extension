@@ -5,7 +5,6 @@ let ghToken;
 let useAbsoluteTimestamps;
 let autoLoadMoreComments;
 let showOpenAllButtons;
-let dashboardLayout;
 let authData = {
     type: 'pat', // 'pat' for Personal Access Token, 'oauth' for OAuth
     token: null,
@@ -48,7 +47,6 @@ ReactNativeOnyx.connect({
         useAbsoluteTimestamps = !!preferences.useAbsoluteTimestamps;
         autoLoadMoreComments = preferences.autoLoadMoreComments || false;
         showOpenAllButtons = preferences.showOpenAllButtons;
-        dashboardLayout = preferences.dashboardLayout;
     },
 });
 
@@ -150,18 +148,6 @@ function setShowOpenAllButtons(value) {
     ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {showOpenAllButtons: value});
 }
 
-function getDashboardLayout() {
-    return dashboardLayout || 'classic';
-}
-
-/**
- * @param {String} value
- */
-function setDashboardLayout(value) {
-    dashboardLayout = value;
-    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {dashboardLayout: value});
-}
-
 export {
     getGitHubToken,
     setGitHubToken,
@@ -177,6 +163,4 @@ export {
     setAutoLoadMoreComments,
     getShowOpenAllButtons,
     setShowOpenAllButtons,
-    getDashboardLayout,
-    setDashboardLayout,
 };

@@ -181,10 +181,6 @@ $color-dark-yellow: #DAA520;
     grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
 }
 
-.k2-priority-grid-readable {
-    grid-template-columns: 1fr;
-}
-
 .k2-no-priority {
     margin-top: 8px;
 }
@@ -207,20 +203,6 @@ $color-dark-yellow: #DAA520;
 .k2-legend-heading {
     font-size: var(--text-body-size-small);
     margin: 0 0 8px;
-}
-
-.k2-readable-layout {
-    margin: 0 auto;
-    max-width: 1120px;
-    width: 100%;
-}
-
-.k2-dashboard-readable .k2-work-item {
-    padding: 14px 16px;
-}
-
-.k2-dashboard-readable .k2-work-item-title {
-    font-size: var(--text-title-size-small);
 }
 
 .k2-sortable-item {
