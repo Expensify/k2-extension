@@ -65,10 +65,51 @@ export default function () {
         if (AllPages.k2TabPositionObserver) {
             AllPages.k2TabPositionObserver.disconnect();
         }
+        AllPages.k2TabPositionObserver = null;
 
         if (AllPages.k2TabResizeObserver) {
             AllPages.k2TabResizeObserver.disconnect();
         }
+        AllPages.k2TabResizeObserver = null;
+
+        if (AllPages.k2TabNavigationObserver) {
+            AllPages.k2TabNavigationObserver.disconnect();
+        }
+        AllPages.k2TabNavigationObserver = null;
+        AllPages.k2TabRepositoryNavigation = null;
+
+        const observeRepositoryNavigation = () => {
+            const repositoryNavigation = $('nav[aria-label="Repository"]').first()[0];
+
+            if (AllPages.k2TabRepositoryNavigation === repositoryNavigation) {
+                return;
+            }
+
+            if (AllPages.k2TabPositionObserver) {
+                AllPages.k2TabPositionObserver.disconnect();
+            }
+
+            if (AllPages.k2TabResizeObserver) {
+                AllPages.k2TabResizeObserver.disconnect();
+            }
+
+            AllPages.k2TabRepositoryNavigation = repositoryNavigation;
+            scheduleK2TabPosition();
+
+            if (!repositoryNavigation) {
+                return;
+            }
+
+            AllPages.k2TabPositionObserver = new MutationObserver(scheduleK2TabPosition);
+            AllPages.k2TabPositionObserver.observe(repositoryNavigation, {
+                attributes: true,
+                childList: true,
+                subtree: true,
+            });
+
+            AllPages.k2TabResizeObserver = new ResizeObserver(scheduleK2TabPosition);
+            AllPages.k2TabResizeObserver.observe(repositoryNavigation);
+        };
 
         positionK2Tab();
 
@@ -80,18 +121,11 @@ export default function () {
             .off('resize.k2-extension scroll.k2-extension')
             .on('resize.k2-extension scroll.k2-extension', scheduleK2TabPosition);
 
-        const repositoryNavigation = $('nav[aria-label="Repository"]').first();
-        if (repositoryNavigation.length) {
-            AllPages.k2TabPositionObserver = new MutationObserver(scheduleK2TabPosition);
-            AllPages.k2TabPositionObserver.observe(repositoryNavigation[0], {
-                attributes: true,
-                childList: true,
-                subtree: true,
-            });
+        observeRepositoryNavigation();
 
-            AllPages.k2TabResizeObserver = new ResizeObserver(scheduleK2TabPosition);
-            AllPages.k2TabResizeObserver.observe(repositoryNavigation[0]);
-        }
+        // GitHub can replace the repository navigation during SPA navigation.
+        AllPages.k2TabNavigationObserver = new MutationObserver(observeRepositoryNavigation);
+        AllPages.k2TabNavigationObserver.observe(document.body, {childList: true, subtree: true});
 
         // Set up timestamp format conversion
         setTimeout(() => AllPages.applyTimestampFormat(), 500);
