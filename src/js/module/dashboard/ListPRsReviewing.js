@@ -2,6 +2,7 @@ import React from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
+import {Stack} from '@primer/react';
 import ONYXKEYS from '../../ONYXKEYS';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import Title from '../../component/panel-title/Title';
@@ -213,7 +214,7 @@ class ListPRsReviewing extends React.Component {
         ];
 
         return (
-            <div>
+            <Stack gap="condensed">
                 <PresetFilterBar
                     searchPlaceholder="Filter PRs by title"
                     searchValue={this.state.searchInputText}
@@ -238,7 +239,7 @@ class ListPRsReviewing extends React.Component {
                         .value()
                         .reverse()}
                 </section>
-            </div>
+            </Stack>
         );
     }
 }
