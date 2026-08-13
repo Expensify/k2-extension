@@ -5,6 +5,7 @@ let ghToken;
 let useAbsoluteTimestamps;
 let autoLoadMoreComments;
 let showOpenAllButtons;
+let filterUIOption;
 let authData = {
     type: 'pat', // 'pat' for Personal Access Token, 'oauth' for OAuth
     token: null,
@@ -47,6 +48,7 @@ ReactNativeOnyx.connect({
         useAbsoluteTimestamps = !!preferences.useAbsoluteTimestamps;
         autoLoadMoreComments = preferences.autoLoadMoreComments || false;
         showOpenAllButtons = preferences.showOpenAllButtons;
+        filterUIOption = preferences.filterUIOption;
     },
 });
 
@@ -148,6 +150,18 @@ function setShowOpenAllButtons(value) {
     ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {showOpenAllButtons: value});
 }
 
+function getFilterUIOption() {
+    return filterUIOption || 'hybrid';
+}
+
+/**
+ * @param {String} value
+ */
+function setFilterUIOption(value) {
+    filterUIOption = value;
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {filterUIOption: value});
+}
+
 export {
     getGitHubToken,
     setGitHubToken,
@@ -163,4 +177,6 @@ export {
     setAutoLoadMoreComments,
     getShowOpenAllButtons,
     setShowOpenAllButtons,
+    getFilterUIOption,
+    setFilterUIOption,
 };

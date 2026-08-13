@@ -2,14 +2,11 @@ import React from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
-import {
-    Checkbox, CheckboxGroup, FormControl, Stack, TextInput,
-} from '@primer/react';
-import {SearchIcon} from '@primer/octicons-react';
 import ONYXKEYS from '../../ONYXKEYS';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import Title from '../../component/panel-title/Title';
 import ListItemPull from '../../component/list-item/ListItemPull';
+import FilterBar from '../../component/filters/FilterBar';
 import * as PullRequests from '../../lib/actions/PullRequests';
 import openAllUrls from '../../lib/openAllUrls';
 import EmptyState from '../../component/EmptyState';
@@ -31,6 +28,8 @@ const propTypes = {
         /** Should PRs that are on hold be hidden? */
         shouldHideOnHold: PropTypes.bool,
     }),
+
+    filterUIOption: PropTypes.string.isRequired,
 };
 const defaultProps = {
     prs: null,
@@ -54,6 +53,7 @@ class ListPRsReviewing extends React.Component {
             // searchText is the debounced value used for filtering
             searchInputText: '',
             searchText: '',
+            viewFilter: 'custom',
         };
 
         this.fetch = this.fetch.bind(this);
@@ -63,6 +63,9 @@ class ListPRsReviewing extends React.Component {
         this.applySearchFilter = this.applySearchFilter.bind(this);
         this.applyDebouncedSearchFilter = _.debounce(this.applyDebouncedSearchFilter.bind(this), 300);
         this.filterPRs = this.filterPRs.bind(this);
+        this.clearFilters = this.clearFilters.bind(this);
+        this.applyPreset = this.applyPreset.bind(this);
+        this.updateFilters = this.updateFilters.bind(this);
     }
 
     componentDidMount() {
@@ -92,18 +95,48 @@ class ListPRsReviewing extends React.Component {
     }
 
     toggleDraftFilter() {
-        this.setState(prevState => ({shouldHideDraft: !prevState.shouldHideDraft}));
-        PullRequests.saveCheckboxes({shouldHideDraft: !this.state.shouldHideDraft});
+        this.updateFilters({shouldHideDraft: !this.state.shouldHideDraft});
     }
 
     toggleAlreadyReviewedFilter() {
-        this.setState(prevState => ({shouldHideAlreadyReviewed: !prevState.shouldHideAlreadyReviewed}));
-        PullRequests.saveCheckboxes({shouldHideAlreadyReviewed: !this.state.shouldHideAlreadyReviewed});
+        this.updateFilters({shouldHideAlreadyReviewed: !this.state.shouldHideAlreadyReviewed});
     }
 
     toggleOnHoldFilter() {
-        this.setState(prevState => ({shouldHideOnHold: !prevState.shouldHideOnHold}));
-        PullRequests.saveCheckboxes({shouldHideOnHold: !this.state.shouldHideOnHold});
+        this.updateFilters({shouldHideOnHold: !this.state.shouldHideOnHold});
+    }
+
+    updateFilters(filters, viewFilter = 'custom') {
+        this.setState({...filters, viewFilter});
+        PullRequests.saveCheckboxes(filters);
+    }
+
+    clearFilters() {
+        this.updateFilters({
+            shouldHideDraft: false,
+            shouldHideAlreadyReviewed: false,
+            shouldHideOnHold: false,
+        });
+    }
+
+    applyPreset(preset) {
+        if (preset === 'actionable') {
+            this.updateFilters({
+                shouldHideDraft: true,
+                shouldHideAlreadyReviewed: true,
+                shouldHideOnHold: true,
+            });
+            return;
+        }
+        if (preset === 'reviewed' || preset === 'draft') {
+            this.updateFilters({
+                shouldHideDraft: false,
+                shouldHideAlreadyReviewed: false,
+                shouldHideOnHold: false,
+            }, preset);
+            return;
+        }
+        this.clearFilters();
     }
 
     fetch() {
@@ -127,6 +160,12 @@ class ListPRsReviewing extends React.Component {
         });
 
         return _.filter(prs, (pr) => {
+            if (this.state.viewFilter === 'reviewed' && pr.isReviewRequested !== false) {
+                return false;
+            }
+            if (this.state.viewFilter === 'draft' && !pr.isDraft) {
+                return false;
+            }
             if (this.state.shouldHideDraft && pr.isDraft) {
                 return false;
             }
@@ -158,36 +197,100 @@ class ListPRsReviewing extends React.Component {
         }
 
         const filteredPRs = this.props.prs ? this.filterPRs(this.props.prs) : [];
+        const filters = [
+            {
+                id: 'draft', label: 'Hide drafts', active: this.state.shouldHideDraft, onSelect: this.toggleDraftFilter,
+            },
+            {
+                id: 'reviewed', label: 'Hide reviewed', active: this.state.shouldHideAlreadyReviewed, onSelect: this.toggleAlreadyReviewedFilter,
+            },
+            {
+                id: 'hold', label: 'Hide on hold', active: this.state.shouldHideOnHold, onSelect: this.toggleOnHoldFilter,
+            },
+        ];
+        if (this.state.viewFilter === 'reviewed' || this.state.viewFilter === 'draft') {
+            filters.push({
+                id: `${this.state.viewFilter}-only`,
+                label: `${this.state.viewFilter === 'reviewed' ? 'Reviewed' : 'Draft'} only`,
+                active: true,
+                onSelect: this.clearFilters,
+            });
+        }
+        const isCustomView = this.state.viewFilter === 'custom';
+        const presets = [
+            {
+                id: 'actionable',
+                label: 'Actionable',
+                active: isCustomView && this.state.shouldHideDraft && this.state.shouldHideAlreadyReviewed && this.state.shouldHideOnHold,
+                onSelect: () => this.applyPreset('actionable'),
+            },
+            {
+                id: 'all',
+                label: 'All',
+                active: isCustomView && !this.state.shouldHideDraft && !this.state.shouldHideAlreadyReviewed && !this.state.shouldHideOnHold,
+                onSelect: () => this.applyPreset('all'),
+            },
+            {
+                id: 'reviewed-only', label: 'Reviewed', active: this.state.viewFilter === 'reviewed', onSelect: () => this.applyPreset('reviewed'),
+            },
+            {
+                id: 'draft-only', label: 'Draft', active: this.state.viewFilter === 'draft', onSelect: () => this.applyPreset('draft'),
+            },
+        ];
+        const structuredMenus = [
+            {
+                id: 'review-status',
+                label: 'Review status',
+                items: [
+                    {
+                        id: 'review-any', label: 'Any', active: isCustomView && !this.state.shouldHideAlreadyReviewed, onSelect: () => this.updateFilters({shouldHideAlreadyReviewed: false}),
+                    },
+                    {
+                        id: 'needs-review',
+                        label: 'Needs my review',
+                        active: isCustomView && this.state.shouldHideAlreadyReviewed,
+                        onSelect: () => this.updateFilters({shouldHideAlreadyReviewed: true}),
+                    },
+                    {
+                        id: 'reviewed-only', label: 'Reviewed only', active: this.state.viewFilter === 'reviewed', onSelect: () => this.applyPreset('reviewed'),
+                    },
+                ],
+            },
+            {
+                id: 'pr-state',
+                label: 'State',
+                items: [
+                    {
+                        id: 'state-any',
+                        label: 'Any',
+                        active: isCustomView && !this.state.shouldHideDraft && !this.state.shouldHideOnHold,
+                        onSelect: () => this.updateFilters({shouldHideDraft: false, shouldHideOnHold: false}),
+                    },
+                    {
+                        id: 'state-active',
+                        label: 'Active only',
+                        active: isCustomView && this.state.shouldHideDraft && this.state.shouldHideOnHold,
+                        onSelect: () => this.updateFilters({shouldHideDraft: true, shouldHideOnHold: true}),
+                    },
+                    {
+                        id: 'state-draft', label: 'Draft only', active: this.state.viewFilter === 'draft', onSelect: () => this.applyPreset('draft'),
+                    },
+                ],
+            },
+        ];
 
         return (
             <div>
-                <Stack className="k2-filter-bar" direction="horizontal" align="center" justify="space-between" wrap="wrap" gap="condensed" padding="normal">
-                    <CheckboxGroup>
-                        <CheckboxGroup.Label visuallyHidden>Hide pull requests</CheckboxGroup.Label>
-                        <Stack direction="horizontal" align="center" wrap="wrap" gap="condensed">
-                            <span className="k2-filter-label">Hide:</span>
-                            <FormControl>
-                                <Checkbox checked={this.state.shouldHideDraft} onChange={this.toggleDraftFilter} />
-                                <FormControl.Label>Draft</FormControl.Label>
-                            </FormControl>
-                            <FormControl>
-                                <Checkbox checked={this.state.shouldHideAlreadyReviewed} onChange={this.toggleAlreadyReviewedFilter} />
-                                <FormControl.Label>Already reviewed</FormControl.Label>
-                            </FormControl>
-                            <FormControl>
-                                <Checkbox checked={this.state.shouldHideOnHold} onChange={this.toggleOnHoldFilter} />
-                                <FormControl.Label>On hold</FormControl.Label>
-                            </FormControl>
-                        </Stack>
-                    </CheckboxGroup>
-                    <TextInput
-                        aria-label="Filter pull requests by title"
-                        leadingVisual={SearchIcon}
-                        placeholder="Filter PRs by title"
-                        value={this.state.searchInputText}
-                        onChange={this.applySearchFilter}
-                    />
-                </Stack>
+                <FilterBar
+                    mode={this.props.filterUIOption}
+                    searchPlaceholder="Filter PRs by title"
+                    searchValue={this.state.searchInputText}
+                    onSearch={this.applySearchFilter}
+                    onClear={this.clearFilters}
+                    filters={filters}
+                    presets={presets}
+                    structuredMenus={structuredMenus}
+                />
 
                 <section className="k2-panel k2-panel-daily" aria-label="Pull requests to review daily">
                     <Title

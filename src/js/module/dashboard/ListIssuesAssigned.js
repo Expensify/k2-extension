@@ -2,12 +2,10 @@ import React from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
-import {
-    Checkbox, CheckboxGroup, FormControl, Stack, TextInput,
-} from '@primer/react';
-import {SearchIcon} from '@primer/octicons-react';
+import {Stack} from '@primer/react';
 import * as Issues from '../../lib/actions/Issues';
 import EmptyState from '../../component/EmptyState';
+import FilterBar from '../../component/filters/FilterBar';
 import PanelIssues from '../../component/panel/PanelIssues';
 import ONYXKEYS from '../../ONYXKEYS';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
@@ -32,6 +30,8 @@ const propTypes = {
         /** Should issues that are not overdue be hidden? */
         shouldHideNotOverdue: PropTypes.bool,
     }),
+
+    filterUIOption: PropTypes.string.isRequired,
 };
 const defaultProps = {
     issues: null,
@@ -64,6 +64,9 @@ class ListIssuesAssigned extends React.Component {
         this.toggleNotOverdueFilter = this.toggleNotOverdueFilter.bind(this);
         this.applySearchFilter = this.applySearchFilter.bind(this);
         this.applyDebouncedSearchFilter = _.debounce(this.applyDebouncedSearchFilter.bind(this), 300);
+        this.updateFilters = this.updateFilters.bind(this);
+        this.clearFilters = this.clearFilters.bind(this);
+        this.applyPreset = this.applyPreset.bind(this);
     }
 
     componentDidMount() {
@@ -98,23 +101,77 @@ class ListIssuesAssigned extends React.Component {
     }
 
     toggleHeldFilter() {
-        this.setState(prevState => ({shouldHideHeldIssues: !prevState.shouldHideHeldIssues}));
-        Issues.saveCheckboxes({shouldHideOnHold: !this.state.shouldHideHeldIssues});
+        this.updateFilters({shouldHideHeldIssues: !this.state.shouldHideHeldIssues});
     }
 
     toggleNotOverdueFilter() {
-        this.setState(prevState => ({shouldHideNotOverdueIssues: !prevState.shouldHideNotOverdueIssues}));
-        Issues.saveCheckboxes({shouldHideNotOverdue: !this.state.shouldHideNotOverdueIssues});
+        this.updateFilters({shouldHideNotOverdueIssues: !this.state.shouldHideNotOverdueIssues});
     }
 
     toggleOwnedBySomeoneElseFilter() {
-        this.setState(prevState => ({shouldHideOwnedBySomeoneElseIssues: !prevState.shouldHideOwnedBySomeoneElseIssues}));
-        Issues.saveCheckboxes({shouldHideOwnedBySomeoneElse: !this.state.shouldHideOwnedBySomeoneElseIssues});
+        this.updateFilters({shouldHideOwnedBySomeoneElseIssues: !this.state.shouldHideOwnedBySomeoneElseIssues});
     }
 
     toggleUnderReviewFilter() {
-        this.setState(prevState => ({shouldHideUnderReviewIssues: !prevState.shouldHideUnderReviewIssues}));
-        Issues.saveCheckboxes({shouldHideUnderReview: !this.state.shouldHideUnderReviewIssues});
+        this.updateFilters({shouldHideUnderReviewIssues: !this.state.shouldHideUnderReviewIssues});
+    }
+
+    updateFilters(filters) {
+        const checkboxUpdates = {};
+        if (_.has(filters, 'shouldHideHeldIssues')) {
+            checkboxUpdates.shouldHideOnHold = filters.shouldHideHeldIssues;
+        }
+        if (_.has(filters, 'shouldHideUnderReviewIssues')) {
+            checkboxUpdates.shouldHideUnderReview = filters.shouldHideUnderReviewIssues;
+        }
+        if (_.has(filters, 'shouldHideOwnedBySomeoneElseIssues')) {
+            checkboxUpdates.shouldHideOwnedBySomeoneElse = filters.shouldHideOwnedBySomeoneElseIssues;
+        }
+        if (_.has(filters, 'shouldHideNotOverdueIssues')) {
+            checkboxUpdates.shouldHideNotOverdue = filters.shouldHideNotOverdueIssues;
+        }
+        this.setState(filters);
+        Issues.saveCheckboxes(checkboxUpdates);
+    }
+
+    clearFilters() {
+        this.updateFilters({
+            shouldHideHeldIssues: false,
+            shouldHideUnderReviewIssues: false,
+            shouldHideOwnedBySomeoneElseIssues: false,
+            shouldHideNotOverdueIssues: false,
+        });
+    }
+
+    applyPreset(preset) {
+        if (preset === 'actionable') {
+            this.updateFilters({
+                shouldHideHeldIssues: true,
+                shouldHideUnderReviewIssues: true,
+                shouldHideOwnedBySomeoneElseIssues: true,
+                shouldHideNotOverdueIssues: false,
+            });
+            return;
+        }
+        if (preset === 'overdue') {
+            this.updateFilters({
+                shouldHideHeldIssues: false,
+                shouldHideUnderReviewIssues: false,
+                shouldHideOwnedBySomeoneElseIssues: false,
+                shouldHideNotOverdueIssues: true,
+            });
+            return;
+        }
+        if (preset === 'mine') {
+            this.updateFilters({
+                shouldHideHeldIssues: false,
+                shouldHideUnderReviewIssues: false,
+                shouldHideOwnedBySomeoneElseIssues: true,
+                shouldHideNotOverdueIssues: false,
+            });
+            return;
+        }
+        this.clearFilters();
     }
 
     fetch() {
@@ -247,39 +304,137 @@ class ListIssuesAssigned extends React.Component {
             return <EmptyState />;
         }
 
+        const filters = [
+            {
+                id: 'hold', label: 'Hide on hold', active: this.state.shouldHideHeldIssues, onSelect: this.toggleHeldFilter,
+            },
+            {
+                id: 'under-review', label: 'Hide under review', active: this.state.shouldHideUnderReviewIssues, onSelect: this.toggleUnderReviewFilter,
+            },
+            {
+                id: 'other-owner', label: 'Hide owned by someone else', active: this.state.shouldHideOwnedBySomeoneElseIssues, onSelect: this.toggleOwnedBySomeoneElseFilter,
+            },
+            {
+                id: 'overdue', label: 'Overdue only', active: this.state.shouldHideNotOverdueIssues, onSelect: this.toggleNotOverdueFilter,
+            },
+        ];
+        const presets = [
+            {
+                id: 'actionable',
+                label: 'Actionable',
+                active: this.state.shouldHideHeldIssues
+                    && this.state.shouldHideUnderReviewIssues
+                    && this.state.shouldHideOwnedBySomeoneElseIssues
+                    && !this.state.shouldHideNotOverdueIssues,
+                onSelect: () => this.applyPreset('actionable'),
+            },
+            {
+                id: 'overdue',
+                label: 'Overdue',
+                active: !this.state.shouldHideHeldIssues
+                    && !this.state.shouldHideUnderReviewIssues
+                    && !this.state.shouldHideOwnedBySomeoneElseIssues
+                    && this.state.shouldHideNotOverdueIssues,
+                onSelect: () => this.applyPreset('overdue'),
+            },
+            {
+                id: 'mine',
+                label: 'Mine',
+                active: !this.state.shouldHideHeldIssues
+                    && !this.state.shouldHideUnderReviewIssues
+                    && this.state.shouldHideOwnedBySomeoneElseIssues
+                    && !this.state.shouldHideNotOverdueIssues,
+                onSelect: () => this.applyPreset('mine'),
+            },
+            {
+                id: 'all',
+                label: 'All',
+                active: !this.state.shouldHideHeldIssues
+                    && !this.state.shouldHideUnderReviewIssues
+                    && !this.state.shouldHideOwnedBySomeoneElseIssues
+                    && !this.state.shouldHideNotOverdueIssues,
+                onSelect: () => this.applyPreset('all'),
+            },
+        ];
+        const structuredMenus = [
+            {
+                id: 'ownership',
+                label: 'Ownership',
+                items: [
+                    {
+                        id: 'owner-any',
+                        label: 'Anyone',
+                        active: !this.state.shouldHideOwnedBySomeoneElseIssues,
+                        onSelect: () => this.updateFilters({shouldHideOwnedBySomeoneElseIssues: false}),
+                    },
+                    {
+                        id: 'owner-mine',
+                        label: 'Mine or unowned',
+                        active: this.state.shouldHideOwnedBySomeoneElseIssues,
+                        onSelect: () => this.updateFilters({shouldHideOwnedBySomeoneElseIssues: true}),
+                    },
+                ],
+            },
+            {
+                id: 'status',
+                label: 'Status',
+                items: [
+                    {
+                        id: 'status-any',
+                        label: 'Any',
+                        active: !this.state.shouldHideHeldIssues && !this.state.shouldHideUnderReviewIssues && !this.state.shouldHideNotOverdueIssues,
+                        onSelect: () => this.updateFilters({
+                            shouldHideHeldIssues: false,
+                            shouldHideUnderReviewIssues: false,
+                            shouldHideNotOverdueIssues: false,
+                        }),
+                    },
+                    {
+                        id: 'status-actionable',
+                        label: 'Actionable',
+                        active: this.state.shouldHideHeldIssues && this.state.shouldHideUnderReviewIssues && !this.state.shouldHideNotOverdueIssues,
+                        onSelect: () => this.updateFilters({
+                            shouldHideHeldIssues: true,
+                            shouldHideUnderReviewIssues: true,
+                            shouldHideNotOverdueIssues: false,
+                        }),
+                    },
+                    {
+                        id: 'status-overdue',
+                        label: 'Overdue',
+                        active: this.state.shouldHideNotOverdueIssues,
+                        onSelect: () => this.updateFilters({
+                            shouldHideHeldIssues: false,
+                            shouldHideUnderReviewIssues: false,
+                            shouldHideNotOverdueIssues: true,
+                        }),
+                    },
+                    {
+                        id: 'status-no-hold',
+                        label: 'Exclude on hold',
+                        active: this.state.shouldHideHeldIssues && !this.state.shouldHideUnderReviewIssues && !this.state.shouldHideNotOverdueIssues,
+                        onSelect: () => this.updateFilters({
+                            shouldHideHeldIssues: true,
+                            shouldHideUnderReviewIssues: false,
+                            shouldHideNotOverdueIssues: false,
+                        }),
+                    },
+                ],
+            },
+        ];
+
         return (
             <Stack gap="condensed">
-                <Stack className="k2-filter-bar" direction="horizontal" align="center" justify="space-between" wrap="wrap" gap="condensed" padding="normal">
-                    <CheckboxGroup>
-                        <CheckboxGroup.Label visuallyHidden>Hide assigned issues</CheckboxGroup.Label>
-                        <Stack direction="horizontal" align="center" wrap="wrap" gap="condensed">
-                            <span className="k2-filter-label">Hide:</span>
-                            <FormControl>
-                                <Checkbox checked={this.state.shouldHideHeldIssues} onChange={this.toggleHeldFilter} />
-                                <FormControl.Label>On hold</FormControl.Label>
-                            </FormControl>
-                            <FormControl>
-                                <Checkbox checked={this.state.shouldHideUnderReviewIssues} onChange={this.toggleUnderReviewFilter} />
-                                <FormControl.Label>Under review</FormControl.Label>
-                            </FormControl>
-                            <FormControl>
-                                <Checkbox checked={this.state.shouldHideOwnedBySomeoneElseIssues} onChange={this.toggleOwnedBySomeoneElseFilter} />
-                                <FormControl.Label>Owned by someone else</FormControl.Label>
-                            </FormControl>
-                            <FormControl>
-                                <Checkbox checked={this.state.shouldHideNotOverdueIssues} onChange={this.toggleNotOverdueFilter} />
-                                <FormControl.Label>Not overdue</FormControl.Label>
-                            </FormControl>
-                        </Stack>
-                    </CheckboxGroup>
-                    <TextInput
-                        aria-label="Filter issues by title or label"
-                        leadingVisual={SearchIcon}
-                        placeholder="Filter issues by title or label"
-                        value={this.state.searchInputText}
-                        onChange={this.applySearchFilter}
-                    />
-                </Stack>
+                <FilterBar
+                    mode={this.props.filterUIOption}
+                    searchPlaceholder="Filter issues by title or label"
+                    searchValue={this.state.searchInputText}
+                    onSearch={this.applySearchFilter}
+                    onClear={this.clearFilters}
+                    filters={filters}
+                    presets={presets}
+                    structuredMenus={structuredMenus}
+                />
                 {!_.isEmpty(this.props.issues) && (
                     <div className="k2-priority-grid">
                         <PanelIssues

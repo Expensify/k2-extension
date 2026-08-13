@@ -169,10 +169,14 @@ $color-dark-yellow: #DAA520;
     max-width: 360px;
 }
 
-.k2-filter-label {
-    color: var(--fgColor-muted);
-    font-size: var(--text-body-size-small);
-    font-weight: var(--base-text-weight-semibold);
+.k2-filter-search {
+    flex: 1 1 280px;
+    max-width: 520px;
+    min-width: min(100%, 280px);
+}
+
+.k2-filter-tokens {
+    padding-top: 4px;
 }
 
 .k2-priority-grid {
@@ -267,6 +271,11 @@ $color-dark-yellow: #DAA520;
     }
 
     .k2-filter-bar > * {
+        width: 100%;
+    }
+
+    .k2-filter-search {
+        max-width: none;
         width: 100%;
     }
 
