@@ -179,7 +179,7 @@ class PreviousIssuesButtons extends React.Component {
         return (
             <Stack gap="normal">
                 <ActionMenu>
-                    <ActionMenu.Button>Previous Issues Shortcuts</ActionMenu.Button>
+                    <ActionMenu.Button className="k2-sidebar-menu-button">Previous Issues Shortcuts</ActionMenu.Button>
                     <ActionMenu.Overlay width="medium">
                         <ActionList>
                             {_.map(previousIssueButtons, (previousIssueButton, index) => (

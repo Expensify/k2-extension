@@ -131,37 +131,9 @@ const renderAssignees = (issueOwner) => {
 
 const refreshPicker = function () {
     // Add our wrappers to the DOM which all the React components will be rendered into
-    if ($('.k2picker-wrapper')) {
+    if (!$('.k2-sidebar-controls').length) {
         $('div[data-testid="sidebar-projects-section"]') // Labels section in right side panel
             .before(sidebarWrapperHTML);
-    }
-
-    // Add timestamp toggle wrapper at the bottom if it doesn't exist
-    if (!$('.k2toggletimestamps-wrapper').length) {
-        // Find the last sidebar item or sidebar container and append to bottom
-        const lastSidebarItem = $('.discussion-sidebar-item').last();
-        if (lastSidebarItem.length) {
-            lastSidebarItem.after('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
-        } else {
-            // Fallback: append to sidebar container
-            const sidebar = $('.discussion-sidebar, [role="complementary"]').first();
-            if (sidebar.length) {
-                sidebar.append('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
-            }
-        }
-    }
-
-    // Add auto-load-more toggle wrapper directly after the timestamp wrapper if it doesn't exist
-    if (!$('.k2autoloadmore-wrapper').length) {
-        const timestampWrapper = $('.k2toggletimestamps-wrapper');
-        if (timestampWrapper.length) {
-            timestampWrapper.after('<div class="discussion-sidebar-item js-discussion-sidebar-item k2autoloadmore-wrapper"></div>');
-        } else {
-            const sidebar = $('.discussion-sidebar, [role="complementary"]').first();
-            if (sidebar.length) {
-                sidebar.append('<div class="discussion-sidebar-item js-discussion-sidebar-item k2autoloadmore-wrapper"></div>');
-            }
-        }
     }
 
     new K2picker().draw();
@@ -212,7 +184,7 @@ export default function () {
 
         // Every second, check to see if the pickers are still there, and if not, redraw them
         setInterval(() => {
-            if (!$('.k2picker-wrapper')) {
+            if (!$('.k2picker-wrapper').length) {
                 refreshPicker();
             }
 

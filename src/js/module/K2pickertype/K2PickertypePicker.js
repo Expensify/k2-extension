@@ -5,9 +5,9 @@ import {SegmentedControl, Stack, Text} from '@primer/react';
 import * as API from '../../lib/api';
 
 const typeLabels = [
-    {label: 'Improvement', text: 'Improvement'},
+    {label: 'Improvement', text: 'Improve'},
     {label: 'Task', text: 'Task'},
-    {label: 'NewFeature', text: 'New Feature'},
+    {label: 'NewFeature', text: 'Feature'},
 ];
 
 class K2PickertypePicker extends React.Component {
@@ -83,14 +83,14 @@ class K2PickertypePicker extends React.Component {
     render() {
         return (
             <Stack gap="condensed">
-                <Text weight="semibold">Type</Text>
+                <Text className="k2-sidebar-label" weight="semibold">Type</Text>
                 <SegmentedControl aria-label="Type" fullWidth onChange={this.selectLabel} size="small">
                     {_.map(typeLabels, type => (
-                        <SegmentedControl.Button key={type.label} selected={this.state.activeLabel === type.label}>
+                        <SegmentedControl.Button key={type.label} selected={this.state.activeLabel === type.label} title={type.label === 'NewFeature' ? 'New Feature' : type.label}>
                             {type.text}
                         </SegmentedControl.Button>
                     ))}
-                    <SegmentedControl.Button selected={!this.state.activeLabel}>None</SegmentedControl.Button>
+                    <SegmentedControl.Button selected={!this.state.activeLabel} title="No type">None</SegmentedControl.Button>
                 </SegmentedControl>
             </Stack>
         );

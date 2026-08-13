@@ -2,7 +2,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 import React from 'react';
 import {
-    Checkbox, CheckboxGroup, FormControl, Stack,
+    ActionList, ActionMenu, Stack, Text,
 } from '@primer/react';
 import * as API from '../../lib/api';
 
@@ -70,22 +70,32 @@ class K2PickerareaPicker extends React.Component {
     }
 
     render() {
+        const selectedCount = _.filter(_.values(this.state.selectedLabels), Boolean).length;
+
         return (
-            <CheckboxGroup>
-                <CheckboxGroup.Label>Area</CheckboxGroup.Label>
-                <Stack direction="horizontal" align="center" wrap="wrap" gap="condensed">
-                    {_.map(areaLabels, area => (
-                        <FormControl key={area.label}>
-                            <Checkbox
-                                checked={this.state.selectedLabels[area.label]}
-                                value={area.label}
-                                onChange={event => this.clickNSave(area.label, event.target.checked)}
-                            />
-                            <FormControl.Label>{area.text}</FormControl.Label>
-                        </FormControl>
-                    ))}
-                </Stack>
-            </CheckboxGroup>
+            <Stack gap="condensed">
+                <Text className="k2-sidebar-label" weight="semibold">Area</Text>
+                <ActionMenu>
+                    <ActionMenu.Button className="k2-sidebar-menu-button">
+                        {selectedCount ? `Areas (${selectedCount})` : 'Choose areas'}
+                    </ActionMenu.Button>
+                    <ActionMenu.Overlay width="medium">
+                        <ActionList selectionVariant="multiple" aria-label="Issue areas">
+                            {_.map(areaLabels, area => (
+                                <ActionList.Item
+                                    key={area.label}
+                                    selected={this.state.selectedLabels[area.label]}
+                                    onSelect={() => this.clickNSave(area.label, !this.state.selectedLabels[area.label])}
+                                    role="menuitemcheckbox"
+                                    aria-checked={this.state.selectedLabels[area.label]}
+                                >
+                                    {area.text}
+                                </ActionList.Item>
+                            ))}
+                        </ActionList>
+                    </ActionMenu.Overlay>
+                </ActionMenu>
+            </Stack>
         );
     }
 }

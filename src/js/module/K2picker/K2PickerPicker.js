@@ -4,7 +4,12 @@ import React from 'react';
 import {SegmentedControl, Stack, Text} from '@primer/react';
 import * as API from '../../lib/api';
 
-const priorityLabels = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
+const priorityLabels = [
+    {label: 'Hourly', text: 'H'},
+    {label: 'Daily', text: 'D'},
+    {label: 'Weekly', text: 'W'},
+    {label: 'Monthly', text: 'M'},
+];
 
 class K2PickerPicker extends React.Component {
     constructor(props) {
@@ -20,7 +25,7 @@ class K2PickerPicker extends React.Component {
         // eslint-disable-next-line rulesdir/prefer-underscore-method
         $('div[data-testid="issue-labels"] a > span').each((i, el) => {
             const label = $(el).text().trim();
-            if (_.contains(priorityLabels, label)) {
+            if (_.findWhere(priorityLabels, {label})) {
                 this.setActiveLabel(label);
             }
         });
@@ -63,7 +68,8 @@ class K2PickerPicker extends React.Component {
      * @param {Number} index
      */
     selectLabel(index) {
-        const label = priorityLabels[index] || this.state.activeLabel;
+        const priority = priorityLabels[index];
+        const label = priority ? priority.label : this.state.activeLabel;
         if (label) {
             this.clickNSave(label);
         }
@@ -72,14 +78,14 @@ class K2PickerPicker extends React.Component {
     render() {
         return (
             <Stack gap="condensed">
-                <Text weight="semibold">Priority</Text>
+                <Text className="k2-sidebar-label" weight="semibold">Priority</Text>
                 <SegmentedControl aria-label="Priority" fullWidth onChange={this.selectLabel} size="small">
-                    {_.map(priorityLabels, label => (
-                        <SegmentedControl.Button key={label} selected={this.state.activeLabel === label}>
-                            {label}
+                    {_.map(priorityLabels, priority => (
+                        <SegmentedControl.Button key={priority.label} selected={this.state.activeLabel === priority.label} title={priority.label}>
+                            {priority.text}
                         </SegmentedControl.Button>
                     ))}
-                    <SegmentedControl.Button selected={!this.state.activeLabel}>None</SegmentedControl.Button>
+                    <SegmentedControl.Button selected={!this.state.activeLabel} title="No priority">None</SegmentedControl.Button>
                 </SegmentedControl>
             </Stack>
         );

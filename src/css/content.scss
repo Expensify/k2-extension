@@ -291,16 +291,39 @@ $color-dark-yellow: #DAA520;
 .almost-transparent {
   opacity: 0.1;
 }
-.k2picker-wrapper,
-.k2pickertype-wrapper,
-.k2pickerarea-wrapper,
-.k2togglereviewing-wrapper,
-.k2comments-wrapper,
-.k2previousissues-wrapper,
-.k2toggletimestamps-wrapper,
-.k2autoloadmore-wrapper {
-    border: 0 !important;
-    margin-bottom: 16px !important;
+.k2-sidebar-controls {
+    border-bottom: 1px solid var(--borderColor-muted);
+    border-top: 1px solid var(--borderColor-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    grid-column: 1 / -1;
+    margin-bottom: 16px;
+    min-width: 0;
+    padding: 16px 0;
+    width: 100%;
+}
+
+.k2-sidebar-heading {
+    font-size: var(--text-title-size-small);
+    margin: 0;
+}
+
+.k2-sidebar-control,
+.k2-sidebar-control .k2-primer-root {
+    min-width: 0;
+    width: 100%;
+}
+
+.k2-sidebar-label {
+    color: var(--fgColor-default);
+    font-size: var(--text-body-size-small);
+    line-height: var(--text-body-lineHeight-small);
+}
+
+.k2-sidebar-menu-button {
+    justify-content: space-between;
+    width: 100%;
 }
 .k2-extension-qa-guidelines-toggle-container {
   float: left;

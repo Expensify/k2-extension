@@ -92,7 +92,7 @@ class CommentsButtons extends React.Component {
         return (
             <Stack gap="normal">
                 <ActionMenu>
-                    <ActionMenu.Button>
+                    <ActionMenu.Button className="k2-sidebar-menu-button">
                         {this.state.isButtonSelected ? this.state.selectedButton.title : 'Comments Shortcuts'}
                     </ActionMenu.Button>
                     <ActionMenu.Overlay width="medium">
