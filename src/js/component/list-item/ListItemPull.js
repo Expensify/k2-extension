@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import {
-    CounterLabel, Label, LabelGroup, Link, RelativeTime, Stack,
+    CounterLabel, Label, LabelGroup, Link, Stack,
 } from '@primer/react';
 import {GitPullRequestIcon} from '@primer/octicons-react';
 import pullRequestPropTypes from '../../lib/pullRequestPropTypes';
@@ -76,7 +76,7 @@ function ListItemPull(props) {
                         <span>
                             Updated
                             {' '}
-                            <RelativeTime date={new Date(pr.updatedAt)} />
+                            {moment(pr.updatedAt).fromNow()}
                         </span>
                         <span>
                             Comments

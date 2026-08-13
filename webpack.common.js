@@ -20,6 +20,9 @@ module.exports = (env) => {
         },
         resolve: {
             extensions: ['.jsx', '.js'],
+            alias: {
+                '@primer/live-region-element$': path.resolve(__dirname, 'src/js/lib/primerLiveRegion.js'),
+            },
         },
 
         plugins: [
