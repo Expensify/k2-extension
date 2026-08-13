@@ -64,40 +64,44 @@ function ListItemPull(props) {
             <Stack direction="horizontal" gap="condensed" align="start">
                 <GitPullRequestIcon className="k2-work-item-icon" />
                 <Stack.Item grow>
-                    <Link
-                        href={pr.url}
-                        className={`k2-work-item-title${isHeld ? ' k2-work-item-muted' : ''}${isOverdue ? ' k2-work-item-overdue' : ''}`}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                    >
-                        {`${repository}${pr.title}`}
-                    </Link>
-                    <Stack className="k2-work-item-meta" direction="horizontal" gap="condensed" align="center" wrap="wrap">
-                        <span>
-                            Updated
-                            {' '}
-                            {moment(pr.updatedAt).fromNow()}
-                        </span>
-                        <span>
-                            Comments
-                            {' '}
-                            <CounterLabel>{pr.comments.totalCount}</CounterLabel>
-                        </span>
-                        <span>
-                            Reviews
-                            {' '}
-                            <CounterLabel>{pr.reviews.totalCount}</CounterLabel>
-                        </span>
-                    </Stack>
-                    <LabelGroup className="k2-work-item-labels" aria-label="Pull request status">
-                        {isOverdue && <Label variant="danger" size="small">Overdue</Label>}
-                        {pr.checkConclusion && (
-                            <Label variant={getCheckVariant(pr.checkConclusion)} size="small">
-                                {`Checks: ${pr.checkConclusion}`}
-                            </Label>
-                        )}
-                        <Label variant={mergeability.variant} size="small">{mergeability.label}</Label>
-                    </LabelGroup>
+                    <div className="k2-pr-row">
+                        <div>
+                            <Link
+                                href={pr.url}
+                                className={`k2-work-item-title${isHeld ? ' k2-work-item-muted' : ''}${isOverdue ? ' k2-work-item-overdue' : ''}`}
+                                target="_blank"
+                                rel="noreferrer noopener"
+                            >
+                                {`${repository}${pr.title}`}
+                            </Link>
+                            <Stack className="k2-work-item-meta" direction="horizontal" gap="condensed" align="center" wrap="wrap">
+                                <span>
+                                    Updated
+                                    {' '}
+                                    {moment(pr.updatedAt).fromNow()}
+                                </span>
+                                <span>
+                                    Comments
+                                    {' '}
+                                    <CounterLabel>{pr.comments.totalCount}</CounterLabel>
+                                </span>
+                                <span>
+                                    Reviews
+                                    {' '}
+                                    <CounterLabel>{pr.reviews.totalCount}</CounterLabel>
+                                </span>
+                            </Stack>
+                        </div>
+                        <LabelGroup className="k2-pr-status-labels" aria-label="Pull request status">
+                            {isOverdue && <Label variant="danger" size="small">Overdue</Label>}
+                            {pr.checkConclusion && (
+                                <Label variant={getCheckVariant(pr.checkConclusion)} size="small">
+                                    {`Checks: ${pr.checkConclusion}`}
+                                </Label>
+                            )}
+                            <Label variant={mergeability.variant} size="small">{mergeability.label}</Label>
+                        </LabelGroup>
+                    </div>
                 </Stack.Item>
             </Stack>
         </div>

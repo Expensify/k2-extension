@@ -46,7 +46,20 @@ $color-dark-yellow: #DAA520;
 }
 
 .k2-dashboard-header {
+    border-bottom: 1px solid var(--borderColor-muted);
     margin-bottom: 24px;
+    padding: 8px 0 20px;
+}
+
+.k2-dashboard-title {
+    font-size: var(--text-title-size-large);
+    line-height: var(--text-title-lineHeight-large);
+    margin: 0;
+}
+
+.k2-dashboard-subtitle {
+    color: var(--fgColor-muted);
+    font-size: var(--text-body-size-medium);
 }
 
 .k2-dashboard {
@@ -70,8 +83,8 @@ $color-dark-yellow: #DAA520;
     background: var(--bgColor-muted);
     border-bottom: 1px solid var(--borderColor-muted);
     border-top: 3px solid var(--k2-panel-accent);
-    min-height: 48px;
-    padding: 8px 12px;
+    min-height: 52px;
+    padding: 12px 16px;
 }
 
 .k2-section-heading {
@@ -81,7 +94,7 @@ $color-dark-yellow: #DAA520;
 
 .k2-work-item {
     border-top: 1px solid var(--borderColor-muted);
-    padding: 10px 12px;
+    padding: 12px 16px;
 }
 
 .k2-section-header + .k2-work-item,
@@ -109,7 +122,7 @@ $color-dark-yellow: #DAA520;
 }
 
 .k2-work-item-labels {
-    margin-top: 6px;
+    margin-top: 8px;
 }
 
 .k2-work-item-meta {
@@ -136,7 +149,20 @@ $color-dark-yellow: #DAA520;
     background: var(--bgColor-muted);
     border: 1px solid var(--borderColor-default);
     border-radius: var(--borderRadius-medium);
-    padding: 10px 12px;
+    padding: 14px 16px;
+}
+
+.k2-pr-row {
+    align-items: start;
+    display: grid;
+    gap: 16px;
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.k2-pr-status-labels {
+    justify-content: flex-end;
+    margin-top: 0;
+    max-width: 360px;
 }
 
 .k2-filter-label {
@@ -182,7 +208,7 @@ $color-dark-yellow: #DAA520;
 .k2-details-content {
     border: 1px solid var(--borderColor-muted);
     border-radius: 0 0 var(--borderRadius-medium) var(--borderRadius-medium);
-    padding: 12px;
+    padding: 16px;
 }
 
 .k2-readable-legend {
@@ -266,6 +292,15 @@ $color-dark-yellow: #DAA520;
 
     .k2-filter-bar > * {
         width: 100%;
+    }
+
+    .k2-pr-row {
+        grid-template-columns: 1fr;
+    }
+
+    .k2-pr-status-labels {
+        justify-content: flex-start;
+        max-width: none;
     }
 }
 

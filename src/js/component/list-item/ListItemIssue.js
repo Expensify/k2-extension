@@ -38,6 +38,12 @@ function ListItemIssue({issue, showAttendees}) {
         ownerIcon = <StarIcon />;
     }
     const priorityLabels = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
+    const priorityVariants = {
+        Hourly: 'danger',
+        Daily: 'severe',
+        Weekly: 'success',
+        Monthly: 'done',
+    };
     const shortLabels = [
         ['WhatsNext', 'WN', 'accent'],
         ['FirstPick', 'FP', 'accent'],
@@ -68,7 +74,7 @@ function ListItemIssue({issue, showAttendees}) {
                     </Link>
                     <LabelGroup className="k2-work-item-labels" aria-label="Issue metadata">
                         {_.map(priorityLabels, label => hasLabel(issue, label) && (
-                            <Label key={label} className="k2-priority-label" variant={label === 'Hourly' ? 'danger' : 'accent'} size="small">
+                            <Label key={label} className="k2-priority-label" variant={priorityVariants[label]} size="small">
                                 {label}
                             </Label>
                         ))}

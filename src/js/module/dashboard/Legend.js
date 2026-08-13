@@ -24,7 +24,7 @@ const priorityItems = [
     {label: 'Hourly', variant: 'danger'},
     {label: 'Daily', variant: 'severe'},
     {label: 'Weekly', variant: 'success'},
-    {label: 'Monthly', variant: 'sponsors'},
+    {label: 'Monthly', variant: 'done'},
     {label: 'First Pick', variant: 'accent'},
     {label: 'WhatsNext', variant: 'done'},
 ];

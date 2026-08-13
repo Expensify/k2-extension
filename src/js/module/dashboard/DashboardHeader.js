@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {PageHeader, SegmentedControl} from '@primer/react';
+import {
+    Heading, SegmentedControl, Stack, Text,
+} from '@primer/react';
 import {ProjectIcon} from '@primer/octicons-react';
 
 const LAYOUTS = ['classic', 'focus', 'readable'];
@@ -12,17 +14,15 @@ const propTypes = {
 
 function DashboardHeader({layout, onLayoutChange}) {
     return (
-        <PageHeader className="k2-dashboard-header" hasBorder>
-            <PageHeader.TitleArea variant="medium">
-                <PageHeader.LeadingVisual>
+        <header className="k2-dashboard-header">
+            <Stack direction="horizontal" align="center" justify="space-between" wrap="wrap" gap="normal">
+                <Stack direction="horizontal" align="center" gap="condensed">
                     <ProjectIcon size={24} />
-                </PageHeader.LeadingVisual>
-                <PageHeader.Title as="h1">K2 dashboard</PageHeader.Title>
-                <PageHeader.Description>
-                    Assigned issues and pull requests
-                </PageHeader.Description>
-            </PageHeader.TitleArea>
-            <PageHeader.Actions>
+                    <Stack gap="none">
+                        <Heading as="h1" className="k2-dashboard-title">K2 dashboard</Heading>
+                        <Text className="k2-dashboard-subtitle">Assigned issues and pull requests</Text>
+                    </Stack>
+                </Stack>
                 <SegmentedControl
                     aria-label="Dashboard layout"
                     onChange={index => onLayoutChange(LAYOUTS[index])}
@@ -33,8 +33,8 @@ function DashboardHeader({layout, onLayoutChange}) {
                     <SegmentedControl.Button selected={layout === 'focus'}>Focus</SegmentedControl.Button>
                     <SegmentedControl.Button selected={layout === 'readable'}>Readable</SegmentedControl.Button>
                 </SegmentedControl>
-            </PageHeader.Actions>
-        </PageHeader>
+            </Stack>
+        </header>
     );
 }
 
