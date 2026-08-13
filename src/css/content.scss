@@ -79,7 +79,7 @@ $color-dark-yellow: #DAA520;
 }
 
 .k2-panel-hourly { --k2-panel-accent: var(--borderColor-danger-emphasis); }
-.k2-panel-daily { --k2-panel-accent: var(--borderColor-attention-emphasis); }
+.k2-panel-daily { --k2-panel-accent: var(--borderColor-severe-emphasis); }
 .k2-panel-weekly { --k2-panel-accent: var(--borderColor-success-emphasis); }
 .k2-panel-monthly { --k2-panel-accent: var(--borderColor-done-emphasis); }
 
@@ -99,6 +99,10 @@ $color-dark-yellow: #DAA520;
 .k2-work-item {
     border-top: 1px solid var(--borderColor-muted);
     padding: 12px 16px;
+}
+
+.k2-issue-work-item {
+    padding: 8px 12px;
 }
 
 .k2-section-header + .k2-work-item,
@@ -125,8 +129,21 @@ $color-dark-yellow: #DAA520;
     opacity: 0.58;
 }
 
-.k2-work-item-labels {
-    margin-top: 8px;
+.k2-issue-row-content {
+    align-items: baseline;
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    min-width: 0;
+}
+
+.k2-issue-row-content .k2-work-item-title {
+    min-width: 0;
+}
+
+.k2-issue-type-labels {
+    flex: 0 0 auto;
+    margin-left: auto;
 }
 
 .k2-work-item-meta {

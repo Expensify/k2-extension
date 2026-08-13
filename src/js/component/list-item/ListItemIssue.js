@@ -40,7 +40,7 @@ function ListItemIssue({issue, showAttendees}) {
     ], ([label]) => hasLabel(issue, label));
 
     return (
-        <div className="k2-work-item">
+        <div className="k2-work-item k2-issue-work-item">
             <Stack direction="horizontal" gap="condensed" align="start">
                 <span
                     className={issue.currentUserIsOwner ? 'k2-owner-icon k2-owner-icon-current' : 'k2-owner-icon'}
@@ -50,21 +50,23 @@ function ListItemIssue({issue, showAttendees}) {
                     {ownerIcon}
                 </span>
                 <Stack.Item grow>
-                    <Link
-                        href={issue.url}
-                        className={`k2-work-item-title${isMuted ? ' k2-work-item-muted' : ''}${isOverdue ? ' k2-work-item-overdue' : ''}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        {issue.title}
-                    </Link>
-                    {!!issueTypeLabels.length && (
-                        <LabelGroup className="k2-work-item-labels" aria-label="Issue type">
-                            {_.map(issueTypeLabels, ([label, shortName, variant, title]) => (
-                                <Label key={label} variant={variant} size="small" title={title}>{shortName}</Label>
-                            ))}
-                        </LabelGroup>
-                    )}
+                    <div className="k2-issue-row-content">
+                        <Link
+                            href={issue.url}
+                            className={`k2-work-item-title${isMuted ? ' k2-work-item-muted' : ''}${isOverdue ? ' k2-work-item-overdue' : ''}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {issue.title}
+                        </Link>
+                        {!!issueTypeLabels.length && (
+                            <LabelGroup className="k2-issue-type-labels" aria-label="Issue type">
+                                {_.map(issueTypeLabels, ([label, shortName, variant, title]) => (
+                                    <Label key={label} variant={variant} size="small" title={title}>{shortName}</Label>
+                                ))}
+                            </LabelGroup>
+                        )}
+                    </div>
                 </Stack.Item>
                 {showAttendees && issue.assignees.length > 0 && (
                     <AvatarStack alignRight size={20} aria-label={`Assigned to ${_.pluck(issue.assignees, 'login').join(', ')}`}>
