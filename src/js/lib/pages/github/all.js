@@ -58,6 +58,16 @@ export default function () {
             });
         };
 
+        if (AllPages.k2TabPositionFrame) {
+            window.cancelAnimationFrame(AllPages.k2TabPositionFrame);
+        }
+        AllPages.k2TabPositionFrame = null;
+
+        if (AllPages.k2TabNavigationFrame) {
+            window.cancelAnimationFrame(AllPages.k2TabNavigationFrame);
+        }
+        AllPages.k2TabNavigationFrame = null;
+
         if (AllPages.k2TabScrollHandler) {
             document.removeEventListener('scroll', AllPages.k2TabScrollHandler, true);
         }
@@ -78,8 +88,9 @@ export default function () {
         AllPages.k2TabNavigationObserver = null;
         AllPages.k2TabRepositoryNavigation = null;
 
+        const repositoryNavigationSelector = 'nav[aria-label="Repository"]';
         const observeRepositoryNavigation = () => {
-            const repositoryNavigation = $('nav[aria-label="Repository"]').first()[0];
+            const repositoryNavigation = $(repositoryNavigationSelector).first()[0];
 
             if (AllPages.k2TabRepositoryNavigation === repositoryNavigation) {
                 return;
@@ -111,6 +122,17 @@ export default function () {
             AllPages.k2TabResizeObserver.observe(repositoryNavigation);
         };
 
+        const scheduleRepositoryNavigationObservation = () => {
+            if (AllPages.k2TabNavigationFrame) {
+                return;
+            }
+
+            AllPages.k2TabNavigationFrame = window.requestAnimationFrame(() => {
+                AllPages.k2TabNavigationFrame = null;
+                observeRepositoryNavigation();
+            });
+        };
+
         positionK2Tab();
 
         // Keep the isolated tab aligned when GitHub reflows or scrolls its tab list.
@@ -124,8 +146,22 @@ export default function () {
         observeRepositoryNavigation();
 
         // GitHub can replace the repository navigation during SPA navigation.
-        AllPages.k2TabNavigationObserver = new MutationObserver(observeRepositoryNavigation);
-        AllPages.k2TabNavigationObserver.observe(document.body, {childList: true, subtree: true});
+        AllPages.k2TabNavigationObserver = new MutationObserver((records) => {
+            const navigationChanged = records.some(record => Array.from(record.addedNodes)
+                .concat(Array.from(record.removedNodes))
+                .some((node) => {
+                    if (node.nodeType !== Node.ELEMENT_NODE) {
+                        return false;
+                    }
+
+                    return node.matches(repositoryNavigationSelector) || node.querySelector(repositoryNavigationSelector);
+                }));
+
+            if (navigationChanged) {
+                scheduleRepositoryNavigationObservation();
+            }
+        });
+        AllPages.k2TabNavigationObserver.observe(document.documentElement, {childList: true, subtree: true});
 
         // Set up timestamp format conversion
         setTimeout(() => AllPages.applyTimestampFormat(), 500);
