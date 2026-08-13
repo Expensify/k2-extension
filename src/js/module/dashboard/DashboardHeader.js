@@ -16,8 +16,8 @@ function DashboardHeader({layout, onLayoutChange}) {
     return (
         <header className="k2-dashboard-header">
             <Stack direction="horizontal" align="center" justify="space-between" wrap="wrap" gap="normal">
-                <Stack direction="horizontal" align="center" gap="condensed">
-                    <ProjectIcon size={24} />
+                <Stack direction="horizontal" align="start" gap="condensed">
+                    <ProjectIcon className="k2-dashboard-icon" size={24} />
                     <Stack gap="none">
                         <Heading as="h1" className="k2-dashboard-title">K2 dashboard</Heading>
                         <Text className="k2-dashboard-subtitle">Assigned issues and pull requests</Text>

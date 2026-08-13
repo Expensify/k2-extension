@@ -52,7 +52,7 @@ class Title extends React.Component {
     render() {
         const {text, count, onOpenAll} = this.props;
         return (
-            <Stack className="k2-section-header" direction="horizontal" align="center" justify="space-between" gap="condensed">
+            <Stack className="k2-section-header" direction="horizontal" align="center" justify="space-between" gap="condensed" padding="normal">
                 <Stack direction="horizontal" align="center" gap="condensed">
                     <Heading as="h2" className="k2-section-heading">{text}</Heading>
                     {count !== null && <CounterLabel>{count}</CounterLabel>}

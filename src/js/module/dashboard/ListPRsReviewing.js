@@ -161,7 +161,7 @@ class ListPRsReviewing extends React.Component {
 
         return (
             <div>
-                <Stack className="k2-filter-bar" direction="horizontal" align="center" justify="space-between" wrap="wrap" gap="condensed">
+                <Stack className="k2-filter-bar" direction="horizontal" align="center" justify="space-between" wrap="wrap" gap="condensed" padding="normal">
                     <CheckboxGroup>
                         <CheckboxGroup.Label visuallyHidden>Hide pull requests</CheckboxGroup.Label>
                         <Stack direction="horizontal" align="center" wrap="wrap" gap="condensed">
