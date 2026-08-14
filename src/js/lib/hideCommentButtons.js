@@ -114,14 +114,9 @@ function getMinimizeForm(wrapper) {
     return comment && comment.querySelector('form.js-timeline-comment-minimize');
 }
 
-function getActionLabel(classifier) {
-    const action = _.find(ACTIONS, item => item.classifier === classifier);
-    return action ? action.label.toLowerCase() : classifier.toLowerCase().replace('_', '-');
-}
-
 // Render the same state that GitHub uses when the native form is unavailable.
-function showMinimizedComment(wrapper, classifier) {
-    const comment = wrapper.closest('.timeline-comment-group');
+function showMinimizedComment(wrapper) {
+    const comment = wrapper.closest('.timeline-comment, .timeline-comment-group');
     const body = comment && comment.querySelector(COMMENT_BODY_SELECTOR);
     if (!comment || !body) {
         return;
@@ -133,10 +128,12 @@ function showMinimizedComment(wrapper, classifier) {
         header.style.display = 'none';
     }
     bodyContainer.style.display = 'none';
+    comment.classList.remove('unminimized-comment');
+    comment.classList.add('minimized-comment', 'position-relative');
 
     const minimized = document.createElement('div');
     minimized.className = 'k2-minimized-comment';
-    minimized.textContent = `This comment has been minimized as ${getActionLabel(classifier)}.`;
+    minimized.textContent = body.textContent.trim() || 'This comment has been minimized.';
     comment.appendChild(minimized);
 }
 
@@ -182,7 +179,7 @@ async function minimizeComment(event) {
     try {
         const nodeID = await lookupNodeID(commentType, commentID);
         await API.minimizeComment(nodeID, classifier);
-        showMinimizedComment(wrapper, classifier);
+        showMinimizedComment(wrapper);
     } catch (error) {
         setButtonsDisabled(wrapper, false);
         wrapper.title = error instanceof Error ? error.message : 'Failed to hide comment';
