@@ -3,7 +3,7 @@ import Base from './_base';
 import ToggleTimestamps from '../../../module/ToggleTimestamps/ToggleTimestamps';
 import ToggleAutoLoadMore from '../../../module/ToggleAutoLoadMore/ToggleAutoLoadMore';
 import * as autoLoadMoreComments from '../../autoLoadMoreComments';
-import * as hideCommentButtons from '../../hideCommentButtons';
+import hideCommentButtons from '../../hideCommentButtons';
 import * as commitCheckStatuses from '../../commitCheckStatuses';
 import * as prFavicon from '../../prFavicon';
 

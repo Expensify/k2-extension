@@ -14,7 +14,7 @@ import K2previousissues from '../../../module/K2previousissues/K2previousissues'
 import ONYXKEYS from '../../../ONYXKEYS';
 import * as API from '../../api';
 import * as autoLoadMoreComments from '../../autoLoadMoreComments';
-import * as hideCommentButtons from '../../hideCommentButtons';
+import hideCommentButtons from '../../hideCommentButtons';
 
 let clearErrorTimeoutID;
 function catchError(e) {

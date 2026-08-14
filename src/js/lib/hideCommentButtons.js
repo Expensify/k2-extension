@@ -1,5 +1,4 @@
-/* eslint-disable rulesdir/prefer-underscore-method */
-import $ from 'jquery';
+import _ from 'underscore';
 import * as API from './api';
 
 const ACTIONS = [
@@ -48,7 +47,7 @@ function isOptionsButton(btn) {
 
 // The React UI uses a button. The legacy review UI uses a summary element.
 function findOptionsButton(rootEl) {
-    return $(rootEl).find('button, summary').filter((i, btn) => isOptionsButton(btn)).first();
+    return _.find(rootEl.querySelectorAll('button, summary'), btn => isOptionsButton(btn)) || null;
 }
 
 // Ignore user mentions inside comment bodies because they are not comment authors.
@@ -129,6 +128,16 @@ function lookupNodeId(commentType, commentId) {
     return API.getIssueCommentNodeId(commentId);
 }
 
+function setButtonsDisabled(wrapper, disabled) {
+    _.each(wrapper.querySelectorAll('button'), (button) => {
+        if (disabled) {
+            button.setAttribute('disabled', 'disabled');
+        } else {
+            button.removeAttribute('disabled');
+        }
+    });
+}
+
 async function handleClick(event) {
     const button = event.currentTarget;
     const wrapper = button.closest(`.${BUTTONS_CLASS}`);
@@ -138,22 +147,21 @@ async function handleClick(event) {
     if (!commentId || !commentType || !classifier) {
         return;
     }
-    $(wrapper).find('button').prop('disabled', true);
+    setButtonsDisabled(wrapper, true);
     try {
         const nodeId = await lookupNodeId(commentType, commentId);
         await API.minimizeComment(nodeId, classifier);
         collapseCommentBox(wrapper);
-    } catch (e) {
-        /* eslint-disable-next-line no-console */
-        console.error('Failed to hide comment', e);
-        $(wrapper).find('button').prop('disabled', false);
+    } catch (error) {
+        setButtonsDisabled(wrapper, false);
+        wrapper.title = error instanceof Error ? error.message : 'Failed to hide comment';
     }
 }
 
 function addButtons({
     container, permalink, parsed, optionsBtn,
 }) {
-    if ($(container).find(`.${BUTTONS_CLASS}`).length) {
+    if (container.querySelector(`.${BUTTONS_CLASS}`)) {
         return;
     }
 
@@ -177,8 +185,8 @@ function addButtons({
     });
 
     // Place buttons before the kebab when GitHub exposes the action menu.
-    if (optionsBtn && optionsBtn.length) {
-        const anchor = optionsBtn[0];
+    if (optionsBtn) {
+        const anchor = optionsBtn;
         const target = anchor.tagName === 'SUMMARY' ? (anchor.closest('details') || anchor) : anchor;
         target.parentNode.insertBefore(wrapper, target);
     } else {
@@ -187,7 +195,7 @@ function addButtons({
 }
 
 function scan() {
-    $(AUTHOR_SELECTOR).each((i, authorLink) => {
+    _.each(document.querySelectorAll(AUTHOR_SELECTOR), (authorLink) => {
         if (!isHeaderAuthorLink(authorLink)) {
             return;
         }
@@ -219,5 +227,4 @@ function initHideCommentButtons() {
     observer.observe(document.body, {childList: true, subtree: true});
 }
 
-// eslint-disable-next-line import/prefer-default-export
-export {initHideCommentButtons};
+export default initHideCommentButtons;
