@@ -232,7 +232,7 @@ export default function () {
         setInterval(() => IssuePage.renderPaymentDetailsButton(), 2000);
 
         autoLoadMoreComments.initAutoLoadMoreComments();
-        hideCommentButtons.initHideCommentButtons();
+        hideCommentButtons();
     };
 
     return IssuePage;

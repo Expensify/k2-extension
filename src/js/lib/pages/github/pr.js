@@ -147,7 +147,7 @@ export default function () {
         setInterval(() => PrPage.renderTranslationWorkflowButtons(), 2000);
 
         autoLoadMoreComments.initAutoLoadMoreComments();
-        hideCommentButtons.initHideCommentButtons();
+        hideCommentButtons();
         commitCheckStatuses.initCommitCheckStatuses();
         prFavicon.initPrFavicon();
     };
