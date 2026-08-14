@@ -12,11 +12,11 @@ const BUTTONS_CLASS = 'k2-hide-comment-buttons';
 // Author profile links in comment headers use hovercards across GitHub UIs.
 // GitHub App bots use an /apps/ URL instead.
 const AUTHOR_SELECTOR = [
-    'a[data-hovercard-url*="/users/"]',
-    'a[data-hovercard-type="user"]',
-    'a[href*="/apps/"]',
+    '.timeline-comment-header a.author[data-hovercard-type="user"]',
+    '.timeline-comment-header a.author[data-hovercard-url*="/users/"]',
+    '.timeline-comment-header a.author[href*="/apps/"]',
 ].join(', ');
-const COMMENT_BODY_SELECTOR = '.markdown-body, .comment-body, [data-testid="markdown-body"], [data-testid="issue-comment-body"]';
+const COMMENT_BODY_SELECTOR = '.comment-body.js-comment-body';
 
 // Match the comment type needed by the REST endpoint that returns its GraphQL node ID.
 // Check review-thread comments before review comments because their URLs overlap.
@@ -59,7 +59,10 @@ function isHeaderAuthorLink(link) {
     if (link.classList.contains('user-mention')) {
         return false;
     }
-    if (link.closest('.markdown-body, .comment-body, [data-testid="markdown-body"]')) {
+    if (link.closest(COMMENT_BODY_SELECTOR)) {
+        return false;
+    }
+    if (link.closest('.timeline-comment[id^="pullrequest-"]')) {
         return false;
     }
     return true;
@@ -106,16 +109,35 @@ function findCommentHeader(authorLink) {
     return null;
 }
 
-// Hide the comment locally after GitHub accepts the minimize mutation.
-function collapseCommentBox(wrapper) {
-    let el = wrapper.parentElement;
-    while (el && el !== document.body) {
-        if (el.querySelector(COMMENT_BODY_SELECTOR)) {
-            el.style.display = 'none';
-            return;
-        }
-        el = el.parentElement;
+function getMinimizeForm(wrapper) {
+    const comment = wrapper.closest('.timeline-comment-group');
+    return comment && comment.querySelector('form.js-timeline-comment-minimize');
+}
+
+function getActionLabel(classifier) {
+    const action = _.find(ACTIONS, item => item.classifier === classifier);
+    return action ? action.label.toLowerCase() : classifier.toLowerCase().replace('_', '-');
+}
+
+// Render the same state that GitHub uses when the native form is unavailable.
+function showMinimizedComment(wrapper, classifier) {
+    const comment = wrapper.closest('.timeline-comment-group');
+    const body = comment && comment.querySelector(COMMENT_BODY_SELECTOR);
+    if (!comment || !body) {
+        return;
     }
+
+    const header = comment.querySelector('.timeline-comment-header');
+    const bodyContainer = body.closest('.edit-comment-hide') || body;
+    if (header) {
+        header.style.display = 'none';
+    }
+    bodyContainer.style.display = 'none';
+
+    const minimized = document.createElement('div');
+    minimized.className = 'k2-minimized-comment';
+    minimized.textContent = `This comment has been minimized as ${getActionLabel(classifier)}.`;
+    comment.appendChild(minimized);
 }
 
 function lookupNodeID(commentType, commentID) {
@@ -148,10 +170,19 @@ async function minimizeComment(event) {
         return;
     }
     setButtonsDisabled(wrapper, true);
+    const form = getMinimizeForm(wrapper);
+    if (form) {
+        const select = form.querySelector('select[name="classifier"]');
+        if (select) {
+            select.value = classifier;
+            form.requestSubmit();
+            return;
+        }
+    }
     try {
         const nodeID = await lookupNodeID(commentType, commentID);
         await API.minimizeComment(nodeID, classifier);
-        collapseCommentBox(wrapper);
+        showMinimizedComment(wrapper, classifier);
     } catch (error) {
         setButtonsDisabled(wrapper, false);
         wrapper.title = error instanceof Error ? error.message : 'Failed to hide comment';

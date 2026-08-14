@@ -55,6 +55,13 @@ $color-dark-yellow: #DAA520;
   }
 }
 
+.k2-minimized-comment {
+  padding: 8px 12px;
+  border: 1px solid $color-neutral-light;
+  color: $color-neutral;
+  font-style: italic;
+}
+
 .k2-inactive {
   opacity: 0.2;
 }
