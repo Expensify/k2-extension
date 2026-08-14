@@ -29,7 +29,7 @@ function ListItemIssue({issue, showAttendees, showPriority}) {
     const isHelpWanted = hasLabel(issue, 'Help Wanted');
     const isMuted = isHeld || isChallengeSent || isHelpWanted || (issue.issueHasOwner && !issue.currentUserIsOwner);
     let ownerIcon = null;
-    let ownerDescription = 'Issue has no owner';
+    let ownerDescription = '';
     if (issue.currentUserIsOwner) {
         ownerIcon = <StarFillIcon />;
         ownerDescription = 'You own this issue';
@@ -49,27 +49,33 @@ function ListItemIssue({issue, showAttendees, showPriority}) {
         ['Weekly', 'success'],
         ['Monthly', 'done'],
     ], ([label]) => hasLabel(issue, label)) || ['No priority', 'secondary'];
+    const hasLeadingRow = !!ownerIcon || !!issueTypeLabels.length;
+    const hasLeadingContent = hasLeadingRow || showPriority;
 
     return (
         <div className="k2-work-item k2-issue-work-item">
             <Stack direction="horizontal" gap="condensed" align="start">
-                <Stack className="k2-issue-leading" align="center" gap="tight">
-                    <span
-                        className={issue.currentUserIsOwner ? 'k2-owner-icon k2-owner-icon-current' : 'k2-owner-icon'}
-                        title={ownerDescription}
-                        aria-label={ownerDescription}
-                    >
-                        {ownerIcon}
-                    </span>
-                    {showPriority && <Label variant={priority[1]} size="small">{priority[0]}</Label>}
-                    {!!issueTypeLabels.length && (
-                        <Stack className="k2-issue-type-labels" align="center" gap="tight" aria-label="Issue type">
-                            {_.map(issueTypeLabels, ([label, shortName, variant, title]) => (
-                                <Label key={label} variant={variant} size="small" title={title}>{shortName}</Label>
-                            ))}
-                        </Stack>
-                    )}
-                </Stack>
+                {hasLeadingContent && (
+                    <Stack className="k2-issue-leading" align="start" gap="tight">
+                        {hasLeadingRow && (
+                            <Stack direction="horizontal" align="center" gap="tight" aria-label="Issue metadata">
+                                {ownerIcon && (
+                                    <span
+                                        className={issue.currentUserIsOwner ? 'k2-owner-icon k2-owner-icon-current' : 'k2-owner-icon'}
+                                        title={ownerDescription}
+                                        aria-label={ownerDescription}
+                                    >
+                                        {ownerIcon}
+                                    </span>
+                                )}
+                                {_.map(issueTypeLabels, ([label, shortName, variant, title]) => (
+                                    <Label key={label} variant={variant} size="small" title={title}>{shortName}</Label>
+                                ))}
+                            </Stack>
+                        )}
+                        {showPriority && <Label variant={priority[1]} size="small">{priority[0]}</Label>}
+                    </Stack>
+                )}
                 <Stack.Item grow>
                     <Link
                         href={issue.url}
