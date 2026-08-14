@@ -39,6 +39,22 @@ $color-dark-yellow: #DAA520;
 .almost-transparent {
   opacity: 0.1;
 }
+
+.k2-hide-comment-buttons {
+  display: inline-flex;
+  gap: 4px;
+  margin-right: 8px;
+  align-items: center;
+  vertical-align: middle;
+
+  .k2-hide-comment-button {
+    height: 22px;
+    padding: 0 6px;
+    font-size: 12px;
+    line-height: 20px;
+  }
+}
+
 .k2-inactive {
   opacity: 0.2;
 }
