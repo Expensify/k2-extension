@@ -611,51 +611,51 @@ function updateComment(commentId, body) {
 
 /**
  * Look up an issue comment's GraphQL node ID by its numeric REST ID.
- * @param {Number|String} commentId
+ * @param {Number|String} commentID
  * @returns {Promise<String>}
  */
-function getIssueCommentNodeId(commentId) {
+function getIssueCommentNodeID(commentID) {
     const {owner, repo} = getRequestParams();
-    return getOctokit().rest.issues.getComment({owner, repo, comment_id: Number(commentId)})
+    return getOctokit().rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
         .then(response => response.data.node_id);
 }
 
 /**
  * Look up a pull-request review's GraphQL node ID by its numeric REST ID.
- * @param {Number|String} reviewId
+ * @param {Number|String} reviewID
  * @returns {Promise<String>}
  */
-function getPullRequestReviewNodeId(reviewId) {
+function getPullRequestReviewNodeID(reviewID) {
     const {owner, repo, issue_number} = getRequestParams();
     return getOctokit().rest.pulls.getReview({
         owner,
         repo,
         pull_number: Number(issue_number),
-        review_id: Number(reviewId),
+        review_id: Number(reviewID),
     }).then(response => response.data.node_id);
 }
 
 /**
  * Look up an inline PR review-thread comment's GraphQL node ID by its numeric REST ID.
- * @param {Number|String} commentId
+ * @param {Number|String} commentID
  * @returns {Promise<String>}
  */
-function getPullRequestReviewCommentNodeId(commentId) {
+function getPullRequestReviewCommentNodeID(commentID) {
     const {owner, repo} = getRequestParams();
     return getOctokit().rest.pulls.getReviewComment({
         owner,
         repo,
-        comment_id: Number(commentId),
+        comment_id: Number(commentID),
     }).then(response => response.data.node_id);
 }
 
 /**
  * Minimize a comment with a GitHub reported-content classifier.
- * @param {String} nodeId GraphQL node id of the comment subject
+ * @param {String} nodeID GraphQL node ID of the comment subject
  * @param {String} classifier ReportedContentClassifiers enum value
  * @returns {Promise}
  */
-function minimizeComment(nodeId, classifier) {
+function minimizeComment(nodeID, classifier) {
     const mutation = `
         mutation MinimizeComment($id: ID!, $classifier: ReportedContentClassifiers!) {
             minimizeComment(input: {subjectId: $id, classifier: $classifier}) {
@@ -666,7 +666,7 @@ function minimizeComment(nodeId, classifier) {
             }
         }
     `;
-    return getOctokit().graphql(mutation, {id: nodeId, classifier});
+    return getOctokit().graphql(mutation, {id: nodeID, classifier});
 }
 
 /**
@@ -718,9 +718,9 @@ export {
     updateComment,
     getWorkflowRuns,
     getWorkflowRun,
-    getIssueCommentNodeId,
-    getPullRequestReviewNodeId,
-    getPullRequestReviewCommentNodeId,
+    getIssueCommentNodeID,
+    getPullRequestReviewNodeID,
+    getPullRequestReviewCommentNodeID,
     minimizeComment,
     getStatusCheckRollup,
     getPullRequestHeadRefOid,

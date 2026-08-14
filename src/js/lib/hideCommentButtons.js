@@ -118,14 +118,14 @@ function collapseCommentBox(wrapper) {
     }
 }
 
-function lookupNodeId(commentType, commentId) {
+function lookupNodeID(commentType, commentID) {
     if (commentType === 'pullrequestreview') {
-        return API.getPullRequestReviewNodeId(commentId);
+        return API.getPullRequestReviewNodeID(commentID);
     }
     if (commentType === 'pullrequestreviewcomment') {
-        return API.getPullRequestReviewCommentNodeId(commentId);
+        return API.getPullRequestReviewCommentNodeID(commentID);
     }
-    return API.getIssueCommentNodeId(commentId);
+    return API.getIssueCommentNodeID(commentID);
 }
 
 function setButtonsDisabled(wrapper, disabled) {
@@ -138,19 +138,19 @@ function setButtonsDisabled(wrapper, disabled) {
     });
 }
 
-async function handleClick(event) {
+async function minimizeComment(event) {
     const button = event.currentTarget;
     const wrapper = button.closest(`.${BUTTONS_CLASS}`);
-    const commentId = wrapper && wrapper.dataset.commentId;
+    const commentID = wrapper && wrapper.dataset.commentId;
     const commentType = wrapper && wrapper.dataset.commentType;
     const classifier = button.dataset.classifier;
-    if (!commentId || !commentType || !classifier) {
+    if (!commentID || !commentType || !classifier) {
         return;
     }
     setButtonsDisabled(wrapper, true);
     try {
-        const nodeId = await lookupNodeId(commentType, commentId);
-        await API.minimizeComment(nodeId, classifier);
+        const nodeID = await lookupNodeID(commentType, commentID);
+        await API.minimizeComment(nodeID, classifier);
         collapseCommentBox(wrapper);
     } catch (error) {
         setButtonsDisabled(wrapper, false);
@@ -174,13 +174,13 @@ function addButtons({
     wrapper.className = `${BUTTONS_CLASS} k2-element`;
     wrapper.dataset.commentId = parsed.id;
     wrapper.dataset.commentType = parsed.type;
-    ACTIONS.forEach((action) => {
+    _.each(ACTIONS, (action) => {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'btn btn-sm k2-hide-comment-button';
         btn.dataset.classifier = action.classifier;
         btn.textContent = action.label;
-        btn.addEventListener('click', handleClick);
+        btn.addEventListener('click', minimizeComment);
         wrapper.appendChild(btn);
     });
 
