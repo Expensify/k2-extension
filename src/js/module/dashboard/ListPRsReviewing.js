@@ -3,6 +3,7 @@ import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
 import ONYXKEYS from '../../ONYXKEYS';
+import CONST from '../../CONST';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import Title from '../../component/panel-title/Title';
 import ListItemPull from '../../component/list-item/ListItemPull';
@@ -306,7 +307,13 @@ class ListPRsReviewing extends React.Component {
 
                     {_.chain(filteredPRs)
                         .sortBy('updatedAt')
-                        .map(pr => <ListItemPull key={pr.id} pr={pr} />)
+                        .map(pr => (
+                            <ListItemPull
+                                key={pr.id}
+                                pr={pr}
+                                dispatchAction={CONST.AGENT_DISPATCHER.ACTIONS.REVIEW}
+                            />
+                        ))
                         .value()
                         .reverse()}
                 </div>

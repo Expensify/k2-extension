@@ -1,7 +1,11 @@
 import React from 'react';
 import moment from 'moment';
+import _ from 'underscore';
+import PropTypes from 'prop-types';
 import pullRequestPropTypes from '../../lib/pullRequestPropTypes';
 import WorkflowDispatchMenu from './WorkflowDispatchMenu';
+import AgentDispatchButton from './AgentDispatchButton';
+import CONST from '../../CONST';
 
 const propTypes = {
     /** Data about the pull request being displayed. The `data` and `pr` props are the same and can come from multiple
@@ -11,10 +15,14 @@ const propTypes = {
 
     /** Data about the pull request being displayed */
     pr: pullRequestPropTypes,
+
+    /** Which agent action the dispatch button hands this PR to (no button when omitted) */
+    dispatchAction: PropTypes.oneOf(_.values(CONST.AGENT_DISPATCHER.ACTIONS)),
 };
 const defaultProps = {
     data: null,
     pr: null,
+    dispatchAction: null,
 };
 
 function ListItemPull(props) {
@@ -81,6 +89,13 @@ function ListItemPull(props) {
     return (
         <div className={`panel-item${pr.isReviewRequested === false ? ' reviewed' : ''}`}>
             <span className="panel-item-meta">
+                {props.dispatchAction && (
+                    <AgentDispatchButton
+                        action={props.dispatchAction}
+                        url={pr.url}
+                        title={pr.title}
+                    />
+                )}
                 {isAppPR && <WorkflowDispatchMenu prUrl={pr.url} />}
                 <span className="age">
                     Updated:

@@ -2,6 +2,8 @@ import React from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import IssuePropTypes from './IssuePropTypes';
+import AgentDispatchButton from './AgentDispatchButton';
+import CONST from '../../CONST';
 
 const propTypes = {
     /** Information about the issue that is being displayed */
@@ -9,9 +11,13 @@ const propTypes = {
 
     /** Whether or not the attendees should be shown */
     showAttendees: PropTypes.bool,
+
+    /** Which agent action the dispatch button hands this issue to (no button when omitted) */
+    dispatchAction: PropTypes.oneOf(_.values(CONST.AGENT_DISPATCHER.ACTIONS)),
 };
 const defaultProps = {
     showAttendees: false,
+    dispatchAction: null,
 };
 
 class ListItemIssue extends React.Component {
@@ -185,6 +191,15 @@ class ListItemIssue extends React.Component {
         this.parseIssue();
         return (
             <div className="panel-item">
+                {this.props.dispatchAction && (
+                    <span className="panel-item-meta">
+                        <AgentDispatchButton
+                            action={this.props.dispatchAction}
+                            url={this.props.issue.url}
+                            title={this.props.issue.title}
+                        />
+                    </span>
+                )}
                 {this.isCurrentUserOwner && (
                     <span className="owner">{'★ '}</span>
                 )}

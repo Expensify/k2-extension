@@ -698,6 +698,37 @@ $color-dark-yellow: #DAA520;
     font-weight: bold;
 }
 
+// Agent dispatch button on list items
+.k2-agent-dispatch-button {
+    background: transparent;
+    border: 1px solid $color-neutral-light;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 11px;
+    line-height: 1;
+    padding: 1px 5px;
+    color: inherit;
+    margin-right: $gutter;
+    vertical-align: middle;
+
+    &:hover:not(:disabled) {
+        background: $color-neutral-lighter;
+    }
+
+    &:disabled {
+        cursor: default;
+        opacity: 0.7;
+    }
+
+    &.k2-agent-dispatch-success {
+        color: $color-darker-green;
+    }
+
+    &.k2-agent-dispatch-error {
+        color: $color-alert;
+    }
+}
+
 // Workflow dispatch menu on PR list items
 .k2-workflow-menu {
     position: relative;

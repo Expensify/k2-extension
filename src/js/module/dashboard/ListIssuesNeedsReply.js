@@ -3,6 +3,7 @@ import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {withOnyx} from 'react-native-onyx';
 import ONYXKEYS from '../../ONYXKEYS';
+import CONST from '../../CONST';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import ListItemIssue from '../../component/list-item/ListItemIssue';
 import Title from '../../component/panel-title/Title';
@@ -109,7 +110,11 @@ class ListIssuesNeedsReply extends React.Component {
                 {_.chain(this.props.issues)
                     .sortBy('updatedAt')
                     .map(issue => (
-                        <ListItemIssue key={issue.id} issue={issue} />
+                        <ListItemIssue
+                            key={issue.id}
+                            issue={issue}
+                            dispatchAction={CONST.AGENT_DISPATCHER.ACTIONS.REPLY}
+                        />
                     ))
                     .value()
                     .reverse()}
