@@ -7,6 +7,7 @@ import CONST from '../../CONST';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import ListItemIssue from '../../component/list-item/ListItemIssue';
 import Title from '../../component/panel-title/Title';
+import DispatchAllButton from '../../component/panel-title/DispatchAllButton';
 import * as Issues from '../../lib/actions/Issues';
 import openAllUrls from '../../lib/openAllUrls';
 import scoreIssue from '../../lib/issueImpactScore';
@@ -100,6 +101,12 @@ class ListIssuesNeedsReply extends React.Component {
                     items={
                         this.props.issues ? _.values(this.props.issues) : null
                     }
+                    extraAction={_.size(this.props.issues) > 0 && (
+                        <DispatchAllButton
+                            action={CONST.AGENT_DISPATCHER.ACTIONS.REPLY}
+                            items={_.values(this.props.issues)}
+                        />
+                    )}
                 />
 
                 {!this.props.issues && (

@@ -21,12 +21,16 @@ const propTypes = {
             title: PropTypes.string,
         }),
     ),
+
+    /** Extra button rendered in the title's actions area */
+    extraAction: PropTypes.node,
 };
 
 const defaultProps = {
     count: null,
     onOpenAll: null,
     items: null,
+    extraAction: null,
 };
 
 function Title(props) {
@@ -57,7 +61,7 @@ function Title(props) {
 
     const canOpenAll = props.onOpenAll && props.count > 0 && showOpenAllButtons;
     const canCopy = props.items && props.count > 0;
-    const showActions = canOpenAll || canCopy;
+    const showActions = canOpenAll || canCopy || props.extraAction;
 
     return (
         <div>
@@ -71,6 +75,7 @@ function Title(props) {
                             alignItems: 'center',
                         }}
                     >
+                        {props.extraAction}
                         {canCopy && (
                             <button
                                 type="button"

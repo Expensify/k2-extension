@@ -22,6 +22,17 @@ review. The agent side already exists as local Claude skills (`/review-pr`,
 - The button shows a spinner while posting, ✓ when the dispatcher accepted the
   job, ✗ when the dispatcher isn't running (tooltip says how to start it).
 
+## Batch dispatch
+
+- Needs Reply, Updates Due, and Review PRs have a **Dispatch all (N)** button
+  in the panel title that dispatches every visible item at once.
+- The dispatcher runs at most 3 `claude` jobs concurrently
+  (`--concurrency N` to change); the rest wait as `queued` and start as slots
+  free up, so a 15-item batch never launches 15 processes.
+- Your Pull Requests deliberately has no batch button: babysit acts on GitHub
+  (pushes fixes, replies to bots), so batching it would turn one click into
+  unreviewed outbound actions on every open PR.
+
 ## Reviewing the results
 
 The dashboard closes the loop in an **Agent Drafts** panel (top of the page,

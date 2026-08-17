@@ -8,6 +8,7 @@ import CONST from '../../CONST';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import ListItemIssue from '../../component/list-item/ListItemIssue';
 import Title from '../../component/panel-title/Title';
+import DispatchAllButton from '../../component/panel-title/DispatchAllButton';
 import * as Issues from '../../lib/actions/Issues';
 import * as API from '../../lib/api';
 import openAllUrls from '../../lib/openAllUrls';
@@ -141,6 +142,12 @@ class ListIssuesUpdateDue extends React.Component {
                     count={(issuesWithUpdateDue || []).length}
                     onOpenAll={() => openAllUrls(issuesWithUpdateDue)}
                     items={issuesWithUpdateDue}
+                    extraAction={!!issuesWithUpdateDue && issuesWithUpdateDue.length > 0 && (
+                        <DispatchAllButton
+                            action={CONST.AGENT_DISPATCHER.ACTIONS.UPDATE}
+                            items={issuesWithUpdateDue}
+                        />
+                    )}
                 />
 
                 {!issuesWithUpdateDue && (

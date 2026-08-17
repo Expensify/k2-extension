@@ -6,6 +6,7 @@ import ONYXKEYS from '../../ONYXKEYS';
 import CONST from '../../CONST';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import Title from '../../component/panel-title/Title';
+import DispatchAllButton from '../../component/panel-title/DispatchAllButton';
 import ListItemPull from '../../component/list-item/ListItemPull';
 import * as PullRequests from '../../lib/actions/PullRequests';
 import openAllUrls from '../../lib/openAllUrls';
@@ -297,6 +298,12 @@ class ListPRsReviewing extends React.Component {
                         count={_.size(filteredPRs)}
                         onOpenAll={() => openAllUrls(filteredPRs)}
                         items={filteredPRs}
+                        extraAction={_.size(filteredPRs) > 0 && (
+                            <DispatchAllButton
+                                action={CONST.AGENT_DISPATCHER.ACTIONS.REVIEW}
+                                items={_.values(filteredPRs)}
+                            />
+                        )}
                     />
 
                     {!this.props.prs && (

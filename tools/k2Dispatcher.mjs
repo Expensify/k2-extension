@@ -9,6 +9,8 @@ const args = process.argv.slice(2);
 const isDryRun = args.includes('--dry-run');
 const portFlagIndex = args.indexOf('--port');
 const port = portFlagIndex === -1 ? 8424 : Number(args[portFlagIndex + 1]);
+const concurrencyFlagIndex = args.indexOf('--concurrency');
+const maxConcurrent = concurrencyFlagIndex === -1 ? 3 : Number(args[concurrencyFlagIndex + 1]);
 
 const baseDir = path.join(homedir(), '.k2');
 const resultsDir = path.join(baseDir, 'results');
@@ -25,17 +27,39 @@ const CLAUDE_PROMPTS = {
 const DEDUPE_WINDOW_MS = 10 * 60 * 1000;
 const recentJobs = new Map();
 const jobs = new Map();
+const pendingJobs = [];
 let nextJobId = 1;
+let runningCount = 0;
+
+function pumpQueue() {
+    while (runningCount < maxConcurrent && pendingJobs.length) {
+        const job = pendingJobs.shift();
+        job.status = 'running';
+        runningCount += 1;
+        runClaude(job);
+    }
+}
 
 function runClaude(job) {
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
     const resultFile = path.join(resultsDir, `${stamp}-${job.action}.md`);
+    let draft = '';
+    let errors = '';
+    let hasFinished = false;
+    const finish = (status, draftText) => {
+        if (hasFinished) {
+            return;
+        }
+        hasFinished = true;
+        job.status = status;
+        job.draft = draftText;
+        runningCount -= 1;
+        pumpQueue();
+    };
     const child = spawn('claude', ['-p', CLAUDE_PROMPTS[job.action](job)], {
         cwd: homedir(),
         stdio: ['ignore', 'pipe', 'pipe'],
     });
-    let draft = '';
-    let errors = '';
     child.stdout.on('data', (chunk) => {
         draft += chunk;
     });
@@ -43,15 +67,13 @@ function runClaude(job) {
         errors += chunk;
     });
     child.on('error', (error) => {
-        job.status = 'failed';
-        job.draft = `Could not launch claude: ${error.message}`;
-        console.error(`[error] ${job.draft}`);
+        console.error(`[error #${job.id}] could not launch claude: ${error.message}`);
+        finish('failed', `Could not launch claude: ${error.message}`);
     });
     child.on('close', (code) => {
-        job.status = code === 0 ? 'done' : 'failed';
-        job.draft = draft.trim() || errors.trim();
         writeFileSync(resultFile, draft + (errors ? `\n\n--- stderr ---\n${errors}` : ''));
-        console.log(`[${job.status} exit=${code}] ${job.action} ${job.url} -> ${resultFile}`);
+        console.log(`[${code === 0 ? 'done' : 'failed'} exit=${code}] ${job.action} ${job.url} -> ${resultFile}`);
+        finish(code === 0 ? 'done' : 'failed', draft.trim() || errors.trim());
     });
     console.log(`[start #${job.id}] ${job.action} ${job.url}`);
 }
@@ -134,7 +156,7 @@ const server = http.createServer((request, response) => {
             action: job.action,
             url: job.url,
             title: job.title || job.url,
-            status: isDryRun ? 'queued' : 'running',
+            status: 'queued',
             draft: null,
             receivedAt: new Date().toISOString(),
         };
@@ -145,7 +167,8 @@ const server = http.createServer((request, response) => {
         if (isDryRun) {
             console.log(`[dry-run queued #${job.id}] ${dedupeKey}`);
         } else {
-            runClaude(job);
+            pendingJobs.push(job);
+            pumpQueue();
         }
         sendJSON(response, 202, {status: 'accepted', id: job.id});
     });
