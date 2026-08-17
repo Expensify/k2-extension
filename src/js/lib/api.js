@@ -307,6 +307,15 @@ query {
                 reviews {
                     totalCount
                 }
+                reviewRequests(first: 10) {
+                    nodes {
+                        requestedReviewer {
+                            ... on User {
+                                login
+                            }
+                        }
+                    }
+                }
                 commits(last: 1) {
                     nodes {
                         commit {
@@ -801,6 +810,26 @@ function addComment(comment) {
 }
 
 /**
+ * Add a comment to a PR or issue identified by its URL rather than the current page
+ *
+ * @param {String} url
+ * @param {String} body
+ * @returns {Promise}
+ */
+function addCommentToUrl(url, body) {
+    const matches = url.match(/github\.com\/(?<owner>[\w.-]+)\/(?<repo>[\w.-]+)\/(?:pull|issues)\/(?<number>\d+)/);
+    if (!matches) {
+        return Promise.reject(new Error(`Could not parse a repo and number out of ${url}`));
+    }
+    return getOctokit().rest.issues.createComment({
+        owner: matches.groups.owner,
+        repo: matches.groups.repo,
+        issue_number: Number(matches.groups.number),
+        body,
+    });
+}
+
+/**
  * @returns {Promise}
  */
 function getCurrentIssueDescription() {
@@ -929,6 +958,7 @@ async function checkK2RepoAccess() {
 
 export {
     addComment,
+    addCommentToUrl,
     getCheckRuns,
     getEngineeringIssues,
     getIssuesAssigned,

@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import pullRequestPropTypes from '../../lib/pullRequestPropTypes';
 import WorkflowDispatchMenu from './WorkflowDispatchMenu';
 import AgentDispatchButton from './AgentDispatchButton';
+import StallNudgeButton from './StallNudgeButton';
 import CONST from '../../CONST';
 
 const propTypes = {
@@ -18,11 +19,15 @@ const propTypes = {
 
     /** Which agent action the dispatch button hands this PR to (no button when omitted) */
     dispatchAction: PropTypes.oneOf(_.values(CONST.AGENT_DISPATCHER.ACTIONS)),
+
+    /** Whether to flag this PR when it has sat waiting on review too long */
+    showStallNudge: PropTypes.bool,
 };
 const defaultProps = {
     data: null,
     pr: null,
     dispatchAction: null,
+    showStallNudge: false,
 };
 
 function ListItemPull(props) {
@@ -86,9 +91,17 @@ function ListItemPull(props) {
         mergeability = 'Draft';
     }
 
+    const isStalled = props.showStallNudge
+        && !pr.isDraft
+        && pr.title.indexOf('[HOLD') === -1
+        && pr.title.indexOf('[WIP') === -1
+        && pr.reviewDecision === 'REVIEW_REQUIRED'
+        && moment(pr.updatedAt).isBefore(moment().subtract(CONST.PR_STALL_THRESHOLD_DAYS, 'days'));
+
     return (
         <div className={`panel-item${pr.isReviewRequested === false ? ' reviewed' : ''}`}>
             <span className="panel-item-meta">
+                {isStalled && <StallNudgeButton pr={pr} />}
                 {props.dispatchAction && (
                     <AgentDispatchButton
                         action={props.dispatchAction}

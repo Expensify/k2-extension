@@ -112,6 +112,7 @@ class ListPRsAssigned extends React.Component {
                             key={pr.id}
                             pr={pr}
                             dispatchAction={CONST.AGENT_DISPATCHER.ACTIONS.BABYSIT}
+                            showStallNudge
                         />
                     ))
                     .value()

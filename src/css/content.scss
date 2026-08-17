@@ -704,6 +704,13 @@ $color-dark-yellow: #DAA520;
     font-weight: 600;
 }
 
+// Stall badge and nudge button on stalled PRs
+.k2-stall-badge {
+    color: $color-orange;
+    font-weight: 600;
+    padding-right: $gutter;
+}
+
 // Agent dispatch button on list items
 .k2-agent-dispatch-button {
     background: transparent;

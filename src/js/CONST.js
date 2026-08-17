@@ -23,6 +23,10 @@ export default {
         },
     },
 
+    // Days a non-draft PR may sit with reviewDecision REVIEW_REQUIRED and no activity
+    // before K2 flags it as stalled.
+    PR_STALL_THRESHOLD_DAYS: 2,
+
     // Days an issue may go without an update comment from its owner before K2 flags it,
     // keyed by the issue's K2 priority label.
     UPDATE_CADENCE_DAYS: {

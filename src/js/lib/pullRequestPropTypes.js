@@ -33,4 +33,13 @@ export default PropTypes.shape({
         /** The number of comments on the PR */
         totalCount: PropTypes.number,
     }),
+
+    /** The reviewers whose review is still requested */
+    reviewRequests: PropTypes.shape({
+        nodes: PropTypes.arrayOf(PropTypes.shape({
+            requestedReviewer: PropTypes.shape({
+                login: PropTypes.string,
+            }),
+        })),
+    }),
 });
