@@ -15,6 +15,8 @@ export default {
 
     AGENT_DISPATCHER: {
         ENDPOINT: 'http://127.0.0.1:8424/dispatch',
+        JOBS_ENDPOINT: 'http://127.0.0.1:8424/jobs',
+        RESOLVE_ENDPOINT: 'http://127.0.0.1:8424/resolve',
         ACTIONS: {
             REPLY: 'reply',
             REVIEW: 'review',

@@ -704,6 +704,19 @@ $color-dark-yellow: #DAA520;
     font-weight: 600;
 }
 
+// Draft bodies in the Agent Drafts panel
+.k2-draft-body {
+    margin: 6px 0 2px;
+    padding: 6px 8px;
+    max-height: 200px;
+    overflow: auto;
+    white-space: pre-wrap;
+    font-size: 11px;
+    background: $color-neutral-lighter;
+    border: 1px solid $color-neutral-light;
+    border-radius: 4px;
+}
+
 // Stall badge and nudge button on stalled PRs
 .k2-stall-badge {
     color: $color-orange;

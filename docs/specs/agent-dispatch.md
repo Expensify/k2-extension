@@ -17,9 +17,25 @@ review. The agent side already exists as local Claude skills (`/review-pr`,
   `http://127.0.0.1:8424/dispatch`.
 - The dispatcher (`tools/k2Dispatcher.mjs`) appends the job to
   `~/.k2/dispatch-queue.jsonl` and launches the matching headless `claude`
-  command. Output is written to `~/.k2/results/<timestamp>-<action>.md`.
+  command. Output is written to `~/.k2/results/<timestamp>-<action>.md` and
+  kept in memory for the review loop below.
 - The button shows a spinner while posting, ✓ when the dispatcher accepted the
   job, ✗ when the dispatcher isn't running (tooltip says how to start it).
+
+## Reviewing the results
+
+The dashboard closes the loop in an **Agent Drafts** panel (top of the page,
+hidden when there are no jobs):
+
+- The panel polls the dispatcher's `GET /jobs` every 15 seconds; running jobs
+  show a spinner, finished jobs show the agent's output inline.
+- `reply` and `update` drafts get an **Approve & post** button that posts the
+  draft as a comment using the user's own GitHub token (the same octokit the
+  rest of K2 uses — the dispatcher never writes to GitHub for these actions).
+- Every job has **Dismiss**. Both buttons `POST /resolve` so the job leaves
+  the queue; the dispatcher holds jobs in memory until resolved.
+- `review`/`babysit` output is shown read-only (those skills act through their
+  own flow; their text is a report, not a comment to post).
 
 ## Design notes
 
@@ -49,8 +65,11 @@ node tools/k2Dispatcher.mjs [--dry-run] [--port 8424]
 
 ## Out of scope (next steps)
 
-- Surfacing job status and results back into K2 (a `GET /jobs` endpoint the
-  dashboard polls).
-- Permission management for headless runs: actions that write to GitHub
-  (babysit) need pre-approved tool allowlists in the user's Claude settings.
+- Permission management for headless runs: actions that need tools (babysit,
+  review) rely on pre-approved allowlists in the user's Claude settings;
+  denied tools in `-p` mode fail silently and degrade draft quality.
+- Editing a draft in the panel before posting (workaround: copy, dismiss,
+  paste on GitHub).
+- Job persistence across dispatcher restarts (in-memory today; the JSONL
+  queue and results files survive, the panel state does not).
 - Per-action model/effort configuration.

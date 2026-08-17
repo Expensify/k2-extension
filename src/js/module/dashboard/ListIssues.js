@@ -11,6 +11,7 @@ import ListPRsReviewing from './ListPRsReviewing';
 // import ListIssuesEngineering from './ListIssuesEngineering';
 import Legend from './Legend';
 import ListIssuesHotPicks from './ListIssuesHotPicks';
+import ListAgentDrafts from './ListAgentDrafts';
 
 const propTypes = {
     /** The number of seconds to refresh the list of issues */
@@ -23,6 +24,8 @@ function ListIssues(props) {
     return (
         <div className="issueList">
             <Legend />
+
+            <ListAgentDrafts />
 
             <ListPRsReviewing
                 pollInterval={props.pollInterval * 2.5}
