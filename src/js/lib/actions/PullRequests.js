@@ -2,14 +2,15 @@ import _ from 'underscore';
 import ReactNativeOnyx from 'react-native-onyx';
 import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
+import CONST from '../../CONST';
 import ActionThrottle from '../ActionThrottle';
 
 /**
- * Extract check conclusion from the GraphQL statusCheckRollup state.
- * Maps GitHub's StatusState enum to our conclusion format.
+ * Compute the overall check conclusion for a PR from the statusCheckRollup contexts
+ * returned by the GraphQL search query.
  *
  * @param {Object} pr - Pull request object from GraphQL response
- * @returns {String} - 'success', 'failure', 'pending', or 'unknown'
+ * @returns {String} - 'success', 'failure', 'pending', 'skipped', or 'unknown'
  */
 function getCheckConclusionFromGraphQL(pr) {
     const commits = pr.commits && pr.commits.nodes;
@@ -18,24 +19,52 @@ function getCheckConclusionFromGraphQL(pr) {
     }
 
     const statusCheckRollup = commits[0] && commits[0].commit && commits[0].commit.statusCheckRollup;
-    if (!statusCheckRollup) {
+    if (!statusCheckRollup || !statusCheckRollup.contexts) {
         return 'unknown';
     }
 
-    // GitHub StatusState enum values: EXPECTED, ERROR, FAILURE, PENDING, SUCCESS
-    const state = statusCheckRollup.state;
-    switch (state) {
-        case 'SUCCESS':
-            return 'success';
-        case 'FAILURE':
-        case 'ERROR':
-            return 'failure';
-        case 'PENDING':
-        case 'EXPECTED':
-            return 'pending';
-        default:
-            return 'unknown';
-    }
+    return _.reduce(
+        statusCheckRollup.contexts.nodes,
+        (previousValue, context) => {
+            if (_.contains(CONST.IGNORED_CHECK_RUN_NAMES, context.name || context.context)) {
+                return previousValue;
+            }
+
+            // StatusContext nodes carry a state directly; CheckRun nodes have a status and a conclusion
+            const state = context.state || (context.status !== 'COMPLETED' ? 'PENDING' : context.conclusion);
+
+            // If any check runs are failing, mark it failed
+            if (state === 'FAILURE' || state === 'ERROR' || previousValue === 'failure') {
+                return 'failure';
+            }
+
+            // Check runs only get a conclusion once they complete, so any run that isn't
+            // completed yet means the overall result is still pending
+            if (state === 'PENDING' || state === 'EXPECTED' || previousValue === 'pending') {
+                return 'pending';
+            }
+
+            // If the current check run is successful, mark it success. If the previous one is
+            // successful, this one could only be successful or skipped, and either way, we
+            // want to mark the whole thing as successful
+            if (state === 'SUCCESS' || previousValue === 'success') {
+                return 'success';
+            }
+
+            // If the check is skipped, mark it skipped
+            if (state === 'SKIPPED') {
+                return 'skipped';
+            }
+
+            // All possible states include: action_required, cancelled, failure, neutral,
+            // success, skipped, stale, timed_out. We may wish to consider some of these states
+            // failures, such as "cancelled". If we get here, we have reached a state we have
+            // not handled above and therefore consider "unknown." In that case, return
+            // previousValue which should be set to the seed value of 'unknown'.
+            return previousValue;
+        },
+        'unknown',
+    );
 }
 
 /**

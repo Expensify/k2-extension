@@ -17,6 +17,10 @@ export default function () {
     const BUGZERO_CHECKLIST_URL = 'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/BUGZERO_CHECKLIST.md';
     const NO_CHECKLIST_NEEDED_TEMPLATE = '### No Checklist Needed\n\n<C+ Please state the reason why checklist is not needed for this issue>';
 
+    // Marks the start of the payment details in a backend contributor payment request body. The "post payment
+    // details" button posts everything after it, keeping the explanatory line and the button out of the comment.
+    const BEC_PAYMENT_DETAILS_DELIMITER = '<!-- BEC_PAYMENT_DETAILS -->';
+
     /**
      * Gets the contents of the reviewer checklist from GitHub and then posts it as a comment to the current PR
      * @param {Event} e
@@ -73,6 +77,41 @@ export default function () {
             await API.addComment(NO_CHECKLIST_NEEDED_TEMPLATE);
         } catch (error) {
             console.error('Error posting no-checklist-needed template:', error);
+        } finally {
+            // Restore the original button content
+            button.innerHTML = originalContent;
+        }
+    };
+
+    /**
+     * Posts the auto-filled backend contributor payment details as a comment on the current issue.
+     * Reads the raw issue body and posts everything after the delimiter, so the explanatory line and
+     * the button are left out of the posted comment.
+     * @param {Event} e
+     */
+    const postPaymentDetails = async (e) => {
+        e.preventDefault();
+
+        // Get the button element
+        const button = e.target;
+
+        // Save the original content of the button
+        const originalContent = button.innerHTML;
+
+        // Replace the button content with a loader
+        button.innerHTML = '<div class="loader" />';
+
+        try {
+            const response = await API.getCurrentIssueDescription();
+            const body = (response && response.data && response.data.body) || '';
+            const parts = body.split(BEC_PAYMENT_DETAILS_DELIMITER);
+            const details = parts.length > 1 ? parts[1].trim() : '';
+
+            if (details) {
+                await API.addComment(details);
+            }
+        } catch (error) {
+            console.error('Error posting payment details:', error);
         } finally {
             // Restore the original button content
             button.innerHTML = originalContent;
@@ -307,6 +346,26 @@ export default function () {
 
                 // Always remove all handlers first so we know there is exactly one attached
                 $('.k2-no-checklist-needed').off().on('click', postNoChecklistNeededTemplate);
+            }
+        });
+    };
+
+    /**
+     * Renders a button that posts the auto-filled backend contributor payment details as a comment.
+     * The button replaces the [post payment details] placeholder in the payment request body.
+     */
+    Page.renderPaymentDetailsButton = function () {
+        // Look through the issue body paragraphs for the [post payment details] placeholder
+        // eslint-disable-next-line rulesdir/prefer-underscore-method
+        $('.markdown-body > p').each((i, el) => {
+            const commentHtml = $(el).html();
+
+            if (commentHtml && commentHtml.indexOf('[post payment details]') > -1) {
+                const newHtml = commentHtml.replace('[post payment details]', '<button type="button" class="btn btn-sm k2-post-payment-details">Post payment details</button>');
+                $(el).html(newHtml);
+
+                // Always remove all handlers first so we know there is exactly one attached
+                $('.k2-post-payment-details').off().on('click', postPaymentDetails);
             }
         });
     };
