@@ -698,6 +698,12 @@ $color-dark-yellow: #DAA520;
     font-weight: bold;
 }
 
+// Badge on Updates Due panel items
+.k2-update-due-badge {
+    color: $color-alert;
+    font-weight: 600;
+}
+
 // Agent dispatch button on list items
 .k2-agent-dispatch-button {
     background: transparent;

@@ -7,6 +7,7 @@ const LABELS = {
     [CONST.AGENT_DISPATCHER.ACTIONS.REPLY]: 'Draft reply',
     [CONST.AGENT_DISPATCHER.ACTIONS.REVIEW]: 'Review',
     [CONST.AGENT_DISPATCHER.ACTIONS.BABYSIT]: 'Babysit',
+    [CONST.AGENT_DISPATCHER.ACTIONS.UPDATE]: 'Draft update',
 };
 
 const propTypes = {

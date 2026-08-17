@@ -19,6 +19,7 @@ const CLAUDE_PROMPTS = {
     reply: job => `Draft a reply to the latest mention of me on ${job.url}. Do not post anything — print the draft reply and stop.`,
     review: job => `/review-pr ${job.url}`,
     babysit: job => `/babysit-pr ${job.url}`,
+    update: job => `Draft a status update comment for ${job.url} covering what has happened since my last comment there (linked PR activity, review state, blockers, next step). Do not post anything — print the draft and stop.`,
 };
 
 const DEDUPE_WINDOW_MS = 10 * 60 * 1000;

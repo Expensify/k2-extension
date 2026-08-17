@@ -14,10 +14,14 @@ const propTypes = {
 
     /** Which agent action the dispatch button hands this issue to (no button when omitted) */
     dispatchAction: PropTypes.oneOf(_.values(CONST.AGENT_DISPATCHER.ACTIONS)),
+
+    /** Extra content rendered in the item's meta area (badges, timers) */
+    meta: PropTypes.node,
 };
 const defaultProps = {
     showAttendees: false,
     dispatchAction: null,
+    meta: null,
 };
 
 class ListItemIssue extends React.Component {
@@ -191,13 +195,16 @@ class ListItemIssue extends React.Component {
         this.parseIssue();
         return (
             <div className="panel-item">
-                {this.props.dispatchAction && (
+                {(this.props.dispatchAction || this.props.meta) && (
                     <span className="panel-item-meta">
-                        <AgentDispatchButton
-                            action={this.props.dispatchAction}
-                            url={this.props.issue.url}
-                            title={this.props.issue.title}
-                        />
+                        {this.props.meta}
+                        {this.props.dispatchAction && (
+                            <AgentDispatchButton
+                                action={this.props.dispatchAction}
+                                url={this.props.issue.url}
+                                title={this.props.issue.title}
+                            />
+                        )}
                     </span>
                 )}
                 {this.isCurrentUserOwner && (

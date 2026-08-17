@@ -19,6 +19,16 @@ export default {
             REPLY: 'reply',
             REVIEW: 'review',
             BABYSIT: 'babysit',
+            UPDATE: 'update',
         },
+    },
+
+    // Days an issue may go without an update comment from its owner before K2 flags it,
+    // keyed by the issue's K2 priority label.
+    UPDATE_CADENCE_DAYS: {
+        Hourly: 1,
+        Daily: 2,
+        Weekly: 7,
+        Monthly: 30,
     },
 };
