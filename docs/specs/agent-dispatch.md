@@ -80,10 +80,23 @@ hidden when there are no jobs):
 ## Run it
 
 ```
-node tools/k2Dispatcher.mjs [--dry-run] [--port 8424]
+node tools/k2Dispatcher.mjs [--dry-run] [--port 8424] [--concurrency 3] [--cwd DIR]
 ```
 
-`--dry-run` queues jobs without launching `claude`.
+`--dry-run` queues jobs without launching `claude`. Jobs run with cwd set to
+the Expensidev checkout containing this repo (override with `--cwd`) so that
+project-scoped commands like `/issue-triage` resolve; user-level skills work
+from anywhere.
+
+To stop starting it by hand, install it as a login agent (starts at login,
+restarts if it dies, logs to `~/.k2/dispatcher.log`):
+
+```
+node tools/k2Dispatcher.mjs --install-launchd
+```
+
+If a port collision happens (e.g. a manually started copy is still running),
+the newcomer exits and launchd retries until the port frees up.
 
 ## Out of scope (next steps)
 

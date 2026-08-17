@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 import http from 'http';
-import {appendFileSync, mkdirSync, writeFileSync, readFileSync} from 'fs';
-import {spawn} from 'child_process';
+import {
+    appendFileSync, mkdirSync, writeFileSync, readFileSync, existsSync,
+} from 'fs';
+import {spawn, spawnSync} from 'child_process';
 import {homedir} from 'os';
 import path from 'path';
+import {fileURLToPath} from 'url';
 
 const args = process.argv.slice(2);
 const isDryRun = args.includes('--dry-run');
@@ -11,6 +14,55 @@ const portFlagIndex = args.indexOf('--port');
 const port = portFlagIndex === -1 ? 8424 : Number(args[portFlagIndex + 1]);
 const concurrencyFlagIndex = args.indexOf('--concurrency');
 const maxConcurrent = concurrencyFlagIndex === -1 ? 3 : Number(args[concurrencyFlagIndex + 1]);
+
+const scriptPath = fileURLToPath(import.meta.url);
+
+// Project-scoped commands like /issue-triage only resolve when claude runs inside Expensidev.
+const defaultJobCwd = path.resolve(path.dirname(scriptPath), '..', '..');
+const cwdFlagIndex = args.indexOf('--cwd');
+let jobCwd = cwdFlagIndex === -1 ? defaultJobCwd : path.resolve(args[cwdFlagIndex + 1]);
+if (!existsSync(jobCwd)) {
+    jobCwd = homedir();
+}
+
+if (args.includes('--install-launchd')) {
+    const plistPath = path.join(homedir(), 'Library/LaunchAgents/com.k2.dispatcher.plist');
+    const logPath = path.join(homedir(), '.k2', 'dispatcher.log');
+    mkdirSync(path.dirname(plistPath), {recursive: true});
+    mkdirSync(path.dirname(logPath), {recursive: true});
+    const plist = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key><string>com.k2.dispatcher</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>${process.execPath}</string>
+        <string>${scriptPath}</string>
+    </array>
+    <key>RunAtLoad</key><true/>
+    <key>KeepAlive</key><true/>
+    <key>StandardOutPath</key><string>${logPath}</string>
+    <key>StandardErrorPath</key><string>${logPath}</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key><string>${process.env.PATH}</string>
+    </dict>
+</dict>
+</plist>
+`;
+    writeFileSync(plistPath, plist);
+    spawnSync('launchctl', ['unload', plistPath], {stdio: 'ignore'});
+    const load = spawnSync('launchctl', ['load', plistPath], {stdio: 'inherit'});
+    if (load.status === 0) {
+        console.log(`Installed and started: ${plistPath}`);
+        console.log(`The dispatcher now starts at login and restarts if it dies. Logs: ${logPath}`);
+        console.log('If another dispatcher is already running on the port, this one takes over once it stops.');
+    } else {
+        console.error(`Wrote ${plistPath} but "launchctl load" failed — load it manually.`);
+    }
+    process.exit(load.status === 0 ? 0 : 1);
+}
 
 const baseDir = path.join(homedir(), '.k2');
 const resultsDir = path.join(baseDir, 'results');
@@ -82,7 +134,7 @@ function runClaude(job) {
         pumpQueue();
     };
     const child = spawn('claude', ['-p', ACTIONS[job.action].prompt(job)], {
-        cwd: homedir(),
+        cwd: jobCwd,
         stdio: ['ignore', 'pipe', 'pipe'],
     });
     child.stdout.on('data', (chunk) => {
@@ -245,8 +297,17 @@ const server = http.createServer((request, response) => {
     });
 });
 
+server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+        console.error(`Port ${port} is already in use — another dispatcher is probably running. Exiting.`);
+        process.exit(1);
+    }
+    throw error;
+});
+
 server.listen(port, '127.0.0.1', () => {
     console.log(`K2 dispatcher listening on http://127.0.0.1:${port}${isDryRun ? ' (dry run)' : ''} (max ${maxConcurrent} concurrent jobs)`);
+    console.log(`Jobs run from: ${jobCwd}`);
     console.log(`Queue: ${queueFile}`);
     console.log(`Results: ${resultsDir}`);
 });
