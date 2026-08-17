@@ -508,6 +508,14 @@ function getPreviousInstancesOfIssue(titleParts) {
 }
 
 /**
+ * @param {String} login
+ * @returns {Boolean}
+ */
+function isBotAuthor(login) {
+    return login.endsWith('-bot') || login.endsWith('[bot]') || login === 'OSBotify';
+}
+
+/**
  * Get all open issues that mention the current user and they haven't replied to
  *
  * @returns {Promise}
@@ -562,6 +570,9 @@ function getIssuesMentioning() {
                                     login
                                     avatarUrl
                                 }
+                                reactionGroups {
+                                    viewerHasReacted
+                                }
                             }
                             totalCount
                         }
@@ -585,6 +596,7 @@ function getIssuesMentioning() {
                             comment.body
                             && comment.body.includes(`@${currentUser}`)
                             && comment.author.login !== currentUser
+                            && !isBotAuthor(comment.author.login)
                         ) {
                             return index;
                         }
@@ -595,6 +607,14 @@ function getIssuesMentioning() {
 
                 // No mention found in recent comments — skip this issue
                 if (lastMentionIndex === -1) {
+                    return false;
+                }
+
+                const hasReactedToLastMention = _.some(
+                    comments[lastMentionIndex].reactionGroups,
+                    reactionGroup => reactionGroup.viewerHasReacted,
+                );
+                if (hasReactedToLastMention) {
                     return false;
                 }
 
