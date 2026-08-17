@@ -9,6 +9,7 @@ import ListItemIssue from '../../component/list-item/ListItemIssue';
 import Title from '../../component/panel-title/Title';
 import * as Issues from '../../lib/actions/Issues';
 import openAllUrls from '../../lib/openAllUrls';
+import scoreIssue from '../../lib/issueImpactScore';
 
 const propTypes = {
     /** The number of milliseconds to refresh the data */
@@ -108,7 +109,7 @@ class ListIssuesNeedsReply extends React.Component {
                 )}
 
                 {_.chain(this.props.issues)
-                    .sortBy('updatedAt')
+                    .sortBy(scoreIssue)
                     .map(issue => (
                         <ListItemIssue
                             key={issue.id}
