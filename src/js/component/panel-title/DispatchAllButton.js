@@ -3,9 +3,14 @@ import PropTypes from 'prop-types';
 import _ from 'underscore';
 import CONST from '../../CONST';
 
+const LABELS = {
+    [CONST.AGENT_DISPATCHER.BATCH_ACTIONS.TRIAGE]: 'Triage',
+    [CONST.AGENT_DISPATCHER.BATCH_ACTIONS.REVIEW_QUEUE]: 'Review queue',
+};
+
 const propTypes = {
-    /** The agent action every item is dispatched to */
-    action: PropTypes.oneOf(_.values(CONST.AGENT_DISPATCHER.ACTIONS)).isRequired,
+    /** The batch skill every item in the panel is handed to as one job */
+    action: PropTypes.oneOf(_.keys(LABELS)).isRequired,
 
     /** The items currently shown in the panel */
     items: PropTypes.arrayOf(PropTypes.shape({
@@ -26,12 +31,16 @@ function DispatchAllButton({action, items}) {
         setIsSending(true);
         setResult(null);
         try {
-            const responses = await Promise.all(_.map(items, item => fetch(CONST.AGENT_DISPATCHER.ENDPOINT, {
+            const response = await fetch(CONST.AGENT_DISPATCHER.ENDPOINT, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({action, url: item.url, title: item.title}),
-            })));
-            setResult(_.every(responses, response => response.ok) ? 'success' : 'error');
+                body: JSON.stringify({
+                    action,
+                    title: `${LABELS[action]} — ${items.length} items`,
+                    items: _.map(items, item => ({url: item.url, title: item.title})),
+                }),
+            });
+            setResult(response.ok ? 'success' : 'error');
         } catch (error) {
             setResult('error');
         } finally {
@@ -40,7 +49,7 @@ function DispatchAllButton({action, items}) {
         }
     };
 
-    let label = `🤖 Dispatch all (${items.length})`;
+    let label = `🤖 ${LABELS[action]} (${items.length})`;
     if (isSending) {
         label = 'Dispatching…';
     } else if (result === 'success') {
@@ -57,7 +66,7 @@ function DispatchAllButton({action, items}) {
             onClick={dispatchAll}
             title={result === 'error'
                 ? 'Could not reach the local dispatcher. Start it with: node tools/k2Dispatcher.mjs'
-                : 'Hand every item in this panel to a local Claude agent. Results land in the Agent Drafts panel.'}
+                : `Run /${action} over every item in this panel as one local Claude job. The result lands in the Agent Drafts panel.`}
         >
             {label}
         </button>

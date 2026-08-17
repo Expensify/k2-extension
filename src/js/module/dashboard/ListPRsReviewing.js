@@ -300,7 +300,7 @@ class ListPRsReviewing extends React.Component {
                         items={filteredPRs}
                         extraAction={_.size(filteredPRs) > 0 && (
                             <DispatchAllButton
-                                action={CONST.AGENT_DISPATCHER.ACTIONS.REVIEW}
+                                action={CONST.AGENT_DISPATCHER.BATCH_ACTIONS.REVIEW_QUEUE}
                                 items={_.values(filteredPRs)}
                             />
                         )}

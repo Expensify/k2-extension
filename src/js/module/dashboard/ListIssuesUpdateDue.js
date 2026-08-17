@@ -144,7 +144,7 @@ class ListIssuesUpdateDue extends React.Component {
                     items={issuesWithUpdateDue}
                     extraAction={!!issuesWithUpdateDue && issuesWithUpdateDue.length > 0 && (
                         <DispatchAllButton
-                            action={CONST.AGENT_DISPATCHER.ACTIONS.UPDATE}
+                            action={CONST.AGENT_DISPATCHER.BATCH_ACTIONS.TRIAGE}
                             items={issuesWithUpdateDue}
                         />
                     )}

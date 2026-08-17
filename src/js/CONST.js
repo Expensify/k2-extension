@@ -17,11 +17,16 @@ export default {
         ENDPOINT: 'http://127.0.0.1:8424/dispatch',
         JOBS_ENDPOINT: 'http://127.0.0.1:8424/jobs',
         RESOLVE_ENDPOINT: 'http://127.0.0.1:8424/resolve',
+        RESULTS_ENDPOINT: 'http://127.0.0.1:8424/results',
         ACTIONS: {
             REPLY: 'reply',
             REVIEW: 'review',
             BABYSIT: 'babysit',
             UPDATE: 'update',
+        },
+        BATCH_ACTIONS: {
+            TRIAGE: 'triage',
+            REVIEW_QUEUE: 'review-queue',
         },
     },
 

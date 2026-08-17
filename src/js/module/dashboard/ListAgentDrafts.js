@@ -9,11 +9,15 @@ const POLL_INTERVAL_MS = 15000;
 
 const jobPropTypes = PropTypes.shape({
     id: PropTypes.number.isRequired,
-    action: PropTypes.oneOf(_.values(CONST.AGENT_DISPATCHER.ACTIONS)).isRequired,
-    url: PropTypes.string.isRequired,
+    action: PropTypes.oneOf([
+        ..._.values(CONST.AGENT_DISPATCHER.ACTIONS),
+        ..._.values(CONST.AGENT_DISPATCHER.BATCH_ACTIONS),
+    ]).isRequired,
+    url: PropTypes.string,
     title: PropTypes.string.isRequired,
     status: PropTypes.oneOf(['queued', 'running', 'done', 'failed']).isRequired,
     draft: PropTypes.string,
+    resultPath: PropTypes.string,
 });
 
 const POSTABLE_ACTIONS = [
@@ -61,8 +65,17 @@ function AgentDraftRow({job, onResolved}) {
     return (
         <div className="panel-item k2-draft-row">
             <span className="panel-item-meta">
-                {job.status === 'running' && <span className="k2-workflow-menu-loader" />}
+                {(job.status === 'running' || job.status === 'queued') && <span className="k2-workflow-menu-loader" />}
                 {job.status === 'failed' && <span className="k2-update-due-badge">failed</span>}
+                {job.status !== 'running' && job.status !== 'queued' && job.resultPath && (
+                    <a
+                        href={`${CONST.AGENT_DISPATCHER.RESULTS_ENDPOINT}/${job.resultPath}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Open result
+                    </a>
+                )}
                 {isPostable && (
                     <button
                         type="button"
@@ -84,13 +97,20 @@ function AgentDraftRow({job, onResolved}) {
                 </button>
             </span>
 
-            <a href={job.url} className="issue" target="_blank" rel="noopener noreferrer">
-                <sup>{job.action}</sup>
-                {` ${job.title}`}
-            </a>
+            {job.url ? (
+                <a href={job.url} className="issue" target="_blank" rel="noopener noreferrer">
+                    <sup>{job.action}</sup>
+                    {` ${job.title}`}
+                </a>
+            ) : (
+                <span className="issue">
+                    <sup>{job.action}</sup>
+                    {` ${job.title}`}
+                </span>
+            )}
 
             {error && <div className="k2-update-due-badge">{error}</div>}
-            {job.status !== 'running' && job.draft && (
+            {job.status !== 'running' && job.status !== 'queued' && job.draft && (
                 <pre className="k2-draft-body">{job.draft}</pre>
             )}
         </div>

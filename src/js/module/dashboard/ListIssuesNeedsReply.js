@@ -103,7 +103,7 @@ class ListIssuesNeedsReply extends React.Component {
                     }
                     extraAction={_.size(this.props.issues) > 0 && (
                         <DispatchAllButton
-                            action={CONST.AGENT_DISPATCHER.ACTIONS.REPLY}
+                            action={CONST.AGENT_DISPATCHER.BATCH_ACTIONS.TRIAGE}
                             items={_.values(this.props.issues)}
                         />
                     )}

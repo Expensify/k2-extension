@@ -22,13 +22,24 @@ review. The agent side already exists as local Claude skills (`/review-pr`,
 - The button shows a spinner while posting, ✓ when the dispatcher accepted the
   job, ✗ when the dispatcher isn't running (tooltip says how to start it).
 
-## Batch dispatch
+## Batch dispatch (skill-backed)
 
-- Needs Reply, Updates Due, and Review PRs have a **Dispatch all (N)** button
-  in the panel title that dispatches every visible item at once.
+Panel-title buttons submit ONE job that runs the user's own skill over the
+whole visible list, mirroring the manual "Copy links for AI → paste into the
+skill" workflow:
+
+- Needs Reply and Updates Due → **Triage (N)** → `/issue-triage` with the
+  items as a markdown link list.
+- Review PRs → **Review queue (N)** → `/review-queue` with the PR links.
+- Batch jobs (`triage`, `review-queue`) send `{action, title, items:[{url,
+  title}]}`; the dispatcher builds the `- [title](url)` list and passes it to
+  the skill, so the skill sees exactly what a manual paste would.
 - The dispatcher runs at most 3 `claude` jobs concurrently
   (`--concurrency N` to change); the rest wait as `queued` and start as slots
-  free up, so a 15-item batch never launches 15 processes.
+  free up.
+- The dispatcher serves `GET /results/<file>` from `~/.k2/results/`, and
+  finished jobs in the Agent Drafts panel get an **Open result** link, so
+  triage output and review decks are one click away.
 - Your Pull Requests deliberately has no batch button: babysit acts on GitHub
   (pushes fixes, replies to bots), so batching it would turn one click into
   unreviewed outbound actions on every open PR.
