@@ -14,6 +14,7 @@ import K2previousissues from '../../../module/K2previousissues/K2previousissues'
 import ONYXKEYS from '../../../ONYXKEYS';
 import * as API from '../../api';
 import * as autoLoadMoreComments from '../../autoLoadMoreComments';
+import hideCommentButtons from '../../hideCommentButtons';
 
 let clearErrorTimeoutID;
 function catchError(e) {
@@ -231,6 +232,7 @@ export default function () {
         setInterval(() => IssuePage.renderPaymentDetailsButton(), 2000);
 
         autoLoadMoreComments.initAutoLoadMoreComments();
+        hideCommentButtons();
     };
 
     return IssuePage;
