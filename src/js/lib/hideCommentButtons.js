@@ -103,6 +103,16 @@ function showMinimizedComment(wrapper) {
         return;
     }
 
+    const minimized = document.createElement('div');
+    minimized.className = 'k2-minimized-comment';
+    minimized.textContent = body.textContent.trim() || 'This comment has been minimized.';
+
+    const issueCommentBody = body.closest('[class*="IssueCommentViewer-module__IssueCommentBody"]');
+    if (issueCommentBody) {
+        issueCommentBody.replaceChildren(minimized);
+        return;
+    }
+
     const header = comment.querySelector('.timeline-comment-header, [class*="IssueBodyHeader-module__IssueBodyHeaderContainer"]');
     const bodyContainer = body.closest('.edit-comment-hide') || body;
     if (header) {
@@ -111,10 +121,6 @@ function showMinimizedComment(wrapper) {
     bodyContainer.style.display = 'none';
     comment.classList.remove('unminimized-comment');
     comment.classList.add('minimized-comment', 'position-relative');
-
-    const minimized = document.createElement('div');
-    minimized.className = 'k2-minimized-comment';
-    minimized.textContent = body.textContent.trim() || 'This comment has been minimized.';
     comment.appendChild(minimized);
 }
 
