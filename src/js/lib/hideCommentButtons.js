@@ -11,7 +11,7 @@ const BUTTONS_CLASS = 'k2-hide-comment-buttons';
 
 const COMMENT_BODY_SELECTOR = '.comment-body.js-comment-body, .comment-body, [data-testid="issue-comment-body"], [data-testid="markdown-body"]';
 const MODERN_ISSUE_COMMENT_SELECTOR = '[class*="IssueBody-module__commentBorder"]:not([class*="IssueBodyHeader-module__commentBorder"])';
-const COMMENT_CONTAINER_SELECTOR = `.timeline-comment, .timeline-comment-group, ${MODERN_ISSUE_COMMENT_SELECTOR}`;
+const COMMENT_CONTAINER_SELECTOR = `.timeline-comment, .timeline-comment-group, .react-issue-comment, ${MODERN_ISSUE_COMMENT_SELECTOR}`;
 
 // Match the comment type needed by the REST endpoint that returns its GraphQL node ID.
 // Check review-thread comments before review comments because their URLs overlap.
