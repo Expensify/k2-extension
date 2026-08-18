@@ -8,6 +8,7 @@ const ACTIONS = [
 ];
 
 const BUTTONS_CLASS = 'k2-hide-comment-buttons';
+const MINIMIZED_REASON_STATE = 'k2MinimizedReasonState';
 
 const COMMENT_BODY_SELECTOR = '.comment-body.js-comment-body, .comment-body, [data-testid="issue-comment-body"], [data-testid="markdown-body"]';
 const COMMENT_CONTAINER_SELECTOR = '.timeline-comment, .timeline-comment-group, .react-issue-comment';
@@ -133,6 +134,36 @@ function lookupNodeID(commentType, commentID) {
     return API.getIssueCommentNodeID(commentID);
 }
 
+function addHiddenReason(commentElement) {
+    const comment = commentElement;
+    if (comment.dataset[MINIMIZED_REASON_STATE]) {
+        return;
+    }
+
+    const label = comment.querySelector('.timeline-comment-header-text, summary h3');
+    const visibleLabel = label && (label.querySelector('.Details-content--open') || label);
+    const buttonGroup = comment.querySelector(`.${BUTTONS_CLASS}[data-comment-type="issuecomment"]`);
+    const commentID = buttonGroup && buttonGroup.dataset.commentId;
+    if (!visibleLabel || !commentID) {
+        return;
+    }
+
+    comment.dataset[MINIMIZED_REASON_STATE] = 'loading';
+    API.getIssueCommentMinimizedReason(commentID)
+        .then((reason) => {
+            if (!reason || visibleLabel.textContent.toLowerCase().includes(reason)) {
+                return;
+            }
+            visibleLabel.textContent = `${visibleLabel.textContent.trim()} Hidden as ${reason}.`;
+        })
+        .then(() => {
+            comment.dataset[MINIMIZED_REASON_STATE] = 'done';
+        })
+        .catch(() => {
+            comment.dataset[MINIMIZED_REASON_STATE] = 'error';
+        });
+}
+
 function setButtonsDisabled(wrapper, disabled) {
     _.each(wrapper.querySelectorAll('button'), (button) => {
         if (disabled) {
@@ -216,6 +247,8 @@ function scan() {
         }
         addButtons(comment);
     });
+
+    _.each(document.querySelectorAll('.minimized-comment'), addHiddenReason);
 }
 
 function scheduleScan() {
