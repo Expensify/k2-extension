@@ -10,6 +10,7 @@ const ACTIONS = [
 const BUTTONS_CLASS = 'k2-hide-comment-buttons';
 
 const COMMENT_BODY_SELECTOR = '.comment-body.js-comment-body, .comment-body, [data-testid="issue-comment-body"], [data-testid="markdown-body"]';
+const COMMENT_CONTAINER_SELECTOR = '.timeline-comment, .timeline-comment-group, .react-issue-comment';
 
 // Match the comment type needed by the REST endpoint that returns its GraphQL node ID.
 // Check review-thread comments before review comments because their URLs overlap.
@@ -61,6 +62,10 @@ function getPermalinkHash(permalink) {
     return hashIdx >= 0 ? href.slice(hashIdx + 1) : '';
 }
 
+function getCommentContainer(element) {
+    return element.closest(COMMENT_CONTAINER_SELECTOR);
+}
+
 // Start from the permalink, which belongs to a specific comment. Starting from an
 // author link can pair the issue description with a later timeline comment.
 function findCommentContext(permalink) {
@@ -71,9 +76,10 @@ function findCommentContext(permalink) {
 
     const hash = getPermalinkHash(permalink);
     const target = hash && document.getElementById(hash);
-    const container = target && target.contains(permalink)
+    const targetHasCommentBody = target && target.contains(permalink) && target.querySelector(COMMENT_BODY_SELECTOR);
+    const container = targetHasCommentBody
         ? target
-        : permalink.closest('.timeline-comment, .timeline-comment-group');
+        : getCommentContainer(permalink);
     if (!container || !container.querySelector(COMMENT_BODY_SELECTOR)) {
         return null;
     }
@@ -84,13 +90,13 @@ function findCommentContext(permalink) {
 }
 
 function getMinimizeForm(wrapper) {
-    const comment = wrapper.closest('.timeline-comment-group');
+    const comment = getCommentContainer(wrapper);
     return comment && comment.querySelector('form.js-timeline-comment-minimize');
 }
 
 // Render the same state that GitHub uses when the native form is unavailable.
 function showMinimizedComment(wrapper) {
-    const comment = wrapper.closest('.timeline-comment, .timeline-comment-group');
+    const comment = getCommentContainer(wrapper);
     const body = comment && comment.querySelector(COMMENT_BODY_SELECTOR);
     if (!comment || !body) {
         return;
