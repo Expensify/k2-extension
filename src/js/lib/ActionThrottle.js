@@ -1,4 +1,5 @@
 const minPollInterval = 60000; // 1 minute
+const maxFetchDuration = 300000; // 5 minutes
 
 const currentlyFetching = {};
 const lastFetchTimestamps = {};
@@ -13,18 +14,28 @@ const lastFetchTimestamps = {};
  *
  * @param {String} commandName must be a unique name for each action method that fetches data from the GH API and stores the results in Onyx
  * @param {Function} methodThatReturnsAPromise
+ * @returns {Promise<void>}
  */
 function ActionThrottle(commandName, methodThatReturnsAPromise) {
-    const msSinceLastFetch = Date.now() - (lastFetchTimestamps[commandName] || null);
-    if (currentlyFetching[commandName] || msSinceLastFetch < minPollInterval) {
-        return;
+    const now = Date.now();
+    const fetchStartedAt = currentlyFetching[commandName];
+    const fetchIsActive = fetchStartedAt && now - fetchStartedAt < maxFetchDuration;
+    const msSinceLastFetch = now - (lastFetchTimestamps[commandName] || 0);
+    if (fetchIsActive || msSinceLastFetch < minPollInterval) {
+        return Promise.resolve();
     }
-    currentlyFetching[commandName] = true;
+    currentlyFetching[commandName] = now;
+    lastFetchTimestamps[commandName] = now;
 
-    methodThatReturnsAPromise()
+    return Promise.resolve()
+        .then(methodThatReturnsAPromise)
+        .then(() => undefined)
+        .catch(error => console.error(`K2 refresh failed for ${commandName}:`, error))
         .finally(() => {
-            lastFetchTimestamps[commandName] = Date.now();
-            currentlyFetching[commandName] = false;
+            if (currentlyFetching[commandName] !== now) {
+                return;
+            }
+            delete currentlyFetching[commandName];
         });
 }
 

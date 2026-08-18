@@ -153,28 +153,21 @@ function getMilestones() {
  * @param {String} query
  * @returns {Promise<Array>}
  */
-function getFullResultsUsingPagination(query) {
-    return new Promise((resolve) => {
-        let results = [];
+async function getFullResultsUsingPagination(query) {
+    let results = [];
+    let cursor;
 
-        // This does all the pagination on the graphQL query
-        function fetchPageOfIssues(cursor) {
-            getOctokit().graphql(query, {cursor})
-                .then((queryResults) => {
-                    results = results.concat(queryResults.search.nodes);
+    do {
+        // Pagination must be sequential because each request depends on the previous page's cursor.
+        // eslint-disable-next-line no-await-in-loop
+        const queryResults = await getOctokit().graphql(query, {cursor});
+        results = results.concat(queryResults.search.nodes);
+        cursor = queryResults.search.pageInfo.hasNextPage
+            ? queryResults.search.pageInfo.endCursor
+            : null;
+    } while (cursor);
 
-                    // When there is another page, this function needs to be called recursively to get the next page
-                    if (queryResults.search.pageInfo.hasNextPage) {
-                        fetchPageOfIssues(queryResults.search.pageInfo.endCursor);
-                        return;
-                    }
-
-                    // When there are no more pages, then we can resolve the final promise with all our results
-                    resolve(results);
-                });
-        }
-        fetchPageOfIssues();
-    });
+    return results;
 }
 
 /**

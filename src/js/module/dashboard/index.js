@@ -5,6 +5,7 @@ import ListIssues from './ListIssues';
 import FormPassword from './FormPassword';
 import ONYXKEYS from '../../ONYXKEYS';
 import renderPrimerRoot from '../../lib/renderPrimerRoot';
+import registerDashboardRefresh from './refreshDashboard';
 
 /**
  * Display our dashboard with the list of issues
@@ -67,6 +68,7 @@ export default () => ({
         ReactNativeOnyx.init({
             keys: ONYXKEYS,
         });
+        registerDashboardRefresh();
 
         let preferences = null;
 
