@@ -670,6 +670,17 @@ function minimizeComment(nodeID, classifier) {
 }
 
 /**
+ * Get the reason GitHub stored for a minimized issue comment.
+ * @param {Number|String} commentID
+ * @returns {Promise<String>}
+ */
+function getIssueCommentMinimizedReason(commentID) {
+    const {owner, repo} = getRequestParams();
+    return getOctokit().rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
+        .then(response => response.data.minimized && response.data.minimized.reason);
+}
+
+/**
  * Get recent workflow runs for a specific workflow
  * @param {String} workflowId
  * @param {Number} perPage
@@ -722,6 +733,7 @@ export {
     getPullRequestReviewNodeID,
     getPullRequestReviewCommentNodeID,
     minimizeComment,
+    getIssueCommentMinimizedReason,
     getStatusCheckRollup,
     getPullRequestHeadRefOid,
 };
