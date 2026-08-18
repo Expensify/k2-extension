@@ -81,7 +81,12 @@ class K2PickerPicker extends React.Component {
                 <Text className="k2-sidebar-label" weight="semibold">Priority</Text>
                 <SegmentedControl aria-label="Priority" fullWidth onChange={this.selectLabel} size="small">
                     {_.map(priorityLabels, priority => (
-                        <SegmentedControl.Button key={priority.label} selected={this.state.activeLabel === priority.label} title={priority.label}>
+                        <SegmentedControl.Button
+                            key={priority.label}
+                            className={`k2-colored-segment k2-priority-${priority.label.toLowerCase()}`}
+                            selected={this.state.activeLabel === priority.label}
+                            title={priority.label}
+                        >
                             {priority.text}
                         </SegmentedControl.Button>
                     ))}

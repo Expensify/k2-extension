@@ -78,7 +78,7 @@ class Toggle extends React.Component {
     render() {
         return (
             <Stack direction="horizontal" align="center" justify="space-between" gap="condensed">
-                <span id="k2-reviewing-label">Reviewing label</span>
+                <span id="k2-reviewing-label">PR in review</span>
                 <ToggleSwitch
                     aria-labelledby="k2-reviewing-label"
                     checked={this.state.Reviewing}

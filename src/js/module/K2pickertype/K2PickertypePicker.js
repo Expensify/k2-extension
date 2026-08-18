@@ -86,7 +86,12 @@ class K2PickertypePicker extends React.Component {
                 <Text className="k2-sidebar-label" weight="semibold">Type</Text>
                 <SegmentedControl aria-label="Type" fullWidth onChange={this.selectLabel} size="small">
                     {_.map(typeLabels, type => (
-                        <SegmentedControl.Button key={type.label} selected={this.state.activeLabel === type.label} title={type.label === 'NewFeature' ? 'New Feature' : type.label}>
+                        <SegmentedControl.Button
+                            key={type.label}
+                            className={`k2-colored-segment k2-type-${type.label.toLowerCase()}`}
+                            selected={this.state.activeLabel === type.label}
+                            title={type.label === 'NewFeature' ? 'New Feature' : type.label}
+                        >
                             {type.text}
                         </SegmentedControl.Button>
                     ))}
