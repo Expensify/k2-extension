@@ -9,14 +9,7 @@ const ACTIONS = [
 
 const BUTTONS_CLASS = 'k2-hide-comment-buttons';
 
-// Author profile links in comment headers use hovercards across GitHub UIs.
-// GitHub App bots use an /apps/ URL instead.
-const AUTHOR_SELECTOR = [
-    '.timeline-comment-header a.author[data-hovercard-type="user"]',
-    '.timeline-comment-header a.author[data-hovercard-url*="/users/"]',
-    '.timeline-comment-header a.author[href*="/apps/"]',
-].join(', ');
-const COMMENT_BODY_SELECTOR = '.comment-body.js-comment-body';
+const COMMENT_BODY_SELECTOR = '.comment-body.js-comment-body, .comment-body, [data-testid="issue-comment-body"], [data-testid="markdown-body"]';
 
 // Match the comment type needed by the REST endpoint that returns its GraphQL node ID.
 // Check review-thread comments before review comments because their URLs overlap.
@@ -46,26 +39,8 @@ function isOptionsButton(btn) {
 }
 
 // The React UI uses a button. The legacy review UI uses a summary element.
-function findOptionsButton(rootEl) {
-    return _.find(rootEl.querySelectorAll('button, summary'), btn => isOptionsButton(btn)) || null;
-}
-
-// Ignore user mentions inside comment bodies because they are not comment authors.
-function isHeaderAuthorLink(link) {
-    const text = (link.textContent || '').trim();
-    if (text.startsWith('@')) {
-        return false;
-    }
-    if (link.classList.contains('user-mention')) {
-        return false;
-    }
-    if (link.closest(COMMENT_BODY_SELECTOR)) {
-        return false;
-    }
-    if (link.closest('.timeline-comment[id^="pullrequest-"]')) {
-        return false;
-    }
-    return true;
+function findOptionsButton(container) {
+    return _.find(container.querySelectorAll('button, summary'), btn => isOptionsButton(btn)) || null;
 }
 
 function parsePermalink(permalink) {
@@ -86,27 +61,26 @@ function getPermalinkHash(permalink) {
     return hashIdx >= 0 ? href.slice(hashIdx + 1) : '';
 }
 
-// Find the smallest ancestor that contains the author, permalink, and comment body.
-function findCommentHeader(authorLink) {
-    let el = authorLink.parentElement;
-    while (el && el !== document.body) {
-        const permalink = el.querySelector(PERMALINK_SELECTOR);
-        if (permalink) {
-            const parsed = parsePermalink(permalink);
-            if (parsed) {
-                const hash = getPermalinkHash(permalink);
-                const idMatches = hash && (el.id === hash || !!el.querySelector(`[id="${CSS.escape(hash)}"]`));
-                const hasBody = !!el.querySelector(COMMENT_BODY_SELECTOR);
-                if (idMatches || hasBody) {
-                    return {
-                        container: el, permalink, parsed, optionsBtn: findOptionsButton(el),
-                    };
-                }
-            }
-        }
-        el = el.parentElement;
+// Start from the permalink, which belongs to a specific comment. Starting from an
+// author link can pair the issue description with a later timeline comment.
+function findCommentContext(permalink) {
+    const parsed = parsePermalink(permalink);
+    if (!parsed) {
+        return null;
     }
-    return null;
+
+    const hash = getPermalinkHash(permalink);
+    const target = hash && document.getElementById(hash);
+    const container = target && target.contains(permalink)
+        ? target
+        : permalink.closest('.timeline-comment, .timeline-comment-group');
+    if (!container || !container.querySelector(COMMENT_BODY_SELECTOR)) {
+        return null;
+    }
+
+    return {
+        container, permalink, parsed, optionsBtn: findOptionsButton(container),
+    };
 }
 
 function getMinimizeForm(wrapper) {
@@ -223,15 +197,12 @@ function addButtons({
 }
 
 function scan() {
-    _.each(document.querySelectorAll(AUTHOR_SELECTOR), (authorLink) => {
-        if (!isHeaderAuthorLink(authorLink)) {
+    _.each(document.querySelectorAll(PERMALINK_SELECTOR), (permalink) => {
+        const comment = findCommentContext(permalink);
+        if (!comment) {
             return;
         }
-        const header = findCommentHeader(authorLink);
-        if (!header) {
-            return;
-        }
-        addButtons(header);
+        addButtons(comment);
     });
 }
 
