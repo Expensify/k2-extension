@@ -12,11 +12,11 @@ const BUTTONS_CLASS = 'k2-hide-comment-buttons';
 // Author profile links in comment headers use hovercards across GitHub UIs.
 // GitHub App bots use an /apps/ URL instead.
 const AUTHOR_SELECTOR = [
-    '.timeline-comment-header a.author[data-hovercard-type="user"]',
-    '.timeline-comment-header a.author[data-hovercard-url*="/users/"]',
-    '.timeline-comment-header a.author[href*="/apps/"]',
+    'a[data-hovercard-type]',
+    'a[data-hovercard-url*="/users/"]',
+    'a[href*="/apps/"]',
 ].join(', ');
-const COMMENT_BODY_SELECTOR = '.comment-body.js-comment-body';
+const COMMENT_BODY_SELECTOR = '.comment-body.js-comment-body, .comment-body, [data-testid="issue-comment-body"], [data-testid="markdown-body"]';
 
 // Match the comment type needed by the REST endpoint that returns its GraphQL node ID.
 // Check review-thread comments before review comments because their URLs overlap.
@@ -88,6 +88,7 @@ function getPermalinkHash(permalink) {
 
 // Find the smallest ancestor that contains the author, permalink, and comment body.
 function findCommentHeader(authorLink) {
+    const timelineScope = authorLink.closest('.TimelineItem, .js-timeline-item');
     let el = authorLink.parentElement;
     while (el && el !== document.body) {
         const permalink = el.querySelector(PERMALINK_SELECTOR);
@@ -103,6 +104,9 @@ function findCommentHeader(authorLink) {
                     };
                 }
             }
+        }
+        if (el === timelineScope) {
+            break;
         }
         el = el.parentElement;
     }
