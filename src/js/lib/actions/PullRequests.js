@@ -2,6 +2,7 @@ import _ from 'underscore';
 import ReactNativeOnyx from 'react-native-onyx';
 import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
+import CONST from '../../CONST';
 import ActionThrottle from '../ActionThrottle';
 
 function getChecks(prs, onyxKey) {
@@ -16,11 +17,21 @@ function getChecks(prs, onyxKey) {
                         checkConclusion: _.reduce(
                             response.data.check_runs,
                             (previousValue, currentValue) => {
+                                if (_.contains(CONST.IGNORED_CHECK_RUN_NAMES, currentValue.name)) {
+                                    return previousValue;
+                                }
+
                                 const conclusion = currentValue.conclusion;
 
                                 // If any check runs are failing, mark it failed
                                 if (conclusion === 'failure' || previousValue === 'failure') {
                                     return 'failure';
+                                }
+
+                                // Check runs only get a conclusion once they complete, so any run that isn't
+                                // completed yet means the overall result is still pending
+                                if (currentValue.status !== 'completed' || previousValue === 'pending') {
+                                    return 'pending';
                                 }
 
                                 // If the current check run is successful, mark it success. If the previous one is

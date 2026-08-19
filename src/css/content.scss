@@ -242,7 +242,6 @@ body.k2-page-active {
   gap: 4px;
   margin-right: 8px;
   align-items: center;
-
   .k2-hide-comment-button {
     padding: 0 6px;
     font-size: 12px;
@@ -250,6 +249,7 @@ body.k2-page-active {
     height: 22px;
   }
 }
+
 .k2-inactive {
   opacity: 0.2;
 }
@@ -959,12 +959,20 @@ body.k2-page-active {
 li.k2-extension {
     display: flex;
     align-items: center;
+    list-style: none;
+}
+
+// Prevent the isolated K2 tab from covering GitHub's next tab.
+nav[aria-label="Repository"] a[href*="/pulls"] {
+    margin-right: 48px;
 }
 
 .k2-nav-link {
     display: flex;
     align-items: center;
-    padding: 8px 16px;
+    box-sizing: border-box;
+    height: 100%;
+    padding: 0 8px;
     font-size: 14px;
     font-weight: 400;
     line-height: 1.5;

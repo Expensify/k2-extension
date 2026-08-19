@@ -14,7 +14,7 @@ import K2previousissues from '../../../module/K2previousissues/K2previousissues'
 import ONYXKEYS from '../../../ONYXKEYS';
 import * as API from '../../api';
 import * as autoLoadMoreComments from '../../autoLoadMoreComments';
-import * as hideCommentButtons from '../../hideCommentButtons';
+import hideCommentButtons from '../../hideCommentButtons';
 
 let clearErrorTimeoutID;
 function catchError(e) {
@@ -229,9 +229,10 @@ export default function () {
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
         setInterval(() => IssuePage.renderCopyChecklistButtons('bugzero'), 2000);
         setInterval(() => IssuePage.renderNoChecklistNeededButton(), 2000);
+        setInterval(() => IssuePage.renderPaymentDetailsButton(), 2000);
 
         autoLoadMoreComments.initAutoLoadMoreComments();
-        hideCommentButtons.initHideCommentButtons();
+        hideCommentButtons();
     };
 
     return IssuePage;

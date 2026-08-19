@@ -265,6 +265,105 @@ query {
         });
 }
 
+/**
+ * Get the SHA of the commit at the head of a pull request, which is the commit whose checks GitHub's
+ * favicon and merge box report on.
+ *
+ * @param {String} owner
+ * @param {String} repo
+ * @param {Number} pullRequestNumber
+ * @returns {Promise<String|null>}
+ */
+function getPullRequestHeadRefOid(owner, repo, pullRequestNumber) {
+    const graphQLQuery = `
+query($owner:String!, $repo:String!, $number:Int!) {
+    repository(owner: $owner, name: $repo) {
+        pullRequest(number: $number) {
+            headRefOid
+        }
+    }
+}
+    `;
+
+    return getOctokit().graphql(graphQLQuery, {owner, repo, number: pullRequestNumber})
+        .then(data => (data.repository && data.repository.pullRequest && data.repository.pullRequest.headRefOid) || null);
+}
+
+/**
+ * Get every check run and commit status that feeds the status indicator GitHub shows for a single commit.
+ * These are two separate concepts in the GitHub API, and the "status check rollup" is what combines them.
+ *
+ * @param {String} owner
+ * @param {String} repo
+ * @param {String} oid The full 40 character commit SHA
+ * @returns {Promise<Array<Object>>}
+ */
+async function getStatusCheckRollup(owner, repo, oid) {
+    const graphQLQuery = `
+query($owner:String!, $repo:String!, $oid:GitObjectID!, $cursor:String) {
+    repository(owner: $owner, name: $repo) {
+        object(oid: $oid) {
+            ... on Commit {
+                statusCheckRollup {
+                    contexts(first: 100, after: $cursor) {
+                        pageInfo {
+                            endCursor
+                            hasNextPage
+                        }
+                        nodes {
+                            type: __typename
+                            ... on CheckRun {
+                                name
+                                status
+                                conclusion
+                                checkSuite {
+                                    workflowRun {
+                                        workflow {
+                                            resourcePath
+                                        }
+                                    }
+                                }
+                            }
+                            ... on StatusContext {
+                                context
+                                state
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+    `;
+
+    let contexts = [];
+    let cursor = null;
+
+    do {
+        // eslint-disable-next-line no-await-in-loop
+        const data = await getOctokit().graphql(graphQLQuery, {
+            owner, repo, oid, cursor,
+        });
+
+        const rollup = data.repository && data.repository.object && data.repository.object.statusCheckRollup;
+        if (!rollup) {
+            // A commit that has no checks at all has a null rollup. Once pages have already been read,
+            // a missing one instead means an incomplete set, and callers must not mistake the checks we
+            // did manage to read for all of them.
+            if (contexts.length) {
+                throw new Error(`Incomplete status check rollup for ${oid}`);
+            }
+            return [];
+        }
+
+        contexts = contexts.concat(rollup.contexts.nodes);
+        cursor = rollup.contexts.pageInfo.hasNextPage ? rollup.contexts.pageInfo.endCursor : null;
+    } while (cursor);
+
+    return contexts;
+}
+
 function getCheckRuns(repo, headSHA) {
     return getOctokit().rest.checks.listForRef({
         owner: getRequestParams().owner,
@@ -512,51 +611,51 @@ function updateComment(commentId, body) {
 
 /**
  * Look up an issue comment's GraphQL node ID by its numeric REST ID.
- * @param {Number|String} commentId
+ * @param {Number|String} commentID
  * @returns {Promise<String>}
  */
-function getIssueCommentNodeId(commentId) {
+function getIssueCommentNodeID(commentID) {
     const {owner, repo} = getRequestParams();
-    return getOctokit().rest.issues.getComment({owner, repo, comment_id: Number(commentId)})
+    return getOctokit().rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
         .then(response => response.data.node_id);
 }
 
 /**
  * Look up a pull-request review's GraphQL node ID by its numeric REST ID.
- * @param {Number|String} reviewId
+ * @param {Number|String} reviewID
  * @returns {Promise<String>}
  */
-function getPullRequestReviewNodeId(reviewId) {
+function getPullRequestReviewNodeID(reviewID) {
     const {owner, repo, issue_number} = getRequestParams();
     return getOctokit().rest.pulls.getReview({
         owner,
         repo,
         pull_number: Number(issue_number),
-        review_id: Number(reviewId),
+        review_id: Number(reviewID),
     }).then(response => response.data.node_id);
 }
 
 /**
  * Look up an inline PR review-thread comment's GraphQL node ID by its numeric REST ID.
- * @param {Number|String} commentId
+ * @param {Number|String} commentID
  * @returns {Promise<String>}
  */
-function getPullRequestReviewCommentNodeId(commentId) {
+function getPullRequestReviewCommentNodeID(commentID) {
     const {owner, repo} = getRequestParams();
     return getOctokit().rest.pulls.getReviewComment({
         owner,
         repo,
-        comment_id: Number(commentId),
+        comment_id: Number(commentID),
     }).then(response => response.data.node_id);
 }
 
 /**
- * Minimize (hide) a comment with the given classifier — OFF_TOPIC, OUTDATED, RESOLVED, etc.
- * @param {String} nodeId GraphQL node id of the comment subject
+ * Minimize a comment with a GitHub reported-content classifier.
+ * @param {String} nodeID GraphQL node ID of the comment subject
  * @param {String} classifier ReportedContentClassifiers enum value
  * @returns {Promise}
  */
-function minimizeComment(nodeId, classifier) {
+function minimizeComment(nodeID, classifier) {
     const mutation = `
         mutation MinimizeComment($id: ID!, $classifier: ReportedContentClassifiers!) {
             minimizeComment(input: {subjectId: $id, classifier: $classifier}) {
@@ -567,7 +666,18 @@ function minimizeComment(nodeId, classifier) {
             }
         }
     `;
-    return getOctokit().graphql(mutation, {id: nodeId, classifier});
+    return getOctokit().graphql(mutation, {id: nodeID, classifier});
+}
+
+/**
+ * Get the reason GitHub stored for a minimized issue comment.
+ * @param {Number|String} commentID
+ * @returns {Promise<String>}
+ */
+function getIssueCommentMinimizedReason(commentID) {
+    const {owner, repo} = getRequestParams();
+    return getOctokit().rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
+        .then(response => response.data.minimized && response.data.minimized.reason);
 }
 
 /**
@@ -619,8 +729,11 @@ export {
     updateComment,
     getWorkflowRuns,
     getWorkflowRun,
-    getIssueCommentNodeId,
-    getPullRequestReviewNodeId,
-    getPullRequestReviewCommentNodeId,
+    getIssueCommentNodeID,
+    getPullRequestReviewNodeID,
+    getPullRequestReviewCommentNodeID,
     minimizeComment,
+    getIssueCommentMinimizedReason,
+    getStatusCheckRollup,
+    getPullRequestHeadRefOid,
 };
