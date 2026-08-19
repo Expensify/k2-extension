@@ -144,6 +144,9 @@ class ListPRsReviewing extends React.Component {
         });
 
         return _.filter(prs, (pr) => {
+            if (!pr || !pr.id || typeof pr.title !== 'string') {
+                return false;
+            }
             if (this.state.viewFilter === 'reviewed' && pr.isReviewRequested !== false) {
                 return false;
             }

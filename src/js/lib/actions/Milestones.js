@@ -4,7 +4,7 @@ import ONYXKEYS from '../../ONYXKEYS';
 import ActionThrottle from '../ActionThrottle';
 
 function get() {
-    ActionThrottle('getMilestones', () => (
+    return ActionThrottle('getMilestones', () => (
         API.getMilestones()
             .then((milestones) => {
                 // Always use set() here because there is no way to remove milestones from Onyx that get closed

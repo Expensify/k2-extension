@@ -50,11 +50,13 @@ function getCheckVariant(checkConclusion) {
 
 function ListItemPull(props) {
     const pr = props.pr || props.data;
-    if (!pr.id) {
+    if (!pr || !pr.id || typeof pr.title !== 'string') {
         return null;
     }
 
     const repository = pr.repository ? `[${pr.repository.name}] ` : '';
+    const commentsCount = pr.comments ? pr.comments.totalCount : 0;
+    const reviewsCount = pr.reviews ? pr.reviews.totalCount : 0;
     const isOverdue = moment(pr.updatedAt).isBefore(moment().subtract(7, 'days'), 'day');
     const isHeld = pr.title.includes('[HOLD') || pr.title.includes('[WIP');
     const mergeability = getMergeability(pr);
@@ -83,12 +85,12 @@ function ListItemPull(props) {
                                 <span>
                                     Comments
                                     {' '}
-                                    <CounterLabel>{pr.comments.totalCount}</CounterLabel>
+                                    <CounterLabel>{commentsCount}</CounterLabel>
                                 </span>
                                 <span>
                                     Reviews
                                     {' '}
-                                    <CounterLabel>{pr.reviews.totalCount}</CounterLabel>
+                                    <CounterLabel>{reviewsCount}</CounterLabel>
                                 </span>
                             </Stack>
                         </div>

@@ -6,6 +6,7 @@ import FormPassword from './FormPassword';
 import ONYXKEYS from '../../ONYXKEYS';
 import renderPrimerRoot from '../../lib/renderPrimerRoot';
 import registerDashboardRefresh from './refreshDashboard';
+import DashboardErrorBoundary from '../../component/DashboardErrorBoundary';
 
 /**
  * Display our dashboard with the list of issues
@@ -18,7 +19,12 @@ function showDashboard() {
         $('.repository-content').append('<div class="k2dashboard">');
     }
 
-    renderPrimerRoot($('.k2dashboard').show()[0], <ListIssues pollInterval={60000} />);
+    renderPrimerRoot(
+        $('.k2dashboard').show()[0],
+        <DashboardErrorBoundary>
+            <ListIssues pollInterval={60000} />
+        </DashboardErrorBoundary>,
+    );
 }
 
 /**

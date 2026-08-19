@@ -204,6 +204,11 @@ $color-dark-yellow: #DAA520;
     margin-left: auto;
 }
 
+.k2-dashboard-error {
+    margin: 24px auto;
+    max-width: 720px;
+}
+
 .k2-sortable-item {
     background: var(--bgColor-default);
     cursor: grab;
