@@ -1,12 +1,13 @@
 import React from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
-import {withOnyx} from 'react-native-onyx';
+import ReactNativeOnyx, {withOnyx} from 'react-native-onyx';
 import ONYXKEYS from '../../ONYXKEYS';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import Title from '../../component/panel-title/Title';
 import ListItemPull from '../../component/list-item/ListItemPull';
 import * as PullRequests from '../../lib/actions/PullRequests';
+import * as Preferences from '../../lib/actions/Preferences';
 import openAllUrls from '../../lib/openAllUrls';
 
 const propTypes = {
@@ -24,18 +25,43 @@ class ListPRsAssigned extends React.Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+            showPRNumbers: Preferences.getShowPRNumbers(),
+        };
+        this.onyxConnection = null;
+
         this.fetch = this.fetch.bind(this);
+        this.toggleShowPRNumbers = this.toggleShowPRNumbers.bind(this);
     }
 
     componentDidMount() {
         this.fetch();
+
+        this.onyxConnection = ReactNativeOnyx.connect({
+            key: ONYXKEYS.PREFERENCES,
+            callback: () => {
+                this.setState({showPRNumbers: Preferences.getShowPRNumbers()});
+            },
+        });
     }
 
     componentWillUnmount() {
-        if (!this.interval) {
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
+
+        if (!this.onyxConnection) {
             return;
         }
-        clearInterval(this.interval);
+        ReactNativeOnyx.disconnect(this.onyxConnection);
+    }
+
+    toggleShowPRNumbers() {
+        this.setState((prevState) => {
+            const newValue = !prevState.showPRNumbers;
+            Preferences.setShowPRNumbers(newValue);
+            return {showPRNumbers: newValue};
+        });
     }
 
     fetch() {
@@ -57,6 +83,12 @@ class ListPRsAssigned extends React.Component {
                     text="Your Pull Requests"
                     count={_.size(this.props.prs) || 0}
                     onOpenAll={() => openAllUrls(this.props.prs)}
+                    checkbox={{
+                        id: 'shouldShowPRNumbers',
+                        label: 'Show PR numbers',
+                        isChecked: this.state.showPRNumbers,
+                        onChange: this.toggleShowPRNumbers,
+                    }}
                 />
 
                 {!this.props.prs && (
@@ -67,7 +99,13 @@ class ListPRsAssigned extends React.Component {
 
                 {_.chain(this.props.prs)
                     .sortBy('updatedAt')
-                    .map(pr => <ListItemPull key={pr.id} pr={pr} />)
+                    .map(pr => (
+                        <ListItemPull
+                            key={pr.id}
+                            pr={pr}
+                            shouldShowNumber={this.state.showPRNumbers}
+                        />
+                    ))
                     .value()
                     .reverse()}
             </div>

@@ -10,6 +10,9 @@ export default PropTypes.shape({
     /** The title of the PR */
     title: PropTypes.string.isRequired,
 
+    /** The number of the PR */
+    number: PropTypes.number,
+
     /** The URL to the PR */
     url: PropTypes.string.isRequired,
 

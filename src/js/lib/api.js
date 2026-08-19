@@ -223,6 +223,7 @@ query {
                 id
                 isDraft
                 mergeable
+                number
                 reviewDecision
                 title
                 url
