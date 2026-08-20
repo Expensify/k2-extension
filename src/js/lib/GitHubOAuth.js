@@ -192,8 +192,8 @@ async function refreshToken(refreshTokenValue) {
     if (!resp.ok) {
         const error = new Error(`Refresh failed: ${resp.status} ${resp.statusText}`);
 
-        // A 4xx from the worker means the refresh token was rejected
-        error.isAuthError = resp.status >= 400 && resp.status < 500;
+        // Only explicit invalid-token responses should clear credentials. A 403 or 429 can be a transient WAF or rate-limit response.
+        error.isAuthError = resp.status === 400 || resp.status === 401;
         throw error;
     }
 
@@ -310,6 +310,7 @@ async function refreshIfNeeded() {
 
         // eslint-disable-next-line no-console
         console.warn('Token refresh failed', e);
+        throw e;
     }
 }
 
