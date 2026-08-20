@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import _ from 'underscore';
 import Base from './_base';
 import k2Button from '../../../template/button.github.k2.html';
 
@@ -147,15 +148,17 @@ export default function () {
 
         // GitHub can replace the repository navigation during SPA navigation.
         AllPages.k2TabNavigationObserver = new MutationObserver((records) => {
-            const navigationChanged = records.some(record => Array.from(record.addedNodes)
-                .concat(Array.from(record.removedNodes))
-                .some((node) => {
+            const navigationChanged = _.some(records, (record) => {
+                const navigationNodes = Array.from(record.addedNodes).concat(Array.from(record.removedNodes));
+
+                return _.some(navigationNodes, (node) => {
                     if (node.nodeType !== Node.ELEMENT_NODE) {
                         return false;
                     }
 
                     return node.matches(repositoryNavigationSelector) || node.querySelector(repositoryNavigationSelector);
-                }));
+                });
+            });
 
             if (navigationChanged) {
                 scheduleRepositoryNavigationObservation();
