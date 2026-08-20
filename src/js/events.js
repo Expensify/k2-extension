@@ -123,7 +123,7 @@ async function getValidOAuthToken(request) {
         return {success: false, error: 'No OAuth auth data', isAuthError: true};
     }
 
-    if (shouldRefreshAuthData(authData)) {
+    if (request.forceRefresh || shouldRefreshAuthData(authData)) {
         authData = await refreshStoredAuthData(authData);
     }
 

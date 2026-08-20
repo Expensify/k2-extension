@@ -41,30 +41,46 @@ function createDynamicAuth() {
                 throw error;
             }
 
+            const shouldClearOAuthAuth = Preferences.getAuthType() === 'oauth';
+
+            const clearOAuthAuthAndThrow = async () => {
+                if (shouldClearOAuthAuth) {
+                    await GitHubOAuth.clearOAuthAuth();
+                }
+                throw error;
+            };
+
             let retryToken = Preferences.getGitHubToken();
             if (!retryToken || retryToken === tokenUsed) {
                 // The stored token is the one that just failed, so rotate it.
                 // But if it was *just* rotated, another rotation won't fix the
                 // 401 and would burn the single-use refresh token chain.
                 if (GitHubOAuth.wasTokenJustRefreshed()) {
-                    throw error;
+                    await clearOAuthAuthAndThrow();
                 }
                 try {
-                    await GitHubOAuth.refreshTokenViaBackground();
+                    await GitHubOAuth.refreshTokenViaBackground(true);
                 } catch (refreshError) {
                     // Refresh isn't possible (e.g. PAT user) or failed - surface the original 401
-                    throw error;
+                    await clearOAuthAuthAndThrow();
                 }
                 retryToken = Preferences.getGitHubToken();
                 if (!retryToken || retryToken === tokenUsed) {
-                    throw error;
+                    await clearOAuthAuthAndThrow();
                 }
             }
 
             // Retry once with the new token. `request` here is the bare inner
             // request, so no other hook can overwrite this header.
             endpoint.headers.authorization = `token ${retryToken}`;
-            return request(endpoint);
+            try {
+                return await request(endpoint);
+            } catch (retryError) {
+                if (retryError.status === 401) {
+                    await clearOAuthAuthAndThrow();
+                }
+                throw retryError;
+            }
         }
     };
 
