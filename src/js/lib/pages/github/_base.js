@@ -14,7 +14,7 @@ export default function () {
     const Page = {};
 
     const REVIEWER_CHECKLIST_URL = 'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/REVIEWER_CHECKLIST.md';
-    const BUGZERO_CHECKLIST_URL = 'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/BUGZERO_CHECKLIST.md';
+    const CONTRIBUTOR_PLUS_CHECKLIST_URL = 'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/CONTRIBUTOR_PLUS_CHECKLIST.md';
     const NO_CHECKLIST_NEEDED_TEMPLATE = '### No Checklist Needed\n\n<C+ Please state the reason why checklist is not needed for this issue>';
 
     // Marks the start of the payment details in a backend contributor payment request body. The "post payment
@@ -27,7 +27,7 @@ export default function () {
      * @param {'bugzero' | 'reviewer'} checklistType Type of target checklist
      */
     const copyReviewerChecklist = async (e, checklistType) => {
-        const checklistUrl = checklistType === 'bugzero' ? BUGZERO_CHECKLIST_URL : REVIEWER_CHECKLIST_URL;
+        const checklistUrl = checklistType === 'bugzero' ? CONTRIBUTOR_PLUS_CHECKLIST_URL : REVIEWER_CHECKLIST_URL;
 
         e.preventDefault();
 
@@ -314,10 +314,10 @@ export default function () {
             const commentHtml = $(el).html();
 
             // When the button template is found, replace it with an HTML button and then put that back into the DOM so someone can click on it
-            // Check for checklist-specific content (BUGZERO_CHECKLIST.md or REVIEWER_CHECKLIST.md)
+            // Check for checklist-specific content (CONTRIBUTOR_PLUS_CHECKLIST.md or REVIEWER_CHECKLIST.md)
             const isChecklistComment = commentHtml
                 && commentHtml.indexOf('you can simply click: [this button]') > -1
-                && (commentHtml.indexOf('BUGZERO_CHECKLIST.md') > -1
+                && (commentHtml.indexOf('CONTRIBUTOR_PLUS_CHECKLIST.md') > -1
                 || commentHtml.indexOf('REVIEWER_CHECKLIST.md') > -1);
 
             if (isChecklistComment) {
