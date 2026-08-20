@@ -24,10 +24,10 @@ export default function () {
     /**
      * Gets the contents of the reviewer checklist from GitHub and then posts it as a comment to the current PR
      * @param {Event} e
-     * @param {'bugzero' | 'reviewer'} checklistType Type of target checklist
+     * @param {'cplus' | 'reviewer'} checklistType Type of target checklist
      */
     const copyReviewerChecklist = async (e, checklistType) => {
-        const checklistUrl = checklistType === 'bugzero' ? CONTRIBUTOR_PLUS_CHECKLIST_URL : REVIEWER_CHECKLIST_URL;
+        const checklistUrl = checklistType === 'cplus' ? CONTRIBUTOR_PLUS_CHECKLIST_URL : REVIEWER_CHECKLIST_URL;
 
         e.preventDefault();
 
@@ -305,7 +305,7 @@ export default function () {
 
     /**
      * Renders buttons for copying checklists in issue/PR bodies
-     * @param {'bugzero' | 'reviewer'} checklistType Type of target checklist
+     * @param {'cplus' | 'reviewer'} checklistType Type of target checklist
      */
     Page.renderCopyChecklistButtons = function (checklistType) {
         // Look through all the comments on the page to find one that has the template for the copy/paste checklist button
