@@ -117,7 +117,7 @@ function getCurrentUser() {
  */
 function getRequestParams() {
     const url = window.location.href;
-    const regex = /github.com\/(?<owner>\w*)\/(?<repo>\w*)(?:\/(?:issues|pull)\/(?<issue_number>\d*))?/;
+    const regex = /github.com\/(?<owner>[\w-]+)\/(?<repo>[\w.-]+)(?:\/(?:issues|pull)\/(?<issue_number>\d+))?/;
     const matches = url.match(regex);
 
     return {
@@ -687,6 +687,77 @@ function updateComment(commentId, body) {
 }
 
 /**
+ * Look up an issue comment's GraphQL node ID by its numeric REST ID.
+ * @param {Number|String} commentID
+ * @returns {Promise<String>}
+ */
+function getIssueCommentNodeID(commentID) {
+    const {owner, repo} = getRequestParams();
+    return getOctokit().rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
+        .then(response => response.data.node_id);
+}
+
+/**
+ * Look up a pull-request review's GraphQL node ID by its numeric REST ID.
+ * @param {Number|String} reviewID
+ * @returns {Promise<String>}
+ */
+function getPullRequestReviewNodeID(reviewID) {
+    const {owner, repo, issue_number} = getRequestParams();
+    return getOctokit().rest.pulls.getReview({
+        owner,
+        repo,
+        pull_number: Number(issue_number),
+        review_id: Number(reviewID),
+    }).then(response => response.data.node_id);
+}
+
+/**
+ * Look up an inline PR review-thread comment's GraphQL node ID by its numeric REST ID.
+ * @param {Number|String} commentID
+ * @returns {Promise<String>}
+ */
+function getPullRequestReviewCommentNodeID(commentID) {
+    const {owner, repo} = getRequestParams();
+    return getOctokit().rest.pulls.getReviewComment({
+        owner,
+        repo,
+        comment_id: Number(commentID),
+    }).then(response => response.data.node_id);
+}
+
+/**
+ * Minimize a comment with a GitHub reported-content classifier.
+ * @param {String} nodeID GraphQL node ID of the comment subject
+ * @param {String} classifier ReportedContentClassifiers enum value
+ * @returns {Promise}
+ */
+function minimizeComment(nodeID, classifier) {
+    const mutation = `
+        mutation MinimizeComment($id: ID!, $classifier: ReportedContentClassifiers!) {
+            minimizeComment(input: {subjectId: $id, classifier: $classifier}) {
+                minimizedComment {
+                    isMinimized
+                    minimizedReason
+                }
+            }
+        }
+    `;
+    return getOctokit().graphql(mutation, {id: nodeID, classifier});
+}
+
+/**
+ * Get the reason GitHub stored for a minimized issue comment.
+ * @param {Number|String} commentID
+ * @returns {Promise<String>}
+ */
+function getIssueCommentMinimizedReason(commentID) {
+    const {owner, repo} = getRequestParams();
+    return getOctokit().rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
+        .then(response => response.data.minimized && response.data.minimized.reason);
+}
+
+/**
  * Get recent workflow runs for a specific workflow
  * @param {String} workflowId
  * @param {Number} perPage
@@ -735,6 +806,11 @@ export {
     updateComment,
     getWorkflowRuns,
     getWorkflowRun,
+    getIssueCommentNodeID,
+    getPullRequestReviewNodeID,
+    getPullRequestReviewCommentNodeID,
+    minimizeComment,
+    getIssueCommentMinimizedReason,
     getStatusCheckRollup,
     getPullRequestHeadRefOid,
 };
