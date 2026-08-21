@@ -60,9 +60,7 @@ class ListPRsAssigned extends React.Component {
                 />
 
                 {!this.props.prs && (
-                    <div className="blankslate capped clean-background">
-                        Loading
-                    </div>
+                    <div className="blankslate capped clean-background">Loading</div>
                 )}
 
                 {_.chain(this.props.prs)

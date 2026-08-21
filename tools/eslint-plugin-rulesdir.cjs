@@ -1,7 +1,9 @@
 const path = require('path');
 const rulesdir = require('eslint-plugin-rulesdir');
 
-rulesdir.RULES_DIR = path.dirname(require.resolve('eslint-config-expensify/eslint-plugin-expensify/CONST'));
+rulesdir.RULES_DIR = path.dirname(
+    require.resolve('eslint-config-expensify/eslint-plugin-expensify/CONST'),
+);
 
 const rules = rulesdir.rules;
 const noAccumulatorSpread = rules['no-acc-spread-in-reduce'];

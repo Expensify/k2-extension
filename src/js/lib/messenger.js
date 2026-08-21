@@ -11,22 +11,23 @@ function startNavEventPublisher() {
         return;
     }
 
-    const navEventList = [
-        'onHistoryStateUpdated',
-    ];
+    const navEventList = ['onHistoryStateUpdated'];
 
-    navEventList.forEach((e) => {
+    navEventList.forEach(e => {
         if (!ksBrowser.webNavigation[e]) {
             return;
         }
 
         ksBrowser.webNavigation[e].addListener(() => {
-            ksBrowser.tabs.query({
-                active: true,
-                currentWindow: true,
-            }, (tabs) => {
-                ksBrowser.tabs.sendMessage(tabs[0].id, 'nav');
-            });
+            ksBrowser.tabs.query(
+                {
+                    active: true,
+                    currentWindow: true,
+                },
+                tabs => {
+                    ksBrowser.tabs.sendMessage(tabs[0].id, 'nav');
+                },
+            );
         });
     });
 }
@@ -67,7 +68,7 @@ function trigger(eventName, data) {
  * event listeners
  */
 function startMessageListener() {
-    ksBrowser.runtime.onMessage.addListener((request) => {
+    ksBrowser.runtime.onMessage.addListener(request => {
         trigger(request);
     });
 }
@@ -75,8 +76,4 @@ function startMessageListener() {
 /**
  * PUBLIC API
  */
-export {
-    startNavEventPublisher,
-    startMessageListener,
-    on,
-};
+export {startNavEventPublisher, startMessageListener, on};

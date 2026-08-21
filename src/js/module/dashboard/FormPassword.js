@@ -45,7 +45,7 @@ class FormPassword extends React.Component {
         return (
             <div className="columns">
                 <div className="one-third column centered">
-                    <form ref={el => this.form = el} onSubmit={this.submitForm}>
+                    <form ref={el => (this.form = el)} onSubmit={this.submitForm}>
                         <div className="panel mb-3">
                             <Title text="Enter Credentials" />
                             <div>
@@ -53,7 +53,7 @@ class FormPassword extends React.Component {
                                     <label htmlFor="password">Personal Access Token</label>
 
                                     <input
-                                        ref={el => this.input = el}
+                                        ref={el => (this.input = el)}
                                         type="password"
                                         id="password"
                                         name="password"
@@ -62,13 +62,16 @@ class FormPassword extends React.Component {
                                     />
 
                                     <p>
-                                        A
-                                        {' '}
-                                        <a href="https://github.com/Expensify/k2-extension/#note-it-requires-a-personal-access-token" target="_blank" rel="noopener noreferrer">
+                                        A{' '}
+                                        <a
+                                            href="https://github.com/Expensify/k2-extension/#note-it-requires-a-personal-access-token"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
                                             Personal Access Token
-                                        </a>
-                                        {' '}
-                                        is required to make custom queries against the GitHub.com API.
+                                        </a>{' '}
+                                        is required to make custom queries against the GitHub.com
+                                        API.
                                     </p>
                                 </div>
 

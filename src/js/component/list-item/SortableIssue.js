@@ -11,14 +11,9 @@ const propTypes = {
 
 function SortableIssue(props) {
     const {issue} = props;
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({id: issue.id.toString()});
+    const {attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({
+        id: issue.id.toString(),
+    });
 
     const style = {
         transform: CSS.Transform.toString(transform),

@@ -47,7 +47,7 @@ export default () => ({
 
         const preferencesOnyxConnection = ReactNativeOnyx.connect({
             key: 'preferences',
-            callback: (preferences) => {
+            callback: preferences => {
                 ReactNativeOnyx.disconnect(preferencesOnyxConnection);
 
                 // If there is a `preferences` object, but it doesn't have a ghToken, have the user enter one

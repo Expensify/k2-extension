@@ -4,7 +4,7 @@ const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const {IgnorePlugin} = require('webpack');
 
-module.exports = (env) => {
+module.exports = env => {
     const isFirefox = env && env.platform === 'firefox';
 
     return {
@@ -44,7 +44,9 @@ module.exports = (env) => {
                     },
                     {
                         // Conditionally copy the manifest based on platform
-                        from: isFirefox ? './assets/manifest-firefox.json' : './assets/manifest.json',
+                        from: isFirefox
+                            ? './assets/manifest-firefox.json'
+                            : './assets/manifest.json',
                         to: path.resolve(__dirname, 'dist/manifest.json'),
                     },
                 ],
@@ -56,7 +58,7 @@ module.exports = (env) => {
                 // Load .html files as strings, used for underscore templates
                 {
                     test: /\.html$/i,
-                    use: 'underscore-template-loader'
+                    use: 'underscore-template-loader',
                 },
 
                 // Transpiles ES6 and JSX
@@ -93,7 +95,7 @@ module.exports = (env) => {
                         'sass-loader',
                     ],
                 },
-            ]
+            ],
         },
     };
 };

@@ -35,6 +35,9 @@ jobs:
                   max_attempts: 5
                   command: npm ci
 
+            - name: Check formatting with Oxfmt
+              run: npm run format:check
+
             - name: Lint with Oxlint
               run: npm run lint
 

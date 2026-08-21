@@ -31,29 +31,80 @@ class ListItemIssue extends React.Component {
             className += ' nonowner';
         }
 
-        return className + this.isPlanning + this.isWaitingOnCustomer + this.isHeld + this.isChallengeSent + this.isHelpWanted + this.isContributorAssigned;
+        return (
+            className +
+            this.isPlanning +
+            this.isWaitingOnCustomer +
+            this.isHeld +
+            this.isChallengeSent +
+            this.isHelpWanted +
+            this.isContributorAssigned
+        );
     }
 
     parseIssue() {
         this.isExternal = _.some(this.props.issue.labels, {name: 'External'}) ? <sup>E</sup> : null;
-        this.isImprovement = _.findWhere(this.props.issue.labels, {name: 'Improvement'}) ? <sup>I</sup> : null;
+        this.isImprovement = _.findWhere(this.props.issue.labels, {name: 'Improvement'}) ? (
+            <sup>I</sup>
+        ) : null;
         this.isTask = _.findWhere(this.props.issue.labels, {name: 'Task'}) ? <sup>T</sup> : null;
-        this.isFeature = _.findWhere(this.props.issue.labels, {name: 'NewFeature'}) ? <sup>F</sup> : null;
-        this.isHourly = _.findWhere(this.props.issue.labels, {name: 'Hourly'}) ? <span className="label hourly">H</span> : null;
-        this.isDaily = _.findWhere(this.props.issue.labels, {name: 'Daily'}) ? <span className="label daily">D</span> : null;
-        this.isWeekly = _.findWhere(this.props.issue.labels, {name: 'Weekly'}) ? <span className="label weekly">W</span> : null;
-        this.isMonthly = _.findWhere(this.props.issue.labels, {name: 'Monthly'}) ? <span className="label monthly">M</span> : null;
-        this.isNewhire = _.findWhere(this.props.issue.labels, {name: 'FirstPick'}) ? <span className="label newhire">FP</span> : '';
-        this.isWaitingForCustomer = _.findWhere(this.props.issue.labels, {name: 'Waiting for customer'}) ? <span className="label waiting">Waiting</span> : '';
-        this.isWhatsNext = _.findWhere(this.props.issue.labels, {name: 'WhatsNext'}) ? <span className="label whatsnext">WN</span> : null;
-        this.isPlanning = _.findWhere(this.props.issue.labels, {name: 'Planning'}) ? ' planning' : '';
-        this.isOverdue = _.find(this.props.issue.labels, label => label.name.toLowerCase() === 'overdue');
-        this.isWaitingOnCustomer = _.findWhere(this.props.issue.labels, {name: 'Waiting for customer'}) ? ' waiting-for-customer' : '';
+        this.isFeature = _.findWhere(this.props.issue.labels, {name: 'NewFeature'}) ? (
+            <sup>F</sup>
+        ) : null;
+        this.isHourly = _.findWhere(this.props.issue.labels, {name: 'Hourly'}) ? (
+            <span className="label hourly">H</span>
+        ) : null;
+        this.isDaily = _.findWhere(this.props.issue.labels, {name: 'Daily'}) ? (
+            <span className="label daily">D</span>
+        ) : null;
+        this.isWeekly = _.findWhere(this.props.issue.labels, {name: 'Weekly'}) ? (
+            <span className="label weekly">W</span>
+        ) : null;
+        this.isMonthly = _.findWhere(this.props.issue.labels, {name: 'Monthly'}) ? (
+            <span className="label monthly">M</span>
+        ) : null;
+        this.isNewhire = _.findWhere(this.props.issue.labels, {name: 'FirstPick'}) ? (
+            <span className="label newhire">FP</span>
+        ) : (
+            ''
+        );
+        this.isWaitingForCustomer = _.findWhere(this.props.issue.labels, {
+            name: 'Waiting for customer',
+        }) ? (
+            <span className="label waiting">Waiting</span>
+        ) : (
+            ''
+        );
+        this.isWhatsNext = _.findWhere(this.props.issue.labels, {name: 'WhatsNext'}) ? (
+            <span className="label whatsnext">WN</span>
+        ) : null;
+        this.isPlanning = _.findWhere(this.props.issue.labels, {name: 'Planning'})
+            ? ' planning'
+            : '';
+        this.isOverdue = _.find(
+            this.props.issue.labels,
+            label => label.name.toLowerCase() === 'overdue',
+        );
+        this.isWaitingOnCustomer = _.findWhere(this.props.issue.labels, {
+            name: 'Waiting for customer',
+        })
+            ? ' waiting-for-customer'
+            : '';
         this.isHeld = this.props.issue.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
-        this.isChallengeSent = _.findWhere(this.props.issue.labels, {name: 'Take Home Challenge Sent'}) ? ' challenge-sent' : '';
-        this.isHelpWanted = _.some(this.props.issue.labels, {name: 'Help Wanted'}) ? ' help-wanted' : '';
-        this.isContributorAssigned = this.isExternal && !this.isHelpWanted ? ' contributor-assigned' : '';
-        this.isUnderReview = _.find(this.props.issue.labels, label => label.name.toLowerCase() === 'reviewing');
+        this.isChallengeSent = _.findWhere(this.props.issue.labels, {
+            name: 'Take Home Challenge Sent',
+        })
+            ? ' challenge-sent'
+            : '';
+        this.isHelpWanted = _.some(this.props.issue.labels, {name: 'Help Wanted'})
+            ? ' help-wanted'
+            : '';
+        this.isContributorAssigned =
+            this.isExternal && !this.isHelpWanted ? ' contributor-assigned' : '';
+        this.isUnderReview = _.find(
+            this.props.issue.labels,
+            label => label.name.toLowerCase() === 'reviewing',
+        );
         this.issueHasOwner = this.props.issue.issueHasOwner;
         this.isCurrentUserOwner = this.props.issue.currentUserIsOwner;
     }
@@ -62,16 +113,8 @@ class ListItemIssue extends React.Component {
         this.parseIssue();
         return (
             <div className="panel-item">
-                {this.isCurrentUserOwner && (
-                    <span className="owner">
-                        {'★ '}
-                    </span>
-                )}
-                {this.issueHasOwner && !this.isCurrentUserOwner && (
-                    <span>
-                        {'☆ '}
-                    </span>
-                )}
+                {this.isCurrentUserOwner && <span className="owner">{'★ '}</span>}
+                {this.issueHasOwner && !this.isCurrentUserOwner && <span>{'☆ '}</span>}
                 <a
                     href={this.props.issue.url}
                     className={this.getClassName()}
@@ -98,7 +141,6 @@ class ListItemIssue extends React.Component {
                             className="AvatarStack-body tooltipped tooltipped-sw tooltipped-multiline tooltipped-align-right-1 mt-1"
                             aria-label={`Assigned to ${_.pluck(this.props.issue.assignees, 'login').join(', ')}`}
                         >
-
                             {_.map(this.props.issue.assignees.reverse(), assignee => (
                                 <a
                                     className="avatar avatar-user"

@@ -48,21 +48,14 @@ class ListIssuesDailyImprovements extends React.Component {
     render() {
         return (
             <div className="panel mb-3">
-                <Title
-                    text="Daily Improvements (OldDot)"
-                    count={_.size(this.props.issues) || 0}
-                />
+                <Title text="Daily Improvements (OldDot)" count={_.size(this.props.issues) || 0} />
 
                 {!this.props.issues && (
-                    <div className="blankslate capped clean-background">
-                        Loading
-                    </div>
+                    <div className="blankslate capped clean-background">Loading</div>
                 )}
 
                 {this.props.issues && !_.size(this.props.issues) && (
-                    <div className="blankslate capped clean-background">
-                        No items
-                    </div>
+                    <div className="blankslate capped clean-background">No items</div>
                 )}
 
                 {_.chain(this.props.issues)

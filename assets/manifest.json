@@ -1,32 +1,30 @@
 {
-  "manifest_version": 3,
+    "manifest_version": 3,
 
-  "name": "K2 for GitHub",
-  "version": "1.5.60",
-  "description": "Manage your Kernel Scheduling from directly inside GitHub",
+    "name": "K2 for GitHub",
+    "version": "1.5.60",
+    "description": "Manage your Kernel Scheduling from directly inside GitHub",
 
-  "icons": {
-    "16": "icon16.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
-  },
+    "icons": {
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+    },
 
-  "permissions": [
-    "webNavigation"
-  ],
+    "permissions": ["webNavigation"],
 
-  "host_permissions": [
-      "*://api.github.com/*"
-  ],
+    "host_permissions": ["*://api.github.com/*"],
 
-  "content_scripts": [{
-    "matches": ["*://*.github.com/*"],
-    "css": ["content.css"],
-    "js": ["content.js"]
-  }],
+    "content_scripts": [
+        {
+            "matches": ["*://*.github.com/*"],
+            "css": ["content.css"],
+            "js": ["content.js"]
+        }
+    ],
 
-  "background": {
-    "service_worker": "events.js",
-    "type": "module"
-  }
+    "background": {
+        "service_worker": "events.js",
+        "type": "module"
+    }
 }

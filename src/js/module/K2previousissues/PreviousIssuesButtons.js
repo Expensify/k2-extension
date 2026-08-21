@@ -63,12 +63,14 @@ class PreviousIssuesButtons extends React.Component {
 
     openIssue(buttonConfig) {
         API.getCurrentIssueDescription()
-            .then((issueTitleResponse) => {
+            .then(issueTitleResponse => {
                 const ghTitle = issueTitleResponse.data.title;
 
                 // Single regex to catch both Monthly and Quarterly formats
                 // The (\w+) between "Accounting" and "Close" captures either "Monthly" or "Quarterly"
-                const searchParts = ghTitle.match(/\[.*\] (Accounting (\w+) Close) ((?:\w{3} \d{4})|(?:Q\d \d{4})) (.*) \[.*\]/);
+                const searchParts = ghTitle.match(
+                    /\[.*\] (Accounting (\w+) Close) ((?:\w{3} \d{4})|(?:Q\d \d{4})) (.*) \[.*\]/,
+                );
 
                 if (!searchParts) {
                     console.debug('Found no search parts in issue title:', ghTitle);
@@ -125,9 +127,13 @@ class PreviousIssuesButtons extends React.Component {
                     if (buttonConfig.type === 'monthly' || buttonConfig.type === 'all') {
                         const previousMonth = new Date(currentMonth);
                         if (buttonConfig.monthsAgo) {
-                            previousMonth.setMonth(previousMonth.getMonth() - buttonConfig.monthsAgo);
+                            previousMonth.setMonth(
+                                previousMonth.getMonth() - buttonConfig.monthsAgo,
+                            );
                         } else if (buttonConfig.yearsAgo) {
-                            previousMonth.setFullYear(previousMonth.getFullYear() - buttonConfig.yearsAgo);
+                            previousMonth.setFullYear(
+                                previousMonth.getFullYear() - buttonConfig.yearsAgo,
+                            );
                         }
                         previousPeriodFormatted = moment(previousMonth).format('MMM YYYY');
                     } else {
@@ -137,24 +143,32 @@ class PreviousIssuesButtons extends React.Component {
                     }
                 }
 
-                return API.getPreviousInstancesOfIssue(filteredSearchParts)
-                    .then((previousIssuesResponse) => {
+                return API.getPreviousInstancesOfIssue(filteredSearchParts).then(
+                    previousIssuesResponse => {
                         if (!previousIssuesResponse || _.isEmpty(previousIssuesResponse)) {
                             console.debug('No previous issues found');
-                            this.showErrorMessage(`No previous issues found for ${previousPeriodFormatted}`);
+                            this.showErrorMessage(
+                                `No previous issues found for ${previousPeriodFormatted}`,
+                            );
                             return;
                         }
 
                         // Convert object response to array of issues
                         const issues = _.values(previousIssuesResponse);
 
-                        const matchingIssue = _.find(issues, issue => _.has(issue, 'milestone')
-                            && _.has(issue.milestone, 'title')
-                            && issue.milestone.title.includes(previousPeriodFormatted));
+                        const matchingIssue = _.find(
+                            issues,
+                            issue =>
+                                _.has(issue, 'milestone') &&
+                                _.has(issue.milestone, 'title') &&
+                                issue.milestone.title.includes(previousPeriodFormatted),
+                        );
 
                         if (!matchingIssue) {
                             console.debug('No matching issue found for:', previousPeriodFormatted);
-                            this.showErrorMessage(`No matching issue found for ${previousPeriodFormatted}`);
+                            this.showErrorMessage(
+                                `No matching issue found for ${previousPeriodFormatted}`,
+                            );
                             return;
                         }
 
@@ -164,11 +178,14 @@ class PreviousIssuesButtons extends React.Component {
                         if (previousGithubIssueURL) {
                             window.open(previousGithubIssueURL, '_blank', 'noopener,noreferrer');
                         } else {
-                            this.showErrorMessage(`No previous issue found for ${previousPeriodFormatted}`);
+                            this.showErrorMessage(
+                                `No previous issue found for ${previousPeriodFormatted}`,
+                            );
                         }
-                    });
+                    },
+                );
             })
-            .catch((error) => {
+            .catch(error => {
                 console.error('Error fetching previous issues:', error);
                 this.showErrorMessage('Error fetching previous issues');
             });
@@ -180,13 +197,11 @@ class PreviousIssuesButtons extends React.Component {
                 <BtnGroup isVertical>
                     <button
                         type="button"
-                        className={(this.state.isOpen) ? 'btn btn-sm selected' : 'btn btn-sm'}
+                        className={this.state.isOpen ? 'btn btn-sm selected' : 'btn btn-sm'}
                         onClick={() => this.setState(prevState => ({isOpen: !prevState.isOpen}))}
                     >
                         <span role="img" aria-label="previous issues shortcuts">
-                            Previous Issues Shortcuts
-                            {' '}
-                            {this.state.isOpen ? '⬆️' : '⬇️'}
+                            Previous Issues Shortcuts {this.state.isOpen ? '⬆️' : '⬇️'}
                         </span>
                     </button>
 
@@ -205,13 +220,14 @@ class PreviousIssuesButtons extends React.Component {
                                 </button>
                             ))}
                             {this.state.showError && (
-                                <div style={{
-                                    color: 'red',
-                                    fontSize: '12px',
-                                    marginTop: '5px',
-                                    opacity: this.state.showError ? 1 : 0,
-                                    transition: 'opacity 0.3s ease-in-out',
-                                }}
+                                <div
+                                    style={{
+                                        color: 'red',
+                                        fontSize: '12px',
+                                        marginTop: '5px',
+                                        opacity: this.state.showError ? 1 : 0,
+                                        transition: 'opacity 0.3s ease-in-out',
+                                    }}
                                 >
                                     {this.state.errorMessage}
                                 </div>

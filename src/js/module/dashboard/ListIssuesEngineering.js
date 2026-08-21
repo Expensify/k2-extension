@@ -46,19 +46,11 @@ class ListIssuesEngineering extends React.Component {
 
     render() {
         if (!this.props.issues) {
-            return (
-                <div className="blankslate capped clean-background">
-                    Loading
-                </div>
-            );
+            return <div className="blankslate capped clean-background">Loading</div>;
         }
 
         if (!_.size(this.props.issues)) {
-            return (
-                <div className="blankslate capped clean-background">
-                    No OldDot issues
-                </div>
-            );
+            return <div className="blankslate capped clean-background">No OldDot issues</div>;
         }
 
         return (

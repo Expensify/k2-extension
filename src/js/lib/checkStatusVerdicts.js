@@ -9,7 +9,14 @@ const PASSING_CHECK_RUN_CONCLUSIONS = ['SUCCESS', 'NEUTRAL', 'SKIPPED'];
 
 // Conversely, a check has to have definitely failed before we treat it as the reason GitHub shows a commit
 // as failed, so this list is deliberately not the inverse of the one above.
-const FAILED_CHECK_RUN_CONCLUSIONS = ['FAILURE', 'TIMED_OUT', 'CANCELLED', 'ACTION_REQUIRED', 'STARTUP_FAILURE', 'STALE'];
+const FAILED_CHECK_RUN_CONCLUSIONS = [
+    'FAILURE',
+    'TIMED_OUT',
+    'CANCELLED',
+    'ACTION_REQUIRED',
+    'STARTUP_FAILURE',
+    'STALE',
+];
 
 const UNREPORTED_STATUS_CONTEXT_STATES = ['PENDING', 'EXPECTED'];
 
@@ -44,30 +51,44 @@ function getWorkflowPath(context) {
  * @returns {Boolean}
  */
 function isIgnoredCheck(context) {
-    return context.type === 'CheckRun'
-        && _.contains(CONST.IGNORED_CHECK_RUN_NAMES, context.name)
-        && getWorkflowPath(context).indexOf(CONST.PEER_REVIEW_WORKFLOW_PATH) > -1;
+    return (
+        context.type === 'CheckRun' &&
+        _.contains(CONST.IGNORED_CHECK_RUN_NAMES, context.name) &&
+        getWorkflowPath(context).indexOf(CONST.PEER_REVIEW_WORKFLOW_PATH) > -1
+    );
 }
 
 function isPassing(context) {
     if (context.type === 'CheckRun') {
-        return context.status === 'COMPLETED' && _.contains(PASSING_CHECK_RUN_CONCLUSIONS, context.conclusion);
+        return (
+            context.status === 'COMPLETED' &&
+            _.contains(PASSING_CHECK_RUN_CONCLUSIONS, context.conclusion)
+        );
     }
     return context.type === 'StatusContext' && context.state === 'SUCCESS';
 }
 
 function hasFailed(context) {
     if (context.type === 'CheckRun') {
-        return context.status === 'COMPLETED' && _.contains(FAILED_CHECK_RUN_CONCLUSIONS, context.conclusion);
+        return (
+            context.status === 'COMPLETED' &&
+            _.contains(FAILED_CHECK_RUN_CONCLUSIONS, context.conclusion)
+        );
     }
-    return context.type === 'StatusContext' && (context.state === 'FAILURE' || context.state === 'ERROR');
+    return (
+        context.type === 'StatusContext' &&
+        (context.state === 'FAILURE' || context.state === 'ERROR')
+    );
 }
 
 function hasReported(context) {
     if (context.type === 'CheckRun') {
         return context.status === 'COMPLETED';
     }
-    return context.type === 'StatusContext' && !_.contains(UNREPORTED_STATUS_CONTEXT_STATES, context.state);
+    return (
+        context.type === 'StatusContext' &&
+        !_.contains(UNREPORTED_STATUS_CONTEXT_STATES, context.state)
+    );
 }
 
 /**
@@ -101,14 +122,14 @@ function getVerdict(owner, repo, sha) {
     const key = `${owner}/${repo}/${sha}`;
     const verdict = verdicts[key];
 
-    if (verdict && (verdict.isFinal || (Date.now() - verdict.fetchedAt) <= VERDICT_LIFETIME_MS)) {
+    if (verdict && (verdict.isFinal || Date.now() - verdict.fetchedAt <= VERDICT_LIFETIME_MS)) {
         return verdict.shouldShowAsPassing;
     }
 
     if (!requestsInFlight[key] && _.size(requestsInFlight) < MAX_CONCURRENT_REQUESTS) {
         requestsInFlight[key] = true;
         API.getStatusCheckRollup(owner, repo, sha)
-            .then((contexts) => {
+            .then(contexts => {
                 const shouldShowAsPassing = onlyIgnoredChecksAreFailing(contexts);
                 verdicts[key] = {
                     shouldShowAsPassing,
@@ -117,16 +138,21 @@ function getVerdict(owner, repo, sha) {
                     // being re-run, so that verdict is worth keeping and a PR full of failing commits
                     // stops asking about them. Everything else expires, including a commit still waiting
                     // on checks, which is the usual state of one being worked on.
-                    isFinal: !shouldShowAsPassing && contexts.length > 0 && _.all(contexts, hasReported),
+                    isFinal:
+                        !shouldShowAsPassing && contexts.length > 0 && _.all(contexts, hasReported),
                     fetchedAt: Date.now(),
                 };
             })
-            .catch((error) => {
+            .catch(error => {
                 console.error('Error fetching check statuses for commit', sha, error);
 
                 // Recording the failure is what stops a bad token or a rate limit from turning every scan
                 // into another request. A null verdict leaves the status as GitHub rendered it.
-                verdicts[key] = {shouldShowAsPassing: null, isFinal: false, fetchedAt: Date.now()};
+                verdicts[key] = {
+                    shouldShowAsPassing: null,
+                    isFinal: false,
+                    fetchedAt: Date.now(),
+                };
             })
             .finally(() => {
                 delete requestsInFlight[key];
@@ -149,7 +175,4 @@ function onVerdictSettled(listener) {
     settledListeners.push(listener);
 }
 
-export {
-    getVerdict,
-    onVerdictSettled,
-};
+export {getVerdict, onVerdictSettled};

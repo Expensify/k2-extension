@@ -10,14 +10,7 @@ import ghIssuenew from './lib/pages/github/issuenew';
 import ghIssueChoose from './lib/pages/github/issuechoose';
 import ghMain from './lib/pages/github/main';
 
-const pages = [
-    ghAll(),
-    ghPr(),
-    ghIssue(),
-    ghIssuenew(),
-    ghIssueChoose(),
-    ghMain(),
-];
+const pages = [ghAll(), ghPr(), ghIssue(), ghIssuenew(), ghIssueChoose(), ghMain()];
 
 /**
  * Clean up K2 state when NOT on K2 page.
@@ -60,7 +53,7 @@ window.addEventListener('hashchange', () => setupPages());
 
 // Handle K2 link clicks directly — GitHub's React nav intercepts clicks and uses
 // pushState (which doesn't fire hashchange), so we must handle it ourselves.
-document.addEventListener('click', (e) => {
+document.addEventListener('click', e => {
     const link = e.target.closest('.k2-nav-link');
     if (!link) {
         return;
