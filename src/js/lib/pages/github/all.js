@@ -1,6 +1,5 @@
 import $ from 'jquery';
 import Base from './_base';
-import calendarSvg from '../../../../../assets/calendar.svg';
 import k2Button from '../../../template/button.github.k2.html';
 
 /**
@@ -24,7 +23,7 @@ export default function () {
 
         if (!k2Tab.length) {
             // Keep the K2 tab outside GitHub's managed list because inserting it into that list breaks search.
-            $('body').append(k2Button({url: '/Expensify/Expensify', calendarSvg}));
+            $('body').append(k2Button({url: '/Expensify/Expensify'}));
             k2Tab = $('li.k2-extension');
         }
 

@@ -26,7 +26,7 @@ $color-dark-yellow: #DAA520;
 
 .k2dashboard,
 .passwordform {
-    max-width: 1600px;
+    max-width: min(1680px, calc(100vw - 100px));
     margin: 24px auto 0;
     padding: 0 24px;
     width: 100%;
@@ -292,6 +292,29 @@ $color-dark-yellow: #DAA520;
 .almost-transparent {
   opacity: 0.1;
 }
+
+.k2-hide-comment-buttons {
+  display: inline-flex;
+  gap: 4px;
+  margin-right: 8px;
+  align-items: center;
+  vertical-align: middle;
+
+  .k2-hide-comment-button {
+    height: 22px;
+    padding: 0 6px;
+    font-size: 12px;
+    line-height: 20px;
+  }
+}
+
+.k2-minimized-comment {
+  padding: 8px 12px;
+  border: 1px solid $color-neutral-light;
+  color: $color-neutral;
+  font-style: italic;
+}
+
 .k2-sidebar-controls {
     display: flex;
     flex-direction: column;
@@ -544,7 +567,6 @@ nav[aria-label="Repository"] a[href*="/pulls"] {
 .k2-nav-link {
     display: flex;
     align-items: center;
-    gap: 6px;
     box-sizing: border-box;
     height: 100%;
     padding: 0 8px;
@@ -567,17 +589,6 @@ nav[aria-label="Repository"] a[href*="/pulls"] {
     &[aria-current="page"] {
         font-weight: 600;
     }
-}
-
-.k2-nav-icon {
-    display: flex;
-    height: 20px;
-    width: 20px;
-}
-
-.k2-nav-icon svg {
-    height: 100%;
-    width: 100%;
 }
 
 // When on K2 page, override GitHub's tab styling so only K2 looks selected

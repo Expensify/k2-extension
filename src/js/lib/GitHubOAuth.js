@@ -96,6 +96,15 @@ function clearBackgroundAuth() {
 }
 
 /**
+ * Clear OAuth auth from both the background store and the content-script UI mirror.
+ * @returns {Promise<void>}
+ */
+async function clearOAuthAuth() {
+    await clearBackgroundAuth();
+    Preferences.clearAuth();
+}
+
+/**
  * Initiate OAuth flow with GitHub using background script
  * @returns {Promise<string>} OAuth token
  */
@@ -218,9 +227,10 @@ async function refreshToken(refreshTokenValue) {
  *
  * Concurrent callers share a single in-flight refresh.
  *
+ * @param {boolean} forceRefresh Whether the background should refresh even when the token has not expired
  * @returns {Promise<string>} New access token
  */
-function refreshTokenViaBackground() {
+function refreshTokenViaBackground(forceRefresh = false) {
     if (inflightRefreshPromise) {
         return inflightRefreshPromise;
     }
@@ -234,7 +244,7 @@ function refreshTokenViaBackground() {
         const authData = Preferences.getAuthData();
 
         ksBrowser.runtime.sendMessage(
-            {action: 'get-valid-oauth-token', authData},
+            {action: 'get-valid-oauth-token', authData, forceRefresh},
             (response) => {
                 if (ksBrowser.runtime.lastError) {
                     const runtimeError = buildRuntimeMessageError(ksBrowser.runtime.lastError.message);
@@ -473,6 +483,7 @@ async function revokeToken() {
 
 export {
     OAUTH_STORAGE_KEY,
+    clearOAuthAuth,
     initiateOAuth,
     isOAuthAvailable,
     revokeToken,
