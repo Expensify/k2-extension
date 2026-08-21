@@ -3,6 +3,9 @@ import _ from 'underscore';
 import {Octokit} from 'octokit';
 import * as GitHubOAuth from './GitHubOAuth';
 
+const CHECK_RUN_CACHE_LIFETIME_MS = 60000;
+const checkRunRequests = {};
+
 /**
  * Custom Octokit auth strategy that resolves the token at request time instead
  * of baking it into the instance at construction. The hook receives the bare
@@ -71,14 +74,16 @@ function createDynamicAuth() {
     return auth;
 }
 
+const octokit = new Octokit({
+    authStrategy: createDynamicAuth,
+    userAgent: 'expensify-k2-extension',
+});
+
 /**
  * @returns {Octokit}
  */
 function getOctokit() {
-    return new Octokit({
-        authStrategy: createDynamicAuth,
-        userAgent: 'expensify-k2-extension',
-    });
+    return octokit;
 }
 
 /**
@@ -146,35 +151,32 @@ function getMilestones() {
 }
 
 /**
- * A utility method that will run a graphql query and keep paginating the results until
- * there are no more results to get. This should automatically apply all of GH's best practices
- * to avoid hitting rate limits.
+ * Run a GraphQL search query until every page has been read.
  *
  * @param {String} query
  * @returns {Promise<Array>}
  */
-function getFullResultsUsingPagination(query) {
-    return new Promise((resolve) => {
-        let results = [];
+async function getFullResultsUsingPagination(query) {
+    const results = [];
+    let cursor = null;
 
-        // This does all the pagination on the graphQL query
-        function fetchPageOfIssues(cursor) {
-            getOctokit().graphql(query, {cursor})
-                .then((queryResults) => {
-                    results = results.concat(queryResults.search.nodes);
+    do {
+        // eslint-disable-next-line no-await-in-loop
+        const queryResults = await getOctokit().graphql(query, {cursor});
+        results.push(...queryResults.search.nodes);
 
-                    // When there is another page, this function needs to be called recursively to get the next page
-                    if (queryResults.search.pageInfo.hasNextPage) {
-                        fetchPageOfIssues(queryResults.search.pageInfo.endCursor);
-                        return;
-                    }
-
-                    // When there are no more pages, then we can resolve the final promise with all our results
-                    resolve(results);
-                });
+        if (!queryResults.search.pageInfo.hasNextPage) {
+            return results;
         }
-        fetchPageOfIssues();
-    });
+
+        const nextCursor = queryResults.search.pageInfo.endCursor;
+        if (!nextCursor || nextCursor === cursor) {
+            throw new Error('GitHub returned an invalid pagination cursor');
+        }
+        cursor = nextCursor;
+    } while (cursor);
+
+    return results;
 }
 
 /**
@@ -301,6 +303,9 @@ query {
                 }
                 repository {
                     name
+                    owner {
+                        login
+                    }
                 }
                 reviews {
                     totalCount
@@ -425,12 +430,24 @@ query($owner:String!, $repo:String!, $oid:GitObjectID!, $cursor:String) {
     return contexts;
 }
 
-function getCheckRuns(repo, headSHA) {
-    return getOctokit().rest.checks.listForRef({
-        owner: getRequestParams().owner,
+function getCheckRuns(owner, repo, headSHA) {
+    const key = `${owner}/${repo}/${headSHA}`;
+    const cached = checkRunRequests[key];
+    if (cached && (Date.now() - cached.fetchedAt) < CHECK_RUN_CACHE_LIFETIME_MS) {
+        return cached.promise;
+    }
+
+    const promise = getOctokit().paginate('GET /repos/{owner}/{repo}/commits/{ref}/check-runs', {
+        owner,
         repo,
         ref: headSHA,
+        per_page: 100,
+    }).then(checkRuns => ({data: {check_runs: checkRuns}})).catch((error) => {
+        delete checkRunRequests[key];
+        throw error;
     });
+    checkRunRequests[key] = {promise, fetchedAt: Date.now()};
+    return promise;
 }
 
 /**
