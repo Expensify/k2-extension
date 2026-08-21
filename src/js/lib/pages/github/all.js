@@ -10,6 +10,28 @@ import k2Button from '../../../template/button.github.k2.html';
  */
 export default function () {
     const AllPages = new Base();
+    let headerObserver;
+    let isHeaderUpdateScheduled = false;
+
+    const insertK2Action = () => {
+        if ($('.k2-header-action').length) {
+            return true;
+        }
+
+        const headerSearch = $('button:contains("Type / to search"):visible').first();
+        if (headerSearch.length) {
+            headerSearch.parent().after(k2Button({url: '/Expensify/Expensify'}));
+            return true;
+        }
+
+        const repositoryNav = $('nav[aria-label="Repository"]').first();
+        if (repositoryNav.length) {
+            repositoryNav.before(k2Button({url: '/Expensify/Expensify'}));
+            return true;
+        }
+
+        return false;
+    };
 
     AllPages.init = function () {
         this.setup();
@@ -19,23 +41,22 @@ export default function () {
      * Add buttons to the page and setup the event handler
      */
     AllPages.setup = function () {
-        const k2Action = $('.k2-header-action');
+        // Keep K2 outside GitHub's managed tab list, which breaks search when modified.
+        insertK2Action();
 
-        if (!k2Action.length) {
-            // Keep K2 outside GitHub's managed tab list, which breaks search when modified.
-            const appHeaderRepository = $('.AppHeader-context-item-label.Truncate-text')
-                .last()
-                .closest('a, button, [role="button"]');
-            if (appHeaderRepository.length) {
-                appHeaderRepository.after(k2Button({url: '/Expensify/Expensify'}));
-            } else {
-                const repositoryHeader = $(
-                    '#repository-container-header .d-flex.flex-wrap.flex-items-center.wb-break-word.f3.text-normal',
-                ).first();
-                if (repositoryHeader.length) {
-                    repositoryHeader.append(k2Button({url: '/Expensify/Expensify'}));
+        if (!headerObserver) {
+            headerObserver = new MutationObserver(() => {
+                if (isHeaderUpdateScheduled) {
+                    return;
                 }
-            }
+
+                isHeaderUpdateScheduled = true;
+                window.requestAnimationFrame(() => {
+                    isHeaderUpdateScheduled = false;
+                    insertK2Action();
+                });
+            });
+            headerObserver.observe(document.body, {childList: true, subtree: true});
         }
 
         // Set up timestamp format conversion

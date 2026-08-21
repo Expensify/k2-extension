@@ -27,13 +27,9 @@ export default function () {
         // Mark body so CSS can override GitHub's tab selection
         document.body.classList.add('k2-page-active');
 
-        // Deselect GitHub's tabs and select K2
+        // Deselect GitHub's tabs while the dashboard is displayed.
         $('nav[aria-label="Repository"] a[aria-current="page"]').removeAttr('aria-current');
         $('nav[aria-label="Repository"] a.selected').removeClass('selected');
-
-        const k2link = $('.k2-nav-link');
-        k2link.addClass('selected');
-        k2link.attr('aria-current', 'page');
 
         document.title = 'K2';
 

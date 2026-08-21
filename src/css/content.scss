@@ -556,16 +556,19 @@ $color-dark-yellow: #DAA520;
 .k2-header-action {
     display: flex;
     flex: 0 0 auto;
+    align-self: center;
     align-items: center;
-    margin-left: 8px;
+    height: 32px;
+    margin: 0 8px;
 }
 
 .k2-nav-link {
     display: flex;
     align-items: center;
     box-sizing: border-box;
-    min-height: 28px;
-    padding: 0 10px;
+    height: 32px;
+    min-height: 0;
+    padding: 0 12px;
     font-size: 14px;
     font-weight: 500;
     line-height: 1.5;
@@ -582,13 +585,6 @@ $color-dark-yellow: #DAA520;
         background-color: var(--bgColor-neutral-muted, rgba(175, 184, 193, 0.2));
     }
 
-    &.selected,
-    &[aria-current="page"] {
-        font-weight: 600;
-        color: var(--fgColor-accent, #0969da);
-        background-color: var(--bgColor-accent-muted, #ddf4ff);
-        border-color: var(--borderColor-accent-muted, #54aeff);
-    }
 }
 
 // When on K2 page, override GitHub's tab styling so only K2 looks selected
