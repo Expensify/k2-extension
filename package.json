@@ -12,7 +12,9 @@
     "lint": "eslint . --max-warnings=0",
     "lintfix": "eslint . --fix",
     "lint:firefox": "npm run build:firefox && web-ext lint -s ./dist",
-    "web": "webpack --progress --config webpack.dev.js"
+    "web": "npm run web:chrome",
+    "web:chrome": "webpack --progress --config webpack.dev.js --env platform=chrome",
+    "web:firefox": "webpack --progress --config webpack.dev.js --env platform=firefox"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

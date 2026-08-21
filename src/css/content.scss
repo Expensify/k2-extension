@@ -27,13 +27,146 @@ $color-dark-yellow: #DAA520;
 
 .k2dashboard,
 .passwordform {
-    max-width: 1680px;
+    max-width: min(1680px, calc(100vw - 100px));
     margin: 24px auto 0;
     padding: 0 180px;
 }
 
 .passwordform {
     max-width: 1000px;
+}
+
+.passwordform.k2-passwordform {
+    max-width: 480px;
+    padding: 0 24px;
+}
+
+.k2-login-shell {
+    --k2-ds-accent: #03d47c;
+    --k2-ds-app-bg: #fcfbf9;
+    --k2-ds-card-bg: #f8f4f0;
+    --k2-ds-border: #e6e1da;
+    --k2-ds-border-focus: #03d47c;
+    --k2-ds-button: #e6e1da;
+    --k2-ds-button-hover: #d8d1c7;
+    --k2-ds-button-pressed: #c7bfb3;
+    --k2-ds-danger: #f25730;
+    --k2-ds-danger-bg: #fff2ec;
+    --k2-ds-foreground: #002e22;
+    --k2-ds-heading: #002e22;
+    --k2-ds-muted: #76847e;
+    --k2-ds-shadow: 0px 4px 12px 0px rgba(2, 18, 4, 0.06);
+    color: var(--k2-ds-foreground);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.k2-login-hero {
+    display: flex;
+    justify-content: center;
+}
+
+.k2-login-card-label {
+    color: var(--k2-ds-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.k2-login-card-copy,
+.k2-login-unavailable {
+    color: var(--k2-ds-muted);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.k2-login-card {
+    background: var(--k2-ds-card-bg);
+    border: 1px solid var(--k2-ds-border);
+    border-radius: 16px;
+    box-shadow: var(--k2-ds-shadow);
+    padding: 24px;
+    width: 100%;
+}
+
+.k2-login-card-header {
+    align-items: center;
+    display: flex;
+    gap: 14px;
+}
+
+.k2-login-illustration {
+    display: flex;
+    height: 52px;
+    width: 52px;
+}
+
+.k2-login-illustration svg {
+    height: 100%;
+    width: 100%;
+}
+
+.k2-login-card h2 {
+    color: var(--k2-ds-heading);
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 2px 0 0;
+}
+
+.k2-login-error {
+    margin: 22px 0 0;
+}
+
+.k2-login-card-copy {
+    margin: 24px 0;
+}
+
+.k2-login-unavailable {
+    background: var(--k2-ds-danger-bg);
+    border: 1px solid var(--k2-ds-danger);
+    border-radius: 12px;
+    color: var(--k2-ds-danger);
+    margin: -8px 0 18px;
+    padding: 10px 12px;
+}
+
+.k2-login-button.btn.btn-primary {
+    align-items: center;
+    background: var(--k2-ds-button) !important;
+    border: 0;
+    border-radius: 999px;
+    color: var(--k2-ds-foreground) !important;
+    display: flex;
+    font-size: 15px;
+    font-weight: 700;
+    justify-content: center;
+    padding: 14px 18px;
+    width: 100%;
+}
+
+.k2-login-button.btn.btn-primary:hover:not(:disabled) {
+    background: var(--k2-ds-button-hover) !important;
+}
+
+.k2-login-button.btn.btn-primary:active:not(:disabled) {
+    background: var(--k2-ds-button-pressed) !important;
+}
+
+.k2-login-button.btn.btn-primary:focus-visible {
+    box-shadow: 0 0 0 3px rgba(3, 212, 124, 0.28);
+    outline: none;
+}
+
+.k2-login-button.btn.btn-primary:disabled {
+    box-shadow: none;
+}
+
+@media (max-width: 560px) {
+    .passwordform.k2-passwordform {
+        max-width: calc(100vw - 32px);
+        padding: 0;
+    }
 }
 
 .almost-transparent {
@@ -622,14 +755,47 @@ $color-dark-yellow: #DAA520;
   .panel, .panel-item, .issue-filter {
      border-color: rgb(48, 54, 61);
   }
+  .panel-title, .panel-footer {
+     color: rgb(48, 54, 61);
+  }
   .issue-filter {
      color: rgb(230, 237, 243)
+  }
+
+  .k2-login-shell {
+     --k2-ds-app-bg: #061b09;
+     --k2-ds-card-bg: #072419;
+     --k2-ds-border: #1a3d32;
+     --k2-ds-button: #1a3d32;
+     --k2-ds-button-hover: #224f41;
+     --k2-ds-button-pressed: #2a604f;
+     --k2-ds-danger-bg: #2b160d;
+     --k2-ds-foreground: #e7ece9;
+     --k2-ds-heading: #e7ece9;
+     --k2-ds-muted: #afbbb0;
+     --k2-ds-shadow: 0px 4px 12px 0px rgba(2, 18, 4, 0.24);
   }
 }
 
 [data-color-mode="light"] {
   .issue-filter {
     color: rgb(153, 153, 153);
+  }
+}
+
+[data-color-mode="dark"] {
+  .k2-login-shell {
+     --k2-ds-app-bg: #061b09;
+     --k2-ds-card-bg: #072419;
+     --k2-ds-border: #1a3d32;
+     --k2-ds-button: #1a3d32;
+     --k2-ds-button-hover: #224f41;
+     --k2-ds-button-pressed: #2a604f;
+     --k2-ds-danger-bg: #2b160d;
+     --k2-ds-foreground: #e7ece9;
+     --k2-ds-heading: #e7ece9;
+     --k2-ds-muted: #afbbb0;
+     --k2-ds-shadow: 0px 4px 12px 0px rgba(2, 18, 4, 0.24);
   }
 }
 
