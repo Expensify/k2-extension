@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import _ from 'underscore';
 import Base from './_base';
 import k2Button from '../../../template/button.github.k2.html';
 
@@ -47,12 +48,123 @@ export default function () {
             });
         };
 
+        const scheduleK2TabPosition = () => {
+            if (AllPages.k2TabPositionFrame) {
+                return;
+            }
+
+            AllPages.k2TabPositionFrame = window.requestAnimationFrame(() => {
+                AllPages.k2TabPositionFrame = null;
+                positionK2Tab();
+            });
+        };
+
+        if (AllPages.k2TabPositionFrame) {
+            window.cancelAnimationFrame(AllPages.k2TabPositionFrame);
+        }
+        AllPages.k2TabPositionFrame = null;
+
+        if (AllPages.k2TabNavigationFrame) {
+            window.cancelAnimationFrame(AllPages.k2TabNavigationFrame);
+        }
+        AllPages.k2TabNavigationFrame = null;
+
+        if (AllPages.k2TabScrollHandler) {
+            document.removeEventListener('scroll', AllPages.k2TabScrollHandler, true);
+        }
+
+        if (AllPages.k2TabPositionObserver) {
+            AllPages.k2TabPositionObserver.disconnect();
+        }
+        AllPages.k2TabPositionObserver = null;
+
+        if (AllPages.k2TabResizeObserver) {
+            AllPages.k2TabResizeObserver.disconnect();
+        }
+        AllPages.k2TabResizeObserver = null;
+
+        if (AllPages.k2TabNavigationObserver) {
+            AllPages.k2TabNavigationObserver.disconnect();
+        }
+        AllPages.k2TabNavigationObserver = null;
+        AllPages.k2TabRepositoryNavigation = null;
+
+        const repositoryNavigationSelector = 'nav[aria-label="Repository"]';
+        const observeRepositoryNavigation = () => {
+            const repositoryNavigation = $(repositoryNavigationSelector).first()[0];
+
+            if (AllPages.k2TabRepositoryNavigation === repositoryNavigation) {
+                return;
+            }
+
+            if (AllPages.k2TabPositionObserver) {
+                AllPages.k2TabPositionObserver.disconnect();
+            }
+
+            if (AllPages.k2TabResizeObserver) {
+                AllPages.k2TabResizeObserver.disconnect();
+            }
+
+            AllPages.k2TabRepositoryNavigation = repositoryNavigation;
+            scheduleK2TabPosition();
+
+            if (!repositoryNavigation) {
+                return;
+            }
+
+            AllPages.k2TabPositionObserver = new MutationObserver(scheduleK2TabPosition);
+            AllPages.k2TabPositionObserver.observe(repositoryNavigation, {
+                attributes: true,
+                childList: true,
+                subtree: true,
+            });
+
+            AllPages.k2TabResizeObserver = new ResizeObserver(scheduleK2TabPosition);
+            AllPages.k2TabResizeObserver.observe(repositoryNavigation);
+        };
+
+        const scheduleRepositoryNavigationObservation = () => {
+            if (AllPages.k2TabNavigationFrame) {
+                return;
+            }
+
+            AllPages.k2TabNavigationFrame = window.requestAnimationFrame(() => {
+                AllPages.k2TabNavigationFrame = null;
+                observeRepositoryNavigation();
+            });
+        };
+
         positionK2Tab();
 
-        // Keep the isolated tab aligned when the window moves GitHub's tab list.
+        // Keep the isolated tab aligned when GitHub reflows or scrolls its tab list.
+        AllPages.k2TabScrollHandler = scheduleK2TabPosition;
+        document.addEventListener('scroll', AllPages.k2TabScrollHandler, true);
+
         $(window)
             .off('resize.k2-extension scroll.k2-extension')
-            .on('resize.k2-extension scroll.k2-extension', positionK2Tab);
+            .on('resize.k2-extension scroll.k2-extension', scheduleK2TabPosition);
+
+        observeRepositoryNavigation();
+
+        // GitHub can replace the repository navigation during SPA navigation.
+        AllPages.k2TabNavigationObserver = new MutationObserver((records) => {
+            const navigationChanged = _.some(records, (record) => {
+                const navigationNodes = Array.from(record.addedNodes).concat(Array.from(record.removedNodes));
+
+                return _.some(navigationNodes, (node) => {
+                    if (node.nodeType !== Node.ELEMENT_NODE) {
+                        return false;
+                    }
+
+                    return node.matches(repositoryNavigationSelector) || node.querySelector(repositoryNavigationSelector);
+                });
+            });
+
+            if (navigationChanged) {
+                scheduleRepositoryNavigationObservation();
+            }
+        });
+        AllPages.k2TabNavigationObserver.observe(document.documentElement, {childList: true, subtree: true});
 
         // Set up timestamp format conversion
         setTimeout(() => AllPages.applyTimestampFormat(), 500);
