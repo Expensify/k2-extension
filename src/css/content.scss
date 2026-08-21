@@ -920,7 +920,6 @@ nav[aria-label="Repository"] a[href*="/pulls"] {
 .k2-nav-link {
     display: flex;
     align-items: center;
-    gap: 6px;
     box-sizing: border-box;
     height: 100%;
     padding: 0 8px;
@@ -943,17 +942,6 @@ nav[aria-label="Repository"] a[href*="/pulls"] {
     &[aria-current="page"] {
         font-weight: 600;
     }
-}
-
-.k2-nav-icon {
-    display: flex;
-    height: 20px;
-    width: 20px;
-}
-
-.k2-nav-icon svg {
-    height: 100%;
-    width: 100%;
 }
 
 // When on K2 page, override GitHub's tab styling so only K2 looks selected
