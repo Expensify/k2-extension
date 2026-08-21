@@ -6,11 +6,10 @@ on:
 
 jobs:
     lint:
-        runs-on: ubuntu-latest
+        runs-on: blacksmith-2vcpu-ubuntu-2404
         steps:
             - name: Checkout repository
-              # v5.0.0
-              uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493
+              uses: useblacksmith/checkout@2d63ce5ba61677748c4e92f6eb578a8694226225 # v1.2.0
               with:
                   fetch-depth: 0
 
@@ -36,11 +35,8 @@ jobs:
                   max_attempts: 5
                   command: npm ci
 
-            - name: Lint with ESLint
-              run: |
-                # shellcheck disable=SC2046
-                npx eslint --max-warnings=0 $(git diff --diff-filter=ACM --name-only origin/main '**/*.js' | xargs)
+            - name: Lint with Oxlint
+              run: npm run lint
 
             - name: Lint for Firefox
               run: npm run lint:firefox
-

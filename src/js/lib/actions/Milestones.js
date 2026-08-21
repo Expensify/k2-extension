@@ -13,7 +13,7 @@ function get() {
     ));
 }
 
+// eslint-disable-next-line import/prefer-default-export
 export {
-    // eslint-disable-next-line import/prefer-default-export
     get,
 };

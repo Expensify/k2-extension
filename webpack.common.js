@@ -3,7 +3,6 @@ const CopyPlugin = require('copy-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const {IgnorePlugin} = require('webpack');
-const ESLintPlugin = require('eslint-webpack-plugin');
 
 module.exports = (env) => {
     const isFirefox = env && env.platform === 'firefox';
@@ -31,12 +30,6 @@ module.exports = (env) => {
             // https://webpack.js.org/plugins/ignore-plugin/#example-of-ignoring-moment-locales
             new IgnorePlugin({
                 resourceRegExp: /^\.\/locale$/,
-            }),
-
-            new ESLintPlugin({
-                cache: false,
-                emitWarning: true,
-                overrideConfigFile: path.resolve(__dirname, '.eslintrc.js'),
             }),
 
             // Conditional copy of manifest files and other assets
