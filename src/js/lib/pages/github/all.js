@@ -25,8 +25,7 @@ export default function () {
             // Keep K2 outside GitHub's managed tab list, which breaks search when modified.
             const appHeaderRepository = $('.AppHeader-context-item-label.Truncate-text')
                 .last()
-                .parents('[class*="AppHeader-context-item"]')
-                .first();
+                .closest('a, button, [role="button"]');
             if (appHeaderRepository.length) {
                 appHeaderRepository.after(k2Button({url: '/Expensify/Expensify'}));
             } else {
