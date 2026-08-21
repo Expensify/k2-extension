@@ -23,11 +23,19 @@ export default function () {
 
         if (!k2Action.length) {
             // Keep K2 outside GitHub's managed tab list, which breaks search when modified.
-            const repositoryContext = $(
-                '#repository-container-header .d-flex.flex-wrap.flex-items-center.wb-break-word.f3.text-normal',
-            ).first();
-            if (repositoryContext.length) {
-                repositoryContext.append(k2Button({url: '/Expensify/Expensify'}));
+            const appHeaderRepository = $('.AppHeader-context-item-label.Truncate-text')
+                .last()
+                .parents('[class*="AppHeader-context-item"]')
+                .first();
+            if (appHeaderRepository.length) {
+                appHeaderRepository.after(k2Button({url: '/Expensify/Expensify'}));
+            } else {
+                const repositoryHeader = $(
+                    '#repository-container-header .d-flex.flex-wrap.flex-items-center.wb-break-word.f3.text-normal',
+                ).first();
+                if (repositoryHeader.length) {
+                    repositoryHeader.append(k2Button({url: '/Expensify/Expensify'}));
+                }
             }
         }
 
