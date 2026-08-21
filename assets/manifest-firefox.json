@@ -1,45 +1,30 @@
 {
-  "manifest_version": 3,
-
-  "name": "K2 for GitHub",
-  "version": "1.5.55",
-  "description": "Manage your Kernel Scheduling from directly inside GitHub",
-
-  "browser_specific_settings": {
-      "gecko": {
-          "id": "ksv2@expensify.com",
-          "strict_min_version": "112.0"
-      }
-  },
-
-  "icons": {
-    "16": "icon16.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
-  },
-
-  "permissions": [
-    "webNavigation",
-    "storage",
-    "tabs",
-    "identity"
-  ],
-
-  "host_permissions": [
-      "*://api.github.com/*",
-      "*://github.com/*",
-      "https://ksv2.exfy.io/*",
-      "https://ksv2-exfy-io.expensify.workers.dev/*"
-  ],
-
-  "content_scripts": [{
-    "matches": ["*://*.github.com/*"],
-    "css": ["content.css"],
-    "js": ["content.js"]
-  }],
-
-  "background": {
-    "scripts": ["events.js"],
-    "type": "module"
-  }
+    "manifest_version": 3,
+    "name": "K2 for GitHub",
+    "version": "1.5.55",
+    "description": "Manage your Kernel Scheduling from directly inside GitHub",
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "ksv2@expensify.com",
+            "strict_min_version": "112.0"
+        }
+    },
+    "icons": {
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+    },
+    "permissions": ["webNavigation", "storage", "tabs", "identity"],
+    "host_permissions": ["*://api.github.com/*", "*://github.com/*", "https://ksv2.exfy.io/*"],
+    "content_scripts": [
+        {
+            "matches": ["*://*.github.com/*"],
+            "css": ["content.css"],
+            "js": ["content.js"]
+        }
+    ],
+    "background": {
+        "scripts": ["events.js"],
+        "type": "module"
+    }
 }
