@@ -354,6 +354,17 @@ $color-dark-yellow: #DAA520;
   }
 }
 
+.panel-title-checkbox {
+  font-size: 12px;
+  font-weight: normal;
+  margin-left: ($gutter * 2);
+
+  input[type=checkbox] {
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+}
+
 .panel-item {
   border-top: 1px solid $color-neutral-light;
   display: block;

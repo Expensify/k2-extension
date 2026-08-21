@@ -148,6 +148,13 @@ function setShowOpenAllButtons(value) {
     ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {showOpenAllButtons: value});
 }
 
+/**
+ * @param {Boolean} value
+ */
+function setShouldShowPRNumbers(value) {
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {shouldShowPRNumbers: value});
+}
+
 export {
     getGitHubToken,
     setGitHubToken,
@@ -163,4 +170,5 @@ export {
     setAutoLoadMoreComments,
     getShowOpenAllButtons,
     setShowOpenAllButtons,
+    setShouldShowPRNumbers,
 };

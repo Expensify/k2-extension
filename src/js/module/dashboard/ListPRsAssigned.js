@@ -7,6 +7,7 @@ import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import Title from '../../component/panel-title/Title';
 import ListItemPull from '../../component/list-item/ListItemPull';
 import * as PullRequests from '../../lib/actions/PullRequests';
+import * as Preferences from '../../lib/actions/Preferences';
 import openAllUrls from '../../lib/openAllUrls';
 
 const propTypes = {
@@ -15,9 +16,16 @@ const propTypes = {
 
     /** All the PRs assigned to the current user */
     prs: PropTypes.objectOf(IssuePropTypes),
+
+    /** The preferences of the current user */
+    preferences: PropTypes.shape({
+        /** Whether the repo tag also shows the number of the PR */
+        shouldShowPRNumbers: PropTypes.bool,
+    }),
 };
 const defaultProps = {
     prs: null,
+    preferences: {},
 };
 
 class ListPRsAssigned extends React.Component {
@@ -51,12 +59,21 @@ class ListPRsAssigned extends React.Component {
             return null;
         }
 
+        // Defaults to true so the numbers show until the user turns them off.
+        const shouldShowPRNumbers = this.props.preferences.shouldShowPRNumbers !== false;
+
         return (
             <div className="panel your-pull-requests mb-3">
                 <Title
                     text="Your Pull Requests"
                     count={_.size(this.props.prs) || 0}
                     onOpenAll={() => openAllUrls(this.props.prs)}
+                    checkbox={{
+                        id: 'shouldShowPRNumbers',
+                        label: 'Show PR numbers',
+                        isChecked: shouldShowPRNumbers,
+                        onChange: () => Preferences.setShouldShowPRNumbers(!shouldShowPRNumbers),
+                    }}
                 />
 
                 {!this.props.prs && (
@@ -67,7 +84,13 @@ class ListPRsAssigned extends React.Component {
 
                 {_.chain(this.props.prs)
                     .sortBy('updatedAt')
-                    .map(pr => <ListItemPull key={pr.id} pr={pr} />)
+                    .map(pr => (
+                        <ListItemPull
+                            key={pr.id}
+                            pr={pr}
+                            shouldShowNumber={shouldShowPRNumbers}
+                        />
+                    ))
                     .value()
                     .reverse()}
             </div>
@@ -81,5 +104,8 @@ ListPRsAssigned.defaultProps = defaultProps;
 export default withOnyx({
     prs: {
         key: ONYXKEYS.PRS.ASSIGNED,
+    },
+    preferences: {
+        key: ONYXKEYS.PREFERENCES,
     },
 })(ListPRsAssigned);

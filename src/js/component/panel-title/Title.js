@@ -13,11 +13,27 @@ const propTypes = {
 
     /** Callback to open all items in new tabs */
     onOpenAll: PropTypes.func,
+
+    /** A checkbox to show next to the title */
+    checkbox: PropTypes.shape({
+        /** The id and the name of the input */
+        id: PropTypes.string.isRequired,
+
+        /** The text to show next to the input */
+        label: PropTypes.string.isRequired,
+
+        /** Whether the checkbox is checked */
+        isChecked: PropTypes.bool,
+
+        /** Callback when the user toggles the checkbox */
+        onChange: PropTypes.func.isRequired,
+    }),
 };
 
 const defaultProps = {
     count: null,
     onOpenAll: null,
+    checkbox: null,
 };
 
 class Title extends React.Component {
@@ -46,11 +62,27 @@ class Title extends React.Component {
     }
 
     render() {
-        const {text, count, onOpenAll} = this.props;
+        const {
+            text, count, onOpenAll, checkbox,
+        } = this.props;
         return (
             <div>
                 <h3 className="panel-title panel-title-with-actions">
-                    <span>{`${text} ${count !== null ? `(${count})` : ''}`}</span>
+                    <span>
+                        {`${text} ${count !== null ? `(${count})` : ''}`}
+                        {checkbox && (
+                            <label className="panel-title-checkbox" htmlFor={checkbox.id}>
+                                <input
+                                    type="checkbox"
+                                    id={checkbox.id}
+                                    name={checkbox.id}
+                                    checked={!!checkbox.isChecked}
+                                    onChange={checkbox.onChange}
+                                />
+                                {checkbox.label}
+                            </label>
+                        )}
+                    </span>
                     {onOpenAll && count > 0 && this.state.showOpenAllButtons && (
                         <button
                             type="button"
