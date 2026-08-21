@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
-import ReactNativeOnyx, {withOnyx} from 'react-native-onyx';
+import {withOnyx} from 'react-native-onyx';
 import ONYXKEYS from '../../ONYXKEYS';
 import IssuePropTypes from '../../component/list-item/IssuePropTypes';
 import Title from '../../component/panel-title/Title';
@@ -16,52 +16,34 @@ const propTypes = {
 
     /** All the PRs assigned to the current user */
     prs: PropTypes.objectOf(IssuePropTypes),
+
+    /** The preferences of the current user */
+    preferences: PropTypes.shape({
+        /** Whether the repo tag also shows the number of the PR */
+        shouldShowPRNumbers: PropTypes.bool,
+    }),
 };
 const defaultProps = {
     prs: null,
+    preferences: {},
 };
 
 class ListPRsAssigned extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            showPRNumbers: Preferences.getShowPRNumbers(),
-        };
-        this.onyxConnection = null;
-
         this.fetch = this.fetch.bind(this);
-        this.toggleShowPRNumbers = this.toggleShowPRNumbers.bind(this);
     }
 
     componentDidMount() {
         this.fetch();
-
-        this.onyxConnection = ReactNativeOnyx.connect({
-            key: ONYXKEYS.PREFERENCES,
-            callback: () => {
-                this.setState({showPRNumbers: Preferences.getShowPRNumbers()});
-            },
-        });
     }
 
     componentWillUnmount() {
-        if (this.interval) {
-            clearInterval(this.interval);
-        }
-
-        if (!this.onyxConnection) {
+        if (!this.interval) {
             return;
         }
-        ReactNativeOnyx.disconnect(this.onyxConnection);
-    }
-
-    toggleShowPRNumbers() {
-        this.setState((prevState) => {
-            const newValue = !prevState.showPRNumbers;
-            Preferences.setShowPRNumbers(newValue);
-            return {showPRNumbers: newValue};
-        });
+        clearInterval(this.interval);
     }
 
     fetch() {
@@ -77,6 +59,9 @@ class ListPRsAssigned extends React.Component {
             return null;
         }
 
+        // Defaults to true so the numbers show until the user turns them off.
+        const shouldShowPRNumbers = this.props.preferences.shouldShowPRNumbers !== false;
+
         return (
             <div className="panel your-pull-requests mb-3">
                 <Title
@@ -86,8 +71,8 @@ class ListPRsAssigned extends React.Component {
                     checkbox={{
                         id: 'shouldShowPRNumbers',
                         label: 'Show PR numbers',
-                        isChecked: this.state.showPRNumbers,
-                        onChange: this.toggleShowPRNumbers,
+                        isChecked: shouldShowPRNumbers,
+                        onChange: () => Preferences.setShouldShowPRNumbers(!shouldShowPRNumbers),
                     }}
                 />
 
@@ -103,7 +88,7 @@ class ListPRsAssigned extends React.Component {
                         <ListItemPull
                             key={pr.id}
                             pr={pr}
-                            shouldShowNumber={this.state.showPRNumbers}
+                            shouldShowNumber={shouldShowPRNumbers}
                         />
                     ))
                     .value()
@@ -119,5 +104,8 @@ ListPRsAssigned.defaultProps = defaultProps;
 export default withOnyx({
     prs: {
         key: ONYXKEYS.PRS.ASSIGNED,
+    },
+    preferences: {
+        key: ONYXKEYS.PREFERENCES,
     },
 })(ListPRsAssigned);

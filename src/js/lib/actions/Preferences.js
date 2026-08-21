@@ -5,7 +5,6 @@ let ghToken;
 let useAbsoluteTimestamps;
 let autoLoadMoreComments;
 let showOpenAllButtons;
-let showPRNumbers;
 ReactNativeOnyx.connect({
     key: ONYXKEYS.PREFERENCES,
     callback: (preferences) => {
@@ -18,7 +17,6 @@ ReactNativeOnyx.connect({
         useAbsoluteTimestamps = !!preferences.useAbsoluteTimestamps;
         autoLoadMoreComments = preferences.autoLoadMoreComments || false;
         showOpenAllButtons = preferences.showOpenAllButtons;
-        showPRNumbers = preferences.showPRNumbers;
     },
 });
 
@@ -72,17 +70,11 @@ function setShowOpenAllButtons(value) {
     ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {showOpenAllButtons: value});
 }
 
-// Defaults to true so users see the numbers until they turn them off.
-function getShowPRNumbers() {
-    return showPRNumbers !== false;
-}
-
 /**
  * @param {Boolean} value
  */
-function setShowPRNumbers(value) {
-    showPRNumbers = value;
-    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {showPRNumbers: value});
+function setShouldShowPRNumbers(value) {
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {shouldShowPRNumbers: value});
 }
 
 export {
@@ -94,6 +86,5 @@ export {
     setAutoLoadMoreComments,
     getShowOpenAllButtons,
     setShowOpenAllButtons,
-    getShowPRNumbers,
-    setShowPRNumbers,
+    setShouldShowPRNumbers,
 };
