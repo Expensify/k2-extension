@@ -552,31 +552,27 @@ $color-dark-yellow: #DAA520;
     }
 }
 
-// K2 navigation tab
-li.k2-extension {
+// K2 dashboard action, intentionally separate from GitHub's managed tab list.
+.k2-nav-action {
     display: flex;
     align-items: center;
-    list-style: none;
-}
-
-// Prevent the isolated K2 tab from covering GitHub's next tab.
-nav[aria-label="Repository"] a[href*="/pulls"] {
-    margin-right: 48px;
+    margin: 8px 16px;
 }
 
 .k2-nav-link {
     display: flex;
     align-items: center;
     box-sizing: border-box;
-    height: 100%;
-    padding: 0 8px;
+    min-height: 32px;
+    padding: 0 12px;
     font-size: 14px;
-    font-weight: 400;
+    font-weight: 500;
     line-height: 1.5;
     color: var(--fgColor-default, #1f2328);
     text-decoration: none;
     white-space: nowrap;
     border-radius: 6px;
+    border: 1px solid var(--borderColor-default, #d0d7de);
     transition: background-color 0.1s ease;
 
     &:hover {
@@ -588,6 +584,9 @@ nav[aria-label="Repository"] a[href*="/pulls"] {
     &.selected,
     &[aria-current="page"] {
         font-weight: 600;
+        color: var(--fgColor-accent, #0969da);
+        background-color: var(--bgColor-accent-muted, #ddf4ff);
+        border-color: var(--borderColor-accent-muted, #54aeff);
     }
 }
 
