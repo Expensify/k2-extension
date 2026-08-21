@@ -2,9 +2,11 @@ import React from 'react';
 import ReactNativeOnyx, {useOnyx} from 'react-native-onyx';
 import _ from 'underscore';
 import {
-    ActionList, ActionMenu, Button, Heading, Stack, Text,
+    ActionList, ActionMenu, Button, ButtonGroup, Heading, Stack, Text,
 } from '@primer/react';
-import {IssueOpenedIcon, ProjectIcon, SignOutIcon} from '@primer/octicons-react';
+import {
+    IssueOpenedIcon, ProjectIcon, SignOutIcon, TriangleDownIcon,
+} from '@primer/octicons-react';
 import ToggleOpenAll from '../ToggleOpenAll/Toggle';
 import ONYXKEYS from '../../ONYXKEYS';
 import * as Preferences from '../../lib/actions/Preferences';
@@ -44,7 +46,6 @@ function DashboardHeader() {
 
     function selectDestination(destination) {
         Preferences.setNewIssueDestination(destination.id);
-        window.open(destination.url, '_blank', 'noopener,noreferrer');
     }
 
     return (
@@ -59,26 +60,29 @@ function DashboardHeader() {
                 </Stack>
                 <Stack className="k2-dashboard-actions" direction="horizontal" align="center" wrap="wrap" gap="condensed">
                     <ToggleOpenAll />
-                    <ActionMenu>
-                        <ActionMenu.Button leadingVisual={IssueOpenedIcon} variant="primary">
+                    <ButtonGroup>
+                        <Button as="a" href={selectedDestination.url} leadingVisual={IssueOpenedIcon} rel="noopener noreferrer" target="_blank" variant="primary">
                             {`New issue: ${selectedDestination.label}`}
-                        </ActionMenu.Button>
-                        <ActionMenu.Overlay width="medium">
-                            <ActionList selectionVariant="single" aria-label="New issue repository">
-                                {_.map(issueDestinations, destination => (
-                                    <ActionList.Item
-                                        key={destination.id}
-                                        selected={destination.id === selectedDestination.id}
-                                        onSelect={() => selectDestination(destination)}
-                                        role="menuitemradio"
-                                        aria-checked={destination.id === selectedDestination.id}
-                                    >
-                                        {destination.label}
-                                    </ActionList.Item>
-                                ))}
-                            </ActionList>
-                        </ActionMenu.Overlay>
-                    </ActionMenu>
+                        </Button>
+                        <ActionMenu>
+                            <ActionMenu.Button aria-label="Choose new issue repository" icon={TriangleDownIcon} variant="primary" />
+                            <ActionMenu.Overlay width="medium">
+                                <ActionList selectionVariant="single" aria-label="New issue repository">
+                                    {_.map(issueDestinations, destination => (
+                                        <ActionList.Item
+                                            key={destination.id}
+                                            selected={destination.id === selectedDestination.id}
+                                            onSelect={() => selectDestination(destination)}
+                                            role="menuitemradio"
+                                            aria-checked={destination.id === selectedDestination.id}
+                                        >
+                                            {destination.label}
+                                        </ActionList.Item>
+                                    ))}
+                                </ActionList>
+                            </ActionMenu.Overlay>
+                        </ActionMenu>
+                    </ButtonGroup>
                     <Button leadingVisual={SignOutIcon} onClick={signOut}>Sign out</Button>
                 </Stack>
             </Stack>
