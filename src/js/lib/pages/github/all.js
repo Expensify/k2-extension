@@ -19,13 +19,15 @@ export default function () {
      * Add buttons to the page and setup the event handler
      */
     AllPages.setup = function () {
-        const k2Action = $('.k2-nav-action');
+        const k2Action = $('.k2-header-action');
 
         if (!k2Action.length) {
             // Keep K2 outside GitHub's managed tab list, which breaks search when modified.
-            const repositoryNav = $('nav[aria-label="Repository"]').first();
-            if (repositoryNav.length) {
-                repositoryNav.after(k2Button({url: '/Expensify/Expensify'}));
+            const repositoryContext = $(
+                '#repository-container-header .d-flex.flex-wrap.flex-items-center.wb-break-word.f3.text-normal',
+            ).first();
+            if (repositoryContext.length) {
+                repositoryContext.append(k2Button({url: '/Expensify/Expensify'}));
             }
         }
 

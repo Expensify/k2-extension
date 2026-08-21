@@ -553,18 +553,19 @@ $color-dark-yellow: #DAA520;
 }
 
 // K2 dashboard action, intentionally separate from GitHub's managed tab list.
-.k2-nav-action {
+.k2-header-action {
     display: flex;
+    flex: 0 0 auto;
     align-items: center;
-    margin: 8px 16px;
+    margin-left: 8px;
 }
 
 .k2-nav-link {
     display: flex;
     align-items: center;
     box-sizing: border-box;
-    min-height: 32px;
-    padding: 0 12px;
+    min-height: 28px;
+    padding: 0 10px;
     font-size: 14px;
     font-weight: 500;
     line-height: 1.5;
