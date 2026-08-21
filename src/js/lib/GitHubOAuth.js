@@ -1,4 +1,3 @@
-import * as Preferences from './actions/Preferences';
 import ksBrowser from './browser';
 
 /**
@@ -13,21 +12,7 @@ const GITHUB_OAUTH_CONFIG = {
     APP_OAUTH_URL: 'https://ksv2.exfy.io',
 };
 
-const OAUTH_STORAGE_KEY = 'k2OAuthAuth';
-
-// Refresh window (ms) before expiry to proactively refresh
-const REFRESH_SKEW_MS = 5 * 60 * 1000;
-
-// Tracks an in-flight refresh so concurrent callers share a single request.
-// GitHub App refresh tokens are single-use, so two parallel refreshes would
-// invalidate the session.
-let inflightRefreshPromise = null;
-
-// Timestamp of the last successful token issuance (sign-in or refresh). Used to
-// detect "the token we just got is being rejected" - in that case another
-// rotation won't help and would only burn the refresh token chain.
-let lastTokenIssuedAt = 0;
-const TOKEN_JUST_ISSUED_MS = 30 * 1000;
+let inflightTokenPromise = null;
 
 /**
  * Whether a runtime message failed because the background receiver is not available.
@@ -57,56 +42,66 @@ function buildRuntimeMessageError(message) {
 }
 
 /**
- * Whether a token was issued (via sign-in or refresh) within the last few seconds
- * @returns {boolean}
+ * Send a message to the background auth broker.
+ * @param {Object} request
+ * @returns {Promise<Object>}
  */
-function wasTokenJustRefreshed() {
-    return (Date.now() - lastTokenIssuedAt) < TOKEN_JUST_ISSUED_MS;
-}
-
-/**
- * Persist token data in the content-script Onyx mirror.
- * @param {Object} tokenData
- */
-function setContentAuthDataFromTokenData(tokenData) {
-    Preferences.setAuthData({
-        type: 'oauth',
-        token: tokenData.access_token,
-        refreshToken: tokenData.refresh_token,
-        expiresAt: tokenData.expires_in ? Date.now() + (tokenData.expires_in * 1000) : null,
-    });
-    lastTokenIssuedAt = Date.now();
-}
-
-/**
- * Best-effort request to clear the background OAuth store.
- * @returns {Promise<void>}
- */
-function clearBackgroundAuth() {
-    return new Promise((resolve) => {
+function sendAuthMessage(request) {
+    return new Promise((resolve, reject) => {
         if ((!ksBrowser) || !ksBrowser.runtime || !ksBrowser.runtime.sendMessage) {
-            resolve();
+            reject(new Error('Browser runtime API not available'));
             return;
         }
 
-        ksBrowser.runtime.sendMessage({action: 'clear-oauth'}, () => {
-            resolve();
+        ksBrowser.runtime.sendMessage(request, (response) => {
+            if (ksBrowser.runtime.lastError) {
+                reject(buildRuntimeMessageError(ksBrowser.runtime.lastError.message));
+                return;
+            }
+
+            if (!response) {
+                reject(new Error('No response from background script'));
+                return;
+            }
+
+            if (!response.success) {
+                const error = new Error(response.error || 'GitHub authentication request failed');
+                error.isAuthError = !!response.isAuthError;
+                reject(error);
+                return;
+            }
+
+            resolve(response);
         });
     });
 }
 
 /**
- * Clear OAuth auth from both the background store and the content-script UI mirror.
+ * @returns {Promise<Object>}
+ */
+function getAuthState() {
+    return sendAuthMessage({action: 'get-github-auth-state'});
+}
+
+/**
+ * @param {Object|null} authData
+ * @returns {Promise<Object>}
+ */
+async function migrateLegacyAuth(authData) {
+    const response = await sendAuthMessage({action: 'migrate-legacy-github-auth', authData});
+    return response;
+}
+
+/**
  * @returns {Promise<void>}
  */
-async function clearOAuthAuth() {
-    await clearBackgroundAuth();
-    Preferences.clearAuth();
+async function clearGitHubAuth() {
+    await sendAuthMessage({action: 'clear-github-auth'});
 }
 
 /**
  * Initiate OAuth flow with GitHub using background script
- * @returns {Promise<string>} OAuth token
+ * @returns {Promise<Object>} Authentication state
  */
 function initiateOAuth() {
     return new Promise((resolve, reject) => {
@@ -115,41 +110,7 @@ function initiateOAuth() {
             return;
         }
 
-        // Send message to background script to handle OAuth
-        ksBrowser.runtime.sendMessage(
-            {action: 'initiate-oauth'},
-            (response) => {
-                if (ksBrowser.runtime.lastError) {
-                    reject(buildRuntimeMessageError(ksBrowser.runtime.lastError.message));
-                    return;
-                }
-
-                if (!response) {
-                    reject(new Error('No response from background script'));
-                    return;
-                }
-
-                if (!response.success) {
-                    reject(new Error(response.error || 'OAuth failed'));
-                    return;
-                }
-
-                try {
-                    // Store OAuth data from background script response
-                    const tokenData = response.tokenData;
-                    if (!tokenData || !tokenData.access_token) {
-                        reject(new Error('Invalid token data received'));
-                        return;
-                    }
-
-                    setContentAuthDataFromTokenData(tokenData);
-
-                    resolve(tokenData.access_token);
-                } catch (error) {
-                    reject(new Error(`Failed to store OAuth data: ${error.message}`));
-                }
-            },
-        );
+        sendAuthMessage({action: 'initiate-oauth'}).then(resolve).catch(reject);
     });
 }
 
@@ -221,107 +182,31 @@ async function refreshToken(refreshTokenValue) {
 }
 
 /**
- * Request a valid OAuth token from the background script. The background script
- * owns extension-wide token storage and refresh coordination; the content script
- * mirrors returned token data into Onyx so the existing UI reacts to auth state.
- *
- * Concurrent callers share a single in-flight refresh.
- *
- * @param {boolean} forceRefresh Whether the background should refresh even when the token has not expired
- * @returns {Promise<string>} New access token
+ * Request a valid access token from the background script. The background owns
+ * credential storage and OAuth refresh coordination.
+ * @param {boolean} forceRefresh Whether the background should refresh an OAuth token
+ * @param {string} rejectedToken Token rejected by GitHub, if any
+ * @returns {Promise<Object>} Valid access token and authentication type
  */
-function refreshTokenViaBackground(forceRefresh = false) {
-    if (inflightRefreshPromise) {
-        return inflightRefreshPromise;
+function getValidGitHubToken(forceRefresh = false, rejectedToken = null) {
+    if (inflightTokenPromise && !forceRefresh) {
+        return inflightTokenPromise;
     }
 
-    inflightRefreshPromise = new Promise((resolve, reject) => {
-        if ((!ksBrowser) || !ksBrowser.runtime || !ksBrowser.runtime.sendMessage) {
-            reject(new Error('Browser runtime API not available'));
+    const tokenPromise = sendAuthMessage({
+        action: 'get-valid-github-token',
+        forceRefresh,
+        rejectedToken,
+    });
+    const sharedTokenPromise = tokenPromise.finally(() => {
+        if (inflightTokenPromise !== sharedTokenPromise) {
             return;
         }
-
-        const authData = Preferences.getAuthData();
-
-        ksBrowser.runtime.sendMessage(
-            {action: 'get-valid-oauth-token', authData, forceRefresh},
-            (response) => {
-                if (ksBrowser.runtime.lastError) {
-                    const runtimeError = buildRuntimeMessageError(ksBrowser.runtime.lastError.message);
-                    reject(runtimeError);
-                    return;
-                }
-
-                if (!response) {
-                    reject(new Error('No response from background script'));
-                    return;
-                }
-
-                if (!response.success) {
-                    if (response.isAuthError) {
-                        Preferences.clearAuth();
-                    }
-                    reject(new Error(response.error || 'Refresh failed'));
-                    return;
-                }
-
-                const tokenData = response.tokenData;
-                if (!tokenData || !tokenData.access_token || !tokenData.refresh_token) {
-                    Preferences.clearAuth();
-                    reject(new Error('Invalid token data received from background script'));
-                    return;
-                }
-
-                setContentAuthDataFromTokenData(tokenData);
-
-                resolve(tokenData.access_token);
-            },
-        );
+        inflightTokenPromise = null;
     });
+    inflightTokenPromise = sharedTokenPromise;
 
-    // Always clear the in-flight marker once settled
-    inflightRefreshPromise = inflightRefreshPromise.finally(() => {
-        inflightRefreshPromise = null;
-    });
-
-    return inflightRefreshPromise;
-}
-
-/**
- * Determine if token should be refreshed (expired or within skew)
- * @returns {boolean}
- */
-function shouldRefresh() {
-    const authData = Preferences.getAuthData();
-    if (!authData || authData.type !== 'oauth' || !authData.token || !authData.refreshToken) {
-        return false;
-    }
-    if (!authData.expiresAt) {
-        return false;
-    }
-    return (Date.now() + REFRESH_SKEW_MS) >= authData.expiresAt;
-}
-
-/**
- * Attempt to refresh token if needed. Safe to call often (startup, tab focus,
- * before API calls): it no-ops unless the token is expired or about to expire,
- * and concurrent calls share a single refresh.
- * @returns {Promise<void>}
- */
-async function refreshIfNeeded() {
-    try {
-        if (shouldRefresh()) {
-            await refreshTokenViaBackground();
-        }
-    } catch (e) {
-        if (e && e.isRuntimeReceiverUnavailable) {
-            return;
-        }
-
-        // eslint-disable-next-line no-console
-        console.warn('Token refresh failed', e);
-        throw e;
-    }
+    return inflightTokenPromise;
 }
 
 /**
@@ -455,41 +340,20 @@ function handleOAuthFlow() {
 }
 
 /**
- * Revoke OAuth token
+ * Background-owned credentials are cleared on sign out. The OAuth worker owns
+ * the application secret required for remote token revocation.
  * @returns {Promise<void>}
  */
-async function revokeToken() {
-    const token = Preferences.getGitHubToken();
-    if (!token || Preferences.getAuthType() !== 'oauth') {
-        return;
-    }
-
-    try {
-        await fetch(`https://api.github.com/applications/${GITHUB_OAUTH_CONFIG.CLIENT_ID}/token`, {
-            method: 'DELETE',
-            headers: {
-                Authorization: `token ${token}`,
-                Accept: 'application/vnd.github.v3+json',
-            },
-            body: JSON.stringify({
-                access_token: token,
-            }),
-        });
-    } finally {
-        await clearBackgroundAuth();
-        Preferences.clearAuth();
-    }
-}
+const revokeToken = clearGitHubAuth;
 
 export {
-    OAUTH_STORAGE_KEY,
-    clearOAuthAuth,
+    clearGitHubAuth,
+    getAuthState,
+    getValidGitHubToken,
     initiateOAuth,
     isOAuthAvailable,
+    migrateLegacyAuth,
     revokeToken,
     handleOAuthFlow,
-    refreshIfNeeded,
     refreshToken,
-    refreshTokenViaBackground,
-    wasTokenJustRefreshed,
 };

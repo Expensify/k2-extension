@@ -5,6 +5,8 @@ import ReactNativeOnyx from 'react-native-onyx';
 import ListIssues from './ListIssues';
 import FormPassword from './FormPassword';
 import ONYXKEYS from '../../ONYXKEYS';
+import * as Preferences from '../../lib/actions/Preferences';
+import * as GitHubOAuth from '../../lib/GitHubOAuth';
 
 /**
  * Display our dashboard with the list of issues
@@ -42,14 +44,21 @@ function showPasswordForm() {
 
 /**
  * Check authentication status and show appropriate interface
- * @param {Object} preferences - User preferences from Onyx (contains ghToken and auth)
+ * @param {Object} preferences - User preferences from Onyx, potentially containing legacy credentials
  */
-function checkAuthAndShowInterface(preferences) {
-    // Check if user is authenticated with either PAT or OAuth
-    const hasPatAuth = preferences && preferences.ghToken;
-    const hasOAuthAuth = preferences && preferences.auth && preferences.auth.type === 'oauth' && preferences.auth.token;
+async function checkAuthAndShowInterface(preferences) {
+    let legacyAuth = null;
+    if (preferences && preferences.auth) {
+        legacyAuth = preferences.auth;
+    } else if (preferences && preferences.ghToken) {
+        legacyAuth = {type: 'pat', token: preferences.ghToken};
+    }
+    const migration = await GitHubOAuth.migrateLegacyAuth(legacyAuth);
+    if (migration.migrated) {
+        Preferences.clearLegacyGitHubAuth();
+    }
 
-    if (!hasPatAuth && !hasOAuthAuth) {
+    if (!migration.authenticated) {
         showPasswordForm();
         return;
     }
@@ -70,14 +79,15 @@ export default () => ({
             keys: ONYXKEYS,
         });
 
-        let preferences = null;
-
         // Connect to preferences store
         ReactNativeOnyx.connect({
             key: ONYXKEYS.PREFERENCES,
             callback: (newPreferences) => {
-                preferences = newPreferences;
-                checkAuthAndShowInterface(preferences);
+                checkAuthAndShowInterface(newPreferences).catch((error) => {
+                    // eslint-disable-next-line no-console
+                    console.error('Unable to check GitHub authentication', error);
+                    showPasswordForm();
+                });
             },
         });
     },

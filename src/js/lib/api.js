@@ -1,7 +1,6 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import {Octokit} from 'octokit';
-import * as Preferences from './actions/Preferences';
 import * as GitHubOAuth from './GitHubOAuth';
 
 /**
@@ -14,25 +13,20 @@ import * as GitHubOAuth from './GitHubOAuth';
  * @returns {Function} auth function with a `hook` property (Octokit authStrategy contract)
  */
 function createDynamicAuth() {
-    const auth = async () => ({
-        type: 'token',
-        tokenType: 'oauth',
-        token: Preferences.getGitHubToken() || '',
-    });
+    const auth = async () => {
+        const authResponse = await GitHubOAuth.getValidGitHubToken();
+        return {
+            type: 'token',
+            tokenType: authResponse.authType,
+            token: authResponse.token,
+        };
+    };
 
     auth.hook = async (request, route, parameters) => {
-        // Proactively refresh the OAuth token when it's expired or about to
-        // expire, so requests rarely ever see a 401
-        await GitHubOAuth.refreshIfNeeded();
-
         const endpoint = request.endpoint.merge(route, parameters);
-
-        // getGitHubToken() returns the OAuth token when present and valid, and
-        // falls back to a legacy Personal Access Token otherwise
-        const tokenUsed = Preferences.getGitHubToken();
-        if (tokenUsed) {
-            endpoint.headers.authorization = `token ${tokenUsed}`;
-        }
+        const authResponse = await GitHubOAuth.getValidGitHubToken();
+        const tokenUsed = authResponse.token;
+        endpoint.headers.authorization = `token ${tokenUsed}`;
 
         try {
             return await request(endpoint);
@@ -41,43 +35,33 @@ function createDynamicAuth() {
                 throw error;
             }
 
-            const shouldClearOAuthAuth = Preferences.getAuthType() === 'oauth';
+            if (authResponse.authType !== 'oauth') {
+                throw error;
+            }
 
-            const clearOAuthAuthAndThrow = async () => {
-                if (shouldClearOAuthAuth) {
-                    await GitHubOAuth.clearOAuthAuth();
+            let retryAuthResponse;
+            try {
+                retryAuthResponse = await GitHubOAuth.getValidGitHubToken(true, tokenUsed);
+            } catch (refreshError) {
+                if (!refreshError.isRuntimeReceiverUnavailable) {
+                    await GitHubOAuth.clearGitHubAuth();
                 }
                 throw error;
-            };
+            }
 
-            let retryToken = Preferences.getGitHubToken();
-            if (!retryToken || retryToken === tokenUsed) {
-                // The stored token is the one that just failed, so rotate it.
-                // But if it was *just* rotated, another rotation won't fix the
-                // 401 and would burn the single-use refresh token chain.
-                if (GitHubOAuth.wasTokenJustRefreshed()) {
-                    await clearOAuthAuthAndThrow();
-                }
-                try {
-                    await GitHubOAuth.refreshTokenViaBackground(true);
-                } catch (refreshError) {
-                    // Refresh isn't possible (e.g. PAT user) or failed - surface the original 401
-                    await clearOAuthAuthAndThrow();
-                }
-                retryToken = Preferences.getGitHubToken();
-                if (!retryToken || retryToken === tokenUsed) {
-                    await clearOAuthAuthAndThrow();
-                }
+            if (!retryAuthResponse.token || retryAuthResponse.token === tokenUsed) {
+                await GitHubOAuth.clearGitHubAuth();
+                throw error;
             }
 
             // Retry once with the new token. `request` here is the bare inner
             // request, so no other hook can overwrite this header.
-            endpoint.headers.authorization = `token ${retryToken}`;
+            endpoint.headers.authorization = `token ${retryAuthResponse.token}`;
             try {
                 return await request(endpoint);
             } catch (retryError) {
                 if (retryError.status === 401) {
-                    await clearOAuthAuthAndThrow();
+                    await GitHubOAuth.clearGitHubAuth();
                 }
                 throw retryError;
             }
