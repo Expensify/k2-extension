@@ -124,7 +124,19 @@ function showMinimizedComment(wrapper) {
     comment.appendChild(minimized);
 }
 
-function lookupNodeID(commentType, commentID) {
+function getCommentNodeID(wrapper) {
+    const comment = getCommentContainer(wrapper);
+    const menu = comment && comment.querySelector('details-menu[src*="gid="]');
+    const source = menu && menu.getAttribute('src');
+    return source ? new URL(source, window.location.origin).searchParams.get('gid') : '';
+}
+
+function lookupNodeID(commentType, commentID, wrapper) {
+    const nodeID = getCommentNodeID(wrapper);
+    if (nodeID) {
+        return Promise.resolve(nodeID);
+    }
+
     if (commentType === 'pullrequestreview') {
         return API.getPullRequestReviewNodeID(commentID);
     }
@@ -194,7 +206,7 @@ async function minimizeComment(event) {
         }
     }
     try {
-        const nodeID = await lookupNodeID(commentType, commentID);
+        const nodeID = await lookupNodeID(commentType, commentID, wrapper);
         await API.minimizeComment(nodeID, classifier);
         showMinimizedComment(wrapper);
     } catch (error) {
