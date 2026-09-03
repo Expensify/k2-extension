@@ -3,7 +3,6 @@ import ReactNativeOnyx, { useOnyx } from "react-native-onyx";
 import _ from "underscore";
 import { ActionList, ActionMenu, Button, ButtonGroup, Heading, Stack, Text } from "@primer/react";
 import {
-    IssueOpenedIcon,
     ProjectIcon,
     SignOutIcon,
     TriangleDownIcon,
@@ -81,8 +80,8 @@ function DashboardHeader() {
                     <ButtonGroup>
                         <Button
                             as="a"
+                            className="k2-new-issue-button"
                             href={selectedDestination.url}
-                            leadingVisual={IssueOpenedIcon}
                             rel="noopener noreferrer"
                             target="_blank"
                             variant="primary"

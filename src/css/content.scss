@@ -63,7 +63,7 @@ $color-dark-yellow: #DAA520;
 }
 
 .k2-dashboard-icon {
-    margin-top: 5px;
+    margin-top: 10px;
 }
 
 .k2-dashboard {
@@ -202,6 +202,10 @@ $color-dark-yellow: #DAA520;
 
 .k2-dashboard-actions {
     margin-left: auto;
+}
+
+.k2-new-issue-button {
+    min-width: 168px;
 }
 
 .k2-dashboard-error {
