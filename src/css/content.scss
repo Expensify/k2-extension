@@ -366,15 +366,14 @@ $color-dark-yellow: #DAA520;
 .k2-type-task { --k2-segment-selected: #9c5959; }
 .k2-type-newfeature { --k2-segment-selected: #a52a2a; }
 
-.k2-colored-segment[aria-pressed="true"] {
+.k2-colored-segment[aria-pressed="true"] .segmentedControl-content {
     background: var(--k2-segment-selected) !important;
     border-color: var(--k2-segment-selected) !important;
     color: var(--fgColor-onEmphasis) !important;
 }
 
-.k2-colored-segment[aria-pressed="true"] .segmentedControl-content,
 .k2-colored-segment[aria-pressed="true"] .segmentedControl-text {
-    color: inherit !important;
+    color: var(--fgColor-onEmphasis) !important;
     -webkit-text-fill-color: currentColor;
 }
 .k2-extension-qa-guidelines-toggle-container {
