@@ -244,12 +244,15 @@ $color-dark-yellow: #DAA520;
     border: 0 !important;
     position: relative;
 
+    // Keep the label in the normal flow. An earlier version set
+    // position: absolute with left: 106%, which put the label past the right
+    // edge of the document and made every issue page scroll sideways.
     label {
-        color: #eee;
-        font-size: 22px;
-        left: 106%;
-        top: 12px;
-        position: absolute;
+        color: var(--fgColor-muted, #656d76);
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        margin: 8px 0 4px;
     }
 }
 .panel {
