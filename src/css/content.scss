@@ -244,7 +244,7 @@ $color-dark-yellow: #DAA520;
     border: 0 !important;
     position: relative;
 
-        // Keep the label in the normal flow. An earlier version set
+    // Keep the label in the normal flow. An earlier version set
     // position: absolute with left: 106%, which put the label past the right
     // edge of the document and made every issue page scroll sideways.
     label {
@@ -253,7 +253,6 @@ $color-dark-yellow: #DAA520;
         font-size: 12px;
         font-weight: 600;
         margin: 8px 0 4px;
-    }
     }
 }
 .panel {
