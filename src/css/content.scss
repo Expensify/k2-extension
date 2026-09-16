@@ -358,14 +358,46 @@ $color-dark-yellow: #DAA520;
 }
 
 .panel-title-checkbox {
+  display: inline-block;
   font-size: 12px;
   font-weight: normal;
   margin-left: ($gutter * 2);
+  white-space: nowrap;
 
   input[type=checkbox] {
     margin-right: 4px;
     vertical-align: middle;
   }
+}
+
+.pr-issue-group {
+  margin-top: ($gutter * 2);
+
+  .panel-item {
+    border-left: 2px solid $color-neutral-light;
+    margin-left: ($gutter * 2);
+  }
+}
+
+.pr-issue-group-title {
+  align-items: baseline;
+  background-color: $color-neutral-lighter;
+  display: flex;
+  font-size: inherit;
+  gap: ($gutter * 2);
+  justify-content: space-between;
+  margin: 0;
+  padding: $gutter ($gutter * 2);
+
+  a {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.pr-issue-group-count {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .panel-item {
