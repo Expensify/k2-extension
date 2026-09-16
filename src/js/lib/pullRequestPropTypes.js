@@ -13,6 +13,15 @@ export default PropTypes.shape({
     /** The number of the PR */
     number: PropTypes.number,
 
+    /** The issues addressed by the PR */
+    linkedIssues: PropTypes.arrayOf(PropTypes.shape({
+        /** The title of the linked issue */
+        title: PropTypes.string.isRequired,
+
+        /** The URL to the linked issue */
+        url: PropTypes.string.isRequired,
+    })),
+
     /** The URL to the PR */
     url: PropTypes.string.isRequired,
 
