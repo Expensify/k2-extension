@@ -22,17 +22,22 @@ const propTypes = {
 
     /** Whether to flag this PR when it has sat waiting on review too long */
     showStallNudge: PropTypes.bool,
+
+    /** Whether the repo tag also shows the number of the PR */
+    shouldShowNumber: PropTypes.bool,
 };
 const defaultProps = {
     data: null,
     pr: null,
     dispatchAction: null,
     showStallNudge: false,
+    shouldShowNumber: false,
 };
 
 function ListItemPull(props) {
     const pr = props.pr || props.data;
-    const repoPrefix = pr.repository ? `[${pr.repository.name}]` : '';
+    const numberTag = props.shouldShowNumber && pr.number ? ` #${pr.number}` : '';
+    const repoPrefix = pr.repository ? `[${pr.repository.name}${numberTag}]` : '';
     const isAppPR = pr.repository && pr.repository.name === 'App';
 
     if (!pr.id) {

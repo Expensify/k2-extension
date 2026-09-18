@@ -14,7 +14,7 @@ import ListIssuesHotPicks from './ListIssuesHotPicks';
 import ListAgentDrafts from './ListAgentDrafts';
 
 const propTypes = {
-    /** The number of seconds to refresh the list of issues */
+    /** The number of milliseconds to refresh the list of issues */
     pollInterval: PropTypes.number.isRequired,
 };
 

@@ -4,6 +4,43 @@ import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
 import CONST from '../../CONST';
 import ActionThrottle from '../ActionThrottle';
+import getPullRequestIssueURLs from '../getPullRequestIssueURLs';
+
+/**
+ * Resolve each issue once, even when several PRs address it.
+ *
+ * @param {Object} prs
+ * @returns {Promise<Object>}
+ */
+function getLinkedIssues(prs) {
+    const issueURLsByPR = _.mapObject(prs, getPullRequestIssueURLs);
+    const issuesByURL = {};
+    _.each(prs, (pr) => {
+        _.each(pr.closingIssuesReferences && pr.closingIssuesReferences.nodes, (issue) => {
+            issuesByURL[issue.url.toLowerCase()] = issue;
+        });
+    });
+
+    const issueURLs = _.uniq(_.flatten(_.values(issueURLsByPR)));
+    return Promise.all(_.map(issueURLs, (url) => {
+        if (issuesByURL[url]) {
+            return Promise.resolve();
+        }
+
+        return API.getIssueByURL(url)
+            .catch(() => {
+                // Keep the issue link usable when its title is unavailable, including for private issues.
+                const [, owner, repo, , number] = new URL(url).pathname.split('/');
+                return {url, title: `${owner}/${repo} #${number}`};
+            })
+            .then((issue) => {
+                issuesByURL[url] = issue;
+            });
+    })).then(() => _.mapObject(prs, pr => ({
+        ...pr,
+        linkedIssues: _.map(issueURLsByPR[pr.id], url => issuesByURL[url]),
+    })));
+}
 
 /**
  * Compute the overall check conclusion for a PR from the statusCheckRollup contexts
@@ -92,13 +129,16 @@ function getAssigned() {
             prs[authorPr.id] = authorPr;
         });
 
-        // Add check conclusions from GraphQL data (no extra API calls needed)
-        const prsWithChecks = addCheckConclusionsToPRs(prs);
+        return getLinkedIssues(prs);
+    })
+        .then((prsWithIssues) => {
+            // Add check conclusions from GraphQL data (no extra API calls needed)
+            const prsWithChecks = addCheckConclusionsToPRs(prsWithIssues);
 
-        // Always use set() here because there is no way to remove issues from Onyx
-        // that get closed and are no longer assigned
-        ReactNativeOnyx.set(ONYXKEYS.PRS.ASSIGNED, prsWithChecks);
-    })));
+            // Always use set() here because there is no way to remove issues from Onyx
+            // that get closed and are no longer assigned
+            ReactNativeOnyx.set(ONYXKEYS.PRS.ASSIGNED, prsWithChecks);
+        })));
 }
 
 function getReviewing() {

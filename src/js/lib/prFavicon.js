@@ -10,7 +10,10 @@ import ONYXKEYS from '../ONYXKEYS';
 // would mean fetching, decoding and re-encoding it, and a tab falls back to the browser's default globe if
 // any step of that chain fails.
 const FAVICON_LINK_SELECTOR = 'link.js-site-favicon';
-const FAILURE_FAVICON_REGEX = /-failure(\.\w+)(\?.*)?$/;
+
+// GitHub appends "-dark" to the state when the browser is in dark mode (favicon-failure-dark.svg), so the
+// theme suffix has to survive the swap along with the extension.
+const FAILURE_FAVICON_REGEX = /-failure((?:-dark)?\.\w+)(\?.*)?$/;
 
 // Holds the href GitHub had set, so it can be put back exactly rather than rebuilt.
 const REWRITTEN_ATTRIBUTE = 'data-k2-original-favicon';

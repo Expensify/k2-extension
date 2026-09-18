@@ -24,6 +24,21 @@ const propTypes = {
 
     /** Extra button rendered in the title's actions area */
     extraAction: PropTypes.node,
+
+    /** Checkboxes to show next to the title */
+    checkboxes: PropTypes.arrayOf(PropTypes.shape({
+        /** The id and the name of the input */
+        id: PropTypes.string.isRequired,
+
+        /** The text to show next to the input */
+        label: PropTypes.string.isRequired,
+
+        /** Whether the checkbox is checked */
+        isChecked: PropTypes.bool,
+
+        /** Callback when the user toggles the checkbox */
+        onChange: PropTypes.func.isRequired,
+    })),
 };
 
 const defaultProps = {
@@ -31,6 +46,7 @@ const defaultProps = {
     onOpenAll: null,
     items: null,
     extraAction: null,
+    checkboxes: [],
 };
 
 function Title(props) {
@@ -66,7 +82,21 @@ function Title(props) {
     return (
         <div>
             <h3 className="panel-title panel-title-with-actions">
-                <span>{`${props.text} ${props.count !== null ? `(${props.count})` : ''}`}</span>
+                <span>
+                    {`${props.text} ${props.count !== null ? `(${props.count})` : ''}`}
+                    {_.map(props.checkboxes, checkbox => (
+                        <label key={checkbox.id} className="panel-title-checkbox" htmlFor={checkbox.id}>
+                            <input
+                                type="checkbox"
+                                id={checkbox.id}
+                                name={checkbox.id}
+                                checked={!!checkbox.isChecked}
+                                onChange={checkbox.onChange}
+                            />
+                            {checkbox.label}
+                        </label>
+                    ))}
+                </span>
                 {showActions && (
                     <span
                         style={{

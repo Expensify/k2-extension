@@ -4,6 +4,7 @@ import ToggleTimestamps from '../../../module/ToggleTimestamps/ToggleTimestamps'
 import WorkflowMenu from '../../../module/WorkflowMenu/WorkflowMenu';
 import ToggleAutoLoadMore from '../../../module/ToggleAutoLoadMore/ToggleAutoLoadMore';
 import * as autoLoadMoreComments from '../../autoLoadMoreComments';
+import hideCommentButtons from '../../hideCommentButtons';
 import * as commitCheckStatuses from '../../commitCheckStatuses';
 import * as prFavicon from '../../prFavicon';
 
@@ -230,6 +231,7 @@ export default function () {
         setInterval(() => PrPage.renderTranslationWorkflowButtons(), 2000);
 
         autoLoadMoreComments.initAutoLoadMoreComments();
+        hideCommentButtons();
         commitCheckStatuses.initCommitCheckStatuses();
         prFavicon.initPrFavicon();
     };
