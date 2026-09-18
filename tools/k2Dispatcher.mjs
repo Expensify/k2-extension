@@ -203,12 +203,88 @@ function sendJSON(response, statusCode, payload) {
     response.end(JSON.stringify(payload));
 }
 
+const execTokenPath = path.join(baseDir, 'exec-token');
+if (!existsSync(execTokenPath)) {
+    writeFileSync(execTokenPath, [...crypto.getRandomValues(new Uint8Array(24))].map(b => b.toString(16).padStart(2, '0')).join(''));
+}
+const execToken = readFileSync(execTokenPath, 'utf8').trim();
+const rewritesFile = '/Users/georgia/scratch/expensidev/issues/rewrites.jsonl';
+
+function ghSync(args, input) {
+    const r = spawnSync('gh', args, {input, encoding: 'utf8'});
+    return {ok: r.status === 0, out: (r.stdout || '').trim(), err: (r.stderr || '').trim()};
+}
+
+function parseIssueUrl(url) {
+    const m = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/(issues|pull)\/(\d+)$/.exec(url);
+    return m && {owner: m[1], repo: m[2], num: m[4]};
+}
+
+function handleExecute(request, response) {
+    if (request.headers['x-exec-token'] !== execToken) {
+        sendJSON(response, 403, {error: 'bad token'});
+        return;
+    }
+    readBody(request, (body) => {
+        let p = null;
+        try { p = JSON.parse(body); } catch (e) { p = null; }
+        const ref = p && typeof p.url === 'string' && isGitHubUrl(p.url) && parseIssueUrl(p.url);
+        if (!ref || typeof p.body !== 'string') {
+            sendJSON(response, 400, {error: 'bad payload'});
+            return;
+        }
+        if (p.freshAfter) {
+            const gql = `query { repository(owner:"${ref.owner}", name:"${ref.repo}") { issueOrPullRequest(number:${ref.num}) {`
+                + ' ... on Issue { comments(last:1){nodes{author{login} createdAt}} }'
+                + ' ... on PullRequest { comments(last:1){nodes{author{login} createdAt}} } } } }';
+            const fresh = ghSync(['api', 'graphql', '-f', `query=${gql}`]);
+            if (fresh.ok) {
+                try {
+                    const node = JSON.parse(fresh.out).data.repository.issueOrPullRequest.comments.nodes[0];
+                    if (node && node.createdAt > p.freshAfter) {
+                        sendJSON(response, 409, {error: 'stale', latestBy: node.author && node.author.login, latestAt: node.createdAt});
+                        return;
+                    }
+                } catch (e) { /* freshness unknown, proceed */ }
+            }
+        }
+        const repoFlag = `${ref.owner}/${ref.repo}`;
+        const results = [];
+        if (p.body.trim()) {
+            results.push({action: 'comment', ...ghSync(['issue', 'comment', ref.num, '-R', repoFlag, '--body-file', '-'], p.body)});
+        }
+        for (const a of (Array.isArray(p.actions) ? p.actions : [])) {
+            if (a.type === 'close') {
+                results.push({action: 'close', ...ghSync(['issue', 'close', ref.num, '-R', repoFlag])});
+            } else if (a.type === 'assign' && typeof a.user === 'string' && a.user) {
+                results.push({action: `assign ${a.user}`, ...ghSync(['issue', 'edit', ref.num, '-R', repoFlag, '--add-assignee', a.user])});
+            } else if (a.type === 'labels') {
+                const args = ['issue', 'edit', ref.num, '-R', repoFlag];
+                for (const l of (a.add || [])) args.push('--add-label', l);
+                for (const l of (a.remove || [])) args.push('--remove-label', l);
+                if (args.length > 5) results.push({action: 'labels', ...ghSync(args)});
+            }
+        }
+        if (typeof p.draft === 'string' && p.draft.trim() && p.body.trim() && p.draft !== p.body) {
+            appendFileSync(rewritesFile, `${JSON.stringify({url: p.url, draft: p.draft, posted: p.body, at: new Date().toISOString()})}\n`);
+        }
+        const failed = results.filter(r => !r.ok);
+        console.log(`[execute] ${p.url} ${results.map(r => r.action + (r.ok ? ' ok' : ' FAILED')).join(', ')}`);
+        sendJSON(response, failed.length ? 500 : 200, {results: results.map(r => ({action: r.action, ok: r.ok, err: r.ok ? undefined : r.err.slice(0, 300)}))});
+    });
+}
+
 const server = http.createServer((request, response) => {
     response.setHeader('Access-Control-Allow-Origin', '*');
-    response.setHeader('Access-Control-Allow-Headers', 'content-type');
+    response.setHeader('Access-Control-Allow-Headers', 'content-type, x-exec-token');
     if (request.method === 'OPTIONS') {
         response.writeHead(204);
         response.end();
+        return;
+    }
+
+    if (request.method === 'POST' && request.url === '/execute') {
+        handleExecute(request, response);
         return;
     }
 
