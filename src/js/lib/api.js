@@ -491,6 +491,7 @@ function getIssues(assignee = 'none', labels = []) {
     query += ' repo:Expensify/App';
     query += ' repo:Expensify/VendorTasks';
     query += ' repo:Expensify/Insiders';
+    query += ' repo:Expensify/Alteryx-Data';
     query += ' repo:Expensify/Expensify-Guides';
     query += ' repo:Expensify/react-native-onyx';
 
