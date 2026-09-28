@@ -1,5 +1,6 @@
 import React from 'react';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 import pullRequestPropTypes from '../../lib/pullRequestPropTypes';
 
 const propTypes = {
@@ -10,15 +11,20 @@ const propTypes = {
 
     /** Data about the pull request being displayed */
     pr: pullRequestPropTypes,
+
+    /** Whether the repo tag also shows the number of the PR */
+    shouldShowNumber: PropTypes.bool,
 };
 const defaultProps = {
     data: null,
     pr: null,
+    shouldShowNumber: false,
 };
 
 function ListItemPull(props) {
     const pr = props.pr || props.data;
-    const repoPrefix = pr.repository ? `[${pr.repository.name}]` : '';
+    const numberTag = props.shouldShowNumber && pr.number ? ` #${pr.number}` : '';
+    const repoPrefix = pr.repository ? `[${pr.repository.name}${numberTag}]` : '';
 
     if (!pr.id) {
         return null;

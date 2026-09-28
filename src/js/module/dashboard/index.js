@@ -10,6 +10,9 @@ import ONYXKEYS from '../../ONYXKEYS';
  * Display our dashboard with the list of issues
  */
 function showDashboard() {
+    // Clean up password form
+    $('.repository-content').children('.passwordform').remove();
+
     if (!$('.repository-content').children('.k2dashboard').length) {
         $('.repository-content').append('<div class="k2dashboard">');
     }
@@ -24,12 +27,34 @@ function showDashboard() {
  * @date 2015-06-14
  */
 function showPasswordForm() {
+    // Clean up dashboard
+    $('.repository-content').children('.k2dashboard').remove();
+
     if (!$('.repository-content').children('.passwordform').length) {
-        $('.repository-content').append('<div class="passwordform">');
+        $('.repository-content').append('<div class="passwordform k2-passwordform">');
     }
+
+    $('.repository-content').children('.passwordform').addClass('k2-passwordform');
 
     const root = createRoot($('.passwordform').show()[0]);
     root.render(<FormPassword onFinished={showDashboard} />);
+}
+
+/**
+ * Check authentication status and show appropriate interface
+ * @param {Object} preferences - User preferences from Onyx (contains ghToken and auth)
+ */
+function checkAuthAndShowInterface(preferences) {
+    // Check if user is authenticated with either PAT or OAuth
+    const hasPatAuth = preferences && preferences.ghToken;
+    const hasOAuthAuth = preferences && preferences.auth && preferences.auth.type === 'oauth' && preferences.auth.token;
+
+    if (!hasPatAuth && !hasOAuthAuth) {
+        showPasswordForm();
+        return;
+    }
+
+    showDashboard();
 }
 
 export default () => ({
@@ -45,18 +70,14 @@ export default () => ({
             keys: ONYXKEYS,
         });
 
-        const preferencesOnyxConnection = ReactNativeOnyx.connect({
-            key: 'preferences',
-            callback: (preferences) => {
-                ReactNativeOnyx.disconnect(preferencesOnyxConnection);
+        let preferences = null;
 
-                // If there is a `preferences` object, but it doesn't have a ghToken, have the user enter one
-                if (!preferences || !preferences.ghToken) {
-                    showPasswordForm();
-                    return;
-                }
-
-                showDashboard();
+        // Connect to preferences store
+        ReactNativeOnyx.connect({
+            key: ONYXKEYS.PREFERENCES,
+            callback: (newPreferences) => {
+                preferences = newPreferences;
+                checkAuthAndShowInterface(preferences);
             },
         });
     },

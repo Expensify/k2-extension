@@ -1,0 +1,495 @@
+import * as Preferences from './actions/Preferences';
+import ksBrowser from './browser';
+
+/**
+ * GitHub OAuth Configuration
+ *
+ * The OAuth flow is handled by the Cloudflare Worker OAuth service.
+ * Only the public CLIENT_ID is kept in the extension; the secret lives on the worker.
+ */
+
+const GITHUB_OAUTH_CONFIG = {
+    CLIENT_ID: 'Iv23lijMLQsnRac742az',
+    APP_OAUTH_URL: 'https://ksv2.exfy.io',
+};
+
+const OAUTH_STORAGE_KEY = 'k2OAuthAuth';
+
+// Refresh window (ms) before expiry to proactively refresh
+const REFRESH_SKEW_MS = 5 * 60 * 1000;
+
+// Tracks an in-flight refresh so concurrent callers share a single request.
+// GitHub App refresh tokens are single-use, so two parallel refreshes would
+// invalidate the session.
+let inflightRefreshPromise = null;
+
+// Timestamp of the last successful token issuance (sign-in or refresh). Used to
+// detect "the token we just got is being rejected" - in that case another
+// rotation won't help and would only burn the refresh token chain.
+let lastTokenIssuedAt = 0;
+const TOKEN_JUST_ISSUED_MS = 30 * 1000;
+
+/**
+ * Whether a runtime message failed because the background receiver is not available.
+ * This happens transiently when an unpacked/temporary extension is reloaded
+ * while an old content script is still alive on the page.
+ * @param {string} message
+ * @returns {boolean}
+ */
+function isRuntimeReceiverUnavailableMessage(message) {
+    return !!message
+        && (
+            message.indexOf('Receiving end does not exist') !== -1
+            || message.indexOf('Could not establish connection') !== -1
+            || message.indexOf('Extension context invalidated') !== -1
+        );
+}
+
+/**
+ * Build an error for runtime message failures, tagging expected no-receiver cases.
+ * @param {string} message
+ * @returns {Error}
+ */
+function buildRuntimeMessageError(message) {
+    const error = new Error(message);
+    error.isRuntimeReceiverUnavailable = isRuntimeReceiverUnavailableMessage(message);
+    return error;
+}
+
+/**
+ * Whether a token was issued (via sign-in or refresh) within the last few seconds
+ * @returns {boolean}
+ */
+function wasTokenJustRefreshed() {
+    return (Date.now() - lastTokenIssuedAt) < TOKEN_JUST_ISSUED_MS;
+}
+
+/**
+ * Persist token data in the content-script Onyx mirror.
+ * @param {Object} tokenData
+ */
+function setContentAuthDataFromTokenData(tokenData) {
+    Preferences.setAuthData({
+        type: 'oauth',
+        token: tokenData.access_token,
+        refreshToken: tokenData.refresh_token,
+        expiresAt: tokenData.expires_in ? Date.now() + (tokenData.expires_in * 1000) : null,
+    });
+    lastTokenIssuedAt = Date.now();
+}
+
+/**
+ * Best-effort request to clear the background OAuth store.
+ * @returns {Promise<void>}
+ */
+function clearBackgroundAuth() {
+    return new Promise((resolve) => {
+        if ((!ksBrowser) || !ksBrowser.runtime || !ksBrowser.runtime.sendMessage) {
+            resolve();
+            return;
+        }
+
+        ksBrowser.runtime.sendMessage({action: 'clear-oauth'}, () => {
+            resolve();
+        });
+    });
+}
+
+/**
+ * Clear OAuth auth from both the background store and the content-script UI mirror.
+ * @returns {Promise<void>}
+ */
+async function clearOAuthAuth() {
+    await clearBackgroundAuth();
+    Preferences.clearAuth();
+}
+
+/**
+ * Initiate OAuth flow with GitHub using background script
+ * @returns {Promise<string>} OAuth token
+ */
+function initiateOAuth() {
+    return new Promise((resolve, reject) => {
+        if ((!ksBrowser) || !ksBrowser.runtime) {
+            reject(new Error('Chrome runtime API not available'));
+            return;
+        }
+
+        // Send message to background script to handle OAuth
+        ksBrowser.runtime.sendMessage(
+            {action: 'initiate-oauth'},
+            (response) => {
+                if (ksBrowser.runtime.lastError) {
+                    reject(buildRuntimeMessageError(ksBrowser.runtime.lastError.message));
+                    return;
+                }
+
+                if (!response) {
+                    reject(new Error('No response from background script'));
+                    return;
+                }
+
+                if (!response.success) {
+                    reject(new Error(response.error || 'OAuth failed'));
+                    return;
+                }
+
+                try {
+                    // Store OAuth data from background script response
+                    const tokenData = response.tokenData;
+                    if (!tokenData || !tokenData.access_token) {
+                        reject(new Error('Invalid token data received'));
+                        return;
+                    }
+
+                    setContentAuthDataFromTokenData(tokenData);
+
+                    resolve(tokenData.access_token);
+                } catch (error) {
+                    reject(new Error(`Failed to store OAuth data: ${error.message}`));
+                }
+            },
+        );
+    });
+}
+
+/**
+ * Check if OAuth is available (browser extension context)
+ * @returns {boolean} Whether OAuth is available
+ */
+function isOAuthAvailable() {
+    return !!(ksBrowser && ksBrowser.runtime && ksBrowser.runtime.sendMessage);
+}
+
+/**
+ * Refresh the OAuth token using the refresh token. This is a pure network call:
+ * it does NOT touch storage, because it runs in the background script context,
+ * which does not share an Onyx store with the content script. The caller (content
+ * script) is responsible for persisting the returned token data.
+ *
+ * Errors are tagged with `isAuthError: true` when the refresh token itself was
+ * rejected (i.e. the user must re-authenticate), as opposed to transient
+ * network failures.
+ *
+ * @param {string} refreshTokenValue - The refresh token to use
+ * @returns {Promise<Object>} Full token data ({access_token, refresh_token, expires_in})
+ */
+async function refreshToken(refreshTokenValue) {
+    if (!refreshTokenValue) {
+        const error = new Error('No refresh token provided');
+        error.isAuthError = true;
+        throw error;
+    }
+
+    let resp;
+    try {
+        resp = await fetch(`${GITHUB_OAUTH_CONFIG.APP_OAUTH_URL}/oauth/github/refresh`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                refresh_token: refreshTokenValue,
+            }),
+        });
+    } catch (networkError) {
+        // Network failure (offline, laptop just woke, etc.) - NOT an auth error
+        throw new Error(`Refresh request failed: ${networkError.message}`);
+    }
+
+    if (!resp.ok) {
+        const error = new Error(`Refresh failed: ${resp.status} ${resp.statusText}`);
+
+        // Only explicit invalid-token responses should clear credentials. A 403 or 429 can be a transient WAF or rate-limit response.
+        error.isAuthError = resp.status === 400 || resp.status === 401;
+        throw error;
+    }
+
+    const data = await resp.json();
+    if (data && data.error) {
+        // GitHub returns OAuth errors (e.g. bad_refresh_token) in the response body
+        const error = new Error(`Refresh failed: ${data.error_description || data.error}`);
+        error.isAuthError = true;
+        throw error;
+    }
+    if (!data || !data.access_token || !data.refresh_token) {
+        throw new Error('Invalid refresh response: missing access_token or refresh_token');
+    }
+
+    return data;
+}
+
+/**
+ * Request a valid OAuth token from the background script. The background script
+ * owns extension-wide token storage and refresh coordination; the content script
+ * mirrors returned token data into Onyx so the existing UI reacts to auth state.
+ *
+ * Concurrent callers share a single in-flight refresh.
+ *
+ * @param {boolean} forceRefresh Whether the background should refresh even when the token has not expired
+ * @returns {Promise<string>} New access token
+ */
+function refreshTokenViaBackground(forceRefresh = false) {
+    if (inflightRefreshPromise) {
+        return inflightRefreshPromise;
+    }
+
+    inflightRefreshPromise = new Promise((resolve, reject) => {
+        if ((!ksBrowser) || !ksBrowser.runtime || !ksBrowser.runtime.sendMessage) {
+            reject(new Error('Browser runtime API not available'));
+            return;
+        }
+
+        const authData = Preferences.getAuthData();
+
+        ksBrowser.runtime.sendMessage(
+            {action: 'get-valid-oauth-token', authData, forceRefresh},
+            (response) => {
+                if (ksBrowser.runtime.lastError) {
+                    const runtimeError = buildRuntimeMessageError(ksBrowser.runtime.lastError.message);
+                    reject(runtimeError);
+                    return;
+                }
+
+                if (!response) {
+                    reject(new Error('No response from background script'));
+                    return;
+                }
+
+                if (!response.success) {
+                    if (response.isAuthError) {
+                        Preferences.clearAuth();
+                    }
+                    reject(new Error(response.error || 'Refresh failed'));
+                    return;
+                }
+
+                const tokenData = response.tokenData;
+                if (!tokenData || !tokenData.access_token || !tokenData.refresh_token) {
+                    Preferences.clearAuth();
+                    reject(new Error('Invalid token data received from background script'));
+                    return;
+                }
+
+                setContentAuthDataFromTokenData(tokenData);
+
+                resolve(tokenData.access_token);
+            },
+        );
+    });
+
+    // Always clear the in-flight marker once settled
+    inflightRefreshPromise = inflightRefreshPromise.finally(() => {
+        inflightRefreshPromise = null;
+    });
+
+    return inflightRefreshPromise;
+}
+
+/**
+ * Determine if token should be refreshed (expired or within skew)
+ * @returns {boolean}
+ */
+function shouldRefresh() {
+    const authData = Preferences.getAuthData();
+    if (!authData || authData.type !== 'oauth' || !authData.token || !authData.refreshToken) {
+        return false;
+    }
+    if (!authData.expiresAt) {
+        return false;
+    }
+    return (Date.now() + REFRESH_SKEW_MS) >= authData.expiresAt;
+}
+
+/**
+ * Attempt to refresh token if needed. Safe to call often (startup, tab focus,
+ * before API calls): it no-ops unless the token is expired or about to expire,
+ * and concurrent calls share a single refresh.
+ * @returns {Promise<void>}
+ */
+async function refreshIfNeeded() {
+    try {
+        if (shouldRefresh()) {
+            await refreshTokenViaBackground();
+        }
+    } catch (e) {
+        if (e && e.isRuntimeReceiverUnavailable) {
+            return;
+        }
+
+        // eslint-disable-next-line no-console
+        console.warn('Token refresh failed', e);
+        throw e;
+    }
+}
+
+/**
+ * Extract error from callback URL
+ * @param {string} url - Callback URL from OAuth flow
+ * @returns {string|null} Error message
+ */
+function extractErrorFromUrl(url) {
+    const urlParams = new URLSearchParams(new URL(url).search);
+    const error = urlParams.get('error');
+    const errorDescription = urlParams.get('error_description');
+    return error ? `${error}: ${errorDescription || 'Unknown error'}` : null;
+}
+
+/**
+ * Extract query param value from a URL
+ * @param {string} url
+ * @param {string} key
+ * @returns {string|null}
+ */
+function getQueryParam(url, key) {
+    const urlParams = new URLSearchParams(new URL(url).search);
+    return urlParams.get(key);
+}
+
+/**
+ * Exchange code for token via worker without relying on cookies
+ * @param {string} code\
+ * @param {string} redirectUri
+ * @returns {Promise<Object>} Token data
+ */
+async function exchangeCodeViaWorker(code, redirectUri) {
+    try {
+        const response = await fetch(`${GITHUB_OAUTH_CONFIG.APP_OAUTH_URL}/oauth/github/exchange`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                code,
+                redirect_uri: redirectUri,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Worker exchange failed: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        if (!data || data.error) {
+            const detail = data && (data.error_description || data.detail || data.error);
+            throw new Error(`OAuth error: ${detail || 'Unknown error'}`);
+        }
+
+        if (!data.access_token || !data.refresh_token) {
+            throw new Error('No access token or refresh token received from worker');
+        }
+
+        return {...data};
+    } catch (error) {
+        throw new Error(`Token retrieval failed: ${error.message}`);
+    }
+}
+
+/**
+ * Handle OAuth flow using the browser identity API
+ * @returns {Promise<Object>} OAuth result
+ */
+function handleOAuthFlow() {
+    return new Promise((resolve, reject) => {
+        if (!ksBrowser.identity || !ksBrowser.identity.launchWebAuthFlow || !ksBrowser.identity.getRedirectURL) {
+            reject(new Error('Browser identity API not available'));
+            return;
+        }
+
+        // Compute extension redirect URL for this browser
+        const redirectUri = ksBrowser.identity.getRedirectURL();
+
+        // Generate state and construct authorize URL
+        const state = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+        const authorize = new URL('https://github.com/login/oauth/authorize');
+        authorize.searchParams.set('client_id', GITHUB_OAUTH_CONFIG.CLIENT_ID);
+        authorize.searchParams.set('redirect_uri', redirectUri);
+        authorize.searchParams.set('state', state);
+        authorize.searchParams.set('allow_signup', 'true');
+
+        ksBrowser.identity.launchWebAuthFlow({
+            url: authorize.toString(),
+            interactive: true,
+        }, (redirectedTo) => {
+            // Handle errors from the identity flow
+            if (ksBrowser.runtime && ksBrowser.runtime.lastError) {
+                reject(new Error(ksBrowser.runtime.lastError.message));
+                return;
+            }
+            if (!redirectedTo) {
+                reject(new Error('No redirect URL returned'));
+                return;
+            }
+
+            // Check for error in redirect
+            const err = extractErrorFromUrl(redirectedTo);
+            if (err) {
+                reject(new Error(`OAuth error: ${err}`));
+                return;
+            }
+
+            // Validate state then exchange code via worker endpoint
+            const returnedState = getQueryParam(redirectedTo, 'state');
+            if (!returnedState || returnedState !== state) {
+                reject(new Error('Invalid OAuth state'));
+                return;
+            }
+            const code = getQueryParam(redirectedTo, 'code');
+            if (!code) {
+                reject(new Error('No authorization code received'));
+                return;
+            }
+
+            exchangeCodeViaWorker(code, redirectUri)
+                .then((tokenData) => {
+                    resolve({success: true, tokenData});
+                })
+                .catch((tokenError) => {
+                    reject(new Error(`${tokenError.message}`));
+                });
+        });
+    });
+}
+
+/**
+ * Revoke OAuth token
+ * @returns {Promise<void>}
+ */
+async function revokeToken() {
+    const token = Preferences.getGitHubToken();
+    if (!token || Preferences.getAuthType() !== 'oauth') {
+        return;
+    }
+
+    try {
+        await fetch(`https://api.github.com/applications/${GITHUB_OAUTH_CONFIG.CLIENT_ID}/token`, {
+            method: 'DELETE',
+            headers: {
+                Authorization: `token ${token}`,
+                Accept: 'application/vnd.github.v3+json',
+            },
+            body: JSON.stringify({
+                access_token: token,
+            }),
+        });
+    } finally {
+        await clearBackgroundAuth();
+        Preferences.clearAuth();
+    }
+}
+
+export {
+    OAUTH_STORAGE_KEY,
+    clearOAuthAuth,
+    initiateOAuth,
+    isOAuthAvailable,
+    revokeToken,
+    handleOAuthFlow,
+    refreshIfNeeded,
+    refreshToken,
+    refreshTokenViaBackground,
+    wasTokenJustRefreshed,
+};

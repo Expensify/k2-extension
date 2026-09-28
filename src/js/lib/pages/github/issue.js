@@ -227,7 +227,7 @@ export default function () {
         }, 1000);
 
         // Waiting 2 seconds to call this gives the page enough time to load so that there is a better chance that all the comments will be rendered
-        setInterval(() => IssuePage.renderCopyChecklistButtons('bugzero'), 2000);
+        setInterval(() => IssuePage.renderCopyChecklistButtons('cplus'), 2000);
         setInterval(() => IssuePage.renderNoChecklistNeededButton(), 2000);
         setInterval(() => IssuePage.renderPaymentDetailsButton(), 2000);
 

@@ -7,11 +7,19 @@ const listeners = {};
  * to each tab when one of the events is triggered
  */
 function startNavEventPublisher() {
+    if (!ksBrowser.webNavigation) {
+        return;
+    }
+
     const navEventList = [
         'onHistoryStateUpdated',
     ];
 
     navEventList.forEach((e) => {
+        if (!ksBrowser.webNavigation[e]) {
+            return;
+        }
+
         ksBrowser.webNavigation[e].addListener(() => {
             ksBrowser.tabs.query({
                 active: true,
