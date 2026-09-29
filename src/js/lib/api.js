@@ -277,6 +277,44 @@ function formatIssueResults(rawIssueData) {
     return _.indexBy(cleanData, 'id');
 }
 
+/**
+ * @param {String} query The search query the issues came from; the commenter qualifier is exact where each issue's truncated comments window is not
+ * @param {Object} issues Issues indexed by ID
+ * @returns {Promise<Object>}
+ */
+function markIssuesCommentedOnByCurrentUser(query, issues) {
+    const currentUser = getCurrentUser();
+    const graphQLQuery = `
+        query($cursor:String) {
+            search(
+                query: "${query} commenter:${currentUser}"
+                type: ISSUE
+                first: 100
+                after:$cursor
+            ) {
+                pageInfo {
+                    endCursor
+                    hasNextPage
+                }
+                nodes {
+                    ... on Issue {
+                        id
+                    }
+                }
+            }
+        }
+    `;
+
+    return getFullResultsUsingPagination(graphQLQuery).then((commentedIssues) => {
+        const commentedIssueIDs = _.pluck(commentedIssues, 'id');
+        return _.mapObject(issues, issue => ({
+            ...issue,
+            currentUserHasCommented: _.contains(commentedIssueIDs, issue.id)
+                || (issue.author && issue.author.login === currentUser),
+        }));
+    });
+}
+
 function getHotPickIssues() {
     let query = '';
     query += ' state:open';
@@ -305,6 +343,9 @@ function getHotPickIssues() {
                         url
                         createdAt
                         updatedAt
+                        author {
+                            login
+                        }
                         assignees(first: 100) {
                           nodes {
                             avatarUrl
@@ -325,7 +366,9 @@ function getHotPickIssues() {
         }
     `;
 
-    return getFullResultsUsingPagination(graphQLQuery).then(formatIssueResults);
+    return getFullResultsUsingPagination(graphQLQuery)
+        .then(formatIssueResults)
+        .then(issues => markIssuesCommentedOnByCurrentUser(query, issues));
 }
 
 /**
@@ -625,6 +668,9 @@ function getIssues(assignee = 'none', labels = []) {
                         url
                         createdAt
                         updatedAt
+                        author {
+                            login
+                        }
                         body
                         assignees(first: 100) {
                           nodes {
@@ -657,7 +703,9 @@ function getIssues(assignee = 'none', labels = []) {
         }
     `;
 
-    return getFullResultsUsingPagination(graphQLQuery).then(formatIssueResults);
+    return getFullResultsUsingPagination(graphQLQuery)
+        .then(formatIssueResults)
+        .then(issues => markIssuesCommentedOnByCurrentUser(query, issues));
 }
 
 /**
@@ -760,6 +808,9 @@ function getIssuesMentioning() {
                         url
                         createdAt
                         updatedAt
+                        author {
+                            login
+                        }
                         body
                         assignees(first: 100) {
                           nodes {
@@ -797,6 +848,7 @@ function getIssuesMentioning() {
 
     return getFullResultsUsingPagination(graphQLQuery)
         .then(formatIssueResults)
+        .then(issues => markIssuesCommentedOnByCurrentUser(query, issues))
         .then((issues) => {
             const issuesToFilter = _.filter(issues, (issue) => {
                 const comments = issue.comments.nodes;

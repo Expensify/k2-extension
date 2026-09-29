@@ -165,6 +165,7 @@ class ListItemIssue extends React.Component {
         }) ? (
             <span className="label hourly">H</span>
             ) : null;
+        this.isNewToCurrentUser = this.props.issue.currentUserHasCommented === false;
         this.hasUnrepliedMentions = (() => {
             if (!this.props.issue.comments) {
                 return false;
@@ -240,6 +241,10 @@ class ListItemIssue extends React.Component {
                 {this.hasUnrepliedMentions && (
                     // eslint-disable-next-line jsx-a11y/accessible-emoji
                     <span>{'\n ⚠️💬⚠️'}</span>
+                )}
+                {this.isNewToCurrentUser && (
+                    // eslint-disable-next-line jsx-a11y/accessible-emoji
+                    <span>{'\n 🆕'}</span>
                 )}
                 {this.isDeployBlocker && (
                     // eslint-disable-next-line jsx-a11y/accessible-emoji
