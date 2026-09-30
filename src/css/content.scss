@@ -29,7 +29,7 @@ $color-dark-yellow: #DAA520;
 .passwordform {
     max-width: 100%;
     margin: 24px auto 0;
-    padding: 0 180px;
+    padding: 0 24px;
 }
 
 body.k2-page-active {
@@ -42,190 +42,6 @@ body.k2-page-active {
 
   .k2dashboard {
     margin-top: 0;
-  }
-}
-
-// Dashboard-only visual refresh: simpler surfaces and less visual noise
-.k2dashboard {
-    background-color: #f6f8fa;
-  .issueList {
-    position: relative;
-  }
-
-  .panel {
-    border: 0;
-    border-radius: 10px;
-    background: $color-white;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
-  }
-
-  .panel-title {
-    padding: 7px 12px;
-    font-size: 13px;
-    font-weight: 500;
-    border: 0;
-  }
-
-  .panel-title-pill {
-    display: inline-flex;
-    align-items: center;
-    min-height: 24px;
-    padding: 0 10px;
-    border-radius: 999px;
-    background: rgba(0, 0, 0, 0.05);
-    color: $color-black;
-    font-weight: 600;
-    line-height: 1;
-  }
-
-  .panel.daily .panel-title,
-  .panel.weekly .panel-title,
-  .panel.monthly .panel-title,
-  .panel.waq .panel-title,
-  .panel.your-pull-requests .panel-title {
-    background: transparent;
-    color: inherit;
-  }
-
-  .panel.daily .panel-title-pill {
-    background: $color-orange;
-    color: $color-white;
-  }
-
-  .panel.weekly .panel-title-pill {
-    background: $color-green;
-    color: $color-white;
-  }
-
-  .panel.monthly .panel-title-pill {
-    background: $color-purple;
-    color: $color-white;
-  }
-
-  .panel.waq .panel-title-pill {
-    background: color.adjust($color-neutral-lighter, $lightness: -4%);
-    color: $color-black;
-  }
-
-  .panel-item {
-    border-top: 0;
-    padding: 5px 10px;
-  }
-
-  .panel-item + .panel-item {
-    margin-top: 0;
-  }
-
-  .panel-item-meta {
-    font-size: 11px;
-    color: color.adjust($color-neutral, $lightness: -12%);
-  }
-
-  .issue-filter {
-    border: 0;
-    background: rgba(0, 0, 0, 0.02);
-    padding: 10px 12px;
-    color: rgba(0, 0, 0, 0.78);
-  }
-
-  .issue-filter .form-inline {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px 14px;
-    width: 100%;
-  }
-
-  .issue-filter .form-inline > .checkbox {
-    margin: 0;
-  }
-
-  .issue-filter .form-inline label {
-    margin: 0;
-    color: rgba(0, 0, 0, 0.76);
-    font-weight: 500;
-    line-height: 1.2;
-  }
-
-  .issue-filter .form-inline input[type=checkbox] {
-    margin-right: 6px;
-  }
-
-  .legend {
-    width: 182px;
-    opacity: 0.92;
-    top: 10px !important;
-
-    .btn {
-      border: 0;
-      box-shadow: none;
-    }
-  }
-
-  .search-filter-input {
-    margin-left: auto;
-    min-width: 260px;
-    height: 38px;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid rgba(0, 0, 0, 0.18);
-    background: $color-white;
-    color: rgba(0, 0, 0, 0.82);
-    box-shadow: none;
-  }
-
-  .search-filter-input::placeholder {
-    color: rgba(0, 0, 0, 0.56);
-  }
-
-  .panel.daily .panel-item > .issue,
-  .panel.weekly .panel-item > .issue,
-  .panel.monthly .panel-item > .issue,
-  .panel.waq .panel-item > .issue,
-  .panel.your-pull-requests .panel-item > .issue {
-    position: relative;
-    display: inline-block;
-    padding-left: 12px;
-  }
-
-  .panel.daily .panel-item > .issue::before,
-  .panel.weekly .panel-item > .issue::before,
-  .panel.monthly .panel-item > .issue::before,
-  .panel.waq .panel-item > .issue::before,
-  .panel.your-pull-requests .panel-item > .issue::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.42em;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    opacity: 0.9;
-  }
-
-  .panel.daily .panel-item > .issue::before {
-    background: $color-orange;
-    box-shadow: 0 0 0 3px rgba(235, 100, 32, 0.14);
-  }
-
-  .panel.weekly .panel-item > .issue::before {
-    background: $color-green;
-    box-shadow: 0 0 0 3px rgba(0, 152, 0, 0.14);
-  }
-
-  .panel.monthly .panel-item > .issue::before {
-    background: $color-purple;
-    box-shadow: 0 0 0 3px rgba(168, 90, 212, 0.14);
-  }
-
-  .panel.waq .panel-item > .issue::before {
-    background: color.adjust($color-neutral, $lightness: -10%);
-    box-shadow: 0 0 0 3px rgba(153, 153, 153, 0.12);
-  }
-
-  .panel.your-pull-requests .panel-item > .issue::before {
-    background: color.adjust($color-neutral, $lightness: -10%);
-    box-shadow: 0 0 0 3px rgba(153, 153, 153, 0.12);
   }
 }
 
@@ -993,14 +809,6 @@ body.k2-page-active {
      color: rgb(48, 54, 61);
   }
 
-  // Keep strong contrast for the filter controls since this bar is intentionally light.
-  .k2dashboard .issue-filter,
-  .k2dashboard .issue-filter .form-inline label,
-  .k2dashboard .search-filter-input,
-  .k2dashboard .search-filter-input::placeholder {
-    color: rgba(0, 0, 0, 0.82);
-  }
-
   .k2-login-shell {
      --k2-ds-app-bg: #061b09;
      --k2-ds-card-bg: #072419;
@@ -1229,4 +1037,497 @@ body.k2-page-active {
             background-color: var(--bgColor-neutral-muted, rgba(110, 118, 129, 0.4));
         }
     }
+}
+
+// Dashboard design. These rules come last so they win over the older global
+// .panel, .issue, and .issue-filter rules. The colors come from GitHub's theme
+// variables, so the dashboard follows GitHub's light and dark themes.
+.k2dashboard {
+  --k2-bg: var(--bgColor-default, #ffffff);
+  --k2-bg-muted: var(--bgColor-muted, #f6f8fa);
+  --k2-border: var(--borderColor-default, #d0d7de);
+  --k2-border-muted: var(--borderColor-muted, #d8dee4);
+  --k2-fg: var(--fgColor-default, #1f2328);
+  --k2-fg-muted: var(--fgColor-muted, #59636e);
+  --k2-fg-subtle: var(--fgColor-disabled, #818b98);
+  --k2-link: var(--fgColor-accent, #0969da);
+  --k2-danger: var(--fgColor-danger, #d1242f);
+  --k2-attention: var(--fgColor-attention, #9a6700);
+  --k2-success: var(--fgColor-success, #1a7f37);
+  --k2-done: var(--fgColor-done, #8250df);
+  --k2-radius: 12px;
+
+  color: var(--k2-fg);
+
+  // The legend sits in a sticky sidebar next to the lists.
+  .issueList {
+    display: grid;
+    grid-template-columns: 168px minmax(0, 1fr);
+    column-gap: 24px;
+    align-items: start;
+  }
+
+  .issueList > * {
+    grid-column: 2;
+    min-width: 0;
+  }
+
+  .issueList > .legend {
+    grid-column: 1;
+    grid-row: 1 / span 20;
+    position: sticky;
+    top: 16px;
+    left: auto;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+    font-size: 12px;
+    color: var(--k2-fg-muted);
+  }
+
+  .legend .btn-block {
+    text-align: center;
+  }
+
+  .legend-link {
+    padding: 2px 0;
+    color: var(--k2-fg-muted);
+    font-size: 12px;
+    text-align: left;
+
+    &:hover {
+      color: var(--k2-link);
+      text-decoration: none;
+    }
+  }
+
+  .legend-sign-out {
+    margin-top: 8px;
+  }
+
+  .legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 4px;
+
+    > div {
+      line-height: 1.5;
+    }
+
+    .btn-block {
+      margin-bottom: 4px;
+    }
+  }
+
+  // Filter bars show each "Hide" option as a chip. A checked chip hides those items.
+  .panel-title.issue-filter {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--k2-fg-muted);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .issue-filter .form-inline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .issue-filter .form-inline > .checkbox {
+    display: inline-flex;
+    margin: 0;
+  }
+
+  .issue-filter .form-inline label {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 3px 10px;
+    border: 1px solid var(--k2-border);
+    border-radius: 999px;
+    background: var(--k2-bg);
+    color: var(--k2-fg);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 18px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.1s ease, border-color 0.1s ease;
+
+    &:hover {
+      background: var(--k2-bg-muted);
+    }
+
+    &:has(input:checked) {
+      border-color: var(--borderColor-accent-muted, rgba(84, 174, 255, 0.4));
+      background: var(--bgColor-accent-muted, #ddf4ff);
+      color: var(--k2-link);
+    }
+
+    &:has(input:focus-visible) {
+      outline: 2px solid var(--focus-outlineColor, #0969da);
+      outline-offset: 1px;
+    }
+  }
+
+  // The chip shows the checked state, so the checkbox is hidden but stays focusable.
+  .issue-filter .form-inline input[type=checkbox] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .search-filter-input {
+    min-width: 240px;
+    height: 30px;
+    margin-left: auto;
+    padding: 0 12px;
+    border: 1px solid var(--k2-border);
+    border-radius: 6px;
+    background: var(--k2-bg);
+    color: var(--k2-fg);
+    font-size: 13px;
+    box-shadow: none;
+
+    &::placeholder {
+      color: var(--k2-fg-muted);
+    }
+
+    &:focus {
+      border-color: var(--k2-link);
+      outline: 2px solid var(--focus-outlineColor, #0969da);
+      outline-offset: -1px;
+    }
+  }
+
+  // Panels are plain cards. A colored dot next to the title shows the frequency.
+  .panel {
+    --k2-accent: var(--k2-fg-subtle);
+
+    border: 1px solid var(--k2-border);
+    border-radius: var(--k2-radius);
+    background: var(--k2-bg);
+    box-shadow: none;
+
+    &.hourly { --k2-accent: #{$color-alert}; }
+    &.daily { --k2-accent: #{$color-orange}; }
+    &.weekly { --k2-accent: #{$color-green}; }
+    &.monthly { --k2-accent: #{$color-purple}; }
+    &.your-pull-requests { --k2-accent: var(--k2-link); }
+  }
+
+  .panel .panel-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 16px;
+    min-height: 44px;
+    margin: 0;
+    padding: 8px 14px;
+    border: 0;
+    background: transparent;
+    color: var(--k2-fg);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .panel-title-heading {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+
+    &::before {
+      content: '';
+      flex-shrink: 0;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--k2-accent);
+    }
+  }
+
+  .panel-title-count {
+    background: var(--bgColor-neutral-muted, rgba(175, 184, 193, 0.2));
+    color: var(--k2-fg-muted);
+    font-weight: 500;
+  }
+
+  .panel-title-options {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .panel-title-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    color: var(--k2-fg-muted);
+    font-weight: 400;
+
+    input[type=checkbox] {
+      margin: 0;
+    }
+  }
+
+  // Open All stays out of sight until you point at the panel.
+  .panel-title-open-all {
+    margin-left: auto;
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+    color: var(--k2-fg-muted);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      background: var(--k2-bg-muted);
+      color: var(--k2-fg);
+    }
+  }
+
+  .panel:hover .panel-title-open-all,
+  .panel-title-open-all:focus-visible {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    .panel-title-open-all {
+      opacity: 1;
+    }
+  }
+
+  .panel .panel-item {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 0;
+    padding: 8px 14px;
+    border-top: 1px solid var(--k2-border-muted);
+    font-size: 14px;
+    line-height: 1.45;
+    transition: background-color 0.1s ease;
+
+    &:hover {
+      background: var(--k2-bg-muted);
+    }
+
+    > .issue {
+      order: 1;
+      flex: 0 1 auto;
+      min-width: 0;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    > .Counter {
+      order: 1;
+    }
+
+    .AvatarStack {
+      order: 2;
+      top: 0;
+      float: none !important;
+    }
+  }
+
+  .panel .panel-item-meta {
+    order: 2;
+    flex-shrink: 0;
+    margin-left: auto;
+    float: none;
+    color: var(--k2-fg-muted);
+    font-size: 12px;
+    white-space: nowrap;
+
+    > span {
+      padding-right: 0;
+    }
+
+    > span + span::before {
+      content: '\00b7';
+      margin: 0 6px;
+      color: var(--k2-fg-subtle);
+    }
+  }
+
+  .panel .blankslate {
+    padding: 20px 14px;
+    border: 0;
+    border-top: 1px solid var(--k2-border-muted);
+    background: transparent;
+    color: var(--k2-fg-muted);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .issueList > .blankslate,
+  .issueList > * > .blankslate {
+    border: 1px dashed var(--k2-border);
+    border-radius: var(--k2-radius);
+    background: transparent;
+    color: var(--k2-fg-muted);
+  }
+
+  // Issue columns share the row equally.
+  .d-flex.flex-row {
+    align-items: flex-start;
+    gap: 16px;
+
+    > * {
+      flex: 1 1 0;
+      width: auto;
+      max-width: none;
+      min-width: 0;
+    }
+  }
+
+  .pr-issue-group {
+    margin-top: 0;
+
+    .panel-item {
+      margin-left: 0;
+      padding-left: 28px;
+      border-left: 0;
+    }
+  }
+
+  .pr-issue-group-title {
+    padding: 6px 14px;
+    border-top: 1px solid var(--k2-border-muted);
+    background: var(--k2-bg-muted);
+    font-size: 12px;
+    font-weight: 600;
+
+    a {
+      color: var(--k2-fg);
+    }
+  }
+
+  .label {
+    display: inline-flex;
+    margin-right: 6px;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+    vertical-align: 1px;
+  }
+
+  .issue sup {
+    margin-right: 2px;
+    color: var(--k2-fg-muted);
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  // Issue title colors. The order matches the older global rules, so an overdue
+  // issue on hold still shows as overdue.
+  .issue {
+    color: var(--k2-fg);
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    &.waiting-for-customer,
+    &.contributor-assigned {
+      color: var(--k2-done) !important;
+    }
+
+    &.help-wanted,
+    &.challenge-sent,
+    &.hold,
+    &.nonowner {
+      color: var(--k2-fg-muted) !important;
+    }
+
+    &.planning {
+      color: var(--k2-attention) !important;
+    }
+
+    &.overdue {
+      color: var(--k2-danger) !important;
+    }
+
+    &.reviewing {
+      color: var(--k2-fg-subtle) !important;
+    }
+  }
+
+  // A PR you already reviewed fades as a whole row, and its status colors stay the same.
+  .panel .panel-item.reviewed {
+    opacity: 0.5;
+
+    .issue {
+      color: var(--k2-fg) !important;
+    }
+
+    .panel-item-meta {
+      color: var(--k2-fg-muted) !important;
+    }
+  }
+
+  .panel .panel-item .github-actions-status {
+    color: var(--k2-attention) !important;
+
+    &.success { color: var(--k2-success) !important; }
+    &.failure { color: var(--k2-danger) !important; }
+    &.unknown { color: var(--k2-fg-muted) !important; }
+  }
+
+  .panel .panel-item .mergeable-state {
+    color: var(--k2-attention) !important;
+
+    &.CONFLICTING { color: var(--k2-danger) !important; }
+    &.MERGEABLE:not(.CHANGES_REQUESTED):not(.REVIEW_REQUIRED) { color: var(--k2-success) !important; }
+    &.DRAFT { color: var(--k2-fg-muted) !important; }
+  }
+}
+
+// On narrow windows the legend moves above the lists.
+@media (max-width: 1012px) {
+  .k2dashboard {
+    .issueList {
+      display: block;
+    }
+
+    .issueList > .legend {
+      position: static;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .legend-items {
+      flex-basis: 100%;
+    }
+
+    .legend-sign-out {
+      margin-top: 0;
+      margin-left: auto;
+    }
+
+    .d-flex.flex-row {
+      flex-direction: column !important;
+      align-items: stretch;
+    }
+  }
 }

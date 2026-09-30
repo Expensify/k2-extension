@@ -242,12 +242,12 @@ function PanelIssues(props) {
                         </SortableContext>
                         <DragOverlay>
                             {activeIssue ? (
-                                <div style={{
-                                    lineHeight: 1.2,
-                                    background: '#fff',
-                                    opacity: 1,
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                                }}
+                                <div
+                                    className={`panel ${props.extraClass}`}
+                                    style={{
+                                        opacity: 1,
+                                        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                                    }}
                                 >
                                     <ListItemIssue issue={activeIssue} />
                                 </div>

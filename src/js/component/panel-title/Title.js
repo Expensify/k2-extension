@@ -38,25 +38,30 @@ function Title(props) {
     return (
         <div>
             <h3 className="panel-title panel-title-with-actions">
-                <span className="panel-title-pill">
-                    {`${props.text} ${props.count !== null ? `(${props.count})` : ''}`}
-                    {_.map(props.checkboxes, checkbox => (
-                        <label key={checkbox.id} className="panel-title-checkbox" htmlFor={checkbox.id}>
-                            <input
-                                type="checkbox"
-                                id={checkbox.id}
-                                name={checkbox.id}
-                                checked={!!checkbox.isChecked}
-                                onChange={checkbox.onChange}
-                            />
-                            {checkbox.label}
-                        </label>
-                    ))}
+                <span className="panel-title-heading">
+                    <span className="panel-title-text">{props.text}</span>
+                    {props.count !== null && <span className="Counter panel-title-count">{props.count}</span>}
                 </span>
+                {_.size(props.checkboxes) > 0 && (
+                    <span className="panel-title-options">
+                        {_.map(props.checkboxes, checkbox => (
+                            <label key={checkbox.id} className="panel-title-checkbox" htmlFor={checkbox.id}>
+                                <input
+                                    type="checkbox"
+                                    id={checkbox.id}
+                                    name={checkbox.id}
+                                    checked={!!checkbox.isChecked}
+                                    onChange={checkbox.onChange}
+                                />
+                                {checkbox.label}
+                            </label>
+                        ))}
+                    </span>
+                )}
                 {props.onOpenAll && props.count > 0 && (
                     <button
                         type="button"
-                        className="btn btn-sm"
+                        className="btn btn-sm panel-title-open-all"
                         onClick={props.onOpenAll}
                         title={`Open all ${props.count} items in new tabs`}
                     >

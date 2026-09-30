@@ -83,30 +83,21 @@ function ListItemPull(props) {
     return (
         <div className={`panel-item${pr.isReviewRequested === false ? ' reviewed' : ''}`}>
             <span className="panel-item-meta">
-                <span className="age">
-                    Updated:
-                    {' '}
+                <span className="age" title={`Updated ${moment(pr.updatedAt).format('LLL')}`}>
                     {moment(pr.updatedAt).fromNow()}
                 </span>
 
                 <span className="comments">
-                    Comments:
-                    {' '}
-                    {pr.comments.totalCount}
+                    {`${pr.comments.totalCount} ${pr.comments.totalCount === 1 ? 'comment' : 'comments'}`}
                 </span>
 
                 <span className="comments">
-                    Reviews:
-                    {' '}
-                    {pr.reviews.totalCount}
+                    {`${pr.reviews.totalCount} ${pr.reviews.totalCount === 1 ? 'review' : 'reviews'}`}
                 </span>
 
                 {pr.checkConclusion && (
-                    <span className={`github-actions-status ${pr.checkConclusion}`}>
-                        Github Actions:
-                        {' '}
-                        {pr.checkConclusion}
-                        ,
+                    <span className={`github-actions-status ${pr.checkConclusion}`} title={`GitHub Actions: ${pr.checkConclusion}`}>
+                        {`CI ${pr.checkConclusion}`}
                     </span>
                 )}
 

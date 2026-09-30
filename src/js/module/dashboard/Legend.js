@@ -24,18 +24,8 @@ function Legend() {
 
     return (
         <div className="legend">
-            <button
-                type="button"
-                onClick={signOut}
-                className="btn tooltipped tooltipped-sw"
-                aria-label="Sign Out"
-            >
-                Sign Out
-            </button>
-            <br />
-            <br />
             <a
-                className="btn btn-primary"
+                className="btn btn-primary btn-block"
                 aria-label="New Issue"
                 href="https://github.com/Expensify/Expensify/issues/new/choose"
                 target="_blank"
@@ -44,29 +34,26 @@ function Legend() {
                 New Issue
             </a>
 
-            <br />
             <button
                 type="button"
                 onClick={() => setShowLegendItems(!showLegendItems)}
-                className="btn"
+                className="btn-link legend-link"
+                aria-expanded={showLegendItems}
             >
                 {showLegendItems ? 'Hide legend' : 'Show legend'}
             </button>
 
             {showLegendItems && (
-                <>
-
+                <div className="legend-items">
                     <a
-                        className="btn btn-primary"
+                        className="btn btn-block"
                         aria-label="New /app Issue"
                         href="https://github.com/Expensify/App/issues/new/choose"
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{marginTop: '4px'}}
                     >
                         New /app Issue
                     </a>
-                    <br />
                     <div className="issue reviewing">Under Review</div>
                     <div className="issue overdue">Overdue</div>
                     <div className="issue planning">Planning</div>
@@ -131,8 +118,16 @@ function Legend() {
                         {' '}
                         WhatsNext
                     </div>
-                </>
+                </div>
             )}
+
+            <button
+                type="button"
+                onClick={signOut}
+                className="btn-link legend-link legend-sign-out"
+            >
+                Sign Out
+            </button>
         </div>
     );
 }

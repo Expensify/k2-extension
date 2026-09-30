@@ -24,7 +24,7 @@ function SortableIssue(props) {
         transform: CSS.Transform.toString(transform),
         transition,
         zIndex: isDragging ? 2 : 1,
-        background: isDragging ? '#f0f0f0' : undefined,
+        background: isDragging ? 'var(--bgColor-muted, #f6f8fa)' : undefined,
     };
 
     return (
