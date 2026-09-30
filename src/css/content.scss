@@ -236,6 +236,54 @@ $color-dark-yellow: #DAA520;
   &.active { background-color: $color-neutral; }
   &.inactive { @extend .k2-inactive; }
 }
+.k2-linked-prs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.k2-linked-prs-message {
+  color: var(--fgColor-muted, #656d76);
+  font-size: 12px;
+}
+.k2-linked-pr {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+  color: var(--fgColor-default, #1f2328);
+  &:hover {
+    text-decoration: none;
+    .k2-linked-pr-title { color: var(--fgColor-accent, #0969da); }
+  }
+}
+.k2-linked-pr-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  fill: currentColor;
+}
+.k2-linked-pr-open .k2-linked-pr-icon { color: var(--fgColor-open, #1a7f37); }
+.k2-linked-pr-draft .k2-linked-pr-icon { color: var(--fgColor-muted, #656d76); }
+.k2-linked-pr-merged .k2-linked-pr-icon { color: var(--fgColor-done, #8250df); }
+.k2-linked-pr-closed .k2-linked-pr-icon { color: var(--fgColor-closed, #d1242f); }
+.k2-linked-pr-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.k2-linked-pr-title {
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.k2-linked-pr-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--fgColor-muted, #656d76);
+  font-size: 12px;
+}
+.k2-linked-pr-avatar {
+  border-radius: 50%;
+}
 .discussion-sidebar-item h6 {
     margin-bottom: 8px;
 }
