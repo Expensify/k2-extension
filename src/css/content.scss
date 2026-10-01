@@ -1025,6 +1025,15 @@ body.k2-page-active {
     nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link)::before {
         display: none !important;
     }
+
+    // GitHub's React-rendered repository page keeps its content next to the K2 host, so hide it
+    #ui-service-main-content > :not(.k2-dashboard-host) {
+        display: none !important;
+    }
+}
+
+body:not(.k2-page-active) .k2-dashboard-host {
+    display: none;
 }
 
 @media (prefers-color-scheme: dark) {

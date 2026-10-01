@@ -10,6 +10,7 @@ import k2Button from '../../../template/button.github.k2.html';
  */
 export default function () {
     const AllPages = new Base();
+    let timestampFormatInterval = null;
 
     AllPages.init = function () {
         this.setup();
@@ -56,7 +57,9 @@ export default function () {
 
         // Set up timestamp format conversion
         setTimeout(() => AllPages.applyTimestampFormat(), 500);
-        setInterval(() => AllPages.applyTimestampFormat(), 5000);
+        if (!timestampFormatInterval) {
+            timestampFormatInterval = setInterval(() => AllPages.applyTimestampFormat(), 5000);
+        }
     };
 
     return AllPages;
