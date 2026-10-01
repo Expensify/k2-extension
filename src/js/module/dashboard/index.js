@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import React from 'react';
 import {createRoot} from 'react-dom/client';
 import ReactNativeOnyx from 'react-native-onyx';
@@ -16,14 +15,13 @@ let preferences = null;
 let isConnectedToPreferences = false;
 
 /**
- * Get the element of the repository page that holds the K2 dashboard. Classic repository pages use
- * `.repository-content`, while pages rendered by GitHub's React shell put everything below the
+ * Get the element of the repository page that holds the K2 dashboard. GitHub puts everything below the
  * repository tabs in `#ui-service-main-content`.
  *
  * @returns {HTMLElement|null}
  */
 function getDashboardParent() {
-    return document.querySelector('.repository-content') || document.getElementById('ui-service-main-content');
+    return document.getElementById('ui-service-main-content');
 }
 
 /**
@@ -38,7 +36,7 @@ function getRoot() {
 
     const parent = getDashboardParent();
     if (!parent) {
-        console.error('K2: could not find the repository content container to render the dashboard into');
+        console.error('K2: could not find #ui-service-main-content to render the dashboard into');
         return null;
     }
 
@@ -46,12 +44,7 @@ function getRoot() {
         root.unmount();
     }
 
-    // The classic container is server-rendered, so its content is replaced. React-rendered content is hidden with CSS
-    // instead, because removing nodes that GitHub's React app manages breaks it.
-    if (parent.matches('.repository-content')) {
-        $(parent).children().remove();
-    }
-
+    // GitHub's content stays in the parent and is hidden with CSS, because removing nodes that GitHub's React app manages breaks it
     host = document.createElement('div');
     parent.appendChild(host);
     root = createRoot(host);
