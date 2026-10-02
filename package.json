@@ -1,6 +1,6 @@
 {
   "name": "k2-extension",
-  "version": "1.5.68",
+  "version": "1.5.69",
   "description": "A browser extension for Kernel Schedule",
   "private": true,
   "scripts": {
