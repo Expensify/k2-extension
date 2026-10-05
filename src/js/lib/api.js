@@ -291,8 +291,10 @@ query {
             ... on PullRequest {
                 headRefOid
                 id
+                body
                 isDraft
                 mergeable
+                number
                 reviewDecision
                 title
                 url
@@ -307,6 +309,12 @@ query {
                 }
                 comments {
                     totalCount
+                }
+                closingIssuesReferences(first: 100) {
+                    nodes {
+                        title
+                        url
+                    }
                 }
                 repository {
                     name
@@ -432,6 +440,16 @@ query($owner:String!, $repo:String!, $oid:GitObjectID!, $cursor:String) {
     } while (cursor);
 
     return contexts;
+}
+
+/**
+ * @param {String} url A GitHub issue URL
+ * @returns {Promise<Object>}
+ */
+function getIssueByURL(url) {
+    const [, owner, repo, , issueNumber] = new URL(url).pathname.split('/');
+    return getOctokit().rest.issues.get({owner, repo, issue_number: Number(issueNumber)})
+        .then(response => ({title: response.data.title, url: response.data.html_url}));
 }
 
 function getCheckRuns(repo, headSHA) {
@@ -792,6 +810,7 @@ export {
     getMilestones,
     getCurrentUser,
     getPullsByType,
+    getIssueByURL,
     getCurrentIssueDescription,
     setCurrentIssueBody,
     getPreviousInstancesOfIssue,

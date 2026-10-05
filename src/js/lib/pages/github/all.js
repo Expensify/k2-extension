@@ -12,6 +12,7 @@ export default function () {
     const AllPages = new Base();
     let headerObserver;
     let isHeaderUpdateScheduled = false;
+    let timestampFormatInterval = null;
 
     const insertK2Action = () => {
         if ($('.k2-header-action').length) {
@@ -61,7 +62,9 @@ export default function () {
 
         // Set up timestamp format conversion
         setTimeout(() => AllPages.applyTimestampFormat(), 500);
-        setInterval(() => AllPages.applyTimestampFormat(), 5000);
+        if (!timestampFormatInterval) {
+            timestampFormatInterval = setInterval(() => AllPages.applyTimestampFormat(), 5000);
+        }
     };
 
     return AllPages;

@@ -4,16 +4,21 @@ import {
     CounterLabel, Label, LabelGroup, Link, Stack,
 } from '@primer/react';
 import {GitPullRequestIcon} from '@primer/octicons-react';
+import PropTypes from 'prop-types';
 import pullRequestPropTypes from '../../lib/pullRequestPropTypes';
 
 const propTypes = {
     data: pullRequestPropTypes,
     pr: pullRequestPropTypes,
+
+    /** Whether the repo tag also shows the number of the PR */
+    shouldShowNumber: PropTypes.bool,
 };
 
 const defaultProps = {
     data: null,
     pr: null,
+    shouldShowNumber: false,
 };
 
 function getMergeability(pr) {
@@ -54,7 +59,8 @@ function ListItemPull(props) {
         return null;
     }
 
-    const repository = pr.repository ? `[${pr.repository.name}] ` : '';
+    const numberTag = props.shouldShowNumber && pr.number ? ` #${pr.number}` : '';
+    const repository = pr.repository ? `[${pr.repository.name}${numberTag}] ` : '';
     const commentsCount = pr.comments ? pr.comments.totalCount : 0;
     const reviewsCount = pr.reviews ? pr.reviews.totalCount : 0;
     const isOverdue = moment(pr.updatedAt).isBefore(moment().subtract(7, 'days'), 'day');

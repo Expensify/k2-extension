@@ -4,6 +4,43 @@ import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
 import CONST from '../../CONST';
 import ActionThrottle from '../ActionThrottle';
+import getPullRequestIssueURLs from '../getPullRequestIssueURLs';
+
+/**
+ * Resolve each issue once, even when several PRs address it.
+ *
+ * @param {Object} prs
+ * @returns {Promise<Object>}
+ */
+function getLinkedIssues(prs) {
+    const issueURLsByPR = _.mapObject(prs, getPullRequestIssueURLs);
+    const issuesByURL = {};
+    _.each(prs, (pr) => {
+        _.each(pr.closingIssuesReferences && pr.closingIssuesReferences.nodes, (issue) => {
+            issuesByURL[issue.url.toLowerCase()] = issue;
+        });
+    });
+
+    const issueURLs = _.uniq(_.flatten(_.values(issueURLsByPR)));
+    return Promise.all(_.map(issueURLs, (url) => {
+        if (issuesByURL[url]) {
+            return Promise.resolve();
+        }
+
+        return API.getIssueByURL(url)
+            .catch(() => {
+                // Keep the issue link usable when its title is unavailable, including for private issues.
+                const [, owner, repo, , number] = new URL(url).pathname.split('/');
+                return {url, title: `${owner}/${repo} #${number}`};
+            })
+            .then((issue) => {
+                issuesByURL[url] = issue;
+            });
+    })).then(() => _.mapObject(prs, pr => ({
+        ...pr,
+        linkedIssues: _.map(issueURLsByPR[pr.id], url => issuesByURL[url]),
+    })));
+}
 
 const refreshGenerations = {};
 const maxConcurrentCheckRequests = 5;
@@ -91,8 +128,13 @@ function getAssigned() {
             return;
         }
 
-        await ReactNativeOnyx.set(onyxKey, prs);
-        const checks = await getChecks(prs, () => isCurrentRefresh(onyxKey, generation));
+        const prsWithIssues = await getLinkedIssues(prs);
+        if (!isCurrentRefresh(onyxKey, generation)) {
+            return;
+        }
+
+        await ReactNativeOnyx.set(onyxKey, prsWithIssues);
+        const checks = await getChecks(prsWithIssues, () => isCurrentRefresh(onyxKey, generation));
         if (!isCurrentRefresh(onyxKey, generation) || _.isEmpty(checks)) {
             return;
         }

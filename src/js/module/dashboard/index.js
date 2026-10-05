@@ -8,19 +8,63 @@ import renderPrimerRoot from '../../lib/renderPrimerRoot';
 import registerDashboardRefresh from './refreshDashboard';
 import DashboardErrorBoundary from '../../component/DashboardErrorBoundary';
 
+const HOST_CLASS = 'k2-dashboard-host';
+
+// The element K2 renders into and its React root, shared by the dashboard and the password form
+let host = null;
+
+let preferences = null;
+let isConnectedToPreferences = false;
+
+/**
+ * Get the element of the repository page that holds the K2 dashboard. Classic repository pages use
+ * `.repository-content`, while pages rendered by GitHub's React shell put everything below the
+ * repository tabs in `#ui-service-main-content`.
+ *
+ * @returns {HTMLElement|null}
+ */
+function getDashboardParent() {
+    return document.querySelector('.repository-content') || document.getElementById('ui-service-main-content');
+}
+
+/**
+ * Get the React root for the K2 host element, creating the host when it is not in the page
+ *
+ * @returns {Object|null}
+ */
+function getRoot() {
+    if (host && host.isConnected) {
+        return host;
+    }
+
+    const parent = getDashboardParent();
+    if (!parent) {
+        console.error('K2: could not find the repository content container to render the dashboard into');
+        return null;
+    }
+
+    // The classic container is server-rendered, so its content is replaced. React-rendered content is hidden with CSS
+    // instead, because removing nodes that GitHub's React app manages breaks it.
+    if (parent.matches('.repository-content')) {
+        $(parent).children().remove();
+    }
+
+    host = document.createElement('div');
+    parent.appendChild(host);
+    return host;
+}
+
 /**
  * Display our dashboard with the list of issues
  */
 function showDashboard() {
-    // Clean up password form
-    $('.repository-content').children('.passwordform').remove();
-
-    if (!$('.repository-content').children('.k2dashboard').length) {
-        $('.repository-content').append('<div class="k2dashboard">');
+    const dashboardHost = getRoot();
+    if (!dashboardHost) {
+        return;
     }
-
+    dashboardHost.className = `${HOST_CLASS} k2dashboard`;
     renderPrimerRoot(
-        $('.k2dashboard').show()[0],
+        dashboardHost,
         <DashboardErrorBoundary>
             <ListIssues pollInterval={60000} />
         </DashboardErrorBoundary>,
@@ -33,23 +77,18 @@ function showDashboard() {
  * @date 2015-06-14
  */
 function showPasswordForm() {
-    // Clean up dashboard
-    $('.repository-content').children('.k2dashboard').remove();
-
-    if (!$('.repository-content').children('.passwordform').length) {
-        $('.repository-content').append('<div class="passwordform k2-passwordform">');
+    const formHost = getRoot();
+    if (!formHost) {
+        return;
     }
-
-    $('.repository-content').children('.passwordform').addClass('k2-passwordform');
-
-    renderPrimerRoot($('.passwordform').show()[0], <FormPassword onFinished={showDashboard} />);
+    formHost.className = `${HOST_CLASS} passwordform k2-passwordform`;
+    renderPrimerRoot(formHost, <FormPassword onFinished={showDashboard} />);
 }
 
 /**
  * Check authentication status and show appropriate interface
- * @param {Object} preferences - User preferences from Onyx (contains ghToken and auth)
  */
-function checkAuthAndShowInterface(preferences) {
+function checkAuthAndShowInterface() {
     // Check if user is authenticated with either PAT or OAuth
     const hasPatAuth = preferences && preferences.ghToken;
     const hasOAuthAuth = preferences && preferences.auth && preferences.auth.type === 'oauth' && preferences.auth.token;
@@ -62,28 +101,31 @@ function checkAuthAndShowInterface(preferences) {
     showDashboard();
 }
 
+export {getDashboardParent};
+
 export default () => ({
     draw() {
-        const passwordFormWasDrawn = $('.repository-content').children('.passwordform').length;
-        const dashboardWasDrawn = $('.repository-content').children('.k2dashboard').length;
-
-        if (passwordFormWasDrawn || dashboardWasDrawn) {
+        if (host && host.isConnected) {
             return;
         }
-        $('.repository-content').children().remove();
+
+        if (isConnectedToPreferences) {
+            checkAuthAndShowInterface();
+            return;
+        }
+
+        isConnectedToPreferences = true;
         ReactNativeOnyx.init({
             keys: ONYXKEYS,
         });
         registerDashboardRefresh();
-
-        let preferences = null;
 
         // Connect to preferences store
         ReactNativeOnyx.connect({
             key: ONYXKEYS.PREFERENCES,
             callback: (newPreferences) => {
                 preferences = newPreferences;
-                checkAuthAndShowInterface(preferences);
+                checkAuthAndShowInterface();
             },
         });
     },

@@ -162,6 +162,20 @@ function setNewIssueDestination(value) {
     ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {newIssueDestination: value});
 }
 
+/**
+ * @param {Boolean} value
+ */
+function setShouldShowPRNumbers(value) {
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {shouldShowPRNumbers: value});
+}
+
+/**
+ * @param {Boolean} value
+ */
+function setShouldGroupPRsByIssue(value) {
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {shouldGroupPRsByIssue: value});
+}
+
 export {
     getGitHubToken,
     setGitHubToken,
@@ -179,4 +193,6 @@ export {
     setShowOpenAllButtons,
     getNewIssueDestination,
     setNewIssueDestination,
+    setShouldShowPRNumbers,
+    setShouldGroupPRsByIssue,
 };
