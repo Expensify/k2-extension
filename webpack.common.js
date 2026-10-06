@@ -109,6 +109,16 @@ module.exports = (env) => {
                 },
                 {
                     test: /\.css$/i,
+                    include: path.resolve(__dirname, 'node_modules/@primer'),
+                    use: [
+                        MiniCssExtractPlugin.loader,
+                        'css-loader',
+                        path.resolve(__dirname, 'tools/prefixPrimerCSSLoader.js'),
+                    ],
+                },
+                {
+                    test: /\.css$/i,
+                    exclude: path.resolve(__dirname, 'node_modules/@primer'),
                     use: [
                         MiniCssExtractPlugin.loader,
                         'css-loader',
