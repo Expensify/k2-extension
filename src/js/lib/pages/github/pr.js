@@ -3,6 +3,7 @@ import Base from './_base';
 import ToggleTimestamps from '../../../module/ToggleTimestamps/ToggleTimestamps';
 import ToggleAutoLoadMore from '../../../module/ToggleAutoLoadMore/ToggleAutoLoadMore';
 import * as autoLoadMoreComments from '../../autoLoadMoreComments';
+import * as loadMoreUntilAnchor from '../../loadMoreUntilAnchor';
 import hideCommentButtons from '../../hideCommentButtons';
 import * as commitCheckStatuses from '../../commitCheckStatuses';
 import * as prFavicon from '../../prFavicon';
@@ -147,6 +148,7 @@ export default function () {
         setInterval(() => PrPage.renderTranslationWorkflowButtons(), 2000);
 
         autoLoadMoreComments.initAutoLoadMoreComments();
+        loadMoreUntilAnchor.initLoadMoreUntilAnchor();
         hideCommentButtons();
         commitCheckStatuses.initCommitCheckStatuses();
         prFavicon.initPrFavicon();
