@@ -450,6 +450,87 @@ query($owner:String!, $repo:String!, $oid:GitObjectID!, $cursor:String) {
 }
 
 /**
+ * Get every pull request that mentions the current issue or that someone linked to it in the Development section.
+ * GitHub leaves out pull requests from repositories that the user can't see.
+ *
+ * @returns {Promise<Array<Object>>} Pull requests in the order they appear on the issue timeline
+ */
+async function getCurrentIssuePullRequests() {
+    const {owner, repo, issue_number: issueNumber} = getRequestParams();
+    const pullRequestFields = `
+        ... on PullRequest {
+            number
+            title
+            url
+            state
+            isDraft
+            author {
+                login
+                avatarUrl(size: 40)
+            }
+            repository {
+                name
+                nameWithOwner
+            }
+        }
+    `;
+    const graphQLQuery = `
+query($owner:String!, $repo:String!, $number:Int!, $cursor:String) {
+    repository(owner: $owner, name: $repo) {
+        issue(number: $number) {
+            timelineItems(first: 100, after: $cursor, itemTypes: [CROSS_REFERENCED_EVENT, CONNECTED_EVENT]) {
+                pageInfo {
+                    endCursor
+                    hasNextPage
+                }
+                nodes {
+                    ... on CrossReferencedEvent {
+                        source {
+                            ${pullRequestFields}
+                        }
+                    }
+                    ... on ConnectedEvent {
+                        subject {
+                            ${pullRequestFields}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+    `;
+
+    const pullRequestsByURL = new Map();
+    let cursor = null;
+    do {
+        // eslint-disable-next-line no-await-in-loop
+        const data = await getOctokit().graphql(graphQLQuery, {
+            owner,
+            repo,
+            number: Number(issueNumber),
+            cursor,
+        });
+        const timelineItems = data.repository && data.repository.issue && data.repository.issue.timelineItems;
+        if (!timelineItems) {
+            break;
+        }
+
+        _.each(timelineItems.nodes, (node) => {
+            // Issues also show up as cross references, and those have no url in this query.
+            const pullRequest = node && (node.source || node.subject);
+            if (!pullRequest || !pullRequest.url || pullRequestsByURL.has(pullRequest.url)) {
+                return;
+            }
+            pullRequestsByURL.set(pullRequest.url, pullRequest);
+        });
+        cursor = timelineItems.pageInfo.hasNextPage ? timelineItems.pageInfo.endCursor : null;
+    } while (cursor);
+
+    return Array.from(pullRequestsByURL.values());
+}
+
+/**
  * @param {String} url A GitHub issue URL
  * @returns {Promise<Object>}
  */
@@ -819,6 +900,7 @@ export {
     getPullsByType,
     getIssueByURL,
     getCurrentIssueDescription,
+    getCurrentIssuePullRequests,
     setCurrentIssueBody,
     getPreviousInstancesOfIssue,
     triggerWorkflow,

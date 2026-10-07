@@ -7,6 +7,7 @@ import K2picker from '../../../module/K2picker/K2picker';
 import K2pickerarea from '../../../module/K2pickerarea/K2pickerarea';
 import K2pickerType from '../../../module/K2pickertype/K2pickertype';
 import ToggleReview from '../../../module/ToggleReview/ToggleReview';
+import LinkedPullRequests from '../../../module/LinkedPullRequests/LinkedPullRequests';
 import ToggleTimestamps from '../../../module/ToggleTimestamps/ToggleTimestamps';
 import ToggleAutoLoadMore from '../../../module/ToggleAutoLoadMore/ToggleAutoLoadMore';
 import K2comments from '../../../module/K2comments/K2comments';
@@ -170,6 +171,7 @@ const refreshPicker = function () {
     new K2pickerType().draw();
     new K2pickerarea().draw();
     new ToggleReview().draw();
+    new LinkedPullRequests().draw();
     new K2comments().draw();
     new K2previousissues().draw();
 
