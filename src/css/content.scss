@@ -1026,8 +1026,9 @@ body.k2-page-active {
         display: none !important;
     }
 
-    // GitHub's React-rendered repository page keeps its content next to the K2 host, so hide it
-    #ui-service-main-content > :not(.k2-dashboard-host) {
+    // Keep GitHub's repository content intact and hide it while the K2 host is active.
+    #ui-service-main-content > :not(.k2-dashboard-host),
+    .repository-content > :not(.k2-dashboard-host) {
         display: none !important;
     }
 }
