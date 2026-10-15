@@ -15,13 +15,14 @@ let preferences = null;
 let isConnectedToPreferences = false;
 
 /**
- * Get the element of the repository page that holds the K2 dashboard. GitHub puts everything below the
+ * Get the element of the repository page that holds the K2 dashboard. Classic repository pages use
+ * `.repository-content`, while pages rendered by GitHub's React shell put everything below the
  * repository tabs in `#ui-service-main-content`.
  *
  * @returns {HTMLElement|null}
  */
 function getDashboardParent() {
-    return document.getElementById('ui-service-main-content');
+    return document.getElementById('ui-service-main-content') || document.querySelector('.repository-content');
 }
 
 /**
@@ -36,7 +37,7 @@ function getRoot() {
 
     const parent = getDashboardParent();
     if (!parent) {
-        console.error('K2: could not find #ui-service-main-content to render the dashboard into');
+        console.error('K2: could not find the repository content container to render the dashboard into');
         return null;
     }
 
@@ -44,7 +45,7 @@ function getRoot() {
         root.unmount();
     }
 
-    // GitHub's content stays in the parent and is hidden with CSS, because removing nodes that GitHub's React app manages breaks it
+    // Keep GitHub's content and hydration data intact; CSS hides the host's siblings while K2 is active.
     host = document.createElement('div');
     parent.appendChild(host);
     root = createRoot(host);

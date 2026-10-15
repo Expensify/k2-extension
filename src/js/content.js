@@ -59,17 +59,24 @@ messenger.on('nav', () => setupPages());
 // Listen for hash changes (e.g., clicking the K2 tab) to re-run page setup
 window.addEventListener('hashchange', () => setupPages());
 
-// GitHub rebuilds the body after the page loads, which drops the K2 tab and the K2 page class, so set the pages up again
+// Restore K2 when GitHub replaces the body or repository content after page load.
 let pendingSetupTimeout = null;
 new MutationObserver(() => {
+    const isK2Page = window.location.hash.indexOf('#k2') === 0;
     const isK2TabMissing = !document.querySelector('li.k2-extension');
-    const isK2PageClassMissing = window.location.hash.indexOf('#k2') === 0 && !document.body.classList.contains('k2-page-active');
-    if (!isK2TabMissing && !isK2PageClassMissing) {
+    const isK2PageClassMissing = isK2Page && !document.body.classList.contains('k2-page-active');
+    const isK2DashboardMissing = isK2Page && dashboard.getDashboardParent() && !document.querySelector('.k2-dashboard-host');
+    if (!isK2TabMissing && !isK2PageClassMissing && !isK2DashboardMissing) {
         return;
     }
     clearTimeout(pendingSetupTimeout);
     pendingSetupTimeout = setTimeout(setupPages, 100);
-}).observe(document.body, {childList: true, attributes: true, attributeFilter: ['class']});
+}).observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class'],
+});
 
 // Handle K2 link clicks directly — GitHub's React nav intercepts clicks and uses
 // pushState (which doesn't fire hashchange), so we must handle it ourselves.
