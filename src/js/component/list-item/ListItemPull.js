@@ -19,7 +19,7 @@ const defaultProps = {
 function ListItemPull(props) {
     const pr = props.pr || props.data;
     const numberTag = `#${pr.number}` ?? '';
-    const repoPrefix = pr.repository ? `${pr.repository.name}${numberTag}` : '';
+    const repoPrefix = pr.repository ? `${pr.repository.name} ${numberTag}` : '';
 
     if (!pr.id) {
         return null;
