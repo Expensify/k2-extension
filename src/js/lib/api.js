@@ -501,7 +501,7 @@ query($owner:String!, $repo:String!, $number:Int!, $cursor:String) {
 }
     `;
 
-    const pullRequestsByURL = new Map();
+    let pullRequests = [];
     let cursor = null;
     do {
         // eslint-disable-next-line no-await-in-loop
@@ -516,18 +516,13 @@ query($owner:String!, $repo:String!, $number:Int!, $cursor:String) {
             break;
         }
 
-        _.each(timelineItems.nodes, (node) => {
-            // Issues also show up as cross references, and those have no url in this query.
-            const pullRequest = node && (node.source || node.subject);
-            if (!pullRequest || !pullRequest.url || pullRequestsByURL.has(pullRequest.url)) {
-                return;
-            }
-            pullRequestsByURL.set(pullRequest.url, pullRequest);
-        });
+        pullRequests = pullRequests.concat(_.map(timelineItems.nodes, node => node && (node.source || node.subject)));
         cursor = timelineItems.pageInfo.hasNextPage ? timelineItems.pageInfo.endCursor : null;
     } while (cursor);
 
-    return Array.from(pullRequestsByURL.values());
+    // Issues also show up as cross references, and those have no url in this query.
+    // A pull request can mention the issue more than once, so this keeps the first mention of each one.
+    return _.uniq(_.filter(pullRequests, pullRequest => pullRequest && pullRequest.url), false, pullRequest => pullRequest.url);
 }
 
 /**
