@@ -14,15 +14,20 @@ export default function () {
     const Page = {};
 
     const REVIEWER_CHECKLIST_URL = 'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/REVIEWER_CHECKLIST.md';
-    const BUGZERO_CHECKLIST_URL = 'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/BUGZERO_CHECKLIST.md';
+    const CONTRIBUTOR_PLUS_CHECKLIST_URL = 'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/CONTRIBUTOR_PLUS_CHECKLIST.md';
+    const NO_CHECKLIST_NEEDED_TEMPLATE = '### No Checklist Needed\n\n<C+ Please state the reason why checklist is not needed for this issue>';
+
+    // Marks the start of the payment details in a backend contributor payment request body. The "post payment
+    // details" button posts everything after it, keeping the explanatory line and the button out of the comment.
+    const BEC_PAYMENT_DETAILS_DELIMITER = '<!-- BEC_PAYMENT_DETAILS -->';
 
     /**
      * Gets the contents of the reviewer checklist from GitHub and then posts it as a comment to the current PR
      * @param {Event} e
-     * @param {'bugzero' | 'reviewer'} checklistType Type of target checklist
+     * @param {'cplus' | 'reviewer'} checklistType Type of target checklist
      */
     const copyReviewerChecklist = async (e, checklistType) => {
-        const checklistUrl = checklistType === 'bugzero' ? BUGZERO_CHECKLIST_URL : REVIEWER_CHECKLIST_URL;
+        const checklistUrl = checklistType === 'cplus' ? CONTRIBUTOR_PLUS_CHECKLIST_URL : REVIEWER_CHECKLIST_URL;
 
         e.preventDefault();
 
@@ -44,6 +49,69 @@ export default function () {
             await API.addComment(fileContents);
         } catch (error) {
             console.error('Error fetching the checklist:', error);
+        } finally {
+            // Restore the original button content
+            button.innerHTML = originalContent;
+        }
+    };
+
+    /**
+     * Posts a `### No Checklist Needed` comment template on the current issue.
+     * The C+ then edits the comment to fill in the reason.
+     * @param {Event} e
+     */
+    const postNoChecklistNeededTemplate = async (e) => {
+        e.preventDefault();
+
+        // Get the button element
+        const button = e.target;
+
+        // Save the original content of the button
+        const originalContent = button.innerHTML;
+
+        // Replace the button content with a loader
+        button.innerHTML = '<div class="loader" />';
+
+        try {
+            // Call the API to add the comment
+            await API.addComment(NO_CHECKLIST_NEEDED_TEMPLATE);
+        } catch (error) {
+            console.error('Error posting no-checklist-needed template:', error);
+        } finally {
+            // Restore the original button content
+            button.innerHTML = originalContent;
+        }
+    };
+
+    /**
+     * Posts the auto-filled backend contributor payment details as a comment on the current issue.
+     * Reads the raw issue body and posts everything after the delimiter, so the explanatory line and
+     * the button are left out of the posted comment.
+     * @param {Event} e
+     */
+    const postPaymentDetails = async (e) => {
+        e.preventDefault();
+
+        // Get the button element
+        const button = e.target;
+
+        // Save the original content of the button
+        const originalContent = button.innerHTML;
+
+        // Replace the button content with a loader
+        button.innerHTML = '<div class="loader" />';
+
+        try {
+            const response = await API.getCurrentIssueDescription();
+            const body = (response && response.data && response.data.body) || '';
+            const parts = body.split(BEC_PAYMENT_DETAILS_DELIMITER);
+            const details = parts.length > 1 ? parts[1].trim() : '';
+
+            if (details) {
+                await API.addComment(details);
+            }
+        } catch (error) {
+            console.error('Error posting payment details:', error);
         } finally {
             // Restore the original button content
             button.innerHTML = originalContent;
@@ -237,7 +305,7 @@ export default function () {
 
     /**
      * Renders buttons for copying checklists in issue/PR bodies
-     * @param {'bugzero' | 'reviewer'} checklistType Type of target checklist
+     * @param {'cplus' | 'reviewer'} checklistType Type of target checklist
      */
     Page.renderCopyChecklistButtons = function (checklistType) {
         // Look through all the comments on the page to find one that has the template for the copy/paste checklist button
@@ -246,10 +314,10 @@ export default function () {
             const commentHtml = $(el).html();
 
             // When the button template is found, replace it with an HTML button and then put that back into the DOM so someone can click on it
-            // Check for checklist-specific content (BUGZERO_CHECKLIST.md or REVIEWER_CHECKLIST.md)
+            // Check for checklist-specific content (CONTRIBUTOR_PLUS_CHECKLIST.md or REVIEWER_CHECKLIST.md)
             const isChecklistComment = commentHtml
                 && commentHtml.indexOf('you can simply click: [this button]') > -1
-                && (commentHtml.indexOf('BUGZERO_CHECKLIST.md') > -1
+                && (commentHtml.indexOf('CONTRIBUTOR_PLUS_CHECKLIST.md') > -1
                 || commentHtml.indexOf('REVIEWER_CHECKLIST.md') > -1);
 
             if (isChecklistComment) {
@@ -258,6 +326,46 @@ export default function () {
 
                 // Now that the button is on the page, add a click handler to it (always remove all handlers first so that we know there will always be one handler attached)
                 $('.k2-copy-checklist').off().on('click', e => copyReviewerChecklist(e, checklistType));
+            }
+        });
+    };
+
+    /**
+     * Renders a button that, when clicked, posts a `### No Checklist Needed` template comment.
+     * The C+ then edits the comment to fill in the reason.
+     */
+    Page.renderNoChecklistNeededButton = function () {
+        // Look through all the comments on the page to find one that has the [no checklist button] placeholder
+        // eslint-disable-next-line rulesdir/prefer-underscore-method
+        $('.markdown-body > p').each((i, el) => {
+            const commentHtml = $(el).html();
+
+            if (commentHtml && commentHtml.indexOf('[no checklist button]') > -1) {
+                const newHtml = commentHtml.replace('[no checklist button]', '<button type="button" class="btn btn-sm k2-no-checklist-needed">HERE</button>');
+                $(el).html(newHtml);
+
+                // Always remove all handlers first so we know there is exactly one attached
+                $('.k2-no-checklist-needed').off().on('click', postNoChecklistNeededTemplate);
+            }
+        });
+    };
+
+    /**
+     * Renders a button that posts the auto-filled backend contributor payment details as a comment.
+     * The button replaces the [post payment details] placeholder in the payment request body.
+     */
+    Page.renderPaymentDetailsButton = function () {
+        // Look through the issue body paragraphs for the [post payment details] placeholder
+        // eslint-disable-next-line rulesdir/prefer-underscore-method
+        $('.markdown-body > p').each((i, el) => {
+            const commentHtml = $(el).html();
+
+            if (commentHtml && commentHtml.indexOf('[post payment details]') > -1) {
+                const newHtml = commentHtml.replace('[post payment details]', '<button type="button" class="btn btn-sm k2-post-payment-details">Post payment details</button>');
+                $(el).html(newHtml);
+
+                // Always remove all handlers first so we know there is exactly one attached
+                $('.k2-post-payment-details').off().on('click', postPaymentDetails);
             }
         });
     };

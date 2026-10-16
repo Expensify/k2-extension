@@ -2,7 +2,45 @@ import _ from 'underscore';
 import ReactNativeOnyx from 'react-native-onyx';
 import * as API from '../api';
 import ONYXKEYS from '../../ONYXKEYS';
+import CONST from '../../CONST';
 import ActionThrottle from '../ActionThrottle';
+import getPullRequestIssueURLs from '../getPullRequestIssueURLs';
+
+/**
+ * Resolve each issue once, even when several PRs address it.
+ *
+ * @param {Object} prs
+ * @returns {Promise<Object>}
+ */
+function getLinkedIssues(prs) {
+    const issueURLsByPR = _.mapObject(prs, getPullRequestIssueURLs);
+    const issuesByURL = {};
+    _.each(prs, (pr) => {
+        _.each(pr.closingIssuesReferences && pr.closingIssuesReferences.nodes, (issue) => {
+            issuesByURL[issue.url.toLowerCase()] = issue;
+        });
+    });
+
+    const issueURLs = _.uniq(_.flatten(_.values(issueURLsByPR)));
+    return Promise.all(_.map(issueURLs, (url) => {
+        if (issuesByURL[url]) {
+            return Promise.resolve();
+        }
+
+        return API.getIssueByURL(url)
+            .catch(() => {
+                // Keep the issue link usable when its title is unavailable, including for private issues.
+                const [, owner, repo, , number] = new URL(url).pathname.split('/');
+                return {url, title: `${owner}/${repo} #${number}`};
+            })
+            .then((issue) => {
+                issuesByURL[url] = issue;
+            });
+    })).then(() => _.mapObject(prs, pr => ({
+        ...pr,
+        linkedIssues: _.map(issueURLsByPR[pr.id], url => issuesByURL[url]),
+    })));
+}
 
 function getChecks(prs, onyxKey) {
     const checkRunPromises = _.reduce(prs, (finalPromiseArray, pr) => {
@@ -16,11 +54,21 @@ function getChecks(prs, onyxKey) {
                         checkConclusion: _.reduce(
                             response.data.check_runs,
                             (previousValue, currentValue) => {
+                                if (_.contains(CONST.IGNORED_CHECK_RUN_NAMES, currentValue.name)) {
+                                    return previousValue;
+                                }
+
                                 const conclusion = currentValue.conclusion;
 
                                 // If any check runs are failing, mark it failed
                                 if (conclusion === 'failure' || previousValue === 'failure') {
                                     return 'failure';
+                                }
+
+                                // Check runs only get a conclusion once they complete, so any run that isn't
+                                // completed yet means the overall result is still pending
+                                if (currentValue.status !== 'completed' || previousValue === 'pending') {
+                                    return 'pending';
                                 }
 
                                 // If the current check run is successful, mark it success. If the previous one is
@@ -67,13 +115,15 @@ function getAssigned() {
                             // eslint-disable-next-line no-param-reassign
                             prs[authorPr.id] = authorPr;
                         });
-
+                        return getLinkedIssues(prs);
+                    })
+                    .then((prsWithIssues) => {
                         // Always use set() here because there is no way to remove issues from Onyx
                         // that get closed and are no longer assigned
-                        ReactNativeOnyx.set(ONYXKEYS.PRS.ASSIGNED, prs);
+                        ReactNativeOnyx.set(ONYXKEYS.PRS.ASSIGNED, prsWithIssues);
 
                         // Get the check-runs for each PR and then merge that information into the PR information in Onyx.
-                        return getChecks(prs, ONYXKEYS.PRS.ASSIGNED);
+                        return getChecks(prsWithIssues, ONYXKEYS.PRS.ASSIGNED);
                     })
             ))
     ));

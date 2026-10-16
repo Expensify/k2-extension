@@ -65,6 +65,10 @@ module.exports = (env) => {
                     test: /\.html$/i,
                     use: 'underscore-template-loader'
                 },
+                {
+                    test: /\.svg$/i,
+                    type: 'asset/source',
+                },
 
                 // Transpiles ES6 and JSX
                 {

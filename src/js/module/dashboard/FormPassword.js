@@ -1,12 +1,12 @@
-import $ from 'jquery';
+/* eslint-disable react/no-danger */
+
 import React from 'react';
-import _ from 'underscore';
 import PropTypes from 'prop-types';
-import * as Preferences from '../../lib/actions/Preferences';
-import Title from '../../component/panel-title/Title';
+import loginIllustration from '../../../../assets/simple-illustration__submit-daily.svg';
+import * as GitHubOAuth from '../../lib/GitHubOAuth';
 
 const propTypes = {
-    /** A callback function that is triggered after the form is submitted */
+    /** A callback function that is triggered after sign in succeeds */
     onFinished: PropTypes.func,
 };
 const defaultProps = {
@@ -17,70 +17,95 @@ class FormPassword extends React.Component {
     constructor(props) {
         super(props);
 
-        this.submitForm = this.submitForm.bind(this);
-    }
+        this.state = {
+            isLoading: false,
+            error: null,
+        };
 
-    componentDidMount() {
-        this.input.focus();
+        this.handleOAuth = this.handleOAuth.bind(this);
     }
 
     /**
-     * Get the password and store it as a user preference
-     *
-     * @param {Object} e React form submit event
+     * Handle OAuth authentication
      */
-    submitForm(e) {
-        e.preventDefault();
-        const formData = $(this.form).serializeArray();
-        const passwordData = _.findWhere(formData, {name: 'password'});
+    async handleOAuth() {
+        if (!GitHubOAuth.isOAuthAvailable()) {
+            this.setState({
+                error: 'Sign in is not available in this browser context.',
+            });
+            return;
+        }
 
-        // Save the github token to our locally stored preferences
-        Preferences.setGitHubToken(passwordData.value);
+        this.setState({
+            isLoading: true,
+            error: null,
+        });
 
-        // Trigger the callback function so we can move on
-        this.props.onFinished();
+        try {
+            await GitHubOAuth.initiateOAuth();
+
+            // OAuth success - token is stored automatically
+            // Clear loading state before calling onFinished
+            this.setState({
+                isLoading: false,
+                error: null,
+            });
+
+            // Trigger the callback function so we can move on
+            this.props.onFinished();
+        } catch (error) {
+            this.setState({
+                error: `Sign in failed: ${error.message}`,
+                isLoading: false,
+            });
+        }
     }
 
     render() {
+        const isOAuthAvailable = GitHubOAuth.isOAuthAvailable();
+
         return (
-            <div className="columns">
-                <div className="one-third column centered">
-                    <form ref={el => this.form = el} onSubmit={this.submitForm}>
-                        <div className="panel mb-3">
-                            <Title text="Enter Credentials" />
+            <div className="k2-login-shell">
+                <section className="k2-login-hero">
+                    <div className="k2-login-card">
+                        <div className="k2-login-card-header">
+                            <span
+                                aria-hidden="true"
+                                className="k2-login-illustration"
+                                dangerouslySetInnerHTML={{__html: loginIllustration}}
+                            />
                             <div>
-                                <div className="panel-item">
-                                    <label htmlFor="password">Personal Access Token</label>
-
-                                    <input
-                                        ref={el => this.input = el}
-                                        type="password"
-                                        id="password"
-                                        name="password"
-                                        className="input-block"
-                                        required
-                                    />
-
-                                    <p>
-                                        A
-                                        {' '}
-                                        <a href="https://github.com/Expensify/k2-extension/#note-it-requires-a-personal-access-token" target="_blank" rel="noopener noreferrer">
-                                            Personal Access Token
-                                        </a>
-                                        {' '}
-                                        is required to make custom queries against the GitHub.com API.
-                                    </p>
-                                </div>
-
-                                <footer className="panel-footer form-actions">
-                                    <button className="btn btn-primary" type="submit">
-                                        Submit
-                                    </button>
-                                </footer>
+                                <span className="k2-login-card-label">K2 Login</span>
+                                <h2>Welcome to K2</h2>
                             </div>
                         </div>
-                    </form>
-                </div>
+
+                        {this.state.error && (
+                            <div className="flash flash-error k2-login-error">
+                                {this.state.error}
+                            </div>
+                        )}
+
+                        <p className="k2-login-card-copy">
+                            Sign in with GitHub to view your K2 dashboard and assigned work.
+                        </p>
+
+                        {!isOAuthAvailable && (
+                            <p className="k2-login-unavailable">
+                                Sign in is not available in this browser context.
+                            </p>
+                        )}
+
+                        <button
+                            className="btn btn-primary k2-login-button"
+                            type="button"
+                            onClick={this.handleOAuth}
+                            disabled={this.state.isLoading || !isOAuthAvailable}
+                        >
+                            {this.state.isLoading ? 'Authenticating...' : 'Continue with GitHub'}
+                        </button>
+                    </div>
+                </section>
             </div>
         );
     }

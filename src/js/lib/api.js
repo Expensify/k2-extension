@@ -2,22 +2,99 @@ import $ from 'jquery';
 import _ from 'underscore';
 import {Octokit} from 'octokit';
 import * as Preferences from './actions/Preferences';
+import * as GitHubOAuth from './GitHubOAuth';
 
-let octokit;
+/**
+ * Custom Octokit auth strategy that resolves the token at request time instead
+ * of baking it into the instance at construction. The hook receives the bare
+ * inner request function, so retrying inside it does NOT re-run any auth hooks
+ * (avoiding stale-token contamination), and we can await a token refresh before
+ * the request is sent.
+ *
+ * @returns {Function} auth function with a `hook` property (Octokit authStrategy contract)
+ */
+function createDynamicAuth() {
+    const auth = async () => ({
+        type: 'token',
+        tokenType: 'oauth',
+        token: Preferences.getGitHubToken() || '',
+    });
+
+    auth.hook = async (request, route, parameters) => {
+        // Proactively refresh the OAuth token when it's expired or about to
+        // expire, so requests rarely ever see a 401
+        await GitHubOAuth.refreshIfNeeded();
+
+        const endpoint = request.endpoint.merge(route, parameters);
+
+        // getGitHubToken() returns the OAuth token when present and valid, and
+        // falls back to a legacy Personal Access Token otherwise
+        const tokenUsed = Preferences.getGitHubToken();
+        if (tokenUsed) {
+            endpoint.headers.authorization = `token ${tokenUsed}`;
+        }
+
+        try {
+            return await request(endpoint);
+        } catch (error) {
+            if (error.status !== 401) {
+                throw error;
+            }
+
+            const shouldClearOAuthAuth = Preferences.getAuthType() === 'oauth';
+
+            const clearOAuthAuthAndThrow = async () => {
+                if (shouldClearOAuthAuth) {
+                    await GitHubOAuth.clearOAuthAuth();
+                }
+                throw error;
+            };
+
+            let retryToken = Preferences.getGitHubToken();
+            if (!retryToken || retryToken === tokenUsed) {
+                // The stored token is the one that just failed, so rotate it.
+                // But if it was *just* rotated, another rotation won't fix the
+                // 401 and would burn the single-use refresh token chain.
+                if (GitHubOAuth.wasTokenJustRefreshed()) {
+                    await clearOAuthAuthAndThrow();
+                }
+                try {
+                    await GitHubOAuth.refreshTokenViaBackground(true);
+                } catch (refreshError) {
+                    // Refresh isn't possible (e.g. PAT user) or failed - surface the original 401
+                    await clearOAuthAuthAndThrow();
+                }
+                retryToken = Preferences.getGitHubToken();
+                if (!retryToken || retryToken === tokenUsed) {
+                    await clearOAuthAuthAndThrow();
+                }
+            }
+
+            // Retry once with the new token. `request` here is the bare inner
+            // request, so no other hook can overwrite this header.
+            endpoint.headers.authorization = `token ${retryToken}`;
+            try {
+                return await request(endpoint);
+            } catch (retryError) {
+                if (retryError.status === 401) {
+                    await clearOAuthAuthAndThrow();
+                }
+                throw retryError;
+            }
+        }
+    };
+
+    return auth;
+}
 
 /**
  * @returns {Octokit}
  */
 function getOctokit() {
-    if (!octokit) {
-        /* eslint-disable-next-line no-console */
-        console.log('authenticate with auth token', Preferences.getGitHubToken());
-        octokit = new Octokit({
-            auth: Preferences.getGitHubToken(),
-            userAgent: 'expensify-k2-extension',
-        });
-    }
-    return octokit;
+    return new Octokit({
+        authStrategy: createDynamicAuth,
+        userAgent: 'expensify-k2-extension',
+    });
 }
 
 /**
@@ -40,7 +117,7 @@ function getCurrentUser() {
  */
 function getRequestParams() {
     const url = window.location.href;
-    const regex = /github.com\/(?<owner>\w*)\/(?<repo>\w*)(?:\/(?:issues|pull)\/(?<issue_number>\d*))?/;
+    const regex = /github.com\/(?<owner>[\w-]+)\/(?<repo>[\w.-]+)(?:\/(?:issues|pull)\/(?<issue_number>\d+))?/;
     const matches = url.match(regex);
 
     return {
@@ -221,8 +298,10 @@ query {
             ... on PullRequest {
                 headRefOid
                 id
+                body
                 isDraft
                 mergeable
+                number
                 reviewDecision
                 title
                 url
@@ -237,6 +316,12 @@ query {
                 }
                 comments {
                     totalCount
+                }
+                closingIssuesReferences(first: 100) {
+                    nodes {
+                        title
+                        url
+                    }
                 }
                 repository {
                     name
@@ -263,6 +348,115 @@ query {
             // Index the results by their ID so they are easier to access as a collection
             return _.indexBy(results, 'id');
         });
+}
+
+/**
+ * Get the SHA of the commit at the head of a pull request, which is the commit whose checks GitHub's
+ * favicon and merge box report on.
+ *
+ * @param {String} owner
+ * @param {String} repo
+ * @param {Number} pullRequestNumber
+ * @returns {Promise<String|null>}
+ */
+function getPullRequestHeadRefOid(owner, repo, pullRequestNumber) {
+    const graphQLQuery = `
+query($owner:String!, $repo:String!, $number:Int!) {
+    repository(owner: $owner, name: $repo) {
+        pullRequest(number: $number) {
+            headRefOid
+        }
+    }
+}
+    `;
+
+    return getOctokit().graphql(graphQLQuery, {owner, repo, number: pullRequestNumber})
+        .then(data => (data.repository && data.repository.pullRequest && data.repository.pullRequest.headRefOid) || null);
+}
+
+/**
+ * Get every check run and commit status that feeds the status indicator GitHub shows for a single commit.
+ * These are two separate concepts in the GitHub API, and the "status check rollup" is what combines them.
+ *
+ * @param {String} owner
+ * @param {String} repo
+ * @param {String} oid The full 40 character commit SHA
+ * @returns {Promise<Array<Object>>}
+ */
+async function getStatusCheckRollup(owner, repo, oid) {
+    const graphQLQuery = `
+query($owner:String!, $repo:String!, $oid:GitObjectID!, $cursor:String) {
+    repository(owner: $owner, name: $repo) {
+        object(oid: $oid) {
+            ... on Commit {
+                statusCheckRollup {
+                    contexts(first: 100, after: $cursor) {
+                        pageInfo {
+                            endCursor
+                            hasNextPage
+                        }
+                        nodes {
+                            type: __typename
+                            ... on CheckRun {
+                                name
+                                status
+                                conclusion
+                                checkSuite {
+                                    workflowRun {
+                                        workflow {
+                                            resourcePath
+                                        }
+                                    }
+                                }
+                            }
+                            ... on StatusContext {
+                                context
+                                state
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+    `;
+
+    let contexts = [];
+    let cursor = null;
+
+    do {
+        // eslint-disable-next-line no-await-in-loop
+        const data = await getOctokit().graphql(graphQLQuery, {
+            owner, repo, oid, cursor,
+        });
+
+        const rollup = data.repository && data.repository.object && data.repository.object.statusCheckRollup;
+        if (!rollup) {
+            // A commit that has no checks at all has a null rollup. Once pages have already been read,
+            // a missing one instead means an incomplete set, and callers must not mistake the checks we
+            // did manage to read for all of them.
+            if (contexts.length) {
+                throw new Error(`Incomplete status check rollup for ${oid}`);
+            }
+            return [];
+        }
+
+        contexts = contexts.concat(rollup.contexts.nodes);
+        cursor = rollup.contexts.pageInfo.hasNextPage ? rollup.contexts.pageInfo.endCursor : null;
+    } while (cursor);
+
+    return contexts;
+}
+
+/**
+ * @param {String} url A GitHub issue URL
+ * @returns {Promise<Object>}
+ */
+function getIssueByURL(url) {
+    const [, owner, repo, , issueNumber] = new URL(url).pathname.split('/');
+    return getOctokit().rest.issues.get({owner, repo, issue_number: Number(issueNumber)})
+        .then(response => ({title: response.data.title, url: response.data.html_url}));
 }
 
 function getCheckRuns(repo, headSHA) {
@@ -511,6 +705,77 @@ function updateComment(commentId, body) {
 }
 
 /**
+ * Look up an issue comment's GraphQL node ID by its numeric REST ID.
+ * @param {Number|String} commentID
+ * @returns {Promise<String>}
+ */
+function getIssueCommentNodeID(commentID) {
+    const {owner, repo} = getRequestParams();
+    return getOctokit().rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
+        .then(response => response.data.node_id);
+}
+
+/**
+ * Look up a pull-request review's GraphQL node ID by its numeric REST ID.
+ * @param {Number|String} reviewID
+ * @returns {Promise<String>}
+ */
+function getPullRequestReviewNodeID(reviewID) {
+    const {owner, repo, issue_number} = getRequestParams();
+    return getOctokit().rest.pulls.getReview({
+        owner,
+        repo,
+        pull_number: Number(issue_number),
+        review_id: Number(reviewID),
+    }).then(response => response.data.node_id);
+}
+
+/**
+ * Look up an inline PR review-thread comment's GraphQL node ID by its numeric REST ID.
+ * @param {Number|String} commentID
+ * @returns {Promise<String>}
+ */
+function getPullRequestReviewCommentNodeID(commentID) {
+    const {owner, repo} = getRequestParams();
+    return getOctokit().rest.pulls.getReviewComment({
+        owner,
+        repo,
+        comment_id: Number(commentID),
+    }).then(response => response.data.node_id);
+}
+
+/**
+ * Minimize a comment with a GitHub reported-content classifier.
+ * @param {String} nodeID GraphQL node ID of the comment subject
+ * @param {String} classifier ReportedContentClassifiers enum value
+ * @returns {Promise}
+ */
+function minimizeComment(nodeID, classifier) {
+    const mutation = `
+        mutation MinimizeComment($id: ID!, $classifier: ReportedContentClassifiers!) {
+            minimizeComment(input: {subjectId: $id, classifier: $classifier}) {
+                minimizedComment {
+                    isMinimized
+                    minimizedReason
+                }
+            }
+        }
+    `;
+    return getOctokit().graphql(mutation, {id: nodeID, classifier});
+}
+
+/**
+ * Get the reason GitHub stored for a minimized issue comment.
+ * @param {Number|String} commentID
+ * @returns {Promise<String>}
+ */
+function getIssueCommentMinimizedReason(commentID) {
+    const {owner, repo} = getRequestParams();
+    return getOctokit().rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
+        .then(response => response.data.minimized && response.data.minimized.reason);
+}
+
+/**
  * Get recent workflow runs for a specific workflow
  * @param {String} workflowId
  * @param {Number} perPage
@@ -552,6 +817,7 @@ export {
     getMilestones,
     getCurrentUser,
     getPullsByType,
+    getIssueByURL,
     getCurrentIssueDescription,
     setCurrentIssueBody,
     getPreviousInstancesOfIssue,
@@ -559,4 +825,11 @@ export {
     updateComment,
     getWorkflowRuns,
     getWorkflowRun,
+    getIssueCommentNodeID,
+    getPullRequestReviewNodeID,
+    getPullRequestReviewCommentNodeID,
+    minimizeComment,
+    getIssueCommentMinimizedReason,
+    getStatusCheckRollup,
+    getPullRequestHeadRefOid,
 };
