@@ -1025,6 +1025,16 @@ body.k2-page-active {
     nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link)::before {
         display: none !important;
     }
+
+    // Keep GitHub's repository content intact and hide it while the K2 host is active.
+    #ui-service-main-content > :not(.k2-dashboard-host),
+    .repository-content > :not(.k2-dashboard-host) {
+        display: none !important;
+    }
+}
+
+body:not(.k2-page-active) .k2-dashboard-host {
+    display: none;
 }
 
 @media (prefers-color-scheme: dark) {
