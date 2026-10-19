@@ -170,7 +170,6 @@ const refreshPicker = function () {
     new K2pickerType().draw();
     new K2pickerarea().draw();
     new ToggleReview().draw();
-    new LinkedPullRequests().draw();
     new K2comments().draw();
     new K2previousissues().draw();
 
@@ -218,6 +217,8 @@ export default function () {
             if (!$('.k2picker-wrapper')) {
                 refreshPicker();
             }
+
+            new LinkedPullRequests().draw();
 
             // Re-render if the number of assignees doesn't match the number of star buttons
             // (handles both newly added and removed assignees)

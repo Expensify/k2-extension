@@ -450,35 +450,18 @@ query($owner:String!, $repo:String!, $oid:GitObjectID!, $cursor:String) {
 }
 
 /**
- * Get every pull request that mentions the current issue or that someone linked to it in the Development section.
+ * Get every pull request that mentions the current issue.
  * GitHub leaves out pull requests from repositories that the user can't see.
  *
  * @returns {Promise<Array<Object>>} Pull requests in the order they appear on the issue timeline
  */
 async function getCurrentIssuePullRequests() {
     const {owner, repo, issue_number: issueNumber} = getRequestParams();
-    const pullRequestFields = `
-        ... on PullRequest {
-            number
-            title
-            url
-            state
-            isDraft
-            author {
-                login
-                avatarUrl(size: 40)
-            }
-            repository {
-                name
-                nameWithOwner
-            }
-        }
-    `;
     const graphQLQuery = `
 query($owner:String!, $repo:String!, $number:Int!, $cursor:String) {
     repository(owner: $owner, name: $repo) {
         issue(number: $number) {
-            timelineItems(first: 100, after: $cursor, itemTypes: [CROSS_REFERENCED_EVENT, CONNECTED_EVENT]) {
+            timelineItems(first: 100, after: $cursor, itemTypes: [CROSS_REFERENCED_EVENT]) {
                 pageInfo {
                     endCursor
                     hasNextPage
@@ -486,12 +469,21 @@ query($owner:String!, $repo:String!, $number:Int!, $cursor:String) {
                 nodes {
                     ... on CrossReferencedEvent {
                         source {
-                            ${pullRequestFields}
-                        }
-                    }
-                    ... on ConnectedEvent {
-                        subject {
-                            ${pullRequestFields}
+                            ... on PullRequest {
+                                number
+                                title
+                                url
+                                state
+                                isDraft
+                                author {
+                                    login
+                                    avatarUrl(size: 40)
+                                }
+                                repository {
+                                    name
+                                    nameWithOwner
+                                }
+                            }
                         }
                     }
                 }
@@ -516,7 +508,7 @@ query($owner:String!, $repo:String!, $number:Int!, $cursor:String) {
             break;
         }
 
-        pullRequests = pullRequests.concat(_.map(timelineItems.nodes, node => node && (node.source || node.subject)));
+        pullRequests = pullRequests.concat(_.map(timelineItems.nodes, node => node && node.source));
         cursor = timelineItems.pageInfo.hasNextPage ? timelineItems.pageInfo.endCursor : null;
     } while (cursor);
 

@@ -241,18 +241,19 @@ $color-dark-yellow: #DAA520;
   margin: 0;
   padding: 0;
 }
-.k2-linked-prs-message {
-  color: var(--fgColor-muted, #656d76);
-  font-size: 12px;
+// GitHub hides "No branches or pull requests" when it lists its own pull requests, so this does the same for ours.
+[data-testid="sidebar-development-section"]:has(.k2-linked-prs) [class*="developmentHelpText"] {
+  display: none;
 }
 .k2-linked-pr {
   display: flex;
   gap: 8px;
-  padding: 4px 0;
+  padding: 6px 8px;
+  border-radius: 6px;
   color: var(--fgColor-default, #1f2328);
   &:hover {
     text-decoration: none;
-    .k2-linked-pr-title { color: var(--fgColor-accent, #0969da); }
+    background-color: var(--control-transparent-bgColor-hover, #818b981a);
   }
 }
 .k2-linked-pr-icon {

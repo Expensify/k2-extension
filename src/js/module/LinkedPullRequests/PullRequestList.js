@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import React from 'react';
+import PropTypes from 'prop-types';
 import * as API from '../../lib/api';
 
 // These are the `d` attributes of the 16px GitHub octicons for each pull request state.
@@ -38,39 +39,83 @@ function getPullRequestState(pullRequest) {
     return pullRequest.isDraft ? 'draft' : 'open';
 }
 
+const propTypes = {
+    /** GitHub's list of linked pull requests in the Development section */
+    nativeList: PropTypes.instanceOf(Element),
+};
+const defaultProps = {
+    nativeList: null,
+};
+
+const pullRequestsByIssuePath = {};
+
+/**
+ * The list is drawn again whenever GitHub renders the Development section, so this keeps one request for each issue.
+ *
+ * @returns {Promise<Array<Object>>}
+ */
+function getPullRequests() {
+    const issuePath = window.location.pathname;
+    if (!pullRequestsByIssuePath[issuePath]) {
+        pullRequestsByIssuePath[issuePath] = API.getCurrentIssuePullRequests()
+            .catch((e) => {
+                delete pullRequestsByIssuePath[issuePath];
+                throw e;
+            });
+    }
+    return pullRequestsByIssuePath[issuePath];
+}
+
+/**
+ * @param {Element|null} nativeList GitHub's list of linked pull requests
+ * @returns {Array<String>}
+ */
+function getNativeURLs(nativeList) {
+    if (!nativeList) {
+        return [];
+    }
+    return _.map(nativeList.querySelectorAll('a[href]'), link => link.href);
+}
+
 class PullRequestList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isLoading: true,
-            hasError: false,
             pullRequests: [],
+            nativeURLs: getNativeURLs(props.nativeList),
         };
     }
 
     componentDidMount() {
-        API.getCurrentIssuePullRequests()
-            .then(pullRequests => this.setState({isLoading: false, pullRequests}))
-            .catch((e) => {
-                console.error(e);
-                this.setState({isLoading: false, hasError: true});
-            });
+        getPullRequests()
+            .then(pullRequests => this.setState({pullRequests}))
+            .catch(console.error);
+
+        if (!this.props.nativeList) {
+            return;
+        }
+
+        // GitHub loads its linked pull requests after the section appears, and it updates them when someone links one.
+        this.nativeListObserver = new MutationObserver(() => this.setState({nativeURLs: getNativeURLs(this.props.nativeList)}));
+        this.nativeListObserver.observe(this.props.nativeList, {childList: true, subtree: true});
     }
 
-    renderContent() {
-        if (this.state.isLoading) {
-            return <div className="k2-linked-prs-message">Loading…</div>;
+    componentWillUnmount() {
+        if (!this.nativeListObserver) {
+            return;
         }
-        if (this.state.hasError) {
-            return <div className="k2-linked-prs-message">Could not load pull requests</div>;
-        }
-        if (!this.state.pullRequests.length) {
-            return <div className="k2-linked-prs-message">No pull requests</div>;
+        this.nativeListObserver.disconnect();
+    }
+
+    render() {
+        const pullRequests = _.reject(this.state.pullRequests, pullRequest => _.contains(this.state.nativeURLs, pullRequest.url));
+        if (!pullRequests.length) {
+            return null;
         }
 
         return (
             <ul className="k2-linked-prs">
-                {_.map(this.state.pullRequests, (pullRequest) => {
+                {_.map(pullRequests, (pullRequest) => {
                     const state = getPullRequestState(pullRequest);
                     const author = pullRequest.author;
                     return (
@@ -110,16 +155,9 @@ class PullRequestList extends React.Component {
             </ul>
         );
     }
-
-    render() {
-        return (
-            <div>
-                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                <label>Pull Requests</label>
-                {this.renderContent()}
-            </div>
-        );
-    }
 }
+
+PullRequestList.propTypes = propTypes;
+PullRequestList.defaultProps = defaultProps;
 
 export default PullRequestList;
