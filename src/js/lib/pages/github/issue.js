@@ -7,6 +7,7 @@ import K2picker from '../../../module/K2picker/K2picker';
 import K2pickerarea from '../../../module/K2pickerarea/K2pickerarea';
 import K2pickerType from '../../../module/K2pickertype/K2pickertype';
 import ToggleReview from '../../../module/ToggleReview/ToggleReview';
+import LinkedPullRequests from '../../../module/LinkedPullRequests/LinkedPullRequests';
 import ToggleTimestamps from '../../../module/ToggleTimestamps/ToggleTimestamps';
 import ToggleAutoLoadMore from '../../../module/ToggleAutoLoadMore/ToggleAutoLoadMore';
 import K2comments from '../../../module/K2comments/K2comments';
@@ -217,6 +218,8 @@ export default function () {
             if (!$('.k2picker-wrapper')) {
                 refreshPicker();
             }
+
+            new LinkedPullRequests().draw();
 
             // Re-render if the number of assignees doesn't match the number of star buttons
             // (handles both newly added and removed assignees)
