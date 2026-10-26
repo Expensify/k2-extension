@@ -1,6 +1,6 @@
 {
   "name": "k2-extension",
-  "version": "1.5.74",
+  "version": "1.5.78",
   "description": "A browser extension for Kernel Schedule",
   "private": true,
   "scripts": {
@@ -56,6 +56,7 @@
   "overrides": {
     "react-native-onyx": {
       "lodash.pick": "npm:lodash@^4.17.21"
-    }
+    },
+    "tmp": "0.2.7"
   }
 }
