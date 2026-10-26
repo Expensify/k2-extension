@@ -52,5 +52,8 @@
     "webpack": "^5.97.1",
     "webpack-cli": "^4.10.0",
     "webpack-merge": "^5.10.0"
+  },
+  "overrides": {
+    "shell-quote": "^1.12.0"
   }
 }
