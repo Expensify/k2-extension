@@ -1,6 +1,6 @@
 {
   "name": "k2-extension",
-  "version": "1.5.74",
+  "version": "1.5.78",
   "description": "A browser extension for Kernel Schedule",
   "private": true,
   "scripts": {
@@ -52,5 +52,8 @@
     "webpack": "^5.97.1",
     "webpack-cli": "^4.10.0",
     "webpack-merge": "^5.10.0"
+  },
+  "overrides": {
+    "tmp": "0.2.7"
   }
 }
