@@ -54,6 +54,7 @@
     "webpack-merge": "^5.10.0"
   },
   "overrides": {
+    "image-size": "^2.0.4",
     "react-native-onyx": {
       "lodash.pick": "npm:lodash@^4.17.21"
     },
