@@ -54,6 +54,7 @@
     "webpack-merge": "^5.10.0"
   },
   "overrides": {
+    "firefox-profile": "4.7.1",
     "react-native-onyx": {
       "lodash.pick": "npm:lodash@^4.17.21"
     },
