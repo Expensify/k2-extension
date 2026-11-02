@@ -55,6 +55,7 @@
   },
   "overrides": {
     "image-size": "^2.0.4",
+    "jws": "^3.2.3",
     "react-native-onyx": {
       "lodash.pick": "npm:lodash@^4.17.21"
     },
