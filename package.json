@@ -54,6 +54,7 @@
     "webpack-merge": "^5.10.0"
   },
   "overrides": {
+    "cross-spawn": "^7.0.6",
     "image-size": "^2.0.4",
     "react-native-onyx": {
       "lodash.pick": "npm:lodash@^4.17.21"
