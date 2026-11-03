@@ -1,6 +1,6 @@
 {
   "name": "k2-extension",
-  "version": "1.5.92",
+  "version": "1.5.99",
   "description": "A browser extension for Kernel Schedule",
   "private": true,
   "scripts": {
@@ -55,6 +55,9 @@
   },
   "overrides": {
     "firefox-profile": "4.7.1",
+    "cross-spawn": "^7.0.6",
+    "image-size": "^2.0.4",
+    "jws": "^3.2.3",
     "react-native-onyx": {
       "lodash.pick": "npm:lodash@^4.17.21"
     },
