@@ -7,8 +7,8 @@
         "babel.config.js",
         "dist/**"
     ],
-    "plugins": ["import", "react", "jsx-a11y"],
-    "jsPlugins": ["eslint-plugin-es", "./tools/eslint-plugin-rulesdir.cjs"],
+    "plugins": ["import", "react", "jsx-a11y", "oxc"],
+    "jsPlugins": ["./tools/eslint-plugin-rulesdir.cjs"],
     "categories": {
         "correctness": "off"
     },
@@ -573,7 +573,7 @@
         "jsx-a11y/role-supports-aria-props": "error",
         "jsx-a11y/scope": "error",
         "jsx-a11y/tabindex-no-positive": "error",
-        "es/no-optional-chaining": "error",
+        "oxc/no-optional-chaining": "error",
         "rulesdir/no-negated-variables": "error",
         "rulesdir/prefer-actions-set-data": "error",
         "rulesdir/prefer-onyx-connect-in-libs": "error",
