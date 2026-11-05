@@ -2,22 +2,99 @@ import $ from 'jquery';
 import _ from 'underscore';
 import {Octokit} from 'octokit';
 import * as Preferences from './actions/Preferences';
+import * as GitHubOAuth from './GitHubOAuth';
 
-let octokit;
+/**
+ * Custom Octokit auth strategy that resolves the token at request time instead
+ * of baking it into the instance at construction. The hook receives the bare
+ * inner request function, so retrying inside it does NOT re-run any auth hooks
+ * (avoiding stale-token contamination), and we can await a token refresh before
+ * the request is sent.
+ *
+ * @returns {Function} auth function with a `hook` property (Octokit authStrategy contract)
+ */
+function createDynamicAuth() {
+    const auth = async () => ({
+        type: 'token',
+        tokenType: 'oauth',
+        token: Preferences.getGitHubToken() || '',
+    });
+
+    auth.hook = async (request, route, parameters) => {
+        // Proactively refresh the OAuth token when it's expired or about to
+        // expire, so requests rarely ever see a 401
+        await GitHubOAuth.refreshIfNeeded();
+
+        const endpoint = request.endpoint.merge(route, parameters);
+
+        // getGitHubToken() returns the OAuth token when present and valid, and
+        // falls back to a legacy Personal Access Token otherwise
+        const tokenUsed = Preferences.getGitHubToken();
+        if (tokenUsed) {
+            endpoint.headers.authorization = `token ${tokenUsed}`;
+        }
+
+        try {
+            return await request(endpoint);
+        } catch (error) {
+            if (error.status !== 401) {
+                throw error;
+            }
+
+            const shouldClearOAuthAuth = Preferences.getAuthType() === 'oauth';
+
+            const clearOAuthAuthAndThrow = async () => {
+                if (shouldClearOAuthAuth) {
+                    await GitHubOAuth.clearOAuthAuth();
+                }
+                throw error;
+            };
+
+            let retryToken = Preferences.getGitHubToken();
+            if (!retryToken || retryToken === tokenUsed) {
+                // The stored token is the one that just failed, so rotate it.
+                // But if it was *just* rotated, another rotation won't fix the
+                // 401 and would burn the single-use refresh token chain.
+                if (GitHubOAuth.wasTokenJustRefreshed()) {
+                    await clearOAuthAuthAndThrow();
+                }
+                try {
+                    await GitHubOAuth.refreshTokenViaBackground(true);
+                } catch (refreshError) {
+                    // Refresh isn't possible (e.g. PAT user) or failed - surface the original 401
+                    await clearOAuthAuthAndThrow();
+                }
+                retryToken = Preferences.getGitHubToken();
+                if (!retryToken || retryToken === tokenUsed) {
+                    await clearOAuthAuthAndThrow();
+                }
+            }
+
+            // Retry once with the new token. `request` here is the bare inner
+            // request, so no other hook can overwrite this header.
+            endpoint.headers.authorization = `token ${retryToken}`;
+            try {
+                return await request(endpoint);
+            } catch (retryError) {
+                if (retryError.status === 401) {
+                    await clearOAuthAuthAndThrow();
+                }
+                throw retryError;
+            }
+        }
+    };
+
+    return auth;
+}
 
 /**
  * @returns {Octokit}
  */
 function getOctokit() {
-    if (!octokit) {
-        /* eslint-disable-next-line no-console */
-        console.log('authenticate with auth token', Preferences.getGitHubToken());
-        octokit = new Octokit({
-            auth: Preferences.getGitHubToken(),
-            userAgent: 'expensify-k2-extension',
-        });
-    }
-    return octokit;
+    return new Octokit({
+        authStrategy: createDynamicAuth,
+        userAgent: 'expensify-k2-extension',
+    });
 }
 
 /**
@@ -241,8 +318,10 @@ query {
             ... on PullRequest {
                 headRefOid
                 id
+                body
                 isDraft
                 mergeable
+                number
                 reviewDecision
                 title
                 url
@@ -257,6 +336,12 @@ query {
                 }
                 comments {
                     totalCount
+                }
+                closingIssuesReferences(first: 100) {
+                    nodes {
+                        title
+                        url
+                    }
                 }
                 repository {
                     name
@@ -400,6 +485,90 @@ query($owner:String!, $repo:String!, $oid:GitObjectID!, $cursor:String) {
     return contexts;
 }
 
+/**
+ * Get every pull request that mentions the current issue.
+ * GitHub leaves out pull requests from repositories that the user can't see.
+ *
+ * @returns {Promise<Array<Object>>} Pull requests in the order they appear on the issue timeline
+ */
+async function getCurrentIssuePullRequests() {
+    const {owner, repo, issue_number: issueNumber} = getRequestParams();
+    const graphQLQuery = `
+query($owner:String!, $repo:String!, $number:Int!, $cursor:String) {
+    repository(owner: $owner, name: $repo) {
+        issue(number: $number) {
+            timelineItems(first: 100, after: $cursor, itemTypes: [CROSS_REFERENCED_EVENT]) {
+                pageInfo {
+                    endCursor
+                    hasNextPage
+                }
+                nodes {
+                    ... on CrossReferencedEvent {
+                        source {
+                            ... on PullRequest {
+                                number
+                                title
+                                url
+                                state
+                                isDraft
+                                author {
+                                    login
+                                    avatarUrl(size: 40)
+                                }
+                                repository {
+                                    name
+                                    nameWithOwner
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+    `;
+
+    let pullRequests = [];
+    let cursor = null;
+    do {
+        // eslint-disable-next-line no-await-in-loop
+        const data = await getOctokit().graphql(graphQLQuery, {
+            owner,
+            repo,
+            number: Number(issueNumber),
+            cursor,
+        });
+        const timelineItems =
+            data.repository && data.repository.issue && data.repository.issue.timelineItems;
+        if (!timelineItems) {
+            break;
+        }
+
+        pullRequests = pullRequests.concat(_.map(timelineItems.nodes, node => node && node.source));
+        cursor = timelineItems.pageInfo.hasNextPage ? timelineItems.pageInfo.endCursor : null;
+    } while (cursor);
+
+    // Issues also show up as cross references, and those have no url in this query.
+    // A pull request can mention the issue more than once, so this keeps the first mention of each one.
+    return _.uniq(
+        _.filter(pullRequests, pullRequest => pullRequest && pullRequest.url),
+        false,
+        pullRequest => pullRequest.url,
+    );
+}
+
+/**
+ * @param {String} url A GitHub issue URL
+ * @returns {Promise<Object>}
+ */
+function getIssueByURL(url) {
+    const [, owner, repo, , issueNumber] = new URL(url).pathname.split('/');
+    return getOctokit()
+        .rest.issues.get({owner, repo, issue_number: Number(issueNumber)})
+        .then(response => ({title: response.data.title, url: response.data.html_url}));
+}
+
 function getCheckRuns(repo, headSHA) {
     return getOctokit().rest.checks.listForRef({
         owner: getRequestParams().owner,
@@ -432,6 +601,7 @@ function getIssues(assignee = 'none', labels = []) {
     query += ' repo:Expensify/App';
     query += ' repo:Expensify/VendorTasks';
     query += ' repo:Expensify/Insiders';
+    query += ' repo:Expensify/Alteryx-Data';
     query += ' repo:Expensify/Expensify-Guides';
     query += ' repo:Expensify/react-native-onyx';
 
@@ -762,7 +932,9 @@ export {
     getMilestones,
     getCurrentUser,
     getPullsByType,
+    getIssueByURL,
     getCurrentIssueDescription,
+    getCurrentIssuePullRequests,
     setCurrentIssueBody,
     getPreviousInstancesOfIssue,
     triggerWorkflow,
