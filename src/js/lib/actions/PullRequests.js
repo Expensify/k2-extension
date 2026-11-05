@@ -45,7 +45,7 @@ function getLinkedIssues(prs) {
 function getChecks(prs, onyxKey) {
     const checkRunPromises = _.reduce(prs, (finalPromiseArray, pr) => {
         finalPromiseArray.push(
-            API.getCheckRuns(pr.repository.name, pr.headRefOid).then((response) => {
+            API.getCheckRuns(pr.repository.owner.login, pr.repository.name, pr.headRefOid).then((response) => {
                 if (!response.data.check_runs || !response.data.check_runs.length) {
                     return;
                 }
@@ -102,7 +102,7 @@ function getChecks(prs, onyxKey) {
 }
 
 function getAssigned() {
-    ActionThrottle('getAssigned', () => (
+    return ActionThrottle('getAssigned', () => (
         API.getPullsByType('assignee')
             .then(prs => (
                 API.getPullsByType('author')
@@ -130,7 +130,7 @@ function getAssigned() {
 }
 
 function getReviewing() {
-    ActionThrottle('getReviewing', () => {
+    return ActionThrottle('getReviewing', () => {
         const promises = [];
         promises.push(API.getPullsByType('review-requested'));
         promises.push(API.getPullsByType('reviewed-by'));

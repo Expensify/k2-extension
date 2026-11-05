@@ -1,6 +1,7 @@
 {
     "manifest_version": 3,
     "name": "K2 for GitHub",
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyJdJRsPbmsP40BTEZOnNgv8jxdMdvbsVHMsT7iahlNSNmRl7u/VUbFbcgXebQ7RBgPGZFzB2Jd41UKYzg1FbXI5Ag5Gq8qYCHxEDeaDAYZgTybxAaJ92cNIk9AXivYOes4HbhesbR8MEz2k4SoKzF4TMQ89S/dCn+BC7LtgGj95+KOBqjPQfand3YiOPyuPlGTRfCWE5LDeSvHHybnb7zCWuKqYAbTLkcJo5ueJ96nSJhf1y62dPaxDeELdK4tkoa78Fp9I68fno4K0/eb7I/1ch1fA7roBlP8K3/tP2X0dFCncyaMdB88sgmK68oT1DtutxdERrZRS6lAt5rNuYCwIDAQAB",
     "version": "1.5.99",
     "description": "Manage your Kernel Scheduling from directly inside GitHub",
     "icons": {

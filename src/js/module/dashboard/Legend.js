@@ -1,23 +1,15 @@
 import React from 'react';
-import ReactNativeOnyx from 'react-native-onyx';
-import * as Preferences from '../../lib/actions/Preferences';
 import * as GitHubOAuth from '../../lib/GitHubOAuth';
 import ToggleOpenAll from '../ToggleOpenAll/Toggle';
 
 function Legend() {
     async function signOut() {
         try {
-            // Revoke OAuth token if using OAuth
-            if (Preferences.getAuthType() === 'oauth') {
-                await GitHubOAuth.revokeToken();
-            }
+            await GitHubOAuth.revokeToken();
         } catch (error) {
-            // Silently handle error - token revocation is best effort
+            // The auth store is unavailable only when the extension was reloaded.
         }
 
-        // Clear all authentication data
-        Preferences.clearAuth();
-        ReactNativeOnyx.clear();
         window.location.reload();
     }
 

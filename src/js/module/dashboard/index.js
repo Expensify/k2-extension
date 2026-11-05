@@ -4,6 +4,8 @@ import ReactNativeOnyx from 'react-native-onyx';
 import ListIssues from './ListIssues';
 import FormPassword from './FormPassword';
 import ONYXKEYS from '../../ONYXKEYS';
+import * as Preferences from '../../lib/actions/Preferences';
+import * as GitHubOAuth from '../../lib/GitHubOAuth';
 
 const HOST_CLASS = 'k2-dashboard-host';
 
@@ -80,18 +82,33 @@ function showPasswordForm() {
 
 /**
  * Check authentication status and show appropriate interface
+ * @param {Object} currentPreferences - User preferences from Onyx, potentially containing legacy credentials
  */
-function checkAuthAndShowInterface() {
-    // Check if user is authenticated with either PAT or OAuth
-    const hasPatAuth = preferences && preferences.ghToken;
-    const hasOAuthAuth = preferences && preferences.auth && preferences.auth.type === 'oauth' && preferences.auth.token;
-
-    if (!hasPatAuth && !hasOAuthAuth) {
+async function checkAuthAndShowInterface(currentPreferences) {
+    let legacyAuth = null;
+    if (currentPreferences && currentPreferences.auth) {
+        legacyAuth = currentPreferences.auth;
+    } else if (currentPreferences && currentPreferences.ghToken) {
+        legacyAuth = {type: 'pat', token: currentPreferences.ghToken};
+    }
+    const migration = await GitHubOAuth.migrateLegacyAuth(legacyAuth);
+    if (migration.migrated) {
+        Preferences.clearLegacyGitHubAuth();
+    }
+    if (!migration.authenticated) {
         showPasswordForm();
         return;
     }
 
     showDashboard();
+}
+
+function updateInterface() {
+    checkAuthAndShowInterface(preferences).catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error('Unable to check GitHub authentication', error);
+        showPasswordForm();
+    });
 }
 
 export {getDashboardParent};
@@ -103,7 +120,7 @@ export default () => ({
         }
 
         if (isConnectedToPreferences) {
-            checkAuthAndShowInterface();
+            updateInterface();
             return;
         }
 
@@ -117,7 +134,7 @@ export default () => ({
             key: ONYXKEYS.PREFERENCES,
             callback: (newPreferences) => {
                 preferences = newPreferences;
-                checkAuthAndShowInterface();
+                updateInterface();
             },
         });
     },

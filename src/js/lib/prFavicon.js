@@ -1,9 +1,7 @@
 import _ from 'underscore';
-import ReactNativeOnyx from 'react-native-onyx';
 import * as API from './api';
-import * as Preferences from './actions/Preferences';
 import * as CheckStatusVerdicts from './checkStatusVerdicts';
-import ONYXKEYS from '../ONYXKEYS';
+import * as GitHubOAuth from './GitHubOAuth';
 
 // GitHub serves its own favicon for each state and swaps the link between them as a PR's checks report in,
 // so this only has to point the link at the asset GitHub already has. Drawing a replacement icon instead
@@ -29,7 +27,6 @@ const requestsInFlight = {};
 
 let observer = null;
 let updateScheduled = false;
-let preferenceSubscribed = false;
 
 // Coalesce the burst of head changes GitHub makes on load into a single update.
 function scheduleUpdate() {
@@ -135,32 +132,17 @@ function start() {
  * so a tab left open while iterating still says whether the tests are passing.
  */
 function initPrFavicon() {
-    // Every lookup needs the API, and an unauthenticated Octokit gets cached for the life of the page, so
-    // nothing here may touch it until the token the user entered on the dashboard has loaded out of Onyx.
-    // That includes the pass below: one early call poisons every request the extension makes afterwards.
-    if (Preferences.getGitHubToken()) {
+    GitHubOAuth.getAuthState().then((authState) => {
+        if (!authState.authenticated) {
+            return;
+        }
+
         start();
 
         // GitHub swaps page content without reloading, so a pull request opened from another page needs
         // another pass even though the observer is already attached.
         scheduleUpdate();
-        return;
-    }
-
-    if (preferenceSubscribed) {
-        return;
-    }
-    preferenceSubscribed = true;
-
-    ReactNativeOnyx.connect({
-        key: ONYXKEYS.PREFERENCES,
-        callback: () => {
-            if (!Preferences.getGitHubToken()) {
-                return;
-            }
-            start();
-        },
-    });
+    }).catch(() => {});
 }
 
 // eslint-disable-next-line import/prefer-default-export

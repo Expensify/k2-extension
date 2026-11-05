@@ -16,6 +16,11 @@ GitHub UI integration for KS - Kernel Scheduling Method
 4. Click _Load Unpacked Extension_
 5. Navigate to the `dist` folder and select it
 
+Unpacked Chrome builds use the shared development ID `goponelbopkkdppllniggobmpndhbpba`,
+which is separate from the published extension. Reloading with this ID may require
+signing in again if you previously used a path-derived ID. Firefox already uses a
+fixed add-on ID.
+
 # Installing on Firefox
 ## The "published" version
 1. https://stackoverflow.com/c/expensify/questions/7053/7054#7054
@@ -30,21 +35,14 @@ GitHub UI integration for KS - Kernel Scheduling Method
     Note: We don't save all of the dist directory to the repo, so you may need to run `npm run build` within the root of the repo to ensure all files have been generated properly.
 
 ## Authentication Options
-This extension now supports two authentication methods:
+Sign in from the K2 dashboard with your GitHub account. OAuth credentials are
+kept in extension storage and refreshed automatically.
 
-### Option 1: OAuth (Recommended)
-OAuth provides a more secure way to authenticate with GitHub. No need to generate and manage personal access tokens.
+Existing personal access tokens are migrated to extension storage when the K2
+dashboard first opens. New sign-ins use OAuth; the dashboard does not offer
+personal access token entry.
 
-### Option 2: Personal Access Token
-Your personal access token is stored locally and securely. It is used to make basic auth calls to the GitHub API.
-
-**Setup for Personal Access Token:**
-1. Go to https://github.com/settings/tokens
-2. Generate a new token
-3. Give it full permission to notifications, repo and user
-4. Use that token when signing in to the KSv2 dashboard
-
-**Note**: OAuth is recommended for better security and user experience. Personal access tokens should be used when OAuth is not available or for development purposes.
+OAuth is required for new authentication.
 
 # Installing this repo
 ```
@@ -59,7 +57,7 @@ There are three NPM tasks to use with this project. All files are output to the 
 
 1. `npm run web` - Run this when doing development. It will watch files and run all code standardizing tasks whenever the files are saved. It will build all the JS code together in an unminified version for easier debugging.
 1. `npm run build` - This will also build all the JS code together but it won't watch files, it will minify the output, and will exit when finished.
-1. `npm run package` - This will bundle up the files in the `/dist` directory into a file `dist.zip` which can be used to submit to the Chrome Store.
+1. `npm run package` - This will bundle up the files in the `/dist` directory into a file `dist.zip` which can be used to submit to the Chrome Store. It removes the development key from the packaged manifest without changing the unpacked build.
 
 In order to test your changes, you need to have the extension loaded into Chrome from your local folder.
 
