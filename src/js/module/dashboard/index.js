@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import React from 'react';
 import {createRoot} from 'react-dom/client';
 import ReactNativeOnyx from 'react-native-onyx';
@@ -8,19 +7,63 @@ import ONYXKEYS from '../../ONYXKEYS';
 import * as Preferences from '../../lib/actions/Preferences';
 import * as GitHubOAuth from '../../lib/GitHubOAuth';
 
+const HOST_CLASS = 'k2-dashboard-host';
+
+// The element K2 renders into and its React root, shared by the dashboard and the password form
+let host = null;
+let root = null;
+
+let preferences = null;
+let isConnectedToPreferences = false;
+
+/**
+ * Get the element of the repository page that holds the K2 dashboard. Classic repository pages use
+ * `.repository-content`, while pages rendered by GitHub's React shell put everything below the
+ * repository tabs in `#ui-service-main-content`.
+ *
+ * @returns {HTMLElement|null}
+ */
+function getDashboardParent() {
+    return document.getElementById('ui-service-main-content') || document.querySelector('.repository-content');
+}
+
+/**
+ * Get the React root for the K2 host element, creating the host when it is not in the page
+ *
+ * @returns {Object|null}
+ */
+function getRoot() {
+    if (host && host.isConnected) {
+        return root;
+    }
+
+    const parent = getDashboardParent();
+    if (!parent) {
+        console.error('K2: could not find the repository content container to render the dashboard into');
+        return null;
+    }
+
+    if (root) {
+        root.unmount();
+    }
+
+    // Keep GitHub's content and hydration data intact; CSS hides the host's siblings while K2 is active.
+    host = document.createElement('div');
+    parent.appendChild(host);
+    root = createRoot(host);
+    return root;
+}
+
 /**
  * Display our dashboard with the list of issues
  */
 function showDashboard() {
-    // Clean up password form
-    $('.repository-content').children('.passwordform').remove();
-
-    if (!$('.repository-content').children('.k2dashboard').length) {
-        $('.repository-content').append('<div class="k2dashboard">');
+    const dashboardRoot = getRoot();
+    if (!dashboardRoot) {
+        return;
     }
-
-    const root = createRoot($('.k2dashboard').show()[0]);
-    root.render(<ListIssues pollInterval={60000} />);
+    host.className = `${HOST_CLASS} k2dashboard`;
+    dashboardRoot.render(<ListIssues pollInterval={60000} />);
 }
 
 /**
@@ -29,35 +72,29 @@ function showDashboard() {
  * @date 2015-06-14
  */
 function showPasswordForm() {
-    // Clean up dashboard
-    $('.repository-content').children('.k2dashboard').remove();
-
-    if (!$('.repository-content').children('.passwordform').length) {
-        $('.repository-content').append('<div class="passwordform k2-passwordform">');
+    const formRoot = getRoot();
+    if (!formRoot) {
+        return;
     }
-
-    $('.repository-content').children('.passwordform').addClass('k2-passwordform');
-
-    const root = createRoot($('.passwordform').show()[0]);
-    root.render(<FormPassword onFinished={showDashboard} />);
+    host.className = `${HOST_CLASS} passwordform k2-passwordform`;
+    formRoot.render(<FormPassword onFinished={showDashboard} />);
 }
 
 /**
  * Check authentication status and show appropriate interface
- * @param {Object} preferences - User preferences from Onyx, potentially containing legacy credentials
+ * @param {Object} currentPreferences - User preferences from Onyx, potentially containing legacy credentials
  */
-async function checkAuthAndShowInterface(preferences) {
+async function checkAuthAndShowInterface(currentPreferences) {
     let legacyAuth = null;
-    if (preferences && preferences.auth) {
-        legacyAuth = preferences.auth;
-    } else if (preferences && preferences.ghToken) {
-        legacyAuth = {type: 'pat', token: preferences.ghToken};
+    if (currentPreferences && currentPreferences.auth) {
+        legacyAuth = currentPreferences.auth;
+    } else if (currentPreferences && currentPreferences.ghToken) {
+        legacyAuth = {type: 'pat', token: currentPreferences.ghToken};
     }
     const migration = await GitHubOAuth.migrateLegacyAuth(legacyAuth);
     if (migration.migrated) {
         Preferences.clearLegacyGitHubAuth();
     }
-
     if (!migration.authenticated) {
         showPasswordForm();
         return;
@@ -66,15 +103,28 @@ async function checkAuthAndShowInterface(preferences) {
     showDashboard();
 }
 
+function updateInterface() {
+    checkAuthAndShowInterface(preferences).catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error('Unable to check GitHub authentication', error);
+        showPasswordForm();
+    });
+}
+
+export {getDashboardParent};
+
 export default () => ({
     draw() {
-        const passwordFormWasDrawn = $('.repository-content').children('.passwordform').length;
-        const dashboardWasDrawn = $('.repository-content').children('.k2dashboard').length;
-
-        if (passwordFormWasDrawn || dashboardWasDrawn) {
+        if (host && host.isConnected) {
             return;
         }
-        $('.repository-content').children().remove();
+
+        if (isConnectedToPreferences) {
+            updateInterface();
+            return;
+        }
+
+        isConnectedToPreferences = true;
         ReactNativeOnyx.init({
             keys: ONYXKEYS,
         });
@@ -83,11 +133,8 @@ export default () => ({
         ReactNativeOnyx.connect({
             key: ONYXKEYS.PREFERENCES,
             callback: (newPreferences) => {
-                checkAuthAndShowInterface(newPreferences).catch((error) => {
-                    // eslint-disable-next-line no-console
-                    console.error('Unable to check GitHub authentication', error);
-                    showPasswordForm();
-                });
+                preferences = newPreferences;
+                updateInterface();
             },
         });
     },

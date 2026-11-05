@@ -87,6 +87,20 @@ function setShowOpenAllButtons(value) {
     ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {showOpenAllButtons: value});
 }
 
+/**
+ * @param {Boolean} value
+ */
+function setShouldShowPRNumbers(value) {
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {shouldShowPRNumbers: value});
+}
+
+/**
+ * @param {Boolean} value
+ */
+function setShouldGroupPRsByIssue(value) {
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {shouldGroupPRsByIssue: value});
+}
+
 export {
     getLegacyGitHubAuth,
     clearLegacyGitHubAuth,
@@ -96,4 +110,6 @@ export {
     setAutoLoadMoreComments,
     getShowOpenAllButtons,
     setShowOpenAllButtons,
+    setShouldShowPRNumbers,
+    setShouldGroupPRsByIssue,
 };
