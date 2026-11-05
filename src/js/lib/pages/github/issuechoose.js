@@ -59,7 +59,7 @@ export default function () {
             node = node.parentElement;
         }
 
-        _.each(candidates, (candidate) => {
+        _.each(candidates, candidate => {
             if (container) {
                 return;
             }
@@ -68,11 +68,15 @@ export default function () {
                 return;
             }
 
-            const matchingChildren = _.filter(Array.from(candidate.children), child => _.some(templateLinks, link => child === link || child.contains(link)));
+            const matchingChildren = _.filter(Array.from(candidate.children), child =>
+                _.some(templateLinks, link => child === link || child.contains(link)),
+            );
 
             // A good container has roughly one child per template link
-            if (matchingChildren.length >= templateLinks.length
-                && matchingChildren.length <= templateLinks.length * 1.5) {
+            if (
+                matchingChildren.length >= templateLinks.length &&
+                matchingChildren.length <= templateLinks.length * 1.5
+            ) {
                 container = candidate;
                 items = matchingChildren;
             }
@@ -111,7 +115,7 @@ export default function () {
         const dialogs = document.querySelectorAll('dialog, [role="dialog"]');
         let result = null;
 
-        _.each(Array.from(dialogs), (dialog) => {
+        _.each(Array.from(dialogs), dialog => {
             if (result) {
                 return;
             }
@@ -126,7 +130,7 @@ export default function () {
             // so all <a> links are template items. Filter out any links with very
             // short text (navigation/icon links) just in case.
             const allLinks = Array.from(dialog.querySelectorAll('a'));
-            const templateLinks = _.filter(allLinks, (link) => {
+            const templateLinks = _.filter(allLinks, link => {
                 const text = link.textContent.trim();
                 return text.length >= 3;
             });
@@ -154,7 +158,7 @@ export default function () {
         // These have hrefs like /owner/repo/issues/new?template=something
         const links = Array.from(document.querySelectorAll('a[href*="/issues/new"]'));
         // eslint-disable-next-line rulesdir/prefer-underscore-method
-        const templateLinks = _.filter(links, (link) => {
+        const templateLinks = _.filter(links, link => {
             const href = link.getAttribute('href') || '';
             return href.includes('/issues/new?') || /\/issues\/new\/[^c][^h]/.test(href);
         });
@@ -184,7 +188,7 @@ export default function () {
 
         input.addEventListener('input', () => {
             const query = input.value.toLowerCase();
-            _.each(items, (item) => {
+            _.each(items, item => {
                 const text = item.textContent.toLowerCase();
                 const el = item;
                 el.style.display = text.includes(query) ? '' : 'none';
@@ -240,7 +244,7 @@ export default function () {
 
         // Ensure clicks navigate directly to the blank issue page
         // This prevents overlay event delegation from intercepting the click
-        blankItem.addEventListener('click', (e) => {
+        blankItem.addEventListener('click', e => {
             e.stopPropagation();
             window.location.href = blankUrl;
         });
@@ -252,7 +256,10 @@ export default function () {
             // In Primer React dialogs, titles are styled spans.
             // Find the first leaf element with text content.
             const allEls = Array.from(blankItem.querySelectorAll('*'));
-            titleEl = _.find(allEls, el => el.children.length === 0 && el.textContent.trim().length > 2);
+            titleEl = _.find(
+                allEls,
+                el => el.children.length === 0 && el.textContent.trim().length > 2,
+            );
         }
         if (titleEl) {
             titleEl.textContent = 'Blank issue';
@@ -261,7 +268,14 @@ export default function () {
         // Update the description (first text-only element after the title)
         const allEls = Array.from(blankItem.querySelectorAll('*'));
         const titleIdx = _.indexOf(allEls, titleEl);
-        const descEl = _.find(allEls, (el, idx) => idx > titleIdx && el.children.length === 0 && el.textContent.trim() && !el.contains(titleEl));
+        const descEl = _.find(
+            allEls,
+            (el, idx) =>
+                idx > titleIdx &&
+                el.children.length === 0 &&
+                el.textContent.trim() &&
+                !el.contains(titleEl),
+        );
         if (descEl) {
             descEl.textContent = 'Create an issue without using a template';
         }
@@ -289,7 +303,7 @@ export default function () {
 
         // 1. Remove any native "Blank issue" items so we don't get duplicates
         // when we add our own at the top
-        const filteredItems = _.filter(items, (item) => {
+        const filteredItems = _.filter(items, item => {
             const title = getItemTitle(item).toLowerCase();
             if (title === 'blank issue') {
                 item.remove();

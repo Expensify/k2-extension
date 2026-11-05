@@ -50,12 +50,17 @@ class List extends React.Component {
     getItems() {
         const type = this.props.type;
 
-        return _.map(this.state.data, (item) => {
+        return _.map(this.state.data, item => {
             let result;
             switch (type) {
-                case 'issue': result = (<ListItemIssue key={`issue_${item.id}`} issue={item} />); break;
-                case 'pull': result = (<ListItemPull key={`pull_${item.id}`} pr={item} />); break;
-                default: result = null;
+                case 'issue':
+                    result = <ListItemIssue key={`issue_${item.id}`} issue={item} />;
+                    break;
+                case 'pull':
+                    result = <ListItemPull key={`pull_${item.id}`} pr={item} />;
+                    break;
+                default:
+                    result = null;
             }
             return result;
         });
@@ -63,11 +68,7 @@ class List extends React.Component {
 
     render() {
         if (this.state.loading) {
-            return (
-                <div className="blankslate capped clean-background">
-                    Loading
-                </div>
-            );
+            return <div className="blankslate capped clean-background">Loading</div>;
         }
 
         if (this.state.retrying) {
@@ -79,18 +80,10 @@ class List extends React.Component {
         }
 
         if (!_.size(this.state.data)) {
-            return (
-                <div className="blankslate capped clean-background">
-                    No items
-                </div>
-            );
+            return <div className="blankslate capped clean-background">No items</div>;
         }
 
-        return (
-            <div>
-                {this.getItems()}
-            </div>
-        );
+        return <div>{this.getItems()}</div>;
     }
 }
 

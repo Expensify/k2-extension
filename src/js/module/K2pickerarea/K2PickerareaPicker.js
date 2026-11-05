@@ -43,7 +43,10 @@ class K2PickerareaPicker extends React.Component {
         $('div[data-testid="issue-labels"] a > span').each((i, el) => {
             const label = $(el).text().trim();
             if (this.state[label]) {
-                this.state[label].className = this.state[label].className.replace('inactive', 'active');
+                this.state[label].className = this.state[label].className.replace(
+                    'inactive',
+                    'active',
+                );
             }
         });
     }

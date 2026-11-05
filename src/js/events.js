@@ -13,7 +13,7 @@ function authDataFromTokenData(tokenData) {
         type: 'oauth',
         token: tokenData.access_token,
         refreshToken: tokenData.refresh_token,
-        expiresAt: tokenData.expires_in ? Date.now() + (tokenData.expires_in * 1000) : null,
+        expiresAt: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : null,
     };
 }
 
@@ -38,8 +38,12 @@ function tokenDataFromAuthData(authData) {
  * @returns {Promise<Object|null>}
  */
 function getStoredAuthData() {
-    return Promise.resolve(ksBrowser.storage.local.get(GitHubOAuth.OAUTH_STORAGE_KEY))
-        .then(result => (result && result[GitHubOAuth.OAUTH_STORAGE_KEY] ? result[GitHubOAuth.OAUTH_STORAGE_KEY] : null));
+    return Promise.resolve(ksBrowser.storage.local.get(GitHubOAuth.OAUTH_STORAGE_KEY)).then(
+        result =>
+            result && result[GitHubOAuth.OAUTH_STORAGE_KEY]
+                ? result[GitHubOAuth.OAUTH_STORAGE_KEY]
+                : null,
+    );
 }
 
 /**
@@ -47,7 +51,9 @@ function getStoredAuthData() {
  * @returns {Promise<void>}
  */
 function setStoredAuthData(authData) {
-    return Promise.resolve(ksBrowser.storage.local.set({[GitHubOAuth.OAUTH_STORAGE_KEY]: authData}));
+    return Promise.resolve(
+        ksBrowser.storage.local.set({[GitHubOAuth.OAUTH_STORAGE_KEY]: authData}),
+    );
 }
 
 /**
@@ -74,7 +80,7 @@ function shouldRefreshAuthData(authData) {
         return false;
     }
 
-    return (Date.now() + (5 * 60 * 1000)) >= authData.expiresAt;
+    return Date.now() + 5 * 60 * 1000 >= authData.expiresAt;
 }
 
 /**
@@ -87,11 +93,11 @@ function refreshStoredAuthData(authData) {
     }
 
     inflightRefreshPromise = GitHubOAuth.refreshToken(authData.refreshToken)
-        .then((tokenData) => {
+        .then(tokenData => {
             const nextAuthData = authDataFromTokenData(tokenData);
             return setStoredAuthData(nextAuthData).then(() => nextAuthData);
         })
-        .catch((error) => {
+        .catch(error => {
             if (error.isAuthError) {
                 return clearStoredAuthData().then(() => {
                     throw error;
@@ -139,16 +145,17 @@ messenger.startNavEventPublisher();
 ksBrowser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'initiate-oauth') {
         GitHubOAuth.handleOAuthFlow()
-            .then((result) => {
+            .then(result => {
                 if (!result.success) {
                     sendResponse(result);
                     return;
                 }
 
-                setStoredAuthData(authDataFromTokenData(result.tokenData))
-                    .then(() => sendResponse(result));
+                setStoredAuthData(authDataFromTokenData(result.tokenData)).then(() =>
+                    sendResponse(result),
+                );
             })
-            .catch((error) => {
+            .catch(error => {
                 sendResponse({success: false, error: error.message});
             });
 
@@ -158,11 +165,15 @@ ksBrowser.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     if (request.action === 'get-valid-oauth-token') {
         getValidOAuthToken(request)
-            .then((result) => {
+            .then(result => {
                 sendResponse(result);
             })
-            .catch((error) => {
-                sendResponse({success: false, error: error.message, isAuthError: !!error.isAuthError});
+            .catch(error => {
+                sendResponse({
+                    success: false,
+                    error: error.message,
+                    isAuthError: !!error.isAuthError,
+                });
             });
 
         // Let the runtime know we'll send a response asynchronously

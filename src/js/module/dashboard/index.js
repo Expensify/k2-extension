@@ -22,7 +22,10 @@ let isConnectedToPreferences = false;
  * @returns {HTMLElement|null}
  */
 function getDashboardParent() {
-    return document.getElementById('ui-service-main-content') || document.querySelector('.repository-content');
+    return (
+        document.getElementById('ui-service-main-content') ||
+        document.querySelector('.repository-content')
+    );
 }
 
 /**
@@ -37,7 +40,9 @@ function getRoot() {
 
     const parent = getDashboardParent();
     if (!parent) {
-        console.error('K2: could not find the repository content container to render the dashboard into');
+        console.error(
+            'K2: could not find the repository content container to render the dashboard into',
+        );
         return null;
     }
 
@@ -84,7 +89,11 @@ function showPasswordForm() {
 function checkAuthAndShowInterface() {
     // Check if user is authenticated with either PAT or OAuth
     const hasPatAuth = preferences && preferences.ghToken;
-    const hasOAuthAuth = preferences && preferences.auth && preferences.auth.type === 'oauth' && preferences.auth.token;
+    const hasOAuthAuth =
+        preferences &&
+        preferences.auth &&
+        preferences.auth.type === 'oauth' &&
+        preferences.auth.token;
 
     if (!hasPatAuth && !hasOAuthAuth) {
         showPasswordForm();
@@ -115,7 +124,7 @@ export default () => ({
         // Connect to preferences store
         ReactNativeOnyx.connect({
             key: ONYXKEYS.PREFERENCES,
-            callback: (newPreferences) => {
+            callback: newPreferences => {
                 preferences = newPreferences;
                 checkAuthAndShowInterface();
             },

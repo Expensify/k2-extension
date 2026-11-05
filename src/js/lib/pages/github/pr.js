@@ -13,8 +13,12 @@ import * as prFavicon from '../../prFavicon';
  */
 const replaceChecklistItems = () => {
     // eslint-disable-next-line rulesdir/prefer-underscore-method
-    $('textarea[name="issue[body]"], textarea[name="issue_comment[body]"], textarea[name="comment[body]"], textarea[name="pull_request[body]"]').each((i, el) => {
-        const updatedText = $(el).val().replace(/- \[ \]/g, '- [x]');
+    $(
+        'textarea[name="issue[body]"], textarea[name="issue_comment[body]"], textarea[name="comment[body]"], textarea[name="pull_request[body]"]',
+    ).each((i, el) => {
+        const updatedText = $(el)
+            .val()
+            .replace(/- \[ \]/g, '- [x]');
         $(el).val(updatedText);
     });
 };
@@ -23,7 +27,8 @@ const renderReplaceChecklistButton = () => {
     if ($('.k2-replace-checklist').length) {
         return;
     }
-    const buttonHtml = '<button type="button" class="btn-link no-underline text-bold Link--primary k2-replace-checklist almost-transparent">Auto complete checklist</button>';
+    const buttonHtml =
+        '<button type="button" class="btn-link no-underline text-bold Link--primary k2-replace-checklist almost-transparent">Auto complete checklist</button>';
     $('.discussion-sidebar-item').last().append(buttonHtml);
     $('.k2-replace-checklist').off().on('click', replaceChecklistItems);
 };
@@ -33,11 +38,17 @@ const refreshSidebar = function () {
     if (!$('.k2toggletimestamps-wrapper').length) {
         const lastSidebarItem = $('.discussion-sidebar-item').last();
         if (lastSidebarItem.length) {
-            lastSidebarItem.after('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+            lastSidebarItem.after(
+                '<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>',
+            );
         } else {
-            const sidebar = $('.discussion-sidebar, [role="complementary"], .Layout-sidebar').first();
+            const sidebar = $(
+                '.discussion-sidebar, [role="complementary"], .Layout-sidebar',
+            ).first();
             if (sidebar.length) {
-                sidebar.append('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+                sidebar.append(
+                    '<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>',
+                );
             }
         }
     }
@@ -46,11 +57,17 @@ const refreshSidebar = function () {
     if (!$('.k2autoloadmore-wrapper').length) {
         const timestampWrapper = $('.k2toggletimestamps-wrapper');
         if (timestampWrapper.length) {
-            timestampWrapper.after('<div class="discussion-sidebar-item js-discussion-sidebar-item k2autoloadmore-wrapper"></div>');
+            timestampWrapper.after(
+                '<div class="discussion-sidebar-item js-discussion-sidebar-item k2autoloadmore-wrapper"></div>',
+            );
         } else {
-            const sidebar = $('.discussion-sidebar, [role="complementary"], .Layout-sidebar').first();
+            const sidebar = $(
+                '.discussion-sidebar, [role="complementary"], .Layout-sidebar',
+            ).first();
             if (sidebar.length) {
-                sidebar.append('<div class="discussion-sidebar-item js-discussion-sidebar-item k2autoloadmore-wrapper"></div>');
+                sidebar.append(
+                    '<div class="discussion-sidebar-item js-discussion-sidebar-item k2autoloadmore-wrapper"></div>',
+                );
             }
         }
     }
@@ -74,7 +91,10 @@ const refreshHold = function () {
 
     // Classic merge experience
     if (!isNewMergeUI) {
-        if (prTitle.toLowerCase().indexOf('[hold') > -1 || prTitle.toLowerCase().indexOf('[wip') > -1) {
+        if (
+            prTitle.toLowerCase().indexOf('[hold') > -1 ||
+            prTitle.toLowerCase().indexOf('[wip') > -1
+        ) {
             $('.branch-action') // Entire PR merge section
                 .removeClass('branch-action-state-clean')
                 .addClass('branch-action-state-dirty');
@@ -82,7 +102,9 @@ const refreshHold = function () {
                 .removeClass('btn-primary')
                 .attr('disabled', 'disabled');
             // eslint-disable-next-line rulesdir/prefer-underscore-method
-            $('.branch-action-item').last().find('.completeness-indicator') // "Merging status" section above the merge button
+            $('.branch-action-item')
+                .last()
+                .find('.completeness-indicator') // "Merging status" section above the merge button
                 .removeClass('completeness-indicator-success')
                 .addClass('completeness-indicator-problem')
                 .end()
@@ -102,15 +124,25 @@ const refreshHold = function () {
     if (prTitle.toLowerCase().indexOf('[hold') > -1 || prTitle.toLowerCase().indexOf('[wip') > -1) {
         $('div[data-testid="mergebox-border-container"]') // Entire PR merge section
             .removeClass('borderColor-success-emphasis');
-        $('div[data-testid="mergebox-partial"] > div > div > div button').first() // Merge pull request button
-            .css({backgroundColor: 'var(--bgColor-neutral-muted)', borderColor: 'var(--bgColor-neutral-muted)'})
+        $('div[data-testid="mergebox-partial"] > div > div > div button')
+            .first() // Merge pull request button
+            .css({
+                backgroundColor: 'var(--bgColor-neutral-muted)',
+                borderColor: 'var(--bgColor-neutral-muted)',
+            })
             .attr('disabled', 'disabled');
-        $('div[data-testid="mergebox-partial"] > div > div button[data-component="IconButton"]').first() // Dropdown button next to merge button
-            .css({backgroundColor: 'var(--bgColor-neutral-muted)', borderColor: 'var(--bgColor-neutral-muted)'})
+        $('div[data-testid="mergebox-partial"] > div > div button[data-component="IconButton"]')
+            .first() // Dropdown button next to merge button
+            .css({
+                backgroundColor: 'var(--bgColor-neutral-muted)',
+                borderColor: 'var(--bgColor-neutral-muted)',
+            })
             .attr('disabled', 'disabled');
         $('div[data-testid="mergebox-partial"] > div > div > div > div > div') // Container for merge pull request button
             .css({borderColor: 'var(--bgColor-neutral-muted)'});
-        $('div[data-testid="mergeability-icon-wrapper"] div').css({backgroundColor: 'var(--bgColor-neutral-emphasis)'}); // Icon on the left side of the merge panel
+        $('div[data-testid="mergeability-icon-wrapper"] div').css({
+            backgroundColor: 'var(--bgColor-neutral-emphasis)',
+        }); // Icon on the left side of the merge panel
         $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type svg') // "Merging status" section above the merge button
             .parent()
             .removeClass('bgColor-success-emphasis')

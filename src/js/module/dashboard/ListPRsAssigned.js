@@ -63,13 +63,13 @@ class ListPRsAssigned extends React.Component {
         }
 
         const groups = {};
-        _.each(prs, (pr) => {
+        _.each(prs, pr => {
             if (!_.size(pr.linkedIssues)) {
                 unlinkedGroup.prs.push(pr);
                 return;
             }
 
-            _.each(pr.linkedIssues, (issue) => {
+            _.each(pr.linkedIssues, issue => {
                 const key = issue.url.toLowerCase();
                 if (!groups[key]) {
                     groups[key] = {issue, prs: []};
@@ -104,31 +104,41 @@ class ListPRsAssigned extends React.Component {
                     text="Your Pull Requests"
                     count={_.size(this.props.prs) || 0}
                     onOpenAll={() => openAllUrls(this.props.prs)}
-                    checkboxes={[{
-                        id: 'shouldShowPRNumbers',
-                        label: 'Show PR numbers',
-                        isChecked: shouldShowPRNumbers,
-                        onChange: () => Preferences.setShouldShowPRNumbers(!shouldShowPRNumbers),
-                    }, {
-                        id: 'shouldGroupPRsByIssue',
-                        label: 'Group by issue',
-                        isChecked: shouldGroupPRsByIssue,
-                        onChange: () => Preferences.setShouldGroupPRsByIssue(!shouldGroupPRsByIssue),
-                    }]}
+                    checkboxes={[
+                        {
+                            id: 'shouldShowPRNumbers',
+                            label: 'Show PR numbers',
+                            isChecked: shouldShowPRNumbers,
+                            onChange: () =>
+                                Preferences.setShouldShowPRNumbers(!shouldShowPRNumbers),
+                        },
+                        {
+                            id: 'shouldGroupPRsByIssue',
+                            label: 'Group by issue',
+                            isChecked: shouldGroupPRsByIssue,
+                            onChange: () =>
+                                Preferences.setShouldGroupPRsByIssue(!shouldGroupPRsByIssue),
+                        },
+                    ]}
                 />
 
                 {!this.props.prs && (
-                    <div className="blankslate capped clean-background">
-                        Loading
-                    </div>
+                    <div className="blankslate capped clean-background">Loading</div>
                 )}
 
                 {_.map(this.getGroups(), group => (
-                    <div key={group.issue ? group.issue.url : 'unlinked'} className={shouldGroupPRsByIssue ? 'pr-issue-group' : undefined}>
+                    <div
+                        key={group.issue ? group.issue.url : 'unlinked'}
+                        className={shouldGroupPRsByIssue ? 'pr-issue-group' : undefined}
+                    >
                         {shouldGroupPRsByIssue && (
                             <h4 className="pr-issue-group-title">
                                 {group.issue ? (
-                                    <a href={group.issue.url} target="_blank" rel="noreferrer noopener">
+                                    <a
+                                        href={group.issue.url}
+                                        target="_blank"
+                                        rel="noreferrer noopener"
+                                    >
                                         {group.issue.title}
                                     </a>
                                 ) : (

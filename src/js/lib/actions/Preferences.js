@@ -34,7 +34,7 @@ function setAuthData(data) {
 
 ReactNativeOnyx.connect({
     key: ONYXKEYS.PREFERENCES,
-    callback: (preferences) => {
+    callback: preferences => {
         // Make sure they have entered their API token
         if (!preferences) {
             return;

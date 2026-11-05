@@ -26,9 +26,11 @@ const FAILING_ICON_COLOR = 'var(--bgColor-danger-emphasis, var(--color-scale-red
 const PASSING_ICON_COLOR = 'var(--bgColor-success-emphasis, var(--color-success-emphasis))';
 
 // The `d` attributes of GitHub's octicon-check and octicon-x, which we swap between.
-const CHECK_ICON_PATH = 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z';
+const CHECK_ICON_PATH =
+    'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z';
 // eslint-disable-next-line max-len
-const X_ICON_PATH = 'M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z';
+const X_ICON_PATH =
+    'M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z';
 
 let observer = null;
 let scanScheduled = false;
@@ -86,23 +88,32 @@ function showAsFailing(indicator) {
 function findIndicators() {
     const indicators = [];
 
-    _.each(document.querySelectorAll(REACT_COMMIT_ROW_SELECTOR), (row) => {
+    _.each(document.querySelectorAll(REACT_COMMIT_ROW_SELECTOR), row => {
         const badge = row.querySelector(REACT_BADGE_SELECTOR);
         const matches = (row.getAttribute('data-commit-link') || '').match(REACT_COMMIT_LINK_REGEX);
         if (badge && matches) {
             indicators.push({
-                element: badge, isReactBadge: true, owner: matches[1], repo: matches[2], sha: matches[3],
+                element: badge,
+                isReactBadge: true,
+                owner: matches[1],
+                repo: matches[2],
+                sha: matches[3],
             });
         }
     });
 
-    _.each(document.querySelectorAll(TIMELINE_INDICATOR_SELECTOR), (summary) => {
+    _.each(document.querySelectorAll(TIMELINE_INDICATOR_SELECTOR), summary => {
         const details = summary.closest(TIMELINE_DETAILS_SELECTOR);
-        const detailsUrl = (details && details.getAttribute('data-deferred-details-content-url')) || '';
+        const detailsUrl =
+            (details && details.getAttribute('data-deferred-details-content-url')) || '';
         const matches = detailsUrl.match(TIMELINE_STATUS_URL_REGEX);
         if (matches) {
             indicators.push({
-                element: summary, isReactBadge: false, owner: matches[1], repo: matches[2], sha: matches[3],
+                element: summary,
+                isReactBadge: false,
+                owner: matches[1],
+                repo: matches[2],
+                sha: matches[3],
             });
         }
     });
@@ -111,9 +122,13 @@ function findIndicators() {
 }
 
 function scan() {
-    _.each(findIndicators(), (indicator) => {
+    _.each(findIndicators(), indicator => {
         const isRewritten = indicator.element.hasAttribute(REWRITTEN_ATTRIBUTE);
-        const verdict = CheckStatusVerdicts.getVerdict(indicator.owner, indicator.repo, indicator.sha);
+        const verdict = CheckStatusVerdicts.getVerdict(
+            indicator.owner,
+            indicator.repo,
+            indicator.sha,
+        );
 
         // A null verdict means we have nothing to say yet, so whatever is on screen stays.
         if (verdict === true && !isRewritten) {
