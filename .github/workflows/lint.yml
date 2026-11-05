@@ -28,6 +28,7 @@ jobs:
               uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e
               with:
                   node-version-file: '.nvmrc'
+                  check-latest: true
 
             - name: Install node packages
               uses: nick-fields/retry@7c68161adf97a48beb850a595b8784ec57a98cbb
