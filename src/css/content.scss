@@ -217,6 +217,11 @@ $color-dark-yellow: #DAA520;
     grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
 }
 
+.k2-priority-grid .k2-section-header {
+    min-height: 40px;
+    padding: 8px 12px;
+}
+
 .k2-no-priority {
     margin-top: 8px;
 }

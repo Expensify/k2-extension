@@ -73,7 +73,7 @@ class Title extends React.Component {
         return (
             <Stack className="k2-section-header" direction="horizontal" align="center" justify="space-between" gap="condensed" padding="normal">
                 <Stack direction="horizontal" align="center" gap="condensed" wrap="wrap">
-                    <Heading as="h2" className="k2-section-heading">{text}</Heading>
+                    <Heading as="h2" className="k2-section-heading" variant="small">{text}</Heading>
                     {count !== null && <CounterLabel>{count}</CounterLabel>}
                     {_.map(checkboxes, checkbox => (
                         <label key={checkbox.id} className="k2-section-heading-checkbox" htmlFor={checkbox.id}>
