@@ -16,16 +16,11 @@
         "builtin": true,
         "browser": true,
         "node": true,
-        "es2018": true,
-        "commonjs": true,
         "jquery": true
     },
     "globals": {
         "browser": "readonly",
         "chrome": "readonly"
-    },
-    "settings": {
-        "propWrapperFunctions": ["forbidExtraProps", "exact", "Object.freeze"]
     },
     "rules": {
         "array-callback-return": [
@@ -35,7 +30,7 @@
             }
         ],
         "block-scoped-var": "error",
-        "curly": ["error", "all"],
+        "curly": "error",
         "default-case": [
             "error",
             {
@@ -53,7 +48,7 @@
         ],
         "grouped-accessor-pairs": "error",
         "guard-for-in": "error",
-        "max-classes-per-file": ["error", 1],
+        "max-classes-per-file": "error",
         "no-caller": "error",
         "no-case-declarations": "error",
         "no-constructor-return": "error",
@@ -75,21 +70,10 @@
         "no-extra-bind": "error",
         "no-extra-label": "error",
         "no-fallthrough": "error",
-        "no-global-assign": [
-            "error",
-            {
-                "exceptions": []
-            }
-        ],
+        "no-global-assign": "error",
         "no-implied-eval": "error",
         "no-iterator": "error",
-        "no-labels": [
-            "error",
-            {
-                "allowLoop": false,
-                "allowSwitch": false
-            }
-        ],
+        "no-labels": "error",
         "no-lone-blocks": "error",
         "no-loop-func": "error",
         "no-multi-str": "error",
@@ -170,23 +154,11 @@
             }
         ],
         "no-script-url": "error",
-        "no-self-assign": [
-            "error",
-            {
-                "props": true
-            }
-        ],
+        "no-self-assign": "error",
         "no-self-compare": "error",
         "no-sequences": "error",
         "no-throw-literal": "error",
-        "no-unused-expressions": [
-            "error",
-            {
-                "allowShortCircuit": false,
-                "allowTernary": false,
-                "allowTaggedTemplates": false
-            }
-        ],
+        "no-unused-expressions": "error",
         "no-unused-labels": "error",
         "no-useless-catch": "error",
         "no-useless-concat": "error",
@@ -251,12 +223,7 @@
         "no-template-curly-in-string": "error",
         "no-unexpected-multiline": "error",
         "no-unreachable": "error",
-        "no-unreachable-loop": [
-            "error",
-            {
-                "ignore": []
-            }
-        ],
+        "no-unreachable-loop": "error",
         "no-unsafe-finally": "error",
         "no-unsafe-negation": "error",
         "no-unsafe-optional-chaining": [
@@ -277,14 +244,11 @@
         "no-bitwise": "error",
         "no-continue": "error",
         "no-lonely-if": "error",
-        "no-multi-assign": ["error"],
+        "no-multi-assign": "error",
         "no-nested-ternary": "error",
         "no-underscore-dangle": [
             "error",
             {
-                "allow": ["__REDUX_DEVTOOLS_EXTENSION_COMPOSE__"],
-                "allowAfterThis": false,
-                "allowAfterSuper": false,
                 "enforceInMethodNames": true
             }
         ],
@@ -298,7 +262,7 @@
         "operator-assignment": ["error", "always"],
         "prefer-exponentiation-operator": "error",
         "prefer-object-spread": "error",
-        "unicode-bom": ["error", "never"],
+        "unicode-bom": "error",
         "no-delete-var": "error",
         "no-label-var": "error",
         "no-restricted-globals": [
@@ -376,27 +340,12 @@
         "no-unused-vars": [
             "error",
             {
-                "vars": "all",
-                "args": "after-used",
                 "ignoreRestSiblings": true,
                 "caughtErrors": "none"
             }
         ],
-        "no-use-before-define": [
-            "error",
-            {
-                "functions": true,
-                "classes": true,
-                "variables": true
-            }
-        ],
-        "arrow-body-style": [
-            "error",
-            "as-needed",
-            {
-                "requireReturnForObjectLiteral": false
-            }
-        ],
+        "no-use-before-define": "error",
+        "arrow-body-style": "error",
         "constructor-super": "error",
         "no-class-assign": "error",
         "no-const-assign": "error",
@@ -407,54 +356,22 @@
                 "restrictedNamedExports": ["default", "then"]
             }
         ],
-        "no-restricted-imports": [
-            "error",
-            {
-                "paths": [
-                    {
-                        "name": "react-native",
-                        "importNames": ["Button", "Text", "TextInput", "Picker"],
-                        "message": "Please use an Expensify component from src/components/ instead."
-                    },
-                    {
-                        "name": "react-native",
-                        "importNames": ["SafeAreaView"],
-                        "message": "Please use SafeAreaView from react-native-safe-area-context"
-                    }
-                ]
-            }
-        ],
         "no-this-before-super": "error",
         "no-useless-computed-key": "error",
         "no-useless-constructor": "error",
-        "no-useless-rename": [
-            "error",
-            {
-                "ignoreDestructuring": false,
-                "ignoreImport": false,
-                "ignoreExport": false
-            }
-        ],
+        "no-useless-rename": "error",
         "no-var": "error",
         "object-shorthand": [
             "error",
             "always",
             {
-                "ignoreConstructors": false,
                 "avoidQuotes": true
             }
         ],
-        "prefer-arrow-callback": [
-            "error",
-            {
-                "allowNamedFunctions": false,
-                "allowUnboundThis": true
-            }
-        ],
+        "prefer-arrow-callback": "error",
         "prefer-const": [
             "error",
             {
-                "destructuring": "any",
                 "ignoreReadBeforeAssign": true
             }
         ],
@@ -488,20 +405,13 @@
         "import/no-named-default": "error",
         "import/no-self-import": "error",
         "import/no-cycle": "error",
-        "react/jsx-boolean-value": [
-            "error",
-            "never",
-            {
-                "always": []
-            }
-        ],
+        "react/jsx-boolean-value": "error",
         "react/jsx-no-duplicate-props": "error",
         "react/jsx-no-undef": "error",
         "react/jsx-pascal-case": [
             "error",
             {
-                "allowAllCaps": true,
-                "ignore": []
+                "allowAllCaps": true
             }
         ],
         "react/no-danger": "warn",
@@ -512,12 +422,7 @@
         "react/no-unknown-property": "error",
         "react/prefer-es6-class": ["error", "always"],
         "react/self-closing-comp": "error",
-        "react/jsx-no-target-blank": [
-            "error",
-            {
-                "enforceDynamicLinks": "always"
-            }
-        ],
+        "react/jsx-no-target-blank": "error",
         "react/jsx-filename-extension": [
             "warn",
             {
@@ -535,18 +440,10 @@
         "react/no-array-index-key": "error",
         "react/void-dom-elements-no-children": "error",
         "react/no-redundant-should-component-update": "error",
-        "react/jsx-curly-brace-presence": [
-            "error",
-            {
-                "props": "never",
-                "children": "never"
-            }
-        ],
+        "react/jsx-curly-brace-presence": "error",
         "react/button-has-type": [
             "error",
             {
-                "button": true,
-                "submit": true,
                 "reset": false
             }
         ],
@@ -557,15 +454,12 @@
                 "checkAliases": true
             }
         ],
-        "react/jsx-fragments": ["error", "syntax"],
+        "react/jsx-fragments": "error",
         "react/state-in-constructor": ["error", "always"],
         "react/jsx-props-no-spreading": [
             "error",
             {
-                "html": "enforce",
-                "custom": "enforce",
-                "explicitSpread": "ignore",
-                "exceptions": []
+                "explicitSpread": "ignore"
             }
         ],
         "react/jsx-no-script-url": [
@@ -581,29 +475,14 @@
         "react/function-component-definition": [
             "error",
             {
-                "namedComponents": "function-declaration",
                 "unnamedComponents": "arrow-function"
             }
         ],
         "react/jsx-no-constructed-context-values": "error",
         "react/no-unstable-nested-components": "error",
         "react/no-namespace": "error",
-        "jsx-a11y/alt-text": [
-            "error",
-            {
-                "elements": ["img", "object", "area", "input[type=\"image\"]"],
-                "img": [],
-                "object": [],
-                "area": [],
-                "input[type=\"image\"]": []
-            }
-        ],
-        "jsx-a11y/anchor-has-content": [
-            "error",
-            {
-                "components": []
-            }
-        ],
+        "jsx-a11y/alt-text": "error",
+        "jsx-a11y/anchor-has-content": "error",
         "jsx-a11y/anchor-is-valid": [
             "error",
             {
@@ -615,31 +494,12 @@
         "jsx-a11y/aria-activedescendant-has-tabindex": "error",
         "jsx-a11y/aria-props": "error",
         "jsx-a11y/aria-proptypes": "error",
-        "jsx-a11y/aria-role": [
-            "error",
-            {
-                "ignoreNonDOM": false
-            }
-        ],
+        "jsx-a11y/aria-role": "error",
         "jsx-a11y/aria-unsupported-elements": "error",
         "jsx-a11y/control-has-associated-label": [
             "error",
             {
                 "labelAttributes": ["label"],
-                "controlComponents": [],
-                "ignoreElements": ["audio", "canvas", "embed", "input", "textarea", "tr", "video"],
-                "ignoreRoles": [
-                    "grid",
-                    "listbox",
-                    "menu",
-                    "menubar",
-                    "radiogroup",
-                    "row",
-                    "tablist",
-                    "toolbar",
-                    "tree",
-                    "treegrid"
-                ],
                 "depth": 5
             }
         ],
@@ -653,21 +513,9 @@
         "jsx-a11y/iframe-has-title": "error",
         "jsx-a11y/img-redundant-alt": "error",
         "jsx-a11y/interactive-supports-focus": "error",
-        "jsx-a11y/label-has-associated-control": [
-            "error",
-            {
-                "assert": "either"
-            }
-        ],
+        "jsx-a11y/label-has-associated-control": "error",
         "jsx-a11y/lang": "error",
-        "jsx-a11y/media-has-caption": [
-            "error",
-            {
-                "audio": [],
-                "video": [],
-                "track": []
-            }
-        ],
+        "jsx-a11y/media-has-caption": "error",
         "jsx-a11y/mouse-events-have-key-events": "error",
         "jsx-a11y/no-access-key": "error",
         "jsx-a11y/no-autofocus": [
@@ -676,12 +524,7 @@
                 "ignoreNonDOM": true
             }
         ],
-        "jsx-a11y/no-distracting-elements": [
-            "error",
-            {
-                "elements": ["marquee", "blink"]
-            }
-        ],
+        "jsx-a11y/no-distracting-elements": "error",
         "jsx-a11y/no-interactive-element-to-noninteractive-role": [
             "error",
             {
@@ -711,13 +554,7 @@
                 "td": ["gridcell"]
             }
         ],
-        "jsx-a11y/no-noninteractive-tabindex": [
-            "error",
-            {
-                "tags": [],
-                "roles": ["tabpanel"]
-            }
-        ],
+        "jsx-a11y/no-noninteractive-tabindex": "error",
         "jsx-a11y/no-redundant-roles": "error",
         "jsx-a11y/no-static-element-interactions": [
             "error",
