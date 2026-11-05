@@ -351,6 +351,65 @@ $color-dark-yellow: #DAA520;
   font-style: italic;
 }
 
+.k2-linked-prs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+// GitHub hides this help text when its own pull requests are present, so mirror that behavior for ours.
+[data-testid="sidebar-development-section"]:has(.k2-linked-prs) [class*="developmentHelpText"] {
+  display: none;
+}
+
+.k2-linked-pr {
+  color: var(--fgColor-default, #1f2328);
+  display: flex;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+
+  &:hover {
+    background-color: var(--control-transparent-bgColor-hover, #818b981a);
+    text-decoration: none;
+  }
+}
+
+.k2-linked-pr-icon {
+  fill: currentColor;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.k2-linked-pr-open .k2-linked-pr-icon { color: var(--fgColor-open, #1a7f37); }
+.k2-linked-pr-draft .k2-linked-pr-icon { color: var(--fgColor-muted, #656d76); }
+.k2-linked-pr-merged .k2-linked-pr-icon { color: var(--fgColor-done, #8250df); }
+.k2-linked-pr-closed .k2-linked-pr-icon { color: var(--fgColor-closed, #d1242f); }
+
+.k2-linked-pr-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.k2-linked-pr-title {
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.k2-linked-pr-meta {
+  align-items: center;
+  color: var(--fgColor-muted, #656d76);
+  display: flex;
+  font-size: 12px;
+  gap: 4px;
+}
+
+.k2-linked-pr-avatar {
+  border-radius: 50%;
+}
+
 .k2-sidebar-controls {
     display: flex;
     flex-direction: column;
@@ -637,6 +696,16 @@ body.k2-page-active {
     nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link)::before {
         display: none !important;
     }
+
+    // Keep GitHub's repository content intact and hide it while the K2 host is active.
+    #ui-service-main-content > :not(.k2-dashboard-host),
+    .repository-content > :not(.k2-dashboard-host) {
+        display: none !important;
+    }
+}
+
+body:not(.k2-page-active) .k2-dashboard-host {
+    display: none;
 }
 
 @media (prefers-color-scheme: dark) {

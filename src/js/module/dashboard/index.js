@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import React from 'react';
 import ReactNativeOnyx from 'react-native-onyx';
 import ListIssues from './ListIssues';
@@ -24,7 +23,7 @@ let isConnectedToPreferences = false;
  * @returns {HTMLElement|null}
  */
 function getDashboardParent() {
-    return document.querySelector('.repository-content') || document.getElementById('ui-service-main-content');
+    return document.getElementById('ui-service-main-content') || document.querySelector('.repository-content');
 }
 
 /**
@@ -43,12 +42,7 @@ function getRoot() {
         return null;
     }
 
-    // The classic container is server-rendered, so its content is replaced. React-rendered content is hidden with CSS
-    // instead, because removing nodes that GitHub's React app manages breaks it.
-    if (parent.matches('.repository-content')) {
-        $(parent).children().remove();
-    }
-
+    // Keep GitHub's content and hydration data intact; CSS hides the host's siblings while K2 is active.
     host = document.createElement('div');
     parent.appendChild(host);
     return host;
