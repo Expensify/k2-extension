@@ -1,33 +1,35 @@
-import React from "react";
-import ReactNativeOnyx, { useOnyx } from "react-native-onyx";
-import _ from "underscore";
-import { ActionList, ActionMenu, Button, ButtonGroup, Heading, Stack, Text } from "@primer/react";
+import React from 'react';
+import ReactNativeOnyx, {useOnyx} from 'react-native-onyx';
+import _ from 'underscore';
+import {
+    ActionList, ActionMenu, Button, ButtonGroup, Heading, Stack, Text,
+} from '@primer/react';
 import {
     ProjectIcon,
     SignOutIcon,
     TriangleDownIcon,
-} from "@primer/octicons-react";
-import ToggleOpenAll from "../ToggleOpenAll/Toggle";
-import ONYXKEYS from "../../ONYXKEYS";
-import * as Preferences from "../../lib/actions/Preferences";
-import * as GitHubOAuth from "../../lib/GitHubOAuth";
+} from '@primer/octicons-react';
+import ToggleOpenAll from '../ToggleOpenAll/Toggle';
+import ONYXKEYS from '../../ONYXKEYS';
+import * as Preferences from '../../lib/actions/Preferences';
+import * as GitHubOAuth from '../../lib/GitHubOAuth';
 
 const issueDestinations = [
     {
-        id: "expensify",
-        label: "Expensify",
-        url: "https://github.com/Expensify/Expensify/issues/new/choose",
+        id: 'expensify',
+        label: 'Expensify',
+        url: 'https://github.com/Expensify/Expensify/issues/new/choose',
     },
     {
-        id: "app",
-        label: "App",
-        url: "https://github.com/Expensify/App/issues/new/choose",
+        id: 'app',
+        label: 'App',
+        url: 'https://github.com/Expensify/App/issues/new/choose',
     },
 ];
 
 async function signOut() {
     try {
-        if (Preferences.getAuthType() === "oauth") {
+        if (Preferences.getAuthType() === 'oauth') {
             await GitHubOAuth.revokeToken();
         }
     } catch (error) {
@@ -42,8 +44,7 @@ async function signOut() {
 function DashboardHeader() {
     const [preferences = {}] = useOnyx(ONYXKEYS.PREFERENCES);
     const destinationID = preferences.newIssueDestination || Preferences.getNewIssueDestination();
-    const selectedDestination =
-        _.findWhere(issueDestinations, { id: destinationID }) || issueDestinations[0];
+    const selectedDestination = _.findWhere(issueDestinations, {id: destinationID}) || issueDestinations[0];
 
     function selectDestination(destination) {
         Preferences.setNewIssueDestination(destination.id);
@@ -99,7 +100,7 @@ function DashboardHeader() {
                                     selectionVariant="single"
                                     aria-label="New issue repository"
                                 >
-                                    {_.map(issueDestinations, (destination) => (
+                                    {_.map(issueDestinations, destination => (
                                         <ActionList.Item
                                             key={destination.id}
                                             selected={destination.id === selectedDestination.id}
@@ -123,6 +124,6 @@ function DashboardHeader() {
     );
 }
 
-DashboardHeader.displayName = "DashboardHeader";
+DashboardHeader.displayName = 'DashboardHeader';
 
 export default DashboardHeader;
