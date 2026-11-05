@@ -16,6 +16,11 @@ GitHub UI integration for KS - Kernel Scheduling Method
 4. Click _Load Unpacked Extension_
 5. Navigate to the `dist` folder and select it
 
+Unpacked Chrome builds use the shared development ID `goponelbopkkdppllniggobmpndhbpba`,
+which is separate from the published extension. Reloading with this ID may require
+signing in again if you previously used a path-derived ID. Firefox already uses a
+fixed add-on ID.
+
 # Installing on Firefox
 ## The "published" version
 1. https://stackoverflow.com/c/expensify/questions/7053/7054#7054
@@ -52,7 +57,7 @@ There are three NPM tasks to use with this project. All files are output to the 
 
 1. `npm run web` - Run this when doing development. It will watch files and run all code standardizing tasks whenever the files are saved. It will build all the JS code together in an unminified version for easier debugging.
 1. `npm run build` - This will also build all the JS code together but it won't watch files, it will minify the output, and will exit when finished.
-1. `npm run package` - This will bundle up the files in the `/dist` directory into a file `dist.zip` which can be used to submit to the Chrome Store.
+1. `npm run package` - This will bundle up the files in the `/dist` directory into a file `dist.zip` which can be used to submit to the Chrome Store. It removes the development key from the packaged manifest without changing the unpacked build.
 
 In order to test your changes, you need to have the extension loaded into Chrome from your local folder.
 
