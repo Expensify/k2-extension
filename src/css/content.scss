@@ -487,6 +487,7 @@ $color-dark-yellow: #daa520;
 .pr-issue-group-title {
     align-items: baseline;
     background-color: $color-neutral-lighter;
+    color: rgb(48, 54, 61);
     display: flex;
     font-size: inherit;
     gap: ($gutter * 2);
@@ -500,8 +501,18 @@ $color-dark-yellow: #daa520;
     }
 }
 
-.pr-issue-group-count {
+.pr-issue-group-actions {
+    align-items: center;
+    display: flex;
     flex-shrink: 0;
+    gap: $gutter;
+}
+
+// The group header keeps a light background in every theme, so the counter needs dark text
+// that beats GitHub's own `.Counter` colors.
+.pr-issue-group-title .Counter.pr-issue-group-count {
+    background-color: $color-neutral-light;
+    color: rgb(48, 54, 61);
     white-space: nowrap;
 }
 
