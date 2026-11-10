@@ -24,6 +24,9 @@ const propTypes = {
 
         /** Whether PRs are grouped under the issues they address */
         shouldGroupPRsByIssue: PropTypes.bool,
+
+        /** Whether the Open All buttons are shown */
+        showOpenAllButtons: PropTypes.bool,
     }),
 };
 const defaultProps = {
@@ -97,6 +100,7 @@ class ListPRsAssigned extends React.Component {
         // Defaults to true so the numbers show until the user turns them off.
         const shouldShowPRNumbers = this.props.preferences.shouldShowPRNumbers !== false;
         const shouldGroupPRsByIssue = !!this.props.preferences.shouldGroupPRsByIssue;
+        const shouldShowOpenAllButtons = this.props.preferences.showOpenAllButtons !== false;
 
         return (
             <div className="panel your-pull-requests mb-3">
@@ -144,8 +148,20 @@ class ListPRsAssigned extends React.Component {
                                 ) : (
                                     <span>No linked issue</span>
                                 )}
-                                <span className="Counter pr-issue-group-count">
-                                    {`${group.prs.length} ${group.prs.length === 1 ? 'PR' : 'PRs'}`}
+                                <span className="pr-issue-group-actions">
+                                    <span className="Counter pr-issue-group-count">
+                                        {`${group.prs.length} ${group.prs.length === 1 ? 'PR' : 'PRs'}`}
+                                    </span>
+                                    {shouldShowOpenAllButtons && (
+                                        <button
+                                            type="button"
+                                            className="btn btn-sm"
+                                            onClick={() => openAllUrls(group.prs)}
+                                            title={`Open all ${group.prs.length} PRs in new tabs`}
+                                        >
+                                            Open All
+                                        </button>
+                                    )}
                                 </span>
                             </h4>
                         )}
