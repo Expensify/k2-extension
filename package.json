@@ -60,6 +60,9 @@
     "flatted": "^3.4.2",
     "image-size": "^2.0.4",
     "jws": "^3.2.3",
+    "oxfmt": {
+      "tinypool": "2.1.2"
+    },
     "react-native-onyx": {
       "lodash.pick": "npm:lodash@^4.17.21"
     },
