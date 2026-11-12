@@ -48,8 +48,7 @@ class ListPRsReviewing extends React.Component {
 
         this.state = {
             shouldHideDraft: props.checkboxes.shouldHideDraft,
-            shouldHideAlreadyReviewed:
-                props.checkboxes.shouldHideAlreadyReviewed,
+            shouldHideAlreadyReviewed: props.checkboxes.shouldHideAlreadyReviewed,
             shouldHideOnHold: props.checkboxes.shouldHideOnHold,
 
             // searchInputText is the immediate value shown in the input field
@@ -76,24 +75,15 @@ class ListPRsReviewing extends React.Component {
             this.fetch();
 
             if (this.props.pollInterval && !this.interval) {
-                this.interval = setInterval(
-                    this.fetch,
-                    this.props.pollInterval,
-                );
+                this.interval = setInterval(this.fetch, this.props.pollInterval);
             }
         }, this.props.initialDelay);
 
-        document.addEventListener(
-            'visibilitychange',
-            this.handleVisibilityChange,
-        );
+        document.addEventListener('visibilitychange', this.handleVisibilityChange);
     }
 
     componentWillUnmount() {
-        document.removeEventListener(
-            'visibilitychange',
-            this.handleVisibilityChange,
-        );
+        document.removeEventListener('visibilitychange', this.handleVisibilityChange);
         if (this.initialTimeout) {
             clearTimeout(this.initialTimeout);
         }
@@ -113,10 +103,7 @@ class ListPRsReviewing extends React.Component {
         } else {
             this.fetch();
             if (this.props.pollInterval && !this.interval) {
-                this.interval = setInterval(
-                    this.fetch,
-                    this.props.pollInterval,
-                );
+                this.interval = setInterval(this.fetch, this.props.pollInterval);
             }
         }
     }
@@ -167,13 +154,10 @@ class ListPRsReviewing extends React.Component {
     }
 
     filterPRs(prs) {
-        const terms = _.filter(
-            this.state.searchText.trim().split(/\s+/),
-            term => term.length > 0,
-        );
+        const terms = _.filter(this.state.searchText.trim().split(/\s+/), term => term.length > 0);
         const includeTerms = [];
         const excludeTerms = [];
-        _.each(terms, (term) => {
+        _.each(terms, term => {
             if (term.startsWith('-') && term.length > 1) {
                 excludeTerms.push(term.slice(1).toLowerCase());
             } else {
@@ -181,20 +165,16 @@ class ListPRsReviewing extends React.Component {
             }
         });
 
-        return _.filter(prs, (pr) => {
+        return _.filter(prs, pr => {
             if (this.state.shouldHideDraft && pr.isDraft) {
                 return false;
             }
-            if (
-                this.state.shouldHideAlreadyReviewed
-                && pr.isReviewRequested === false
-            ) {
+            if (this.state.shouldHideAlreadyReviewed && pr.isReviewRequested === false) {
                 return false;
             }
             if (
-                this.state.shouldHideOnHold
-                && (pr.title.indexOf('[HOLD') > -1
-                    || pr.title.indexOf('[WIP') > -1)
+                this.state.shouldHideOnHold &&
+                (pr.title.indexOf('[HOLD') > -1 || pr.title.indexOf('[WIP') > -1)
             ) {
                 return false;
             }
@@ -208,10 +188,7 @@ class ListPRsReviewing extends React.Component {
                 return false;
             }
 
-            const matchesAnyExclude = _.some(
-                excludeTerms,
-                term => titleLower.indexOf(term) !== -1,
-            );
+            const matchesAnyExclude = _.some(excludeTerms, term => titleLower.indexOf(term) !== -1);
             if (matchesAnyExclude) {
                 return false;
             }
@@ -225,9 +202,7 @@ class ListPRsReviewing extends React.Component {
             return null;
         }
 
-        const filteredPRs = this.props.prs
-            ? this.filterPRs(this.props.prs)
-            : [];
+        const filteredPRs = this.props.prs ? this.filterPRs(this.props.prs) : [];
 
         return (
             <div className="mb-3">
@@ -241,11 +216,7 @@ class ListPRsReviewing extends React.Component {
                                     name="shouldHideDraft"
                                     id="shouldHideDraft"
                                     onChange={this.toggleDraftFilter}
-                                    checked={
-                                        this.state.shouldHideDraft
-                                            ? 'checked'
-                                            : undefined
-                                    }
+                                    checked={this.state.shouldHideDraft ? 'checked' : undefined}
                                 />
                                 Draft
                             </label>
@@ -258,9 +229,7 @@ class ListPRsReviewing extends React.Component {
                                     id="shouldHideAlreadyReviewed"
                                     onChange={this.toggleAlreadyReviewedFilter}
                                     checked={
-                                        this.state.shouldHideAlreadyReviewed
-                                            ? 'checked'
-                                            : undefined
+                                        this.state.shouldHideAlreadyReviewed ? 'checked' : undefined
                                     }
                                 />
                                 Already reviewed
@@ -273,11 +242,7 @@ class ListPRsReviewing extends React.Component {
                                     name="shouldHideOnHold"
                                     id="shouldHideOnHold"
                                     onChange={this.toggleOnHoldFilter}
-                                    checked={
-                                        this.state.shouldHideOnHold
-                                            ? 'checked'
-                                            : undefined
-                                    }
+                                    checked={this.state.shouldHideOnHold ? 'checked' : undefined}
                                 />
                                 On Hold
                             </label>
@@ -298,18 +263,18 @@ class ListPRsReviewing extends React.Component {
                         count={_.size(filteredPRs)}
                         onOpenAll={() => openAllUrls(filteredPRs)}
                         items={filteredPRs}
-                        extraAction={_.size(filteredPRs) > 0 && (
-                            <DispatchAllButton
-                                action={CONST.AGENT_DISPATCHER.BATCH_ACTIONS.REVIEW_QUEUE}
-                                items={_.values(filteredPRs)}
-                            />
-                        )}
+                        extraAction={
+                            _.size(filteredPRs) > 0 && (
+                                <DispatchAllButton
+                                    action={CONST.AGENT_DISPATCHER.BATCH_ACTIONS.REVIEW_QUEUE}
+                                    items={_.values(filteredPRs)}
+                                />
+                            )
+                        }
                     />
 
                     {!this.props.prs && (
-                        <div className="blankslate capped clean-background">
-                            Loading
-                        </div>
+                        <div className="blankslate capped clean-background">Loading</div>
                     )}
 
                     {_.chain(filteredPRs)

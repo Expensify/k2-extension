@@ -11,7 +11,8 @@ export default {
     // e.g. /Expensify/App/actions/workflows/required/Expensify/GitHub-Actions/.github/workflows/...
     // That is the part of the run a PR author cannot reproduce from a workflow file on their own branch,
     // so it is what tells a real peer review check apart from a job that merely shares its name.
-    PEER_REVIEW_WORKFLOW_PATH: 'required/Expensify/GitHub-Actions/.github/workflows/verifyPeerReview.yml',
+    PEER_REVIEW_WORKFLOW_PATH:
+        'required/Expensify/GitHub-Actions/.github/workflows/verifyPeerReview.yml',
 
     AGENT_DISPATCHER: {
         ENDPOINT: 'http://127.0.0.1:8424/dispatch',

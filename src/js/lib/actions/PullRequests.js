@@ -15,31 +15,35 @@ import getPullRequestIssueURLs from '../getPullRequestIssueURLs';
 function getLinkedIssues(prs) {
     const issueURLsByPR = _.mapObject(prs, getPullRequestIssueURLs);
     const issuesByURL = {};
-    _.each(prs, (pr) => {
-        _.each(pr.closingIssuesReferences && pr.closingIssuesReferences.nodes, (issue) => {
+    _.each(prs, pr => {
+        _.each(pr.closingIssuesReferences && pr.closingIssuesReferences.nodes, issue => {
             issuesByURL[issue.url.toLowerCase()] = issue;
         });
     });
 
     const issueURLs = _.uniq(_.flatten(_.values(issueURLsByPR)));
-    return Promise.all(_.map(issueURLs, (url) => {
-        if (issuesByURL[url]) {
-            return Promise.resolve();
-        }
+    return Promise.all(
+        _.map(issueURLs, url => {
+            if (issuesByURL[url]) {
+                return Promise.resolve();
+            }
 
-        return API.getIssueByURL(url)
-            .catch(() => {
-                // Keep the issue link usable when its title is unavailable, including for private issues.
-                const [, owner, repo, , number] = new URL(url).pathname.split('/');
-                return {url, title: `${owner}/${repo} #${number}`};
-            })
-            .then((issue) => {
-                issuesByURL[url] = issue;
-            });
-    })).then(() => _.mapObject(prs, pr => ({
-        ...pr,
-        linkedIssues: _.map(issueURLsByPR[pr.id], url => issuesByURL[url]),
-    })));
+            return API.getIssueByURL(url)
+                .catch(() => {
+                    // Keep the issue link usable when its title is unavailable, including for private issues.
+                    const [, owner, repo, , number] = new URL(url).pathname.split('/');
+                    return {url, title: `${owner}/${repo} #${number}`};
+                })
+                .then(issue => {
+                    issuesByURL[url] = issue;
+                });
+        }),
+    ).then(() =>
+        _.mapObject(prs, pr => ({
+            ...pr,
+            linkedIssues: _.map(issueURLsByPR[pr.id], url => issuesByURL[url]),
+        })),
+    );
 }
 
 /**
@@ -55,7 +59,8 @@ function getCheckConclusionFromGraphQL(pr) {
         return 'unknown';
     }
 
-    const statusCheckRollup = commits[0] && commits[0].commit && commits[0].commit.statusCheckRollup;
+    const statusCheckRollup =
+        commits[0] && commits[0].commit && commits[0].commit.statusCheckRollup;
     if (!statusCheckRollup || !statusCheckRollup.contexts) {
         return 'unknown';
     }
@@ -68,7 +73,8 @@ function getCheckConclusionFromGraphQL(pr) {
             }
 
             // StatusContext nodes carry a state directly; CheckRun nodes have a status and a conclusion
-            const state = context.state || (context.status !== 'COMPLETED' ? 'PENDING' : context.conclusion);
+            const state =
+                context.state || (context.status !== 'COMPLETED' ? 'PENDING' : context.conclusion);
 
             // If any check runs are failing, mark it failed
             if (state === 'FAILURE' || state === 'ERROR' || previousValue === 'failure') {
@@ -119,26 +125,31 @@ function addCheckConclusionsToPRs(prs) {
 }
 
 function getAssigned() {
-    ActionThrottle('getAssigned', () => API.getPullsByType('assignee').then(prs => API.getPullsByType('author').then((authorPrs) => {
-        _.each(authorPrs, (authorPr) => {
-            if (authorPr.assignees.nodes.length > 0) {
-                return;
-            }
+    ActionThrottle('getAssigned', () =>
+        API.getPullsByType('assignee').then(prs =>
+            API.getPullsByType('author')
+                .then(authorPrs => {
+                    _.each(authorPrs, authorPr => {
+                        if (authorPr.assignees.nodes.length > 0) {
+                            return;
+                        }
 
-            // eslint-disable-next-line no-param-reassign
-            prs[authorPr.id] = authorPr;
-        });
+                        // eslint-disable-next-line no-param-reassign
+                        prs[authorPr.id] = authorPr;
+                    });
 
-        return getLinkedIssues(prs);
-    })
-        .then((prsWithIssues) => {
-            // Add check conclusions from GraphQL data (no extra API calls needed)
-            const prsWithChecks = addCheckConclusionsToPRs(prsWithIssues);
+                    return getLinkedIssues(prs);
+                })
+                .then(prsWithIssues => {
+                    // Add check conclusions from GraphQL data (no extra API calls needed)
+                    const prsWithChecks = addCheckConclusionsToPRs(prsWithIssues);
 
-            // Always use set() here because there is no way to remove issues from Onyx
-            // that get closed and are no longer assigned
-            ReactNativeOnyx.set(ONYXKEYS.PRS.ASSIGNED, prsWithChecks);
-        })));
+                    // Always use set() here because there is no way to remove issues from Onyx
+                    // that get closed and are no longer assigned
+                    ReactNativeOnyx.set(ONYXKEYS.PRS.ASSIGNED, prsWithChecks);
+                }),
+        ),
+    );
 }
 
 function getReviewing() {
@@ -147,7 +158,7 @@ function getReviewing() {
         promises.push(API.getPullsByType('review-requested'));
         promises.push(API.getPullsByType('reviewed-by'));
 
-        return Promise.all(promises).then((values) => {
+        return Promise.all(promises).then(values => {
             const reviewRequested = _.mapObject(values[0], pr => ({
                 ...pr,
                 isReviewRequested: true,
@@ -164,17 +175,12 @@ function getReviewing() {
             const currentUser = API.getCurrentUser();
             const prsAuthoredByOtherUsers = _.chain(allPRs)
                 .reject(pr => pr.author.login === currentUser)
-                .reject(pr => _.any(
-                    pr.assignees.nodes,
-                    assignee => assignee.login === currentUser,
-                ))
+                .reject(pr => _.any(pr.assignees.nodes, assignee => assignee.login === currentUser))
                 .indexBy('id')
                 .value();
 
             // Add check conclusions from GraphQL data (no extra API calls needed)
-            const prsWithChecks = addCheckConclusionsToPRs(
-                prsAuthoredByOtherUsers,
-            );
+            const prsWithChecks = addCheckConclusionsToPRs(prsAuthoredByOtherUsers);
 
             // Always use set() here because there is no way to remove issues from Onyx
             // that get closed and are no longer assigned

@@ -37,24 +37,15 @@ class ListIssuesHotPicks extends React.Component {
             this.fetch();
 
             if (this.props.pollInterval && !this.interval) {
-                this.interval = setInterval(
-                    this.fetch,
-                    this.props.pollInterval,
-                );
+                this.interval = setInterval(this.fetch, this.props.pollInterval);
             }
         }, this.props.initialDelay);
 
-        document.addEventListener(
-            'visibilitychange',
-            this.handleVisibilityChange,
-        );
+        document.addEventListener('visibilitychange', this.handleVisibilityChange);
     }
 
     componentWillUnmount() {
-        document.removeEventListener(
-            'visibilitychange',
-            this.handleVisibilityChange,
-        );
+        document.removeEventListener('visibilitychange', this.handleVisibilityChange);
         if (this.initialTimeout) {
             clearTimeout(this.initialTimeout);
         }
@@ -72,10 +63,7 @@ class ListIssuesHotPicks extends React.Component {
         } else {
             this.fetch();
             if (this.props.pollInterval && !this.interval) {
-                this.interval = setInterval(
-                    this.fetch,
-                    this.props.pollInterval,
-                );
+                this.interval = setInterval(this.fetch, this.props.pollInterval);
             }
         }
     }
@@ -95,23 +83,15 @@ class ListIssuesHotPicks extends React.Component {
                 />
 
                 {!this.props.issues && (
-                    <div className="blankslate capped clean-background">
-                        Loading
-                    </div>
+                    <div className="blankslate capped clean-background">Loading</div>
                 )}
 
                 {!this.props.issues.length ? (
-                    <div className="blankslate capped clean-background">
-                        No items
-                    </div>
+                    <div className="blankslate capped clean-background">No items</div>
                 ) : (
                     <>
                         {_.map(this.props.issues, issue => (
-                            <ListItemIssue
-                                key={issue.id}
-                                issue={issue}
-                                showAttendees
-                            />
+                            <ListItemIssue key={issue.id} issue={issue} showAttendees />
                         ))}
                     </>
                 )}

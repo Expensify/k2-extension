@@ -28,7 +28,8 @@ const renderReplaceChecklistButton = () => {
     if ($('.k2-replace-checklist').length) {
         return;
     }
-    const buttonHtml = '<button type="button" class="btn-link no-underline text-bold Link--primary k2-replace-checklist almost-transparent">Auto complete checklist</button>';
+    const buttonHtml =
+        '<button type="button" class="btn-link no-underline text-bold Link--primary k2-replace-checklist almost-transparent">Auto complete checklist</button>';
     $('.discussion-sidebar-item').last().append(buttonHtml);
     $('.k2-replace-checklist').off().on('click', replaceChecklistItems);
 };
@@ -79,10 +80,7 @@ const refreshSidebar = function () {
     }
 
     const autoLoadMoreWrapper = $('.k2autoloadmore-wrapper');
-    if (
-        autoLoadMoreWrapper.length
-        && autoLoadMoreWrapper.children().length === 0
-    ) {
+    if (autoLoadMoreWrapper.length && autoLoadMoreWrapper.children().length === 0) {
         new ToggleAutoLoadMore().draw();
     }
 };
@@ -118,17 +116,15 @@ const refreshWorkflowMenu = function () {
 };
 
 const refreshHold = function () {
-    const prTitle = $(
-        'h1[data-component="PH_Title"] span.markdown-title',
-    ).text();
+    const prTitle = $('h1[data-component="PH_Title"] span.markdown-title').text();
 
     const isNewMergeUI = $('div[data-testid="mergebox-partial"]').length;
 
     // Classic merge experience
     if (!isNewMergeUI) {
         if (
-            prTitle.toLowerCase().indexOf('[hold') > -1
-            || prTitle.toLowerCase().indexOf('[wip') > -1
+            prTitle.toLowerCase().indexOf('[hold') > -1 ||
+            prTitle.toLowerCase().indexOf('[wip') > -1
         ) {
             $('.branch-action') // Entire PR merge section
                 .removeClass('branch-action-state-clean')
@@ -147,9 +143,7 @@ const refreshHold = function () {
                 .text('This pull request has a hold on it and cannot be merged')
                 .end()
                 .find('.status-meta') // Body text for the "merging status" section
-                .html(
-                    'Remove the HOLD or WIP label from the title of the PR to make it mergeable',
-                )
+                .html('Remove the HOLD or WIP label from the title of the PR to make it mergeable')
                 .end()
                 .find('.octicon')
                 .removeClass('octicon-check')
@@ -158,10 +152,7 @@ const refreshHold = function () {
         return;
     }
 
-    if (
-        prTitle.toLowerCase().indexOf('[hold') > -1
-        || prTitle.toLowerCase().indexOf('[wip') > -1
-    ) {
+    if (prTitle.toLowerCase().indexOf('[hold') > -1 || prTitle.toLowerCase().indexOf('[wip') > -1) {
         $('div[data-testid="mergebox-border-container"]') // Entire PR merge section
             .removeClass('borderColor-success-emphasis');
         $('div[data-testid="mergebox-partial"] > div > div > div button')
@@ -171,9 +162,7 @@ const refreshHold = function () {
                 borderColor: 'var(--bgColor-neutral-muted)',
             })
             .attr('disabled', 'disabled');
-        $(
-            'div[data-testid="mergebox-partial"] > div > div button[data-component="IconButton"]',
-        )
+        $('div[data-testid="mergebox-partial"] > div > div button[data-component="IconButton"]')
             .first() // Dropdown button next to merge button
             .css({
                 backgroundColor: 'var(--bgColor-neutral-muted)',
@@ -185,22 +174,14 @@ const refreshHold = function () {
         $('div[data-testid="mergeability-icon-wrapper"] div').css({
             backgroundColor: 'var(--bgColor-neutral-emphasis)',
         }); // Icon on the left side of the merge panel
-        $(
-            'div[data-testid="mergebox-partial"] > div > div > section:last-of-type svg',
-        ) // "Merging status" section above the merge button
+        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type svg') // "Merging status" section above the merge button
             .parent()
             .removeClass('bgColor-success-emphasis')
             .css({backgroundColor: 'var(--bgColor-neutral-emphasis)'});
-        $(
-            'div[data-testid="mergebox-partial"] > div > div > section:last-of-type h3',
-        ) // Header for the "merging status" section
+        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type h3') // Header for the "merging status" section
             .text('This pull request has a hold on it and cannot be merged');
-        $(
-            'div[data-testid="mergebox-partial"] > div > div > section:last-of-type p',
-        ) // Body text for the "merging status" section
-            .html(
-                'Remove the HOLD or WIP label from the title of the PR to make it mergeable',
-            );
+        $('div[data-testid="mergebox-partial"] > div > div > section:last-of-type p') // Body text for the "merging status" section
+            .html('Remove the HOLD or WIP label from the title of the PR to make it mergeable');
     }
 };
 

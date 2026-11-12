@@ -43,20 +43,20 @@ class ListItemIssue extends React.Component {
 
         // See if it's waiting for an action from the engineer
         if (
-            (this.isWaitingForEngineerReview && !this.isContributorAssigned)
-            || this.hasUnrepliedMentions
+            (this.isWaitingForEngineerReview && !this.isContributorAssigned) ||
+            this.hasUnrepliedMentions
         ) {
             className += ' actionRequired';
         }
 
         return (
-            className
-            + this.isPlanning
-            + this.isWaitingOnCustomer
-            + this.isHeld
-            + this.isChallengeSent
-            + this.isHelpWanted
-            + this.isContributorAssigned
+            className +
+            this.isPlanning +
+            this.isWaitingOnCustomer +
+            this.isHeld +
+            this.isChallengeSent +
+            this.isHelpWanted +
+            this.isContributorAssigned
         );
     }
 
@@ -65,59 +65,57 @@ class ListItemIssue extends React.Component {
             name: 'External',
         }) ? (
             <sup>E</sup>
-            ) : null;
+        ) : null;
         this.isImprovement = _.findWhere(this.props.issue.labels, {
             name: 'Improvement',
         }) ? (
             <sup>I</sup>
-            ) : null;
-        this.isTask = _.findWhere(this.props.issue.labels, {name: 'Task'}) ? (
-            <sup>T</sup>
         ) : null;
+        this.isTask = _.findWhere(this.props.issue.labels, {name: 'Task'}) ? <sup>T</sup> : null;
         this.isFeature = _.findWhere(this.props.issue.labels, {
             name: 'NewFeature',
         }) ? (
             <sup>F</sup>
-            ) : null;
+        ) : null;
         this.isHourly = _.findWhere(this.props.issue.labels, {
             name: 'Hourly',
         }) ? (
             <span className="label hourly">H</span>
-            ) : null;
+        ) : null;
         this.isDaily = _.findWhere(this.props.issue.labels, {
             name: 'Daily',
         }) ? (
             <span className="label daily">D</span>
-            ) : null;
+        ) : null;
         this.isWeekly = _.findWhere(this.props.issue.labels, {
             name: 'Weekly',
         }) ? (
             <span className="label weekly">W</span>
-            ) : null;
+        ) : null;
         this.isMonthly = _.findWhere(this.props.issue.labels, {
             name: 'Monthly',
         }) ? (
             <span className="label monthly">M</span>
-            ) : null;
+        ) : null;
         this.isNewhire = _.findWhere(this.props.issue.labels, {
             name: 'FirstPick',
         }) ? (
             <span className="label newhire">FP</span>
-            ) : (
-                ''
-            );
+        ) : (
+            ''
+        );
         this.isWaitingForCustomer = _.findWhere(this.props.issue.labels, {
             name: 'Waiting for customer',
         }) ? (
             <span className="label waiting">Waiting</span>
-            ) : (
-                ''
-            );
+        ) : (
+            ''
+        );
         this.isWhatsNext = _.findWhere(this.props.issue.labels, {
             name: 'WhatsNext',
         }) ? (
             <span className="label whatsnext">WN</span>
-            ) : null;
+        ) : null;
         this.isPlanning = _.findWhere(this.props.issue.labels, {
             name: 'Planning',
         })
@@ -132,9 +130,7 @@ class ListItemIssue extends React.Component {
         })
             ? ' waiting-for-customer'
             : '';
-        this.isHeld = this.props.issue.title.toLowerCase().indexOf('[hold') > -1
-            ? ' hold'
-            : '';
+        this.isHeld = this.props.issue.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '';
         this.isChallengeSent = _.findWhere(this.props.issue.labels, {
             name: 'Take Home Challenge Sent',
         })
@@ -145,18 +141,17 @@ class ListItemIssue extends React.Component {
         })
             ? ' help-wanted'
             : '';
-        this.isContributorAssigned = this.isExternal && !this.isHelpWanted
-            ? ' contributor-assigned'
-            : '';
+        this.isContributorAssigned =
+            this.isExternal && !this.isHelpWanted ? ' contributor-assigned' : '';
         this.isUnderReview = _.find(
             this.props.issue.labels,
             label => label.name.toLowerCase() === 'reviewing',
         );
-        this.isWaitingForEngineerReview = this.props.issue.comments
-            && _.some(
+        this.isWaitingForEngineerReview =
+            this.props.issue.comments &&
+            _.some(
                 this.props.issue.comments.nodes,
-                comment => comment.body.includes('🎀👀🎀')
-                    || comment.body.includes('🎀 👀 🎀'),
+                comment => comment.body.includes('🎀👀🎀') || comment.body.includes('🎀 👀 🎀'),
             );
         this.issueHasOwner = this.props.issue.issueHasOwner;
         this.isCurrentUserOwner = this.props.issue.currentUserIsOwner;
@@ -164,7 +159,7 @@ class ListItemIssue extends React.Component {
             name: 'DeployBlockerCash',
         }) ? (
             <span className="label hourly">H</span>
-            ) : null;
+        ) : null;
         this.isNewToCurrentUser = this.props.issue.currentUserHasCommented === false;
         this.hasUnrepliedMentions = (() => {
             if (!this.props.issue.comments) {
@@ -175,8 +170,8 @@ class ListItemIssue extends React.Component {
 
             const lastMentionIndex = _.findLastIndex(
                 comments,
-                comment => comment.body.includes(`@${username}`)
-                    && comment.author.login !== 'melvin-bot',
+                comment =>
+                    comment.body.includes(`@${username}`) && comment.author.login !== 'melvin-bot',
             );
 
             if (lastMentionIndex === -1) {
@@ -208,12 +203,8 @@ class ListItemIssue extends React.Component {
                         )}
                     </span>
                 )}
-                {this.isCurrentUserOwner && (
-                    <span className="owner">{'★ '}</span>
-                )}
-                {this.issueHasOwner && !this.isCurrentUserOwner && (
-                    <span>{'☆ '}</span>
-                )}
+                {this.isCurrentUserOwner && <span className="owner">{'★ '}</span>}
+                {this.issueHasOwner && !this.isCurrentUserOwner && <span>{'☆ '}</span>}
                 <a
                     href={this.props.issue.url}
                     className={this.getClassName()}
@@ -233,11 +224,11 @@ class ListItemIssue extends React.Component {
                     {this.isFeature}
                     {this.props.issue.title}
                 </a>
-                {this.isWaitingForEngineerReview
-                    && !this.isContributorAssigned && (
+                {this.isWaitingForEngineerReview &&
+                    !this.isContributorAssigned && (
                         // eslint-disable-next-line jsx-a11y/accessible-emoji
                         <span>{'\n 🎀👀🎀'}</span>
-                )}
+                    )}
                 {this.hasUnrepliedMentions && (
                     // eslint-disable-next-line jsx-a11y/accessible-emoji
                     <span>{'\n ⚠️💬⚠️'}</span>
@@ -256,26 +247,23 @@ class ListItemIssue extends React.Component {
                             className="AvatarStack-body tooltipped tooltipped-sw tooltipped-multiline tooltipped-align-right-1 mt-1"
                             aria-label={`Assigned to ${_.pluck(this.props.issue.assignees, 'login').join(', ')}`}
                         >
-                            {_.map(
-                                this.props.issue.assignees.reverse(),
-                                assignee => (
-                                    <a
-                                        className="avatar avatar-user"
-                                        aria-label={`${assignee.login}'s assigned issues`}
-                                        href={`/Expensify/App/issues?q=assignee%3A${assignee.login}+is%3Aopen`}
-                                        data-turbo-frame="repo-content-turbo-frame"
-                                        key={assignee.login}
-                                    >
-                                        <img
-                                            className="from-avatar avatar-user"
-                                            src={assignee.avatarUrl}
-                                            width="20"
-                                            height="20"
-                                            alt={`@${assignee.login}`}
-                                        />
-                                    </a>
-                                ),
-                            )}
+                            {_.map(this.props.issue.assignees.reverse(), assignee => (
+                                <a
+                                    className="avatar avatar-user"
+                                    aria-label={`${assignee.login}'s assigned issues`}
+                                    href={`/Expensify/App/issues?q=assignee%3A${assignee.login}+is%3Aopen`}
+                                    data-turbo-frame="repo-content-turbo-frame"
+                                    key={assignee.login}
+                                >
+                                    <img
+                                        className="from-avatar avatar-user"
+                                        src={assignee.avatarUrl}
+                                        width="20"
+                                        height="20"
+                                        alt={`@${assignee.login}`}
+                                    />
+                                </a>
+                            ))}
                         </div>
                     </div>
                 )}

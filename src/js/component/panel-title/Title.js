@@ -26,19 +26,21 @@ const propTypes = {
     extraAction: PropTypes.node,
 
     /** Checkboxes to show next to the title */
-    checkboxes: PropTypes.arrayOf(PropTypes.shape({
-        /** The id and the name of the input */
-        id: PropTypes.string.isRequired,
+    checkboxes: PropTypes.arrayOf(
+        PropTypes.shape({
+            /** The id and the name of the input */
+            id: PropTypes.string.isRequired,
 
-        /** The text to show next to the input */
-        label: PropTypes.string.isRequired,
+            /** The text to show next to the input */
+            label: PropTypes.string.isRequired,
 
-        /** Whether the checkbox is checked */
-        isChecked: PropTypes.bool,
+            /** Whether the checkbox is checked */
+            isChecked: PropTypes.bool,
 
-        /** Callback when the user toggles the checkbox */
-        onChange: PropTypes.func.isRequired,
-    })),
+            /** Callback when the user toggles the checkbox */
+            onChange: PropTypes.func.isRequired,
+        }),
+    ),
 };
 
 const defaultProps = {
@@ -66,10 +68,7 @@ function Title(props) {
     );
 
     function handleCopy() {
-        const text = _.map(
-            props.items,
-            item => `- [${item.title}](${item.url})`,
-        ).join('\n');
+        const text = _.map(props.items, item => `- [${item.title}](${item.url})`).join('\n');
         navigator.clipboard.writeText(text);
         setCopied(true);
         timeoutRef.current = setTimeout(() => setCopied(false), 2000);
@@ -85,7 +84,11 @@ function Title(props) {
                 <span>
                     {`${props.text} ${props.count !== null ? `(${props.count})` : ''}`}
                     {_.map(props.checkboxes, checkbox => (
-                        <label key={checkbox.id} className="panel-title-checkbox" htmlFor={checkbox.id}>
+                        <label
+                            key={checkbox.id}
+                            className="panel-title-checkbox"
+                            htmlFor={checkbox.id}
+                        >
                             <input
                                 type="checkbox"
                                 id={checkbox.id}
@@ -110,15 +113,9 @@ function Title(props) {
                             <button
                                 type="button"
                                 className="btn btn-sm tooltipped tooltipped-s"
-                                aria-label={
-                                    copied
-                                        ? 'Copied!'
-                                        : 'Copy links for AI prompt'
-                                }
+                                aria-label={copied ? 'Copied!' : 'Copy links for AI prompt'}
                                 onClick={handleCopy}
-                                style={
-                                    copied ? {color: '#009800'} : undefined
-                                }
+                                style={copied ? {color: '#009800'} : undefined}
                             >
                                 <span
                                     className={`octicon ${copied ? 'octicon-check' : 'octicon-clippy'}`}

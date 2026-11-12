@@ -1,6 +1,5 @@
 // Import the style sheet here so that it is included by webpack and processed from SASS into CSS
-// eslint-disable-next-line no-unused-vars
-import styles from '../css/content.scss';
+import '../css/content.scss';
 
 import * as messenger from './lib/messenger';
 import ghAll from './lib/pages/github/all';
@@ -11,14 +10,7 @@ import ghIssueChoose from './lib/pages/github/issuechoose';
 import ghMain from './lib/pages/github/main';
 import * as dashboard from './module/dashboard/index';
 
-const pages = [
-    ghAll(),
-    ghPr(),
-    ghIssue(),
-    ghIssuenew(),
-    ghIssueChoose(),
-    ghMain(),
-];
+const pages = [ghAll(), ghPr(), ghIssue(), ghIssuenew(), ghIssueChoose(), ghMain()];
 
 /**
  * Clean up K2 state when NOT on K2 page.
@@ -65,7 +57,8 @@ new MutationObserver(() => {
     const isK2Page = window.location.hash.indexOf('#k2') === 0;
     const isK2TabMissing = !document.querySelector('li.k2-extension');
     const isK2PageClassMissing = isK2Page && !document.body.classList.contains('k2-page-active');
-    const isK2DashboardMissing = isK2Page && dashboard.getDashboardParent() && !document.querySelector('.k2-dashboard-host');
+    const isK2DashboardMissing =
+        isK2Page && dashboard.getDashboardParent() && !document.querySelector('.k2-dashboard-host');
     if (!isK2TabMissing && !isK2PageClassMissing && !isK2DashboardMissing) {
         return;
     }
@@ -80,7 +73,7 @@ new MutationObserver(() => {
 
 // Handle K2 link clicks directly — GitHub's React nav intercepts clicks and uses
 // pushState (which doesn't fire hashchange), so we must handle it ourselves.
-document.addEventListener('click', (e) => {
+document.addEventListener('click', e => {
     const link = e.target.closest('.k2-nav-link');
     if (!link) {
         return;

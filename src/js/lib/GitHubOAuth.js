@@ -37,12 +37,12 @@ const TOKEN_JUST_ISSUED_MS = 30 * 1000;
  * @returns {boolean}
  */
 function isRuntimeReceiverUnavailableMessage(message) {
-    return !!message
-        && (
-            message.indexOf('Receiving end does not exist') !== -1
-            || message.indexOf('Could not establish connection') !== -1
-            || message.indexOf('Extension context invalidated') !== -1
-        );
+    return (
+        !!message &&
+        (message.indexOf('Receiving end does not exist') !== -1 ||
+            message.indexOf('Could not establish connection') !== -1 ||
+            message.indexOf('Extension context invalidated') !== -1)
+    );
 }
 
 /**
@@ -61,7 +61,7 @@ function buildRuntimeMessageError(message) {
  * @returns {boolean}
  */
 function wasTokenJustRefreshed() {
-    return (Date.now() - lastTokenIssuedAt) < TOKEN_JUST_ISSUED_MS;
+    return Date.now() - lastTokenIssuedAt < TOKEN_JUST_ISSUED_MS;
 }
 
 /**
@@ -73,7 +73,7 @@ function setContentAuthDataFromTokenData(tokenData) {
         type: 'oauth',
         token: tokenData.access_token,
         refreshToken: tokenData.refresh_token,
-        expiresAt: tokenData.expires_in ? Date.now() + (tokenData.expires_in * 1000) : null,
+        expiresAt: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : null,
     });
     lastTokenIssuedAt = Date.now();
 }
@@ -83,8 +83,8 @@ function setContentAuthDataFromTokenData(tokenData) {
  * @returns {Promise<void>}
  */
 function clearBackgroundAuth() {
-    return new Promise((resolve) => {
-        if ((!ksBrowser) || !ksBrowser.runtime || !ksBrowser.runtime.sendMessage) {
+    return new Promise(resolve => {
+        if (!ksBrowser || !ksBrowser.runtime || !ksBrowser.runtime.sendMessage) {
             resolve();
             return;
         }
@@ -110,46 +110,43 @@ async function clearOAuthAuth() {
  */
 function initiateOAuth() {
     return new Promise((resolve, reject) => {
-        if ((!ksBrowser) || !ksBrowser.runtime) {
+        if (!ksBrowser || !ksBrowser.runtime) {
             reject(new Error('Chrome runtime API not available'));
             return;
         }
 
         // Send message to background script to handle OAuth
-        ksBrowser.runtime.sendMessage(
-            {action: 'initiate-oauth'},
-            (response) => {
-                if (ksBrowser.runtime.lastError) {
-                    reject(buildRuntimeMessageError(ksBrowser.runtime.lastError.message));
+        ksBrowser.runtime.sendMessage({action: 'initiate-oauth'}, response => {
+            if (ksBrowser.runtime.lastError) {
+                reject(buildRuntimeMessageError(ksBrowser.runtime.lastError.message));
+                return;
+            }
+
+            if (!response) {
+                reject(new Error('No response from background script'));
+                return;
+            }
+
+            if (!response.success) {
+                reject(new Error(response.error || 'OAuth failed'));
+                return;
+            }
+
+            try {
+                // Store OAuth data from background script response
+                const tokenData = response.tokenData;
+                if (!tokenData || !tokenData.access_token) {
+                    reject(new Error('Invalid token data received'));
                     return;
                 }
 
-                if (!response) {
-                    reject(new Error('No response from background script'));
-                    return;
-                }
+                setContentAuthDataFromTokenData(tokenData);
 
-                if (!response.success) {
-                    reject(new Error(response.error || 'OAuth failed'));
-                    return;
-                }
-
-                try {
-                    // Store OAuth data from background script response
-                    const tokenData = response.tokenData;
-                    if (!tokenData || !tokenData.access_token) {
-                        reject(new Error('Invalid token data received'));
-                        return;
-                    }
-
-                    setContentAuthDataFromTokenData(tokenData);
-
-                    resolve(tokenData.access_token);
-                } catch (error) {
-                    reject(new Error(`Failed to store OAuth data: ${error.message}`));
-                }
-            },
-        );
+                resolve(tokenData.access_token);
+            } catch (error) {
+                reject(new Error(`Failed to store OAuth data: ${error.message}`));
+            }
+        });
     });
 }
 
@@ -236,7 +233,7 @@ function refreshTokenViaBackground(forceRefresh = false) {
     }
 
     inflightRefreshPromise = new Promise((resolve, reject) => {
-        if ((!ksBrowser) || !ksBrowser.runtime || !ksBrowser.runtime.sendMessage) {
+        if (!ksBrowser || !ksBrowser.runtime || !ksBrowser.runtime.sendMessage) {
             reject(new Error('Browser runtime API not available'));
             return;
         }
@@ -245,9 +242,11 @@ function refreshTokenViaBackground(forceRefresh = false) {
 
         ksBrowser.runtime.sendMessage(
             {action: 'get-valid-oauth-token', authData, forceRefresh},
-            (response) => {
+            response => {
                 if (ksBrowser.runtime.lastError) {
-                    const runtimeError = buildRuntimeMessageError(ksBrowser.runtime.lastError.message);
+                    const runtimeError = buildRuntimeMessageError(
+                        ksBrowser.runtime.lastError.message,
+                    );
                     reject(runtimeError);
                     return;
                 }
@@ -299,7 +298,7 @@ function shouldRefresh() {
     if (!authData.expiresAt) {
         return false;
     }
-    return (Date.now() + REFRESH_SKEW_MS) >= authData.expiresAt;
+    return Date.now() + REFRESH_SKEW_MS >= authData.expiresAt;
 }
 
 /**
@@ -394,7 +393,11 @@ async function exchangeCodeViaWorker(code, redirectUri) {
  */
 function handleOAuthFlow() {
     return new Promise((resolve, reject) => {
-        if (!ksBrowser.identity || !ksBrowser.identity.launchWebAuthFlow || !ksBrowser.identity.getRedirectURL) {
+        if (
+            !ksBrowser.identity ||
+            !ksBrowser.identity.launchWebAuthFlow ||
+            !ksBrowser.identity.getRedirectURL
+        ) {
             reject(new Error('Browser identity API not available'));
             return;
         }
@@ -410,47 +413,50 @@ function handleOAuthFlow() {
         authorize.searchParams.set('state', state);
         authorize.searchParams.set('allow_signup', 'true');
 
-        ksBrowser.identity.launchWebAuthFlow({
-            url: authorize.toString(),
-            interactive: true,
-        }, (redirectedTo) => {
-            // Handle errors from the identity flow
-            if (ksBrowser.runtime && ksBrowser.runtime.lastError) {
-                reject(new Error(ksBrowser.runtime.lastError.message));
-                return;
-            }
-            if (!redirectedTo) {
-                reject(new Error('No redirect URL returned'));
-                return;
-            }
+        ksBrowser.identity.launchWebAuthFlow(
+            {
+                url: authorize.toString(),
+                interactive: true,
+            },
+            redirectedTo => {
+                // Handle errors from the identity flow
+                if (ksBrowser.runtime && ksBrowser.runtime.lastError) {
+                    reject(new Error(ksBrowser.runtime.lastError.message));
+                    return;
+                }
+                if (!redirectedTo) {
+                    reject(new Error('No redirect URL returned'));
+                    return;
+                }
 
-            // Check for error in redirect
-            const err = extractErrorFromUrl(redirectedTo);
-            if (err) {
-                reject(new Error(`OAuth error: ${err}`));
-                return;
-            }
+                // Check for error in redirect
+                const err = extractErrorFromUrl(redirectedTo);
+                if (err) {
+                    reject(new Error(`OAuth error: ${err}`));
+                    return;
+                }
 
-            // Validate state then exchange code via worker endpoint
-            const returnedState = getQueryParam(redirectedTo, 'state');
-            if (!returnedState || returnedState !== state) {
-                reject(new Error('Invalid OAuth state'));
-                return;
-            }
-            const code = getQueryParam(redirectedTo, 'code');
-            if (!code) {
-                reject(new Error('No authorization code received'));
-                return;
-            }
+                // Validate state then exchange code via worker endpoint
+                const returnedState = getQueryParam(redirectedTo, 'state');
+                if (!returnedState || returnedState !== state) {
+                    reject(new Error('Invalid OAuth state'));
+                    return;
+                }
+                const code = getQueryParam(redirectedTo, 'code');
+                if (!code) {
+                    reject(new Error('No authorization code received'));
+                    return;
+                }
 
-            exchangeCodeViaWorker(code, redirectUri)
-                .then((tokenData) => {
-                    resolve({success: true, tokenData});
-                })
-                .catch((tokenError) => {
-                    reject(new Error(`${tokenError.message}`));
-                });
-        });
+                exchangeCodeViaWorker(code, redirectUri)
+                    .then(tokenData => {
+                        resolve({success: true, tokenData});
+                    })
+                    .catch(tokenError => {
+                        reject(new Error(`${tokenError.message}`));
+                    });
+            },
+        );
     });
 }
 

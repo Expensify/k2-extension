@@ -99,7 +99,7 @@ function getOctokit() {
     });
 
     // Hook into all responses to track rate limit headers
-    octokit.hook.after('request', (response) => {
+    octokit.hook.after('request', response => {
         if (!response || !response.headers) {
             return;
         }
@@ -130,14 +130,14 @@ function getCurrentUser() {
  */
 function getRequestParams() {
     const url = window.location.href;
-    const regex = /github.com\/(?<owner>[\w-]+)\/(?<repo>[\w.-]+)(?:\/(?:issues|pull)\/(?<issue_number>\d+))?/;
+    const regex =
+        /github.com\/(?<owner>[\w-]+)\/(?<repo>[\w.-]+)(?:\/(?:issues|pull)\/(?<issue_number>\d+))?/;
     const matches = url.match(regex);
 
     return {
         owner: (matches && matches.groups && matches.groups.owner) || '',
         repo: (matches && matches.groups && matches.groups.repo) || '',
-        issue_number:
-            (matches && matches.groups && matches.groups.issue_number) || '',
+        issue_number: (matches && matches.groups && matches.groups.issue_number) || '',
     };
 }
 
@@ -171,7 +171,7 @@ async function getMilestones() {
 
     return getOctokit()
         .graphql(graphQLQuery)
-        .then((data) => {
+        .then(data => {
             // Put the data into a format that the rest of the app will use to remove things like edges and nodes
             const results = _.reduce(
                 data.repository.milestones.nodes,
@@ -188,12 +188,7 @@ async function getMilestones() {
             const indexedResults = _.indexBy(results, 'id');
 
             // Cache for 5 minutes (milestones rarely change)
-            CacheManager.set(
-                cacheKey,
-                indexedResults,
-                null,
-                CacheManager.TTL.LONG,
-            );
+            CacheManager.set(cacheKey, indexedResults, null, CacheManager.TTL.LONG);
 
             return indexedResults;
         });
@@ -208,21 +203,19 @@ async function getMilestones() {
  * @returns {Promise<Array>}
  */
 function getFullResultsUsingPagination(query) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
         let results = [];
 
         // This does all the pagination on the graphQL query
         function fetchPageOfIssues(cursor) {
             getOctokit()
                 .graphql(query, {cursor})
-                .then((queryResults) => {
+                .then(queryResults => {
                     results = results.concat(queryResults.search.nodes);
 
                     // When there is another page, this function needs to be called recursively to get the next page
                     if (queryResults.search.pageInfo.hasNextPage) {
-                        fetchPageOfIssues(
-                            queryResults.search.pageInfo.endCursor,
-                        );
+                        fetchPageOfIssues(queryResults.search.pageInfo.endCursor);
                         return;
                     }
 
@@ -305,12 +298,13 @@ function markIssuesCommentedOnByCurrentUser(query, issues) {
         }
     `;
 
-    return getFullResultsUsingPagination(graphQLQuery).then((commentedIssues) => {
+    return getFullResultsUsingPagination(graphQLQuery).then(commentedIssues => {
         const commentedIssueIDs = _.pluck(commentedIssues, 'id');
         return _.mapObject(issues, issue => ({
             ...issue,
-            currentUserHasCommented: _.contains(commentedIssueIDs, issue.id)
-                || (issue.author && issue.author.login === currentUser),
+            currentUserHasCommented:
+                _.contains(commentedIssueIDs, issue.id) ||
+                (issue.author && issue.author.login === currentUser),
         }));
     });
 }
@@ -471,7 +465,7 @@ query {
 
     return getOctokit()
         .graphql(graphQLQuery)
-        .then((data) => {
+        .then(data => {
             // Put the data into a format that the rest of the app will use to remove things like edges and nodes
             const results = _.reduce(
                 data.search.nodes,
@@ -488,12 +482,7 @@ query {
             const indexedResults = _.indexBy(results, 'id');
 
             // Cache for 2 minutes
-            CacheManager.set(
-                cacheKey,
-                indexedResults,
-                null,
-                CacheManager.TTL.MEDIUM,
-            );
+            CacheManager.set(cacheKey, indexedResults, null, CacheManager.TTL.MEDIUM);
 
             return indexedResults;
         });
@@ -519,8 +508,15 @@ query($owner:String!, $repo:String!, $number:Int!) {
 }
     `;
 
-    return getOctokit().graphql(graphQLQuery, {owner, repo, number: pullRequestNumber})
-        .then(data => (data.repository && data.repository.pullRequest && data.repository.pullRequest.headRefOid) || null);
+    return getOctokit()
+        .graphql(graphQLQuery, {owner, repo, number: pullRequestNumber})
+        .then(
+            data =>
+                (data.repository &&
+                    data.repository.pullRequest &&
+                    data.repository.pullRequest.headRefOid) ||
+                null,
+        );
 }
 
 /**
@@ -577,10 +573,14 @@ query($owner:String!, $repo:String!, $oid:GitObjectID!, $cursor:String) {
     do {
         // eslint-disable-next-line no-await-in-loop
         const data = await getOctokit().graphql(graphQLQuery, {
-            owner, repo, oid, cursor,
+            owner,
+            repo,
+            oid,
+            cursor,
         });
 
-        const rollup = data.repository && data.repository.object && data.repository.object.statusCheckRollup;
+        const rollup =
+            data.repository && data.repository.object && data.repository.object.statusCheckRollup;
         if (!rollup) {
             // A commit that has no checks at all has a null rollup. Once pages have already been read,
             // a missing one instead means an incomplete set, and callers must not mistake the checks we
@@ -599,12 +599,86 @@ query($owner:String!, $repo:String!, $oid:GitObjectID!, $cursor:String) {
 }
 
 /**
+ * Get every pull request that mentions the current issue.
+ * GitHub leaves out pull requests from repositories that the user can't see.
+ *
+ * @returns {Promise<Array<Object>>} Pull requests in the order they appear on the issue timeline
+ */
+async function getCurrentIssuePullRequests() {
+    const {owner, repo, issue_number: issueNumber} = getRequestParams();
+    const graphQLQuery = `
+query($owner:String!, $repo:String!, $number:Int!, $cursor:String) {
+    repository(owner: $owner, name: $repo) {
+        issue(number: $number) {
+            timelineItems(first: 100, after: $cursor, itemTypes: [CROSS_REFERENCED_EVENT]) {
+                pageInfo {
+                    endCursor
+                    hasNextPage
+                }
+                nodes {
+                    ... on CrossReferencedEvent {
+                        source {
+                            ... on PullRequest {
+                                number
+                                title
+                                url
+                                state
+                                isDraft
+                                author {
+                                    login
+                                    avatarUrl(size: 40)
+                                }
+                                repository {
+                                    name
+                                    nameWithOwner
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+    `;
+
+    let pullRequests = [];
+    let cursor = null;
+    do {
+        // eslint-disable-next-line no-await-in-loop
+        const data = await getOctokit().graphql(graphQLQuery, {
+            owner,
+            repo,
+            number: Number(issueNumber),
+            cursor,
+        });
+        const timelineItems =
+            data.repository && data.repository.issue && data.repository.issue.timelineItems;
+        if (!timelineItems) {
+            break;
+        }
+
+        pullRequests = pullRequests.concat(_.map(timelineItems.nodes, node => node && node.source));
+        cursor = timelineItems.pageInfo.hasNextPage ? timelineItems.pageInfo.endCursor : null;
+    } while (cursor);
+
+    // Issues also show up as cross references, and those have no url in this query.
+    // A pull request can mention the issue more than once, so this keeps the first mention of each one.
+    return _.uniq(
+        _.filter(pullRequests, pullRequest => pullRequest && pullRequest.url),
+        false,
+        pullRequest => pullRequest.url,
+    );
+}
+
+/**
  * @param {String} url A GitHub issue URL
  * @returns {Promise<Object>}
  */
 function getIssueByURL(url) {
     const [, owner, repo, , issueNumber] = new URL(url).pathname.split('/');
-    return getOctokit().rest.issues.get({owner, repo, issue_number: Number(issueNumber)})
+    return getOctokit()
+        .rest.issues.get({owner, repo, issue_number: Number(issueNumber)})
         .then(response => ({title: response.data.title, url: response.data.html_url}));
 }
 
@@ -640,6 +714,7 @@ function getIssues(assignee = 'none', labels = []) {
     query += ' repo:Expensify/App';
     query += ' repo:Expensify/VendorTasks';
     query += ' repo:Expensify/Insiders';
+    query += ' repo:Expensify/Alteryx-Data';
     query += ' repo:Expensify/Expensify-Guides';
     query += ' repo:Expensify/react-native-onyx';
 
@@ -849,8 +924,8 @@ function getIssuesMentioning() {
     return getFullResultsUsingPagination(graphQLQuery)
         .then(formatIssueResults)
         .then(issues => markIssuesCommentedOnByCurrentUser(query, issues))
-        .then((issues) => {
-            const issuesToFilter = _.filter(issues, (issue) => {
+        .then(issues => {
+            const issuesToFilter = _.filter(issues, issue => {
                 const comments = issue.comments.nodes;
 
                 // Find the last comment that mentions the current user
@@ -858,10 +933,10 @@ function getIssuesMentioning() {
                     comments,
                     (foundIndex, comment, index) => {
                         if (
-                            comment.body
-                            && comment.body.includes(`@${currentUser}`)
-                            && comment.author.login !== currentUser
-                            && !isBotAuthor(comment.author.login)
+                            comment.body &&
+                            comment.body.includes(`@${currentUser}`) &&
+                            comment.author.login !== currentUser &&
+                            !isBotAuthor(comment.author.login)
                         ) {
                             return index;
                         }
@@ -962,7 +1037,9 @@ function addComment(comment) {
  * @returns {Promise}
  */
 function addCommentToUrl(url, body) {
-    const matches = url.match(/github\.com\/(?<owner>[\w.-]+)\/(?<repo>[\w.-]+)\/(?:pull|issues)\/(?<number>\d+)/);
+    const matches = url.match(
+        /github\.com\/(?<owner>[\w.-]+)\/(?<repo>[\w.-]+)\/(?:pull|issues)\/(?<number>\d+)/,
+    );
     if (!matches) {
         return Promise.reject(new Error(`Could not parse a repo and number out of ${url}`));
     }
@@ -1038,7 +1115,8 @@ function updateComment(commentId, body) {
  */
 function getIssueCommentNodeID(commentID) {
     const {owner, repo} = getRequestParams();
-    return getOctokit().rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
+    return getOctokit()
+        .rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
         .then(response => response.data.node_id);
 }
 
@@ -1049,12 +1127,14 @@ function getIssueCommentNodeID(commentID) {
  */
 function getPullRequestReviewNodeID(reviewID) {
     const {owner, repo, issue_number} = getRequestParams();
-    return getOctokit().rest.pulls.getReview({
-        owner,
-        repo,
-        pull_number: Number(issue_number),
-        review_id: Number(reviewID),
-    }).then(response => response.data.node_id);
+    return getOctokit()
+        .rest.pulls.getReview({
+            owner,
+            repo,
+            pull_number: Number(issue_number),
+            review_id: Number(reviewID),
+        })
+        .then(response => response.data.node_id);
 }
 
 /**
@@ -1064,11 +1144,13 @@ function getPullRequestReviewNodeID(reviewID) {
  */
 function getPullRequestReviewCommentNodeID(commentID) {
     const {owner, repo} = getRequestParams();
-    return getOctokit().rest.pulls.getReviewComment({
-        owner,
-        repo,
-        comment_id: Number(commentID),
-    }).then(response => response.data.node_id);
+    return getOctokit()
+        .rest.pulls.getReviewComment({
+            owner,
+            repo,
+            comment_id: Number(commentID),
+        })
+        .then(response => response.data.node_id);
 }
 
 /**
@@ -1098,7 +1180,8 @@ function minimizeComment(nodeID, classifier) {
  */
 function getIssueCommentMinimizedReason(commentID) {
     const {owner, repo} = getRequestParams();
-    return getOctokit().rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
+    return getOctokit()
+        .rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
         .then(response => response.data.minimized && response.data.minimized.reason);
 }
 
@@ -1187,6 +1270,7 @@ export {
     getPullsByType,
     getIssueByURL,
     getCurrentIssueDescription,
+    getCurrentIssuePullRequests,
     setCurrentIssueBody,
     getPreviousInstancesOfIssue,
     triggerWorkflow,

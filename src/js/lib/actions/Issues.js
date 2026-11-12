@@ -6,92 +6,90 @@ import ActionThrottle from '../ActionThrottle';
 import scoreIssue from '../issueImpactScore';
 
 function getHotPicks() {
-    ActionThrottle('getHotPicks', () => API.getHotPickIssues().then((issues) => {
-        const sortedData = _.chain(issues)
-            .sortBy(scoreIssue)
-            .value()
-            .reverse();
+    ActionThrottle('getHotPicks', () =>
+        API.getHotPickIssues().then(issues => {
+            const sortedData = _.chain(issues).sortBy(scoreIssue).value().reverse();
 
-        // Always use set() here because there is no way to remove issues from Onyx
-        // that get closed or assigned
-        ReactNativeOnyx.set(ONYXKEYS.ISSUES.HOTPICKS, sortedData);
-    }));
+            // Always use set() here because there is no way to remove issues from Onyx
+            // that get closed or assigned
+            ReactNativeOnyx.set(ONYXKEYS.ISSUES.HOTPICKS, sortedData);
+        }),
+    );
 }
 
 function getDailyImprovements() {
-    ActionThrottle('getDailyImprovements', () => API.getDailyImprovements().then((issues) => {
-        // Always use set() here because there is no way to remove issues from Onyx
-        // that get closed and are no longer assigned
-        ReactNativeOnyx.set(ONYXKEYS.ISSUES.DAILY_IMPROVEMENTS, issues);
-    }));
+    ActionThrottle('getDailyImprovements', () =>
+        API.getDailyImprovements().then(issues => {
+            // Always use set() here because there is no way to remove issues from Onyx
+            // that get closed and are no longer assigned
+            ReactNativeOnyx.set(ONYXKEYS.ISSUES.DAILY_IMPROVEMENTS, issues);
+        }),
+    );
 }
 
 function getNeedsReply() {
-    ActionThrottle('getNeedsReply', () => API.getIssuesMentioning().then((issues) => {
-        // Always use set() here because there is no way to remove issues from Onyx
-        // that get closed or assigned
-        ReactNativeOnyx.set(ONYXKEYS.ISSUES.NEEDS_REPLY, issues);
-    }));
+    ActionThrottle('getNeedsReply', () =>
+        API.getIssuesMentioning().then(issues => {
+            // Always use set() here because there is no way to remove issues from Onyx
+            // that get closed or assigned
+            ReactNativeOnyx.set(ONYXKEYS.ISSUES.NEEDS_REPLY, issues);
+        }),
+    );
 }
 
 function getAllAssigned() {
-    ActionThrottle('getAllAssigned', () => API.getIssuesAssigned().then((issues) => {
-        const currentUser = API.getCurrentUser();
-        const issuesMarkedWithOwner = _.reduce(
-            issues,
-            (finalObject, issue) => {
-                const regexResult = issue.body.match(
-                    /Current Issue Owner:\s@(?<owner>[a-z0-9-]+)/i,
-                );
-                const parsedOwner = regexResult
-                        && regexResult.groups
-                        && regexResult.groups.owner;
+    ActionThrottle('getAllAssigned', () =>
+        API.getIssuesAssigned().then(issues => {
+            const currentUser = API.getCurrentUser();
+            const issuesMarkedWithOwner = _.reduce(
+                issues,
+                (finalObject, issue) => {
+                    const regexResult = issue.body.match(
+                        /Current Issue Owner:\s@(?<owner>[a-z0-9-]+)/i,
+                    );
+                    const parsedOwner =
+                        regexResult && regexResult.groups && regexResult.groups.owner;
 
-                // An owner only counts if they are also an assignee, matching the overdue issue meeting logic.
-                // This keeps a stale owner (still in the body but no longer assigned) from counting as the owner.
-                const assigneeLogins = _.pluck(issue.assignees, 'login');
-                const currentOwner = parsedOwner && _.contains(assigneeLogins, parsedOwner)
-                    ? parsedOwner
-                    : null;
+                    // An owner only counts if they are also an assignee, matching the overdue issue meeting logic.
+                    // This keeps a stale owner (still in the body but no longer assigned) from counting as the owner.
+                    const assigneeLogins = _.pluck(issue.assignees, 'login');
+                    const currentOwner =
+                        parsedOwner && _.contains(assigneeLogins, parsedOwner) ? parsedOwner : null;
 
-                const result = finalObject;
+                    const result = finalObject;
 
-                result[issue.id] = {
-                    ...issue,
-                    issueHasOwner: !!currentOwner,
-                    currentUserIsOwner:
-                            currentOwner && currentOwner === currentUser,
-                };
+                    result[issue.id] = {
+                        ...issue,
+                        issueHasOwner: !!currentOwner,
+                        currentUserIsOwner: currentOwner && currentOwner === currentUser,
+                    };
 
-                return result;
-            },
-            {},
-        );
+                    return result;
+                },
+                {},
+            );
 
-        // Always use set() here because there is no way to remove issues from Onyx
-        // that get closed and are no longer assigned
-        ReactNativeOnyx.set(
-            ONYXKEYS.ISSUES.ASSIGNED,
-            issuesMarkedWithOwner,
-        );
-    }));
+            // Always use set() here because there is no way to remove issues from Onyx
+            // that get closed and are no longer assigned
+            ReactNativeOnyx.set(ONYXKEYS.ISSUES.ASSIGNED, issuesMarkedWithOwner);
+        }),
+    );
 }
 
 function getEngineering() {
-    ActionThrottle('getEngineering', () => API.getEngineeringIssues().then((issues) => {
-        // Set the type of the item to be the label we are looking for
-        const sortedData = _.chain(issues)
-            .map(item => ({...item, type: 'engineering'}))
-            .sortBy(scoreIssue)
-            .value();
+    ActionThrottle('getEngineering', () =>
+        API.getEngineeringIssues().then(issues => {
+            // Set the type of the item to be the label we are looking for
+            const sortedData = _.chain(issues)
+                .map(item => ({...item, type: 'engineering'}))
+                .sortBy(scoreIssue)
+                .value();
 
-        // Always use set() here because there is no way to remove issues from Onyx
-        // that have the engineering label removed
-        ReactNativeOnyx.set(
-            ONYXKEYS.ISSUES.ENGINEERING,
-            _.indexBy(sortedData.reverse(), 'id'),
-        );
-    }));
+            // Always use set() here because there is no way to remove issues from Onyx
+            // that have the engineering label removed
+            ReactNativeOnyx.set(ONYXKEYS.ISSUES.ENGINEERING, _.indexBy(sortedData.reverse(), 'id'));
+        }),
+    );
 }
 
 /**
@@ -124,10 +122,7 @@ function addComment(comment) {
 }
 
 function setPriorities(priorities, priorityLabel) {
-    ReactNativeOnyx.set(
-        `${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${priorityLabel}`,
-        priorities,
-    );
+    ReactNativeOnyx.set(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${priorityLabel}`, priorities);
 }
 
 export {

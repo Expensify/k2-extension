@@ -6,18 +6,8 @@ import {
     useSensors,
     DragOverlay,
 } from '@dnd-kit/core';
-import {
-    arrayMove,
-    SortableContext,
-    verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import React, {
-    useMemo,
-    useState,
-    useEffect,
-    useCallback,
-    useRef,
-} from 'react';
+import {arrayMove, SortableContext, verticalListSortingStrategy} from '@dnd-kit/sortable';
+import React, {useMemo, useState, useEffect, useCallback, useRef} from 'react';
 import _ from 'underscore';
 import PropTypes from 'prop-types';
 import {withOnyx, useOnyx} from 'react-native-onyx';
@@ -77,7 +67,7 @@ function getOrderedFilteredIssues({
 
     // Apply filters
     if (applyFilters && filters && !_.isEmpty(filters)) {
-        preparedIssues = _.filter(preparedIssues, (item) => {
+        preparedIssues = _.filter(preparedIssues, item => {
             const isImprovement = _.findWhere(item.labels, {
                 name: 'Improvement',
             });
@@ -90,9 +80,9 @@ function getOrderedFilteredIssues({
                 return false;
             }
             return (
-                (filters.improvement && isImprovement)
-                || (filters.task && isTask)
-                || (filters.feature && isFeature)
+                (filters.improvement && isImprovement) ||
+                (filters.task && isTask) ||
+                (filters.feature && isFeature)
             );
         });
     }
@@ -107,11 +97,11 @@ function getOrderedFilteredIssues({
     }
 
     // Iteratee for sorting by owner (secondary sort, for un-prioritized issues)
-    const ownerSortIteratee = (item) => {
-        const priorityValue = priorities[item.url ?? '']
-            && priorities[item.url].priority !== undefined
-            ? priorities[item.url].priority
-            : Number.MAX_SAFE_INTEGER;
+    const ownerSortIteratee = item => {
+        const priorityValue =
+            priorities[item.url ?? ''] && priorities[item.url].priority !== undefined
+                ? priorities[item.url].priority
+                : Number.MAX_SAFE_INTEGER;
         if (priorityValue === Number.MAX_SAFE_INTEGER) {
             // Sort un-prioritized issues by owner
             return item.currentUserIsOwner ? 0 : 1;
@@ -122,28 +112,23 @@ function getOrderedFilteredIssues({
     };
 
     // Iteratee for sorting by priority (primary sort)
-    const priorityIteratee = (item) => {
+    const priorityIteratee = item => {
         // If an issue doesn't have a priority, return -1 so that is appears at the top of the list, which will prompt the user to set a priority
-        const priorityValue = priorities[item.url ?? '']
-            && priorities[item.url].priority !== undefined
-            ? priorities[item.url].priority
-            : -1;
+        const priorityValue =
+            priorities[item.url ?? ''] && priorities[item.url].priority !== undefined
+                ? priorities[item.url].priority
+                : -1;
 
         return priorityValue;
     };
 
     // Sort by priority, then owner. Sorting has to be chained, since _.sortBy doesn't support multi-criteria sorting.
     // If an array is returned, it will be sorted lexicographically and won't sort properly according to priority when there are more than 10 issues.
-    return _.chain(preparedIssues)
-        .sortBy(ownerSortIteratee)
-        .sortBy(priorityIteratee)
-        .value();
+    return _.chain(preparedIssues).sortBy(ownerSortIteratee).sortBy(priorityIteratee).value();
 }
 
 function PanelIssues(props) {
-    const [priorities = {}] = useOnyx(
-        `${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`,
-    );
+    const [priorities = {}] = useOnyx(`${ONYXKEYS.ISSUES.COLLECTION_PRIORITIES}${props.title}`);
     const [activeId, setActiveId] = useState(null);
     const prevPrioritiesRef = useRef();
 
@@ -168,13 +153,14 @@ function PanelIssues(props) {
     }, [priorities, localOrder]);
 
     const filteredData = useMemo(
-        () => getOrderedFilteredIssues({
-            issues: props.data,
-            filters: props.filters,
-            priorities,
-            localOrder,
-            applyFilters: props.applyFilters,
-        }),
+        () =>
+            getOrderedFilteredIssues({
+                issues: props.data,
+                filters: props.filters,
+                priorities,
+                localOrder,
+                applyFilters: props.applyFilters,
+            }),
         [props.data, props.applyFilters, props.filters, priorities, localOrder],
     );
 
@@ -192,7 +178,7 @@ function PanelIssues(props) {
         : null;
 
     const updatePriorities = useCallback(
-        (event) => {
+        event => {
             // In dnd-kit, `event.active` represents the item being dragged, and `event.over` represents the item currently being hovered over (the potential drop target).
             const active = event.active;
             const over = event.over;
@@ -211,11 +197,7 @@ function PanelIssues(props) {
             }
 
             // Update local order immediately for UI feedback
-            const newOrder = arrayMove(
-                _.pluck(filteredData, 'id'),
-                oldIndex,
-                newIndex,
-            );
+            const newOrder = arrayMove(_.pluck(filteredData, 'id'), oldIndex, newIndex);
             setLocalOrder(newOrder);
 
             // Also update priorities in Onyx
@@ -246,9 +228,7 @@ function PanelIssues(props) {
                     items={filteredData}
                 />
                 {!_.size(filteredData) ? (
-                    <div className="blankslate capped clean-background">
-                        No items
-                    </div>
+                    <div className="blankslate capped clean-background">No items</div>
                 ) : (
                     <DndContext
                         sensors={sensors}
@@ -256,10 +236,7 @@ function PanelIssues(props) {
                         onDragStart={e => setActiveId(e.active.id)}
                         onDragEnd={updatePriorities}
                     >
-                        <SortableContext
-                            items={issueIds}
-                            strategy={verticalListSortingStrategy}
-                        >
+                        <SortableContext items={issueIds} strategy={verticalListSortingStrategy}>
                             {_.map(filteredData, issue => (
                                 <SortableIssue key={issue.id} issue={issue} />
                             ))}

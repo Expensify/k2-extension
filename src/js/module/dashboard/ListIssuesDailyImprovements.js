@@ -51,28 +51,20 @@ class ListIssuesDailyImprovements extends React.Component {
                 <Title
                     text="Daily Improvements (OldDot)"
                     count={_.size(this.props.issues) || 0}
-                    items={
-                        this.props.issues ? _.values(this.props.issues) : null
-                    }
+                    items={this.props.issues ? _.values(this.props.issues) : null}
                 />
 
                 {!this.props.issues && (
-                    <div className="blankslate capped clean-background">
-                        Loading
-                    </div>
+                    <div className="blankslate capped clean-background">Loading</div>
                 )}
 
                 {this.props.issues && !_.size(this.props.issues) && (
-                    <div className="blankslate capped clean-background">
-                        No items
-                    </div>
+                    <div className="blankslate capped clean-background">No items</div>
                 )}
 
                 {_.chain(this.props.issues)
                     .sortBy('updatedAt')
-                    .map(issue => (
-                        <ListItemIssue key={issue.id} issue={issue} />
-                    ))
+                    .map(issue => <ListItemIssue key={issue.id} issue={issue} />)
                     .value()
                     .reverse()}
             </div>

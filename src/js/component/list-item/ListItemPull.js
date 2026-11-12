@@ -49,10 +49,7 @@ function ListItemPull(props) {
         const days = 7;
 
         // See if it's overdue
-        const isOverdue = moment(pr.updatedAt).isBefore(
-            today.subtract(days, 'days'),
-            'day',
-        );
+        const isOverdue = moment(pr.updatedAt).isBefore(today.subtract(days, 'days'), 'day');
 
         if (isOverdue) {
             className += ' overdue';
@@ -96,12 +93,13 @@ function ListItemPull(props) {
         mergeability = 'Draft';
     }
 
-    const isStalled = props.showStallNudge
-        && !pr.isDraft
-        && pr.title.indexOf('[HOLD') === -1
-        && pr.title.indexOf('[WIP') === -1
-        && pr.reviewDecision === 'REVIEW_REQUIRED'
-        && moment(pr.updatedAt).isBefore(moment().subtract(CONST.PR_STALL_THRESHOLD_DAYS, 'days'));
+    const isStalled =
+        props.showStallNudge &&
+        !pr.isDraft &&
+        pr.title.indexOf('[HOLD') === -1 &&
+        pr.title.indexOf('[WIP') === -1 &&
+        pr.reviewDecision === 'REVIEW_REQUIRED' &&
+        moment(pr.updatedAt).isBefore(moment().subtract(CONST.PR_STALL_THRESHOLD_DAYS, 'days'));
 
     return (
         <div className={`panel-item${pr.isReviewRequested === false ? ' reviewed' : ''}`}>
@@ -115,30 +113,15 @@ function ListItemPull(props) {
                     />
                 )}
                 {isAppPR && <WorkflowDispatchMenu prUrl={pr.url} />}
-                <span className="age">
-                    Updated:
-                    {' '}
-                    {moment(pr.updatedAt).fromNow()}
-                </span>
+                <span className="age">Updated: {moment(pr.updatedAt).fromNow()}</span>
 
-                <span className="comments">
-                    Comments:
-                    {' '}
-                    {pr.comments.totalCount}
-                </span>
+                <span className="comments">Comments: {pr.comments.totalCount}</span>
 
-                <span className="comments">
-                    Reviews:
-                    {' '}
-                    {pr.reviews.totalCount}
-                </span>
+                <span className="comments">Reviews: {pr.reviews.totalCount}</span>
 
                 {pr.checkConclusion && (
                     <span className={`github-actions-status ${pr.checkConclusion}`}>
-                        Github Actions:
-                        {' '}
-                        {pr.checkConclusion}
-                        ,
+                        Github Actions: {pr.checkConclusion},
                     </span>
                 )}
 
@@ -151,15 +134,9 @@ function ListItemPull(props) {
                 )}
             </span>
 
-            <a
-                href={pr.url}
-                className={getClassName()}
-                target="_blank"
-                rel="noreferrer noopener"
-            >
+            <a href={pr.url} className={getClassName()} target="_blank" rel="noreferrer noopener">
                 <span className="octicon octicon-alert" />
-                {`${repoPrefix} ${pr.title}`}
-                {' '}
+                {`${repoPrefix} ${pr.title}`}{' '}
             </a>
 
             {mergeability === 'Draft' && <span className="Counter">draft</span>}
