@@ -1,0 +1,53 @@
+import k2Button from '../template/button.github.k2.html';
+
+/**
+ * Position K2 alongside GitHub's repository tabs.
+ * @returns {boolean} Whether the repository navigation is available
+ */
+export default function positionK2Tab() {
+    const pullsTab = document.querySelector('nav[aria-label="Repository"] a[href*="/pulls"]');
+    let k2Tab = document.querySelector('li.k2-extension');
+
+    if (!pullsTab) {
+        if (k2Tab) {
+            k2Tab.style.display = 'none';
+        }
+        return false;
+    }
+
+    if (!k2Tab) {
+        // Keep K2 outside GitHub's managed list to preserve search behavior.
+        document.body.insertAdjacentHTML('beforeend', k2Button({url: '/Expensify/Expensify'}));
+        k2Tab = document.querySelector('li.k2-extension');
+    }
+
+    // Reuse GitHub's tab styles for spacing, hover, focus, and selection.
+    const k2Link = k2Tab.querySelector('.k2-nav-link');
+    k2Link.classList.add(...pullsTab.classList);
+
+    // Select K2 before the main bundle loads so GitHub's Code view stays hidden.
+    if (
+        window.location.hash.indexOf('#k2') === 0 &&
+        /^\/[\w-]+\/[\w-]+\/?$/.test(window.location.pathname)
+    ) {
+        if (!document.body.classList.contains('k2-page-active')) {
+            document.body.classList.add('k2-page-active');
+        }
+        k2Link.classList.add('selected');
+        k2Link.setAttribute('aria-current', 'page');
+    }
+
+    // Use document coordinates so K2 scrolls and bounces with GitHub's tab list.
+    const rectangle = pullsTab.getBoundingClientRect();
+    k2Tab.style.display = 'flex';
+    k2Tab.style.position = 'absolute';
+    k2Tab.style.top = `${rectangle.top + window.scrollY}px`;
+    k2Tab.style.left = `${rectangle.right + window.scrollX + 8}px`;
+    k2Tab.style.zIndex = '1000';
+    document.documentElement.style.setProperty(
+        '--k2-tab-width',
+        `${k2Link.getBoundingClientRect().width}px`,
+    );
+
+    return true;
+}

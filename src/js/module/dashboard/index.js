@@ -13,6 +13,7 @@ let root = null;
 
 let preferences = null;
 let isConnectedToPreferences = false;
+let preferencesLoaded = false;
 
 /**
  * Get the element of the repository page that holds the K2 dashboard. Classic repository pages use
@@ -46,8 +47,9 @@ function getRoot() {
         return null;
     }
 
-    if (root) {
-        root.unmount();
+    if (host) {
+        parent.appendChild(host);
+        return root;
     }
 
     // Keep GitHub's content and hydration data intact; CSS hides the host's siblings while K2 is active.
@@ -112,7 +114,9 @@ export default () => ({
         }
 
         if (isConnectedToPreferences) {
-            checkAuthAndShowInterface();
+            if (preferencesLoaded) {
+                checkAuthAndShowInterface();
+            }
             return;
         }
 
@@ -126,6 +130,7 @@ export default () => ({
             key: ONYXKEYS.PREFERENCES,
             callback: newPreferences => {
                 preferences = newPreferences;
+                preferencesLoaded = true;
                 checkAuthAndShowInterface();
             },
         });
