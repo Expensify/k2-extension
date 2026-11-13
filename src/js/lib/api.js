@@ -1191,7 +1191,7 @@ mutation($id: ID!, $body: String!) {
  * @param {String} [options.owner] - Repo owner. Defaults to the owner parsed from the current page URL.
  * @param {String} [options.repo] - Repo name. Defaults to the repo parsed from the current page URL.
  * @param {String} [options.ref] - Git ref to dispatch against. Defaults to 'main'.
- * @param {Object} [options.inputs] - Workflow inputs. Defaults to {PULL_REQUEST_URL} for the current PR.
+ * @param {Object} [options.inputs] - Workflow inputs. Defaults to {PULL_REQUEST_URL, REVIEWED_CODE} for the current PR.
  * @returns {Promise}
  */
 function triggerWorkflow(workflowId, options = {}) {
@@ -1201,6 +1201,7 @@ function triggerWorkflow(workflowId, options = {}) {
     const ref = options.ref || 'main';
     const inputs = options.inputs || {
         PULL_REQUEST_URL: `https://github.com/${owner}/${repo}/pull/${params.issue_number}`,
+        REVIEWED_CODE: true,
     };
     return getOctokit().rest.actions.createWorkflowDispatch({
         owner,

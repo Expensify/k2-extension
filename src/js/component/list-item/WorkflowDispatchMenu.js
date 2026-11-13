@@ -8,8 +8,8 @@ const APP_REPO = 'App';
 
 const OPTIONS = [
     {
-        key: 'all-except-cache',
-        label: 'Test build (all except cache)',
+        key: 'all-platforms',
+        label: 'Test build (all platforms)',
         workflowId: 'testBuild.yml',
         buildInputs: prUrl => ({
             APP_PULL_REQUEST_URL: prUrl,
@@ -34,8 +34,8 @@ const OPTIONS = [
         }),
     },
     {
-        key: 'native-with-cache',
-        label: 'Test build (native + cache)',
+        key: 'native-skip-cache',
+        label: 'Test build (native, skip cache)',
         workflowId: 'testBuild.yml',
         buildInputs: prUrl => ({
             APP_PULL_REQUEST_URL: prUrl,
@@ -52,6 +52,7 @@ const OPTIONS = [
         workflowId: 'generateTranslations.yml',
         buildInputs: prUrl => ({
             PULL_REQUEST_URL: prUrl,
+            REVIEWED_CODE: true,
         }),
     },
 ];
