@@ -35,13 +35,13 @@ export default function () {
                 return;
             }
 
-            // Use the Pull requests position so the isolated K2 tab looks like part of GitHub's tab list.
+            // Use document coordinates so K2 scrolls and bounces with GitHub's tab list.
             const rectangle = pullsTab[0].getBoundingClientRect();
             k2Tab.css({
                 display: 'flex',
-                position: 'fixed',
-                top: rectangle.top,
-                left: rectangle.right + 8,
+                position: 'absolute',
+                top: rectangle.top + window.scrollY,
+                left: rectangle.right + window.scrollX + 8,
                 height: rectangle.height,
                 zIndex: 1000,
             });
