@@ -948,12 +948,13 @@ li.k2-extension {
 
 // Prevent the isolated K2 tab from covering GitHub's next tab.
 nav[aria-label="Repository"] a[href*="/pulls"] {
-    margin-right: 48px;
+    margin-right: 72px;
 }
 
 .k2-nav-link {
     display: flex;
     align-items: center;
+    gap: 8px;
     box-sizing: border-box;
     height: 100%;
     padding: 0 8px;
@@ -965,6 +966,11 @@ nav[aria-label="Repository"] a[href*="/pulls"] {
     white-space: nowrap;
     border-radius: 6px;
     transition: background-color 0.1s ease;
+
+    .k2-nav-icon {
+        flex-shrink: 0;
+        color: var(--fgColor-muted, #59636e);
+    }
 
     &:hover {
         color: var(--fgColor-default, #1f2328);
