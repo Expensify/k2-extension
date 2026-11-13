@@ -25,7 +25,16 @@ function startNavEventPublisher() {
                     currentWindow: true,
                 },
                 tabs => {
-                    ksBrowser.tabs.sendMessage(tabs[0].id, 'nav');
+                    ksBrowser.tabs.sendMessage(tabs[0].id, 'nav').catch(error => {
+                        // Tabs opened before an extension reload may have no listener.
+                        if (
+                            error.message ===
+                            'Could not establish connection. Receiving end does not exist.'
+                        ) {
+                            return;
+                        }
+                        console.error(error);
+                    });
                 },
             );
         });
