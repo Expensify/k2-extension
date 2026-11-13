@@ -47,8 +47,9 @@ function getRoot() {
         return null;
     }
 
-    if (root) {
-        root.unmount();
+    if (host) {
+        parent.appendChild(host);
+        return root;
     }
 
     // Keep GitHub's content and hydration data intact; CSS hides the host's siblings while K2 is active.

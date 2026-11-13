@@ -25,6 +25,18 @@ export default function positionK2Tab() {
     const k2Link = k2Tab.querySelector('.k2-nav-link');
     k2Link.classList.add(...pullsTab.classList);
 
+    // Select K2 before the main bundle loads so GitHub's Code view stays hidden.
+    if (
+        window.location.hash.indexOf('#k2') === 0 &&
+        /^\/[\w-]+\/[\w-]+\/?$/.test(window.location.pathname)
+    ) {
+        if (!document.body.classList.contains('k2-page-active')) {
+            document.body.classList.add('k2-page-active');
+        }
+        k2Link.classList.add('selected');
+        k2Link.setAttribute('aria-current', 'page');
+    }
+
     // Use document coordinates so K2 scrolls and bounces with GitHub's tab list.
     const rectangle = pullsTab.getBoundingClientRect();
     k2Tab.style.display = 'flex';
