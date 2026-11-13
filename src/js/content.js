@@ -9,6 +9,7 @@ import ghIssuenew from './lib/pages/github/issuenew';
 import ghIssueChoose from './lib/pages/github/issuechoose';
 import ghMain from './lib/pages/github/main';
 import * as dashboard from './module/dashboard/index';
+import positionK2Tab from './lib/positionK2Tab';
 
 const pages = [ghAll(), ghPr(), ghIssue(), ghIssuenew(), ghIssueChoose(), ghMain()];
 
@@ -56,6 +57,9 @@ let pendingSetupTimeout = null;
 new MutationObserver(() => {
     const isK2Page = window.location.hash.indexOf('#k2') === 0;
     const isK2TabMissing = !document.querySelector('li.k2-extension');
+    if (isK2TabMissing) {
+        positionK2Tab();
+    }
     const isK2PageClassMissing = isK2Page && !document.body.classList.contains('k2-page-active');
     const isK2DashboardMissing =
         isK2Page && dashboard.getDashboardParent() && !document.querySelector('.k2-dashboard-host');

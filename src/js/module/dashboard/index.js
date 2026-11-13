@@ -13,6 +13,7 @@ let root = null;
 
 let preferences = null;
 let isConnectedToPreferences = false;
+let preferencesLoaded = false;
 
 /**
  * Get the element of the repository page that holds the K2 dashboard. Classic repository pages use
@@ -112,7 +113,9 @@ export default () => ({
         }
 
         if (isConnectedToPreferences) {
-            checkAuthAndShowInterface();
+            if (preferencesLoaded) {
+                checkAuthAndShowInterface();
+            }
             return;
         }
 
@@ -126,6 +129,7 @@ export default () => ({
             key: ONYXKEYS.PREFERENCES,
             callback: newPreferences => {
                 preferences = newPreferences;
+                preferencesLoaded = true;
                 checkAuthAndShowInterface();
             },
         });

@@ -33,7 +33,7 @@ function startNavEventPublisher() {
                         ) {
                             return;
                         }
-                        console.error(error);
+                        throw error;
                     });
                 },
             );
