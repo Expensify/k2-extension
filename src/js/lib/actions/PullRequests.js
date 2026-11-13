@@ -174,7 +174,7 @@ function getReviewing() {
 
             const currentUser = API.getCurrentUser();
             const prsAuthoredByOtherUsers = _.chain(allPRs)
-                .reject(pr => pr.author.login === currentUser)
+                .reject(pr => pr.author && pr.author.login === currentUser)
                 .reject(pr => _.any(pr.assignees.nodes, assignee => assignee.login === currentUser))
                 .indexBy('id')
                 .value();

@@ -47,7 +47,7 @@ function getIssuesWithUpdateDue(issues, currentUser) {
 
             const ownComments = _.filter(
                 (issue.comments && issue.comments.nodes) || [],
-                comment => comment.author.login === currentUser,
+                comment => comment.author && comment.author.login === currentUser,
             );
             const lastUpdateAt = ownComments.length
                 ? _.last(ownComments).createdAt

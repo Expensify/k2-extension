@@ -938,6 +938,7 @@ function getIssuesMentioning() {
                         if (
                             comment.body &&
                             comment.body.includes(`@${currentUser}`) &&
+                            comment.author &&
                             comment.author.login !== currentUser &&
                             !isBotAuthor(comment.author.login)
                         ) {
@@ -964,7 +965,7 @@ function getIssuesMentioning() {
                 // Check if the user has replied after the last mention
                 const hasRepliedSince = _.some(
                     comments.slice(lastMentionIndex + 1),
-                    comment => comment.author.login === currentUser,
+                    comment => comment.author && comment.author.login === currentUser,
                 );
                 return !hasRepliedSince;
             });

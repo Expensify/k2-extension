@@ -171,7 +171,8 @@ class ListItemIssue extends React.Component {
             const lastMentionIndex = _.findLastIndex(
                 comments,
                 comment =>
-                    comment.body.includes(`@${username}`) && comment.author.login !== 'melvin-bot',
+                    comment.body.includes(`@${username}`) &&
+                    (!comment.author || comment.author.login !== 'melvin-bot'),
             );
 
             if (lastMentionIndex === -1) {
@@ -180,7 +181,7 @@ class ListItemIssue extends React.Component {
 
             const hasRepliedSince = _.some(
                 comments.slice(lastMentionIndex + 1),
-                comment => comment.author.login === username,
+                comment => comment.author && comment.author.login === username,
             );
 
             return !hasRepliedSince;
