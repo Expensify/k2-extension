@@ -10,6 +10,9 @@ import ghIssuenew from './lib/pages/github/issuenew';
 import ghIssueChoose from './lib/pages/github/issuechoose';
 import ghMain from './lib/pages/github/main';
 import getRepositoryContent from './lib/getRepositoryContent';
+import positionK2Tab from './lib/positionK2Tab';
+
+const mainPage = ghMain();
 
 const pages = [
     ghAll(),
@@ -17,7 +20,7 @@ const pages = [
     ghIssue(),
     ghIssuenew(),
     ghIssueChoose(),
-    ghMain(),
+    mainPage,
 ];
 
 /**
@@ -91,5 +94,35 @@ document.addEventListener('click', (e) => {
         window.location.href = link.href;
     }
 });
+
+// GitHub can replace the tab and repository view after our initial setup during hydration.
+let recoveryScheduled = false;
+const pageObserver = new MutationObserver(() => {
+    if (recoveryScheduled) {
+        return;
+    }
+    recoveryScheduled = true;
+    requestAnimationFrame(() => {
+        recoveryScheduled = false;
+
+        if (!document.querySelector('.k2-nav-link')) {
+            positionK2Tab();
+        }
+
+        if (window.location.hash.indexOf('#k2') !== 0) {
+            return;
+        }
+        const repositoryContent = getRepositoryContent();
+        if (!repositoryContent) {
+            return;
+        }
+        const hasInterface = repositoryContent.querySelector('.k2dashboard, .passwordform');
+        const link = document.querySelector('.k2-nav-link');
+        if (!hasInterface || (link && link.getAttribute('aria-current') !== 'page') || document.title !== 'K2') {
+            mainPage.init();
+        }
+    });
+});
+pageObserver.observe(document, {childList: true, subtree: true});
 
 setupPages();

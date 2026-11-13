@@ -35,7 +35,9 @@ export default function () {
         k2link.addClass('selected');
         k2link.attr('aria-current', 'page');
 
-        document.title = 'K2';
+        if (document.title !== 'K2') {
+            document.title = 'K2';
+        }
 
         const issues = new Dashboard();
         issues.draw();

@@ -7,6 +7,28 @@ import FormPassword from './FormPassword';
 import ONYXKEYS from '../../ONYXKEYS';
 import getRepositoryContent from '../../lib/getRepositoryContent';
 
+let preferences;
+let preferencesLoaded = false;
+let preferencesConnected = false;
+let root;
+let rootElement;
+
+/**
+ * Release the previous view when GitHub replaces its content container.
+ * @param {Element} element
+ * @param {React.ReactNode} component
+ */
+function renderInterface(element, component) {
+    if (rootElement !== element) {
+        if (root) {
+            root.unmount();
+        }
+        root = createRoot(element);
+        rootElement = element;
+    }
+    root.render(component);
+}
+
 /**
  * Display our dashboard with the list of issues
  */
@@ -20,8 +42,7 @@ function showDashboard() {
         repositoryContent.append('<div class="k2dashboard">');
     }
 
-    const root = createRoot(repositoryContent.children('.k2dashboard').show()[0]);
-    root.render(<ListIssues pollInterval={60000} />);
+    renderInterface(repositoryContent.children('.k2dashboard').show()[0], <ListIssues pollInterval={60000} />);
 }
 
 /**
@@ -41,18 +62,21 @@ function showPasswordForm() {
 
     repositoryContent.children('.passwordform').addClass('k2-passwordform');
 
-    const root = createRoot(repositoryContent.children('.passwordform').show()[0]);
-    root.render(<FormPassword onFinished={showDashboard} />);
+    renderInterface(repositoryContent.children('.passwordform').show()[0], <FormPassword onFinished={showDashboard} />);
 }
 
 /**
  * Check authentication status and show appropriate interface
- * @param {Object} preferences - User preferences from Onyx (contains ghToken and auth)
+ * @param {Object} currentPreferences User preferences from Onyx
  */
-function checkAuthAndShowInterface(preferences) {
+function checkAuthAndShowInterface(currentPreferences) {
+    if (window.location.hash.indexOf('#k2') !== 0 || !getRepositoryContent()) {
+        return;
+    }
+
     // Check if user is authenticated with either PAT or OAuth
-    const hasPatAuth = preferences && preferences.ghToken;
-    const hasOAuthAuth = preferences && preferences.auth && preferences.auth.type === 'oauth' && preferences.auth.token;
+    const hasPatAuth = currentPreferences && currentPreferences.ghToken;
+    const hasOAuthAuth = currentPreferences && currentPreferences.auth && currentPreferences.auth.type === 'oauth' && currentPreferences.auth.token;
 
     if (!hasPatAuth && !hasOAuthAuth) {
         showPasswordForm();
@@ -65,6 +89,10 @@ function checkAuthAndShowInterface(preferences) {
 export default () => ({
     draw() {
         const repositoryContent = $(getRepositoryContent());
+        if (!repositoryContent.length) {
+            return;
+        }
+
         const passwordFormWasDrawn = repositoryContent.children('.passwordform').length;
         const dashboardWasDrawn = repositoryContent.children('.k2dashboard').length;
 
@@ -72,17 +100,23 @@ export default () => ({
             return;
         }
         repositoryContent.children().remove();
-        ReactNativeOnyx.init({
-            keys: ONYXKEYS,
-        });
 
-        let preferences = null;
+        if (preferencesLoaded) {
+            checkAuthAndShowInterface(preferences);
+            return;
+        }
+
+        if (preferencesConnected) {
+            return;
+        }
+        preferencesConnected = true;
 
         // Connect to preferences store
         ReactNativeOnyx.connect({
             key: ONYXKEYS.PREFERENCES,
             callback: (newPreferences) => {
                 preferences = newPreferences;
+                preferencesLoaded = true;
                 checkAuthAndShowInterface(preferences);
             },
         });
