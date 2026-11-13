@@ -677,17 +677,20 @@ query($owner:String!, $repo:String!, $number:Int!, $cursor:String) {
  */
 function getIssueByURL(url) {
     const [, owner, repo, , issueNumber] = new URL(url).pathname.split('/');
-    return getOctokit()
-        .rest.issues.get({owner, repo, issue_number: Number(issueNumber)})
-        .then(response => ({title: response.data.title, url: response.data.html_url}));
+    const graphQLQuery = `
+query($owner: String!, $repo: String!, $number: Int!) {
+    repository(owner: $owner, name: $repo) {
+        issue(number: $number) {
+            title
+            url
+        }
+    }
 }
+    `;
 
-function getCheckRuns(repo, headSHA) {
-    return getOctokit().rest.checks.listForRef({
-        owner: getRequestParams().owner,
-        repo,
-        ref: headSHA,
-    });
+    return getOctokit()
+        .graphql(graphQLQuery, {owner, repo, number: Number(issueNumber)})
+        .then(data => data.repository.issue);
 }
 
 /**
@@ -988,15 +991,87 @@ function getEngineeringIssues() {
 }
 
 /**
+ * @param {String} owner
+ * @param {String} repo
+ * @param {Number|String} number
+ * @param {String} [fields] extra GraphQL fields to select on the issue or pull request
+ * @returns {Promise<Object>}
+ */
+function getIssueOrPullRequest(owner, repo, number, fields = 'id') {
+    const graphQLQuery = `
+query($owner: String!, $repo: String!, $number: Int!) {
+    repository(owner: $owner, name: $repo) {
+        issueOrPullRequest(number: $number) {
+            type: __typename
+            ... on Node {
+                id
+            }
+            ... on Issue {
+                ${fields}
+            }
+            ... on PullRequest {
+                ${fields}
+            }
+        }
+    }
+}
+    `;
+
+    return getOctokit()
+        .graphql(graphQLQuery, {owner, repo, number: Number(number)})
+        .then(data => data.repository.issueOrPullRequest);
+}
+
+/**
+ * @param {String} mutationName addLabelsToLabelable or removeLabelsFromLabelable
+ * @param {String} label
+ * @returns {Promise}
+ */
+function changeLabel(mutationName, label) {
+    const {owner, repo, issue_number} = getRequestParams();
+    const graphQLQuery = `
+query($owner: String!, $repo: String!, $number: Int!, $label: String!) {
+    repository(owner: $owner, name: $repo) {
+        issueOrPullRequest(number: $number) {
+            ... on Node {
+                id
+            }
+        }
+        label(name: $label) {
+            id
+        }
+    }
+}
+    `;
+    const mutation = `
+mutation($labelableId: ID!, $labelIds: [ID!]!) {
+    ${mutationName}(input: {labelableId: $labelableId, labelIds: $labelIds}) {
+        clientMutationId
+    }
+}
+    `;
+
+    return getOctokit()
+        .graphql(graphQLQuery, {owner, repo, number: Number(issue_number), label})
+        .then(data => {
+            if (!data.repository.label) {
+                throw new Error(`Label ${label} does not exist in ${owner}/${repo}`);
+            }
+
+            return getOctokit().graphql(mutation, {
+                labelableId: data.repository.issueOrPullRequest.id,
+                labelIds: [data.repository.label.id],
+            });
+        });
+}
+
+/**
  * Add labels to a github issue
  * @param {String} label
  * @returns {Promise}
  */
 function addLabel(label) {
-    return getOctokit().rest.issues.addLabels({
-        ...getRequestParams(),
-        labels: [label],
-    });
+    return changeLabel('addLabelsToLabelable', label);
 }
 
 /**
@@ -1005,10 +1080,7 @@ function addLabel(label) {
  * @returns {Promise}
  */
 function removeLabel(label) {
-    return getOctokit().rest.issues.removeLabel({
-        ...getRequestParams(),
-        name: label,
-    });
+    return changeLabel('removeLabelsFromLabelable', label);
 }
 
 /**
@@ -1019,14 +1091,33 @@ function getDailyImprovements() {
 }
 
 /**
+ * @param {String} owner
+ * @param {String} repo
+ * @param {Number|String} number
+ * @param {String} body
+ * @returns {Promise}
+ */
+function addCommentToIssueOrPullRequest(owner, repo, number, body) {
+    const mutation = `
+mutation($subjectId: ID!, $body: String!) {
+    addComment(input: {subjectId: $subjectId, body: $body}) {
+        clientMutationId
+    }
+}
+    `;
+
+    return getIssueOrPullRequest(owner, repo, number).then(subject =>
+        getOctokit().graphql(mutation, {subjectId: subject.id, body}),
+    );
+}
+
+/**
  * @param {String} comment
  * @returns {Promise}
  */
 function addComment(comment) {
-    return getOctokit().rest.issues.createComment({
-        ...getRequestParams(),
-        body: comment,
-    });
+    const {owner, repo, issue_number} = getRequestParams();
+    return addCommentToIssueOrPullRequest(owner, repo, issue_number, comment);
 }
 
 /**
@@ -1043,19 +1134,25 @@ function addCommentToUrl(url, body) {
     if (!matches) {
         return Promise.reject(new Error(`Could not parse a repo and number out of ${url}`));
     }
-    return getOctokit().rest.issues.createComment({
-        owner: matches.groups.owner,
-        repo: matches.groups.repo,
-        issue_number: Number(matches.groups.number),
+    return addCommentToIssueOrPullRequest(
+        matches.groups.owner,
+        matches.groups.repo,
+        matches.groups.number,
         body,
-    });
+    );
 }
 
 /**
- * @returns {Promise}
+ * @returns {Promise<Object>} the current issue or pull request's title, body and labels
  */
 function getCurrentIssueDescription() {
-    return getOctokit().rest.issues.get({...getRequestParams()});
+    const {owner, repo, issue_number} = getRequestParams();
+    return getIssueOrPullRequest(
+        owner,
+        repo,
+        issue_number,
+        'title body labels(first: 100) { nodes { name } }',
+    ).then(issue => ({title: issue.title, body: issue.body, labels: issue.labels.nodes}));
 }
 
 /**
@@ -1063,7 +1160,28 @@ function getCurrentIssueDescription() {
  * @returns {Promise}
  */
 function setCurrentIssueBody(body) {
-    return getOctokit().rest.issues.update({...getRequestParams(), body});
+    const {owner, repo, issue_number} = getRequestParams();
+    const updateIssue = `
+mutation($id: ID!, $body: String!) {
+    updateIssue(input: {id: $id, body: $body}) {
+        clientMutationId
+    }
+}
+    `;
+    const updatePullRequest = `
+mutation($id: ID!, $body: String!) {
+    updatePullRequest(input: {pullRequestId: $id, body: $body}) {
+        clientMutationId
+    }
+}
+    `;
+
+    return getIssueOrPullRequest(owner, repo, issue_number).then(subject =>
+        getOctokit().graphql(subject.type === 'PullRequest' ? updatePullRequest : updateIssue, {
+            id: subject.id,
+            body,
+        }),
+    );
 }
 
 /**
@@ -1093,64 +1211,58 @@ function triggerWorkflow(workflowId, options = {}) {
 }
 
 /**
- * Update an existing comment
- * @param {Number} commentId
- * @param {String} body
- * @returns {Promise}
+ * GraphQL has no lookup by numeric ID, but node() still resolves GitHub's legacy global ID format, which is built from the type name and numeric ID.
+ *
+ * @param {String} typeName GraphQL type, e.g. IssueComment
+ * @param {Number|String} databaseID
+ * @param {String} [fields] extra GraphQL fields to select on the node
+ * @returns {Promise<Object>}
  */
-function updateComment(commentId, body) {
-    const {owner, repo} = getRequestParams();
-    return getOctokit().rest.issues.updateComment({
-        owner,
-        repo,
-        comment_id: commentId,
-        body,
-    });
+function getNodeByDatabaseID(typeName, databaseID, fields = 'id') {
+    const legacyNodeID = btoa(
+        `${String(typeName.length).padStart(3, '0')}:${typeName}${databaseID}`,
+    );
+    const graphQLQuery = `
+query($id: ID!) {
+    node(id: $id) {
+        id
+        ... on ${typeName} {
+            ${fields}
+        }
+    }
+}
+    `;
+
+    return getOctokit()
+        .graphql(graphQLQuery, {id: legacyNodeID})
+        .then(data => data.node);
 }
 
 /**
- * Look up an issue comment's GraphQL node ID by its numeric REST ID.
+ * Look up an issue comment's GraphQL node ID by its numeric ID.
  * @param {Number|String} commentID
  * @returns {Promise<String>}
  */
 function getIssueCommentNodeID(commentID) {
-    const {owner, repo} = getRequestParams();
-    return getOctokit()
-        .rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
-        .then(response => response.data.node_id);
+    return getNodeByDatabaseID('IssueComment', commentID).then(node => node.id);
 }
 
 /**
- * Look up a pull-request review's GraphQL node ID by its numeric REST ID.
+ * Look up a pull-request review's GraphQL node ID by its numeric ID.
  * @param {Number|String} reviewID
  * @returns {Promise<String>}
  */
 function getPullRequestReviewNodeID(reviewID) {
-    const {owner, repo, issue_number} = getRequestParams();
-    return getOctokit()
-        .rest.pulls.getReview({
-            owner,
-            repo,
-            pull_number: Number(issue_number),
-            review_id: Number(reviewID),
-        })
-        .then(response => response.data.node_id);
+    return getNodeByDatabaseID('PullRequestReview', reviewID).then(node => node.id);
 }
 
 /**
- * Look up an inline PR review-thread comment's GraphQL node ID by its numeric REST ID.
+ * Look up an inline PR review-thread comment's GraphQL node ID by its numeric ID.
  * @param {Number|String} commentID
  * @returns {Promise<String>}
  */
 function getPullRequestReviewCommentNodeID(commentID) {
-    const {owner, repo} = getRequestParams();
-    return getOctokit()
-        .rest.pulls.getReviewComment({
-            owner,
-            repo,
-            comment_id: Number(commentID),
-        })
-        .then(response => response.data.node_id);
+    return getNodeByDatabaseID('PullRequestReviewComment', commentID).then(node => node.id);
 }
 
 /**
@@ -1179,10 +1291,9 @@ function minimizeComment(nodeID, classifier) {
  * @returns {Promise<String>}
  */
 function getIssueCommentMinimizedReason(commentID) {
-    const {owner, repo} = getRequestParams();
-    return getOctokit()
-        .rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
-        .then(response => response.data.minimized && response.data.minimized.reason);
+    return getNodeByDatabaseID('IssueComment', commentID, 'minimizedReason').then(
+        node => node.minimizedReason,
+    );
 }
 
 /**
@@ -1240,10 +1351,9 @@ async function checkK2RepoAccess() {
 
     try {
         // Try to access the private repo - this is a lightweight API call
-        await getOctokit().rest.repos.get({
-            owner: 'Expensify',
-            repo: 'Expensify',
-        });
+        await getOctokit().graphql(
+            'query { repository(owner: "Expensify", name: "Expensify") { id } }',
+        );
 
         // User has access to the private repo
         Preferences.setK2RepoUrl(PRIVATE_K2_REPO);
@@ -1258,7 +1368,6 @@ async function checkK2RepoAccess() {
 export {
     addComment,
     addCommentToUrl,
-    getCheckRuns,
     getEngineeringIssues,
     getIssuesAssigned,
     getDailyImprovements,
@@ -1274,7 +1383,6 @@ export {
     setCurrentIssueBody,
     getPreviousInstancesOfIssue,
     triggerWorkflow,
-    updateComment,
     getWorkflowRuns,
     getWorkflowRun,
     checkK2RepoAccess,

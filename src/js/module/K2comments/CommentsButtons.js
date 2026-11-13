@@ -10,7 +10,7 @@ import * as API from '../../lib/api';
 async function getKSv2FrequencyLabel() {
     try {
         const issueData = await API.getCurrentIssueDescription();
-        const labels = issueData.data.labels || [];
+        const labels = issueData.labels || [];
 
         const ksv2Labels = ['Hourly', 'Daily', 'Weekly', 'Monthly'];
         const foundKsv2Label = _.find(ksv2Labels, labelName =>

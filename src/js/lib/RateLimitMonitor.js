@@ -34,6 +34,10 @@ function updateFromHeaders(headers) {
         return headers[name] || headers[name.toLowerCase()];
     };
 
+    if (getHeader('x-ratelimit-resource') !== 'graphql') {
+        return;
+    }
+
     const limit = getHeader('x-ratelimit-limit');
     const remaining = getHeader('x-ratelimit-remaining');
     const resetHeader = getHeader('x-ratelimit-reset');

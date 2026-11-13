@@ -64,7 +64,7 @@ class PreviousIssuesButtons extends React.Component {
     openIssue(buttonConfig) {
         API.getCurrentIssueDescription()
             .then(issueTitleResponse => {
-                const ghTitle = issueTitleResponse.data.title;
+                const ghTitle = issueTitleResponse.title;
 
                 // Single regex to catch both Monthly and Quarterly formats
                 // The (\w+) between "Accounting" and "Close" captures either "Monthly" or "Quarterly"

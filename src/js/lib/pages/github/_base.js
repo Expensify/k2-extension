@@ -107,7 +107,7 @@ export default function () {
 
         try {
             const response = await API.getCurrentIssueDescription();
-            const body = (response && response.data && response.data.body) || '';
+            const body = (response && response.body) || '';
             const parts = body.split(BEC_PAYMENT_DETAILS_DELIMITER);
             const details = parts.length > 1 ? parts[1].trim() : '';
 
