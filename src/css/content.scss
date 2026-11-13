@@ -1,4 +1,4 @@
-@use "sass:color";
+@use 'sass:color';
 @use 'global';
 
 $gutter: 5px;
@@ -6,12 +6,12 @@ $gutter: 5px;
 $color-neutral-lighter: #eeeeee;
 $color-neutral-light: #dddddd;
 $color-neutral: #999999;
-$color-alert: #D52354;
+$color-alert: #d52354;
 
-$color-red: #FF0000;
-$color-purple: #A85AD4;
-$color-light-purple: #CFC8F1;
-$color-bright-purple: #8747FE;
+$color-red: #ff0000;
+$color-purple: #a85ad4;
+$color-light-purple: #cfc8f1;
+$color-bright-purple: #8747fe;
 $color-orange: #eb6420;
 $color-green: #009800;
 $color-black: #000000;
@@ -19,10 +19,10 @@ $color-white: #ffffff;
 $color-blue: #0000ff;
 $color-light-blue: #12a4d5;
 $color-darker-green: #2cb528;
-$color-dark-yellow: #DAA520;
+$color-dark-yellow: #daa520;
 
 .owner {
-  color: $color-dark-yellow !important;
+    color: $color-dark-yellow !important;
 }
 
 .k2dashboard,
@@ -57,7 +57,7 @@ $color-dark-yellow: #DAA520;
     --k2-ds-muted: #76847e;
     --k2-ds-shadow: 0px 4px 12px 0px rgba(2, 18, 4, 0.06);
     color: var(--k2-ds-foreground);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .k2-login-hero {
@@ -170,33 +170,33 @@ $color-dark-yellow: #DAA520;
 }
 
 .almost-transparent {
-  opacity: 0.1;
+    opacity: 0.1;
 }
 
 .k2-hide-comment-buttons {
-  display: inline-flex;
-  gap: 4px;
-  margin-right: 8px;
-  align-items: center;
-  vertical-align: middle;
+    display: inline-flex;
+    gap: 4px;
+    margin-right: 8px;
+    align-items: center;
+    vertical-align: middle;
 
-  .k2-hide-comment-button {
-    height: 22px;
-    padding: 0 6px;
-    font-size: 12px;
-    line-height: 20px;
-  }
+    .k2-hide-comment-button {
+        height: 22px;
+        padding: 0 6px;
+        font-size: 12px;
+        line-height: 20px;
+    }
 }
 
 .k2-minimized-comment {
-  padding: 8px 12px;
-  border: 1px solid $color-neutral-light;
-  color: $color-neutral;
-  font-style: italic;
+    padding: 8px 12px;
+    border: 1px solid $color-neutral-light;
+    color: $color-neutral;
+    font-style: italic;
 }
 
 .k2-inactive {
-  opacity: 0.2;
+    opacity: 0.2;
 }
 .k2-hourly,
 .k2-daily,
@@ -213,28 +213,131 @@ $color-dark-yellow: #DAA520;
 .k2-external,
 .k2-newfeature,
 .k2-concierge-dont-reopen {
-  background-image: none !important;
+    background-image: none !important;
 }
 
-.k2-hourly.active { background-color: $color-alert !important; }
-.k2-daily.active { background-color: $color-orange !important; color: white; }
-.k2-weekly.active { background-color: $color-green !important; color: white; }
-.k2-monthly.active { background-color: $color-purple !important; }
-.k2-web.active { background-color: #274073 !important; color: white; }
-.k2-core.active { background-color: #ff0066 !important; color: white; }
-.k2-integration.server.active { background-color: #c7def8 !important; }
-.k2-design.active { background-color: #00a4d3 !important; color: white; }
-.k2-ops.active { background-color: #37916C !important; color: white; }
-.k2-infra.active { background-color: #181c99 !important; color: white; }
-.k2-improvement.active { background-color: #604c8d !important; color: white; }
-.k2-task.active { background-color: #9C5959 !important; color: white; }
-.k2-newfeature.active { background-color: #A52A2A !important; color: white; }
-.k2-external.active { background-color: #A7B8EF !important; color: white; }
-.k2-concierge-dont-reopen.active { background-color: #f46d58 !important; color: white; }
+.k2-hourly.active {
+    background-color: $color-alert !important;
+}
+.k2-daily.active {
+    background-color: $color-orange !important;
+    color: white;
+}
+.k2-weekly.active {
+    background-color: $color-green !important;
+    color: white;
+}
+.k2-monthly.active {
+    background-color: $color-purple !important;
+}
+.k2-web.active {
+    background-color: #274073 !important;
+    color: white;
+}
+.k2-core.active {
+    background-color: #ff0066 !important;
+    color: white;
+}
+.k2-integration.server.active {
+    background-color: #c7def8 !important;
+}
+.k2-design.active {
+    background-color: #00a4d3 !important;
+    color: white;
+}
+.k2-ops.active {
+    background-color: #37916c !important;
+    color: white;
+}
+.k2-infra.active {
+    background-color: #181c99 !important;
+    color: white;
+}
+.k2-improvement.active {
+    background-color: #604c8d !important;
+    color: white;
+}
+.k2-task.active {
+    background-color: #9c5959 !important;
+    color: white;
+}
+.k2-newfeature.active {
+    background-color: #a52a2a !important;
+    color: white;
+}
+.k2-external.active {
+    background-color: #a7b8ef !important;
+    color: white;
+}
+.k2-concierge-dont-reopen.active {
+    background-color: #f46d58 !important;
+    color: white;
+}
 
 .k2-reviewing {
-  &.active { background-color: $color-neutral; }
-  &.inactive { @extend .k2-inactive; }
+    &.active {
+        background-color: $color-neutral;
+    }
+    &.inactive {
+        @extend .k2-inactive;
+    }
+}
+.k2-linked-prs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+// GitHub hides "No branches or pull requests" when it lists its own pull requests, so this does the same for ours.
+[data-testid='sidebar-development-section']:has(.k2-linked-prs) [class*='developmentHelpText'] {
+    display: none;
+}
+.k2-linked-pr {
+    display: flex;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    color: var(--fgColor-default, #1f2328);
+    &:hover {
+        text-decoration: none;
+        background-color: var(--control-transparent-bgColor-hover, #818b981a);
+    }
+}
+.k2-linked-pr-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    fill: currentColor;
+}
+.k2-linked-pr-open .k2-linked-pr-icon {
+    color: var(--fgColor-open, #1a7f37);
+}
+.k2-linked-pr-draft .k2-linked-pr-icon {
+    color: var(--fgColor-muted, #656d76);
+}
+.k2-linked-pr-merged .k2-linked-pr-icon {
+    color: var(--fgColor-done, #8250df);
+}
+.k2-linked-pr-closed .k2-linked-pr-icon {
+    color: var(--fgColor-closed, #d1242f);
+}
+.k2-linked-pr-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.k2-linked-pr-title {
+    font-size: 13px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+.k2-linked-pr-meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--fgColor-muted, #656d76);
+    font-size: 12px;
+}
+.k2-linked-pr-avatar {
+    border-radius: 50%;
 }
 .discussion-sidebar-item h6 {
     margin-bottom: 8px;
@@ -244,570 +347,626 @@ $color-dark-yellow: #DAA520;
     border: 0 !important;
     position: relative;
 
+    // Keep the label in the normal flow. An earlier version set
+    // position: absolute with left: 106%, which put the label past the right
+    // edge of the document and made every issue page scroll sideways.
     label {
-        color: #eee;
-        font-size: 22px;
-        left: 106%;
-        top: 12px;
-        position: absolute;
+        color: var(--fgColor-muted, #656d76);
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        margin: 8px 0 4px;
     }
 }
 .panel {
-  border: 1px solid $color-neutral-light;
-  border-radius: 8px;
-  overflow: hidden;
-  &.hourly {
-    .label {
-      display: none;
-    }
+    border: 1px solid $color-neutral-light;
+    border-radius: 8px;
+    overflow: hidden;
+    &.hourly {
+        .label {
+            display: none;
+        }
 
-    .panel-title {
-      background-color: $color-alert;
-      color: $color-white;
+        .panel-title {
+            background-color: $color-alert;
+            color: $color-white;
+        }
     }
-  }
-  &.daily {
-    .label {
-      display: none;
-    }
+    &.daily {
+        .label {
+            display: none;
+        }
 
-    .panel-title {
-      background-color: $color-orange;
-      color: $color-white;
+        .panel-title {
+            background-color: $color-orange;
+            color: $color-white;
+        }
     }
-  }
-  &.weekly {
-    .label {
-      display: none;
-    }
+    &.weekly {
+        .label {
+            display: none;
+        }
 
-    .panel-title {
-      background-color: $color-green;
-      color: $color-white;
+        .panel-title {
+            background-color: $color-green;
+            color: $color-white;
+        }
     }
-  }
-  &.monthly {
-    .label {
-      display: none;
-    }
+    &.monthly {
+        .label {
+            display: none;
+        }
 
-    .panel-title {
-      background-color: $color-purple;
-      color: $color-white;
+        .panel-title {
+            background-color: $color-purple;
+            color: $color-white;
+        }
     }
-  }
-  &.no-priority, &.your-pull-requests, &.waq {
-    .panel-title {
-      color: $color-black;
+    &.no-priority,
+    &.your-pull-requests,
+    &.waq {
+        .panel-title {
+            color: $color-black;
+        }
     }
-  }
 }
 .label {
-  margin-right: $gutter;
-  color: $color-white;
-  border: none !important;
+    margin-right: $gutter;
+    color: $color-white;
+    border: none !important;
 
-  &.hourly,
-  &.overdue,
-  &.closed {
-    background-color: $color-alert !important;
-  }
-  &.daily {
-    background-color: $color-orange !important;
-  }
-  &.unassigned,
-  &.weekly {
-    background-color: $color-green !important;
-  }
-  &.monthly {
-    background-color: $color-purple !important;
-  }
-  &.newhire,
-  &.onstaging,
-  &.onproduction {
-    background-color: $color-light-blue !important;
-  }
-  &.underreview,
-  &.waiting,
-  &.planning,
-  &.hold {
-    background-color: $color-neutral-light !important;
-  }
-  &.whatsnext {
-    background-color: $color-bright-purple !important;
-  }
+    &.hourly,
+    &.overdue,
+    &.closed {
+        background-color: $color-alert !important;
+    }
+    &.daily {
+        background-color: $color-orange !important;
+    }
+    &.unassigned,
+    &.weekly {
+        background-color: $color-green !important;
+    }
+    &.monthly {
+        background-color: $color-purple !important;
+    }
+    &.newhire,
+    &.onstaging,
+    &.onproduction {
+        background-color: $color-light-blue !important;
+    }
+    &.underreview,
+    &.waiting,
+    &.planning,
+    &.hold {
+        background-color: $color-neutral-light !important;
+    }
+    &.whatsnext {
+        background-color: $color-bright-purple !important;
+    }
 }
 .muted {
-  color: $color-neutral;
+    color: $color-neutral;
 }
 
 .panel-title {
-  background: $color-neutral-lighter;
-  font-size: 14px;
-  margin: 0px;
-  padding: $gutter ($gutter * 2);
+    background: $color-neutral-lighter;
+    font-size: 14px;
+    margin: 0px;
+    padding: $gutter ($gutter * 2);
 
-  &.panel-title-with-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+    &.panel-title-with-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
 }
 
 .panel-title-checkbox {
-  font-size: 12px;
-  font-weight: normal;
-  margin-left: ($gutter * 2);
+    display: inline-block;
+    font-size: 12px;
+    font-weight: normal;
+    margin-left: ($gutter * 2);
+    white-space: nowrap;
 
-  input[type=checkbox] {
-    margin-right: 4px;
-    vertical-align: middle;
-  }
+    input[type='checkbox'] {
+        margin-right: 4px;
+        vertical-align: middle;
+    }
+}
+
+.pr-issue-group {
+    margin-top: ($gutter * 2);
+
+    .panel-item {
+        border-left: 2px solid $color-neutral-light;
+        margin-left: ($gutter * 2);
+    }
+}
+
+.pr-issue-group-title {
+    align-items: baseline;
+    background-color: $color-neutral-lighter;
+    color: rgb(48, 54, 61);
+    display: flex;
+    font-size: inherit;
+    gap: ($gutter * 2);
+    justify-content: space-between;
+    margin: 0;
+    padding: $gutter ($gutter * 2);
+
+    a {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+}
+
+.pr-issue-group-actions {
+    align-items: center;
+    display: flex;
+    flex-shrink: 0;
+    gap: $gutter;
+}
+
+// The group header keeps a light background in every theme, so the counter needs dark text
+// that beats GitHub's own `.Counter` colors.
+.pr-issue-group-title .Counter.pr-issue-group-count {
+    background-color: $color-neutral-light;
+    color: rgb(48, 54, 61);
+    white-space: nowrap;
 }
 
 .panel-item {
-  border-top: 1px solid $color-neutral-light;
-  display: block;
-  padding: 4px 8px;
+    border-top: 1px solid $color-neutral-light;
+    display: block;
+    padding: 4px 8px;
     .AvatarStack {
         display: inline-block !important;
         float: right !important;
         top: -5px;
     }
-  &.reviewed {
-    color: $color-neutral-light !important;
-    .issue, .panel-item-meta {
-      color: $color-neutral-light !important;
+    &.reviewed {
+        color: $color-neutral-light !important;
+        .issue,
+        .panel-item-meta {
+            color: $color-neutral-light !important;
+        }
+        .github-actions-status,
+        .mergeable-state {
+            color: color.mix($color-neutral-light, $color-dark-yellow, 75%) !important;
+            &.success,
+            &.MERGEABLE:not(.CHANGES_REQUESTED):not(.REVIEW_REQUIRED) {
+                color: color.mix($color-neutral-light, $color-darker-green, 75%) !important;
+            }
+            &.failure,
+            &.CONFLICTING,
+            &.CHANGES_REQUESTED {
+                color: color.mix($color-neutral-light, $color-alert, 75%) !important;
+            }
+        }
     }
-    .github-actions-status, .mergeable-state {
-      color: color.mix($color-neutral-light, $color-dark-yellow, 75%) !important;
-      &.success, &.MERGEABLE:not(.CHANGES_REQUESTED):not(.REVIEW_REQUIRED) {
-        color: color.mix($color-neutral-light, $color-darker-green, 75%) !important;
-      }
-      &.failure, &.CONFLICTING, &.CHANGES_REQUESTED {
-        color: color.mix($color-neutral-light, $color-alert, 75%) !important;
-      }
-    }
-  }
 }
 
 .panel-item-meta {
-  color: $color-neutral;
-  font-size: 10px;
-  float: right;
-  & > span,
-  & > a,
-  .octicon {
-    padding-right: $gutter;
-  }
+    color: $color-neutral;
+    font-size: 10px;
+    float: right;
+    & > span,
+    & > a,
+    .octicon {
+        padding-right: $gutter;
+    }
 }
 
 .panel-footer {
-  @extend .panel-title;
-  border-top: 1px solid $color-neutral-light;
+    @extend .panel-title;
+    border-top: 1px solid $color-neutral-light;
 }
 
 .issue {
-  line-height: 1em;
+    line-height: 1em;
 
-  &:hover {
-    text-decoration: none;
-  }
-  // define before overdue so overdue issues will still appears red, since
-  // issue erosion still happens for "held issues"
-  &.help-wanted,
-  &.challenge-sent,
-  &.hold,
-  &.nonowner {
-    color: color.adjust($color-neutral-light, $lightness: -20%) !important;
-    .issue-link {
-      color: color.adjust($color-neutral-light, $lightness: -20%) !important;
+    &:hover {
+        text-decoration: none;
     }
-    .label {
-      background-color: color.adjust($color-neutral-light, $lightness: -20%) !important;
+    // define before overdue so overdue issues will still appears red, since
+    // issue erosion still happens for "held issues"
+    &.help-wanted,
+    &.challenge-sent,
+    &.hold,
+    &.nonowner {
+        color: color.adjust($color-neutral-light, $lightness: -20%) !important;
+        .issue-link {
+            color: color.adjust($color-neutral-light, $lightness: -20%) !important;
+        }
+        .label {
+            background-color: color.adjust($color-neutral-light, $lightness: -20%) !important;
+        }
     }
-  }
-  &.planning {
-    color: $color-dark-yellow !important;
-  }
-  &.overdue {
-      color: $color-alert !important;
-      // Only show the alert icon if the item is overdue
-      .octicon-alert {
-        display: inline;
-      }
-  }
-  &.reviewing {
-      color: $color-neutral-light !important;
-      .issue-link {
+    &.planning {
+        color: $color-dark-yellow !important;
+    }
+    &.overdue {
+        color: $color-alert !important;
+        // Only show the alert icon if the item is overdue
+        .octicon-alert {
+            display: inline;
+        }
+    }
+    &.reviewing {
         color: $color-neutral-light !important;
-      }
-    .label {
-      background-color: $color-neutral-light !important;
+        .issue-link {
+            color: $color-neutral-light !important;
+        }
+        .label {
+            background-color: $color-neutral-light !important;
+        }
     }
-  }
-  &.waiting-for-customer,
-  &.contributor-assigned {
-    color: $color-light-purple;
-  }
+    &.waiting-for-customer,
+    &.contributor-assigned {
+        color: $color-light-purple;
+    }
 }
 
 // Add some padding when we put issues in a box-row
 .Box-row .issue {
-  // padding-left: 35px;
-  display: block;
+    // padding-left: 35px;
+    display: block;
 }
 
 .assignee {
-  padding-left: ($gutter * 4);
+    padding-left: ($gutter * 4);
 }
 
 .hide {
-  display: none;
+    display: none;
 }
 
 /* For some reason our tabs don't get the default cursor behavior */
 .tabnav-tabs a {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 .milestones,
 .issueList {
-  position: relative;
+    position: relative;
 
-  .legend {
-    position: absolute;
-    top: 0;
-    left: -210px;
-    width: 200px;
-    text-align: right;
+    .legend {
+        position: absolute;
+        top: 0;
+        left: -210px;
+        width: 200px;
+        text-align: right;
 
-    > div {
-      line-height: 1.5em;
+        > div {
+            line-height: 1.5em;
+        }
     }
-  }
 }
 
 .github-actions-status {
-  color: $color-orange;
+    color: $color-orange;
 
-  &.success {
-    color: $color-darker-green;
-  }
-  &.failure {
-    color: $color-alert;
-  }
-  &.unknown {
-    color: $color-neutral;
-  }
+    &.success {
+        color: $color-darker-green;
+    }
+    &.failure {
+        color: $color-alert;
+    }
+    &.unknown {
+        color: $color-neutral;
+    }
 }
 
 .mergeable-state {
-  color: $color-dark-yellow;
+    color: $color-dark-yellow;
 
-  &.CONFLICTING {
-    color: $color-alert;
-  }
+    &.CONFLICTING {
+        color: $color-alert;
+    }
 
-  &.MERGEABLE:not(.CHANGES_REQUESTED):not(.REVIEW_REQUIRED) {
-    color: $color-darker-green;
-  }
+    &.MERGEABLE:not(.CHANGES_REQUESTED):not(.REVIEW_REQUIRED) {
+        color: $color-darker-green;
+    }
 
-  &.DRAFT {
-    color: $color-neutral;
-  }
+    &.DRAFT {
+        color: $color-neutral;
+    }
 }
 
 .light {
-  display: inline-block;
-  border-radius: 5px;
-  margin: 0 5px;
-  position: relative;
-  top: 1px;
-  color: white;
-  padding-left: 5px;
+    display: inline-block;
+    border-radius: 5px;
+    margin: 0 5px;
+    position: relative;
+    top: 1px;
+    color: white;
+    padding-left: 5px;
 
-  &.red {
-    background-color: $color-neutral;
-  }
+    &.red {
+        background-color: $color-neutral;
+    }
 
-  &.green {
-    background-color: $color-green;
-  }
+    &.green {
+        background-color: $color-green;
+    }
 }
 
 .milestone {
-  margin-bottom: 40px;
+    margin-bottom: 40px;
 }
 
 .btn-group {
-  .btn {
-    border-radius: 0px;
-    border-right-width: 0px;
+    .btn {
+        border-radius: 0px;
+        border-right-width: 0px;
 
-    &:first-child {
-      border-top-left-radius: 4px;
-      border-bottom-left-radius: 4px;
+        &:first-child {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+        &:last-child {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+            border-right-width: 1px;
+        }
     }
-    &:last-child {
-      border-top-right-radius: 4px;
-      border-bottom-right-radius: 4px;
-      border-right-width: 1px;
-    }
-  }
 }
 
 .btn-group-vertical {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 
-  .btn {
-    border-radius: 0px;
-    border-bottom-width: 0px;
-    text-align: left;
+    .btn {
+        border-radius: 0px;
+        border-bottom-width: 0px;
+        text-align: left;
 
-    &:first-child {
-      border-top-left-radius: 4px;
-      border-top-right-radius: 4px;
-      text-align: center;
+        &:first-child {
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            text-align: center;
+        }
+        &:last-child {
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+            border-bottom-width: 1px;
+        }
     }
-    &:last-child {
-      border-bottom-left-radius: 4px;
-      border-bottom-right-radius: 4px;
-      border-bottom-width: 1px;
-    }
-  }
 }
 
 .pull-left {
-  float: left;
+    float: left;
 }
 
 .pull-right {
-  float: right;
+    float: right;
 }
 
 .Box-row {
-  position: relative;
-  padding: 20px !important;
+    position: relative;
+    padding: 20px !important;
 }
 
 .Box-row .form-inline {
-  opacity: 0.3;
-  padding-left: 0;
-  padding-top: 10px;
-  position: relative;
+    opacity: 0.3;
+    padding-left: 0;
+    padding-top: 10px;
+    position: relative;
 
-  input[type="text"] {
-    width: 60%;
-  }
+    input[type='text'] {
+        width: 60%;
+    }
 }
 
 .actionbuttons {
-  opacity: 0;
-  transition: opacity 150ms ease-in-out;
-  position: absolute;
-  left: 100%;
-  white-space: nowrap;
-  padding: 12px 20px 20px;
-  top: 0
+    opacity: 0;
+    transition: opacity 150ms ease-in-out;
+    position: absolute;
+    left: 100%;
+    white-space: nowrap;
+    padding: 12px 20px 20px;
+    top: 0;
 }
 
 .Box-row:hover .actionbuttons {
-  opacity: 1;
+    opacity: 1;
 }
 
 .timeline-comment-wrapper.lastcomment {
-  padding-left: 0;
-  margin-top: 8px;
-  margin-bottom: 0;
-
-  p:last-child {
+    padding-left: 0;
+    margin-top: 8px;
     margin-bottom: 0;
-  }
 
-  &.hold {
-    color: $color-neutral-light;
-  }
+    p:last-child {
+        margin-bottom: 0;
+    }
 
-  img {
-    max-width: 25% !important;
-  }
+    &.hold {
+        color: $color-neutral-light;
+    }
 
-  .edit-comment-hide {
-    padding: 15px;
-  }
+    img {
+        max-width: 25% !important;
+    }
 
-  ul, ol {
-    margin-left: 40px;
-  }
+    .edit-comment-hide {
+        padding: 15px;
+    }
+
+    ul,
+    ol {
+        margin-left: 40px;
+    }
 }
 
 // This hides a little arrow that shows up to the left of the comment box
 .timeline-comment-wrapper > .timeline-comment::before,
 .timeline-new-comment .timeline-comment::before,
 .timeline-comment-wrapper > .timeline-comment::after,
-.timeline-new-comment .timeline-comment::after{
-  display: none !important;
+.timeline-new-comment .timeline-comment::after {
+    display: none !important;
 }
 
 .Box-row:hover {
-  .form-inline {
-    opacity: 1;
-  }
+    .form-inline {
+        opacity: 1;
+    }
 }
 
 .form-inline {
-  .checkbox {
-    display: inline;
-    margin: 0 10px;
+    .checkbox {
+        display: inline;
+        margin: 0 10px;
 
-    input[type=checkbox] {
-      margin-right: 4px;
+        input[type='checkbox'] {
+            margin-right: 4px;
+        }
     }
-  }
 }
 
 .k2-extension-qa-guidelines-toggle-container {
-  float: left;
-  margin-top: 5px;
+    float: left;
+    margin-top: 5px;
 }
 
 .k2-extension-qa-guidelines {
-  display: none;
-  margin-left: 8px;
-  margin-right:8px;
+    display: none;
+    margin-left: 8px;
+    margin-right: 8px;
 
-  &.show {
-    display: block;
-  }
+    &.show {
+        display: block;
+    }
 }
 
 .k2-extension-qa-guideline-list-item {
-  list-style: none;
+    list-style: none;
 }
 
 .k2-extension-qa-guideline-list-item {
-  margin-bottom: 8px;
+    margin-bottom: 8px;
 }
 
 .table-list-header-toggle .btn-link {
-  padding-right: 15px;
-  padding-left: 15px;
+    padding-right: 15px;
+    padding-left: 15px;
 }
 .table-list-header-toggle .btn-link.selected {
-  font-weight: bold;
+    font-weight: bold;
 }
 
 .email-hidden-toggle,
 .email-hidden-reply {
-  display: none;
+    display: none;
 }
 
 .btn-group-grid {
-  display: flex;
-  flex-flow: row wrap;
+    display: flex;
+    flex-flow: row wrap;
 
-  .btn {
-    margin: 0 2px 2px 0;
-    flex: auto;
+    .btn {
+        margin: 0 2px 2px 0;
+        flex: auto;
 
-    &.k2-web {
-      width: 100%;
+        &.k2-web {
+            width: 100%;
+        }
     }
-  }
 }
 
 .k2picker-wrapper,
 .k2pickertype-wrapper,
 .k2togglereviewing-wrapper,
-.k2comments-wrapper
-.k2previousissues-wrapper {
-  .btn-group {
-    display: flex;
+.k2comments-wrapper .k2previousissues-wrapper {
+    .btn-group {
+        display: flex;
 
-    .btn {
-      flex-basis: 0;
-      flex-grow: 1;
+        .btn {
+            flex-basis: 0;
+            flex-grow: 1;
+        }
     }
-  }
 }
 
-#partial-discussion-sidebar[data-url^="/Expensify/"] {
-  position: sticky;
-  top: 60px;
+#partial-discussion-sidebar[data-url^='/Expensify/'] {
+    position: sticky;
+    top: 60px;
 }
 
 .js-issue-assignees .k2-button {
-  position: absolute;
-  right: -12px;
-  margin-top: -5px !important;
+    position: absolute;
+    right: -12px;
+    margin-top: -5px !important;
 }
 
 .alert {
-  color: $color-alert;
-  font-weight: bold;
-  margin: 8px 16px;
+    color: $color-alert;
+    font-weight: bold;
+    margin: 8px 16px;
 }
 
 .issue-filter {
-  border-radius: 8px;
-  background: none;
-  border: 1px solid rgb(221, 221, 221);
+    border-radius: 8px;
+    background: none;
+    border: 1px solid rgb(221, 221, 221);
 }
 
 .search-filter-input {
-  margin-left: 10px;
-  padding: 4px 8px;
-  border-radius: 4px;
+    margin-left: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
 }
 
 @media (prefers-color-scheme: dark) {
-  .panel, .panel-item, .issue-filter {
-     border-color: rgb(48, 54, 61);
-  }
-  .panel-title, .panel-footer {
-     color: rgb(48, 54, 61);
-  }
-  .issue-filter {
-     color: rgb(230, 237, 243)
-  }
+    .panel,
+    .panel-item,
+    .issue-filter {
+        border-color: rgb(48, 54, 61);
+    }
+    .panel-title,
+    .panel-footer {
+        color: rgb(48, 54, 61);
+    }
+    .issue-filter {
+        color: rgb(230, 237, 243);
+    }
 
-  .k2-login-shell {
-     --k2-ds-app-bg: #061b09;
-     --k2-ds-card-bg: #072419;
-     --k2-ds-border: #1a3d32;
-     --k2-ds-button: #1a3d32;
-     --k2-ds-button-hover: #224f41;
-     --k2-ds-button-pressed: #2a604f;
-     --k2-ds-danger-bg: #2b160d;
-     --k2-ds-foreground: #e7ece9;
-     --k2-ds-heading: #e7ece9;
-     --k2-ds-muted: #afbbb0;
-     --k2-ds-shadow: 0px 4px 12px 0px rgba(2, 18, 4, 0.24);
-  }
+    .k2-login-shell {
+        --k2-ds-app-bg: #061b09;
+        --k2-ds-card-bg: #072419;
+        --k2-ds-border: #1a3d32;
+        --k2-ds-button: #1a3d32;
+        --k2-ds-button-hover: #224f41;
+        --k2-ds-button-pressed: #2a604f;
+        --k2-ds-danger-bg: #2b160d;
+        --k2-ds-foreground: #e7ece9;
+        --k2-ds-heading: #e7ece9;
+        --k2-ds-muted: #afbbb0;
+        --k2-ds-shadow: 0px 4px 12px 0px rgba(2, 18, 4, 0.24);
+    }
 }
 
-[data-color-mode="light"] {
-  .issue-filter {
-    color: rgb(153, 153, 153);
-  }
+[data-color-mode='light'] {
+    .issue-filter {
+        color: rgb(153, 153, 153);
+    }
 }
 
-[data-color-mode="dark"] {
-  .k2-login-shell {
-     --k2-ds-app-bg: #061b09;
-     --k2-ds-card-bg: #072419;
-     --k2-ds-border: #1a3d32;
-     --k2-ds-button: #1a3d32;
-     --k2-ds-button-hover: #224f41;
-     --k2-ds-button-pressed: #2a604f;
-     --k2-ds-danger-bg: #2b160d;
-     --k2-ds-foreground: #e7ece9;
-     --k2-ds-heading: #e7ece9;
-     --k2-ds-muted: #afbbb0;
-     --k2-ds-shadow: 0px 4px 12px 0px rgba(2, 18, 4, 0.24);
-  }
+[data-color-mode='dark'] {
+    .k2-login-shell {
+        --k2-ds-app-bg: #061b09;
+        --k2-ds-card-bg: #072419;
+        --k2-ds-border: #1a3d32;
+        --k2-ds-button: #1a3d32;
+        --k2-ds-button-hover: #224f41;
+        --k2-ds-button-pressed: #2a604f;
+        --k2-ds-danger-bg: #2b160d;
+        --k2-ds-foreground: #e7ece9;
+        --k2-ds-heading: #e7ece9;
+        --k2-ds-muted: #afbbb0;
+        --k2-ds-shadow: 0px 4px 12px 0px rgba(2, 18, 4, 0.24);
+    }
 }
 
 .loader {
@@ -819,20 +978,42 @@ $color-dark-yellow: #DAA520;
         l20-1 0.8s infinite linear alternate,
         l20-2 1.6s infinite linear;
 }
-@keyframes l20-1{
-    0%    {clip-path: polygon(50% 50%,0       0,  50%   0%,  50%    0%, 50%    0%, 50%    0%, 50%    0% )}
-    12.5% {clip-path: polygon(50% 50%,0       0,  50%   0%,  100%   0%, 100%   0%, 100%   0%, 100%   0% )}
-    25%   {clip-path: polygon(50% 50%,0       0,  50%   0%,  100%   0%, 100% 100%, 100% 100%, 100% 100% )}
-    50%   {clip-path: polygon(50% 50%,0       0,  50%   0%,  100%   0%, 100% 100%, 50%  100%, 0%   100% )}
-    62.5% {clip-path: polygon(50% 50%,100%    0, 100%   0%,  100%   0%, 100% 100%, 50%  100%, 0%   100% )}
-    75%   {clip-path: polygon(50% 50%,100% 100%, 100% 100%,  100% 100%, 100% 100%, 50%  100%, 0%   100% )}
-    100%  {clip-path: polygon(50% 50%,50%  100%,  50% 100%,   50% 100%,  50% 100%, 50%  100%, 0%   100% )}
+@keyframes l20-1 {
+    0% {
+        clip-path: polygon(50% 50%, 0 0, 50% 0%, 50% 0%, 50% 0%, 50% 0%, 50% 0%);
+    }
+    12.5% {
+        clip-path: polygon(50% 50%, 0 0, 50% 0%, 100% 0%, 100% 0%, 100% 0%, 100% 0%);
+    }
+    25% {
+        clip-path: polygon(50% 50%, 0 0, 50% 0%, 100% 0%, 100% 100%, 100% 100%, 100% 100%);
+    }
+    50% {
+        clip-path: polygon(50% 50%, 0 0, 50% 0%, 100% 0%, 100% 100%, 50% 100%, 0% 100%);
+    }
+    62.5% {
+        clip-path: polygon(50% 50%, 100% 0, 100% 0%, 100% 0%, 100% 100%, 50% 100%, 0% 100%);
+    }
+    75% {
+        clip-path: polygon(50% 50%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 50% 100%, 0% 100%);
+    }
+    100% {
+        clip-path: polygon(50% 50%, 50% 100%, 50% 100%, 50% 100%, 50% 100%, 50% 100%, 0% 100%);
+    }
 }
-@keyframes l20-2{
-    0%    {transform:scaleY(1)  rotate(0deg)}
-    49.99%{transform:scaleY(1)  rotate(135deg)}
-    50%   {transform:scaleY(-1) rotate(0deg)}
-    100%  {transform:scaleY(-1) rotate(-135deg)}
+@keyframes l20-2 {
+    0% {
+        transform: scaleY(1) rotate(0deg);
+    }
+    49.99% {
+        transform: scaleY(1) rotate(135deg);
+    }
+    50% {
+        transform: scaleY(-1) rotate(0deg);
+    }
+    100% {
+        transform: scaleY(-1) rotate(-135deg);
+    }
 }
 
 // Translation workflow styles
@@ -844,19 +1025,20 @@ $color-dark-yellow: #DAA520;
 .k2-translation-status a {
     position: relative;
     text-decoration: none !important;
-    transition: color .4s ease-out;
+    transition: color 0.4s ease-out;
 
     &::after {
         border-radius: 1em;
-        border-top: .15em solid currentColor;
-        content: "";
+        border-top: 0.15em solid currentColor;
+        content: '';
         position: absolute;
         right: 100%;
-        bottom: -.2em;
+        bottom: -0.2em;
         left: 0;
-        transition: right .4s cubic-bezier(0,.5,0,1),
-                    border-color .4s ease-out;
-        animation: anchor-underline 2s cubic-bezier(0,.5,0,1) infinite;
+        transition:
+            right 0.4s cubic-bezier(0, 0.5, 0, 1),
+            border-color 0.4s ease-out;
+        animation: anchor-underline 2s cubic-bezier(0, 0.5, 0, 1) infinite;
     }
 
     &:hover::after {
@@ -867,15 +1049,18 @@ $color-dark-yellow: #DAA520;
 }
 
 @keyframes anchor-underline {
-    0%, 10% {
+    0%,
+    10% {
         left: 0;
         right: 100%;
     }
-    40%, 60% {
+    40%,
+    60% {
         left: 0;
         right: 0;
     }
-    90%, 100% {
+    90%,
+    100% {
         left: 100%;
         right: 0;
     }
@@ -947,20 +1132,30 @@ li.k2-extension {
 }
 
 // Prevent the isolated K2 tab from covering GitHub's next tab.
-nav[aria-label="Repository"] a[href*="/pulls"] {
+nav[aria-label='Repository'] a[href*='/pulls'] {
     margin-right: calc(var(--k2-tab-width, 64px) + 8px);
 }
 
 // When on K2 page, override GitHub's tab styling so only K2 looks selected
 body.k2-page-active {
-    nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link) {
+    nav[aria-label='Repository'] a[aria-current='page']:not(.k2-nav-link) {
         font-weight: 400 !important;
         background-color: transparent !important;
         box-shadow: none !important;
     }
 
-    nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link)::after,
-    nav[aria-label="Repository"] a[aria-current="page"]:not(.k2-nav-link)::before {
+    nav[aria-label='Repository'] a[aria-current='page']:not(.k2-nav-link)::after,
+    nav[aria-label='Repository'] a[aria-current='page']:not(.k2-nav-link)::before {
         display: none !important;
     }
+
+    // Keep GitHub's repository content intact and hide it while the K2 host is active.
+    #ui-service-main-content > :not(.k2-dashboard-host),
+    .repository-content > :not(.k2-dashboard-host) {
+        display: none !important;
+    }
+}
+
+body:not(.k2-page-active) .k2-dashboard-host {
+    display: none;
 }

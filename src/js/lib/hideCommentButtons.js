@@ -10,8 +10,10 @@ const ACTIONS = [
 const BUTTONS_CLASS = 'k2-hide-comment-buttons';
 const MINIMIZED_REASON_STATE = 'k2MinimizedReasonState';
 
-const COMMENT_BODY_SELECTOR = '.comment-body.js-comment-body, .comment-body, [data-testid="issue-comment-body"], [data-testid="markdown-body"]';
-const COMMENT_CONTAINER_SELECTOR = '.timeline-comment, .timeline-comment-group, .react-issue-comment';
+const COMMENT_BODY_SELECTOR =
+    '.comment-body.js-comment-body, .comment-body, [data-testid="issue-comment-body"], [data-testid="markdown-body"]';
+const COMMENT_CONTAINER_SELECTOR =
+    '.timeline-comment, .timeline-comment-group, .react-issue-comment';
 
 // Match the comment type needed by the REST endpoint that returns its GraphQL node ID.
 // Check review-thread comments before review comments because their URLs overlap.
@@ -42,7 +44,9 @@ function isOptionsButton(btn) {
 
 // The React UI uses a button. The legacy review UI uses a summary element.
 function findOptionsButton(container) {
-    return _.find(container.querySelectorAll('button, summary'), btn => isOptionsButton(btn)) || null;
+    return (
+        _.find(container.querySelectorAll('button, summary'), btn => isOptionsButton(btn)) || null
+    );
 }
 
 function parsePermalink(permalink) {
@@ -77,16 +81,18 @@ function findCommentContext(permalink) {
 
     const hash = getPermalinkHash(permalink);
     const target = hash && document.getElementById(hash);
-    const targetHasCommentBody = target && target.contains(permalink) && target.querySelector(COMMENT_BODY_SELECTOR);
-    const container = targetHasCommentBody
-        ? target
-        : getCommentContainer(permalink);
+    const targetHasCommentBody =
+        target && target.contains(permalink) && target.querySelector(COMMENT_BODY_SELECTOR);
+    const container = targetHasCommentBody ? target : getCommentContainer(permalink);
     if (!container || !container.querySelector(COMMENT_BODY_SELECTOR)) {
         return null;
     }
 
     return {
-        container, permalink, parsed, optionsBtn: findOptionsButton(container),
+        container,
+        permalink,
+        parsed,
+        optionsBtn: findOptionsButton(container),
     };
 }
 
@@ -113,7 +119,9 @@ function showMinimizedComment(wrapper) {
         return;
     }
 
-    const header = comment.querySelector('.timeline-comment-header, [class*="IssueBodyHeader-module__IssueBodyHeaderContainer"]');
+    const header = comment.querySelector(
+        '.timeline-comment-header, [class*="IssueBodyHeader-module__IssueBodyHeaderContainer"]',
+    );
     const bodyContainer = body.closest('.edit-comment-hide') || body;
     if (header) {
         header.style.display = 'none';
@@ -124,7 +132,19 @@ function showMinimizedComment(wrapper) {
     comment.appendChild(minimized);
 }
 
-function lookupNodeID(commentType, commentID) {
+function getCommentNodeID(wrapper) {
+    const comment = getCommentContainer(wrapper);
+    const menu = comment && comment.querySelector('details-menu[src*="gid="]');
+    const source = menu && menu.getAttribute('src');
+    return source ? new URL(source, window.location.origin).searchParams.get('gid') : '';
+}
+
+function lookupNodeID(commentType, commentID, wrapper) {
+    const nodeID = getCommentNodeID(wrapper);
+    if (nodeID) {
+        return Promise.resolve(nodeID);
+    }
+
     if (commentType === 'pullrequestreview') {
         return API.getPullRequestReviewNodeID(commentID);
     }
@@ -142,7 +162,9 @@ function addHiddenReason(commentElement) {
 
     const label = comment.querySelector('.timeline-comment-header-text, summary h3');
     const visibleLabel = label && (label.querySelector('.Details-content--open') || label);
-    const buttonGroup = comment.querySelector(`.${BUTTONS_CLASS}[data-comment-type="issuecomment"]`);
+    const buttonGroup = comment.querySelector(
+        `.${BUTTONS_CLASS}[data-comment-type="issuecomment"]`,
+    );
     const commentID = buttonGroup && buttonGroup.dataset.commentId;
     if (!visibleLabel || !commentID) {
         return;
@@ -150,7 +172,7 @@ function addHiddenReason(commentElement) {
 
     comment.dataset[MINIMIZED_REASON_STATE] = 'loading';
     API.getIssueCommentMinimizedReason(commentID)
-        .then((reason) => {
+        .then(reason => {
             if (!reason || visibleLabel.textContent.toLowerCase().includes(reason)) {
                 return;
             }
@@ -165,7 +187,7 @@ function addHiddenReason(commentElement) {
 }
 
 function setButtonsDisabled(wrapper, disabled) {
-    _.each(wrapper.querySelectorAll('button'), (button) => {
+    _.each(wrapper.querySelectorAll('button'), button => {
         if (disabled) {
             button.setAttribute('disabled', 'disabled');
         } else {
@@ -194,7 +216,7 @@ async function minimizeComment(event) {
         }
     }
     try {
-        const nodeID = await lookupNodeID(commentType, commentID);
+        const nodeID = await lookupNodeID(commentType, commentID, wrapper);
         await API.minimizeComment(nodeID, classifier);
         showMinimizedComment(wrapper);
     } catch (error) {
@@ -203,15 +225,17 @@ async function minimizeComment(event) {
     }
 }
 
-function addButtons({
-    container, permalink, parsed, optionsBtn,
-}) {
+function addButtons({container, permalink, parsed, optionsBtn}) {
     if (container.querySelector(`.${BUTTONS_CLASS}`)) {
         return;
     }
 
     // A review can render more than one author link. Prevent duplicate button groups.
-    if (document.querySelector(`.${BUTTONS_CLASS}[data-comment-id="${CSS.escape(parsed.id)}"][data-comment-type="${CSS.escape(parsed.type)}"]`)) {
+    if (
+        document.querySelector(
+            `.${BUTTONS_CLASS}[data-comment-id="${CSS.escape(parsed.id)}"][data-comment-type="${CSS.escape(parsed.type)}"]`,
+        )
+    ) {
         return;
     }
 
@@ -219,7 +243,7 @@ function addButtons({
     wrapper.className = `${BUTTONS_CLASS} k2-element`;
     wrapper.dataset.commentId = parsed.id;
     wrapper.dataset.commentType = parsed.type;
-    _.each(ACTIONS, (action) => {
+    _.each(ACTIONS, action => {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'btn btn-sm k2-hide-comment-button';
@@ -232,7 +256,7 @@ function addButtons({
     // Place buttons before the kebab when GitHub exposes the action menu.
     if (optionsBtn) {
         const anchor = optionsBtn;
-        const target = anchor.tagName === 'SUMMARY' ? (anchor.closest('details') || anchor) : anchor;
+        const target = anchor.tagName === 'SUMMARY' ? anchor.closest('details') || anchor : anchor;
         target.parentNode.insertBefore(wrapper, target);
     } else {
         permalink.parentNode.insertBefore(wrapper, permalink.nextSibling);
@@ -240,7 +264,7 @@ function addButtons({
 }
 
 function scan() {
-    _.each(document.querySelectorAll(PERMALINK_SELECTOR), (permalink) => {
+    _.each(document.querySelectorAll(PERMALINK_SELECTOR), permalink => {
         const comment = findCommentContext(permalink);
         if (!comment) {
             return;

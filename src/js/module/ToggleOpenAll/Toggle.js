@@ -31,7 +31,7 @@ class Toggle extends React.Component {
     }
 
     handleToggle() {
-        this.setState((prevState) => {
+        this.setState(prevState => {
             const newValue = !prevState.showOpenAllButtons;
             Preferences.setShowOpenAllButtons(newValue);
             return {showOpenAllButtons: newValue};
@@ -43,9 +43,11 @@ class Toggle extends React.Component {
             <div style={{width: '100%', marginTop: '4px'}}>
                 <button
                     type="button"
-                    className={this.state.showOpenAllButtons
-                        ? `${defaultBtnClass} k2-show-open-all selected`
-                        : `${defaultBtnClass} k2-show-open-all`}
+                    className={
+                        this.state.showOpenAllButtons
+                            ? `${defaultBtnClass} k2-show-open-all selected`
+                            : `${defaultBtnClass} k2-show-open-all`
+                    }
                     onClick={() => this.handleToggle()}
                     style={{width: '100%'}}
                 >

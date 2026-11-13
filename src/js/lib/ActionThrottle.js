@@ -21,11 +21,10 @@ function ActionThrottle(commandName, methodThatReturnsAPromise) {
     }
     currentlyFetching[commandName] = true;
 
-    methodThatReturnsAPromise()
-        .finally(() => {
-            lastFetchTimestamps[commandName] = Date.now();
-            currentlyFetching[commandName] = false;
-        });
+    methodThatReturnsAPromise().finally(() => {
+        lastFetchTimestamps[commandName] = Date.now();
+        currentlyFetching[commandName] = false;
+    });
 }
 
 export default ActionThrottle;

@@ -1,48 +1,72 @@
-import $ from 'jquery';
 import React from 'react';
 import {createRoot} from 'react-dom/client';
 import ReactNativeOnyx from 'react-native-onyx';
 import ListIssues from './ListIssues';
 import FormPassword from './FormPassword';
 import ONYXKEYS from '../../ONYXKEYS';
-import getRepositoryContent from '../../lib/getRepositoryContent';
 
-let preferences;
-let preferencesLoaded = false;
-let preferencesConnected = false;
-let root;
-let rootElement;
+const HOST_CLASS = 'k2-dashboard-host';
+
+// The element K2 renders into and its React root, shared by the dashboard and the password form
+let host = null;
+let root = null;
+
+let preferences = null;
+let isConnectedToPreferences = false;
 
 /**
- * Release the previous view when GitHub replaces its content container.
- * @param {Element} element
- * @param {React.ReactNode} component
+ * Get the element of the repository page that holds the K2 dashboard. Classic repository pages use
+ * `.repository-content`, while pages rendered by GitHub's React shell put everything below the
+ * repository tabs in `#ui-service-main-content`.
+ *
+ * @returns {HTMLElement|null}
  */
-function renderInterface(element, component) {
-    if (rootElement !== element) {
-        if (root) {
-            root.unmount();
-        }
-        root = createRoot(element);
-        rootElement = element;
+function getDashboardParent() {
+    return (
+        document.getElementById('ui-service-main-content') ||
+        document.querySelector('.repository-content')
+    );
+}
+
+/**
+ * Get the React root for the K2 host element, creating the host when it is not in the page
+ *
+ * @returns {Object|null}
+ */
+function getRoot() {
+    if (host && host.isConnected) {
+        return root;
     }
-    root.render(component);
+
+    const parent = getDashboardParent();
+    if (!parent) {
+        console.error(
+            'K2: could not find the repository content container to render the dashboard into',
+        );
+        return null;
+    }
+
+    if (root) {
+        root.unmount();
+    }
+
+    // Keep GitHub's content and hydration data intact; CSS hides the host's siblings while K2 is active.
+    host = document.createElement('div');
+    parent.appendChild(host);
+    root = createRoot(host);
+    return root;
 }
 
 /**
  * Display our dashboard with the list of issues
  */
 function showDashboard() {
-    const repositoryContent = $(getRepositoryContent());
-
-    // Clean up password form
-    repositoryContent.children('.passwordform').remove();
-
-    if (!repositoryContent.children('.k2dashboard').length) {
-        repositoryContent.append('<div class="k2dashboard">');
+    const dashboardRoot = getRoot();
+    if (!dashboardRoot) {
+        return;
     }
-
-    renderInterface(repositoryContent.children('.k2dashboard').show()[0], <ListIssues pollInterval={60000} />);
+    host.className = `${HOST_CLASS} k2dashboard`;
+    dashboardRoot.render(<ListIssues pollInterval={60000} />);
 }
 
 /**
@@ -51,32 +75,25 @@ function showDashboard() {
  * @date 2015-06-14
  */
 function showPasswordForm() {
-    const repositoryContent = $(getRepositoryContent());
-
-    // Clean up dashboard
-    repositoryContent.children('.k2dashboard').remove();
-
-    if (!repositoryContent.children('.passwordform').length) {
-        repositoryContent.append('<div class="passwordform k2-passwordform">');
+    const formRoot = getRoot();
+    if (!formRoot) {
+        return;
     }
-
-    repositoryContent.children('.passwordform').addClass('k2-passwordform');
-
-    renderInterface(repositoryContent.children('.passwordform').show()[0], <FormPassword onFinished={showDashboard} />);
+    host.className = `${HOST_CLASS} passwordform k2-passwordform`;
+    formRoot.render(<FormPassword onFinished={showDashboard} />);
 }
 
 /**
  * Check authentication status and show appropriate interface
- * @param {Object} currentPreferences User preferences from Onyx
  */
-function checkAuthAndShowInterface(currentPreferences) {
-    if (window.location.hash.indexOf('#k2') !== 0 || !getRepositoryContent()) {
-        return;
-    }
-
+function checkAuthAndShowInterface() {
     // Check if user is authenticated with either PAT or OAuth
-    const hasPatAuth = currentPreferences && currentPreferences.ghToken;
-    const hasOAuthAuth = currentPreferences && currentPreferences.auth && currentPreferences.auth.type === 'oauth' && currentPreferences.auth.token;
+    const hasPatAuth = preferences && preferences.ghToken;
+    const hasOAuthAuth =
+        preferences &&
+        preferences.auth &&
+        preferences.auth.type === 'oauth' &&
+        preferences.auth.token;
 
     if (!hasPatAuth && !hasOAuthAuth) {
         showPasswordForm();
@@ -86,38 +103,30 @@ function checkAuthAndShowInterface(currentPreferences) {
     showDashboard();
 }
 
+export {getDashboardParent};
+
 export default () => ({
     draw() {
-        const repositoryContent = $(getRepositoryContent());
-        if (!repositoryContent.length) {
+        if (host && host.isConnected) {
             return;
         }
 
-        const passwordFormWasDrawn = repositoryContent.children('.passwordform').length;
-        const dashboardWasDrawn = repositoryContent.children('.k2dashboard').length;
-
-        if (passwordFormWasDrawn || dashboardWasDrawn) {
-            return;
-        }
-        repositoryContent.children().remove();
-
-        if (preferencesLoaded) {
-            checkAuthAndShowInterface(preferences);
+        if (isConnectedToPreferences) {
+            checkAuthAndShowInterface();
             return;
         }
 
-        if (preferencesConnected) {
-            return;
-        }
-        preferencesConnected = true;
+        isConnectedToPreferences = true;
+        ReactNativeOnyx.init({
+            keys: ONYXKEYS,
+        });
 
         // Connect to preferences store
         ReactNativeOnyx.connect({
             key: ONYXKEYS.PREFERENCES,
-            callback: (newPreferences) => {
+            callback: newPreferences => {
                 preferences = newPreferences;
-                preferencesLoaded = true;
-                checkAuthAndShowInterface(preferences);
+                checkAuthAndShowInterface();
             },
         });
     },

@@ -1,6 +1,5 @@
 // Import the style sheet here so that it is included by webpack and processed from SASS into CSS
-// eslint-disable-next-line no-unused-vars
-import styles from '../css/content.scss';
+import '../css/content.scss';
 
 import * as messenger from './lib/messenger';
 import ghAll from './lib/pages/github/all';
@@ -9,19 +8,9 @@ import ghIssue from './lib/pages/github/issue';
 import ghIssuenew from './lib/pages/github/issuenew';
 import ghIssueChoose from './lib/pages/github/issuechoose';
 import ghMain from './lib/pages/github/main';
-import getRepositoryContent from './lib/getRepositoryContent';
-import positionK2Tab from './lib/positionK2Tab';
+import * as dashboard from './module/dashboard/index';
 
-const mainPage = ghMain();
-
-const pages = [
-    ghAll(),
-    ghPr(),
-    ghIssue(),
-    ghIssuenew(),
-    ghIssueChoose(),
-    mainPage,
-];
+const pages = [ghAll(), ghPr(), ghIssue(), ghIssuenew(), ghIssueChoose(), ghMain()];
 
 /**
  * Clean up K2 state when NOT on K2 page.
@@ -62,9 +51,29 @@ messenger.on('nav', () => setupPages());
 // Listen for hash changes (e.g., clicking the K2 tab) to re-run page setup
 window.addEventListener('hashchange', () => setupPages());
 
+// Restore K2 when GitHub replaces the body or repository content after page load.
+let pendingSetupTimeout = null;
+new MutationObserver(() => {
+    const isK2Page = window.location.hash.indexOf('#k2') === 0;
+    const isK2TabMissing = !document.querySelector('li.k2-extension');
+    const isK2PageClassMissing = isK2Page && !document.body.classList.contains('k2-page-active');
+    const isK2DashboardMissing =
+        isK2Page && dashboard.getDashboardParent() && !document.querySelector('.k2-dashboard-host');
+    if (!isK2TabMissing && !isK2PageClassMissing && !isK2DashboardMissing) {
+        return;
+    }
+    clearTimeout(pendingSetupTimeout);
+    pendingSetupTimeout = setTimeout(setupPages, 100);
+}).observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class'],
+});
+
 // Handle K2 link clicks directly — GitHub's React nav intercepts clicks and uses
 // pushState (which doesn't fire hashchange), so we must handle it ourselves.
-document.addEventListener('click', (e) => {
+document.addEventListener('click', e => {
     const link = e.target.closest('.k2-nav-link');
     if (!link) {
         return;
@@ -77,15 +86,15 @@ document.addEventListener('click', (e) => {
     const linkUrl = new URL(link.href, window.location.origin);
     const targetPathname = linkUrl.pathname;
 
-    // Check if we're on the right pathname and the repository content area exists.
+    // Check if we're on the right pathname AND the container the dashboard renders into exists.
     // If the container is missing (e.g., after GitHub's SPA navigation from Code tab),
     // we need a full page reload to get GitHub to render the proper DOM.
-    const repoContent = getRepositoryContent();
-    if (window.location.pathname === targetPathname && repoContent) {
+    const dashboardParent = dashboard.getDashboardParent();
+    if (window.location.pathname === targetPathname && dashboardParent) {
         window.location.hash = '#k2';
         setupPages();
     } else if (window.location.pathname === targetPathname) {
-        // Same pathname but missing repository content, so force a reload.
+        // Same pathname but missing the dashboard container - need to force reload.
         // Just setting href won't reload because browser sees same pathname as hash-only change.
         window.location.hash = '#k2';
         window.location.reload();
@@ -94,35 +103,5 @@ document.addEventListener('click', (e) => {
         window.location.href = link.href;
     }
 });
-
-// GitHub can replace the tab and repository view after our initial setup during hydration.
-let recoveryScheduled = false;
-const pageObserver = new MutationObserver(() => {
-    if (recoveryScheduled) {
-        return;
-    }
-    recoveryScheduled = true;
-    requestAnimationFrame(() => {
-        recoveryScheduled = false;
-
-        if (!document.querySelector('.k2-nav-link')) {
-            positionK2Tab();
-        }
-
-        if (window.location.hash.indexOf('#k2') !== 0) {
-            return;
-        }
-        const repositoryContent = getRepositoryContent();
-        if (!repositoryContent) {
-            return;
-        }
-        const hasInterface = repositoryContent.querySelector('.k2dashboard, .passwordform');
-        const link = document.querySelector('.k2-nav-link');
-        if (!hasInterface || (link && link.getAttribute('aria-current') !== 'page') || document.title !== 'K2') {
-            mainPage.init();
-        }
-    });
-});
-pageObserver.observe(document, {childList: true, subtree: true});
 
 setupPages();

@@ -10,7 +10,10 @@ import ONYXKEYS from '../ONYXKEYS';
 // would mean fetching, decoding and re-encoding it, and a tab falls back to the browser's default globe if
 // any step of that chain fails.
 const FAVICON_LINK_SELECTOR = 'link.js-site-favicon';
-const FAILURE_FAVICON_REGEX = /-failure(\.\w+)(\?.*)?$/;
+
+// GitHub appends "-dark" to the state when the browser is in dark mode (favicon-failure-dark.svg), so the
+// theme suffix has to survive the swap along with the extension.
+const FAILURE_FAVICON_REGEX = /-failure((?:-dark)?\.\w+)(\?.*)?$/;
 
 // Holds the href GitHub had set, so it can be put back exactly rather than rebuilt.
 const REWRITTEN_ATTRIBUTE = 'data-k2-original-favicon';
@@ -55,14 +58,14 @@ function getHeadRefOid(owner, repo, pullRequestNumber) {
     const key = `${owner}/${repo}/${pullRequestNumber}`;
     const cached = headRefOids[key];
 
-    if (!cached || (Date.now() - cached.fetchedAt) > HEAD_REF_OID_LIFETIME_MS) {
+    if (!cached || Date.now() - cached.fetchedAt > HEAD_REF_OID_LIFETIME_MS) {
         if (!requestsInFlight[key]) {
             requestsInFlight[key] = true;
             API.getPullRequestHeadRefOid(owner, repo, Number(pullRequestNumber))
-                .then((oid) => {
+                .then(oid => {
                     headRefOids[key] = {oid, fetchedAt: Date.now()};
                 })
-                .catch((error) => {
+                .catch(error => {
                     console.error('Error fetching the head commit of pull request', key, error);
 
                     // Recording the failure is what stops a bad token or a rate limit from turning every
@@ -96,7 +99,7 @@ function update() {
     const headRefOid = getHeadRefOid(owner, repo, pullRequestNumber);
     const verdict = headRefOid ? CheckStatusVerdicts.getVerdict(owner, repo, headRefOid) : null;
 
-    _.each(links, (link) => {
+    _.each(links, link => {
         const originalHref = link.getAttribute(REWRITTEN_ATTRIBUTE);
         const href = link.getAttribute('href') || '';
 
@@ -123,7 +126,10 @@ function start() {
     // change, either of which puts the red X back.
     observer = new MutationObserver(scheduleUpdate);
     observer.observe(document.head, {
-        childList: true, subtree: true, attributes: true, attributeFilter: ['href'],
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['href'],
     });
 }
 

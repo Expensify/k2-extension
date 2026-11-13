@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'underscore';
 import PropTypes from 'prop-types';
 import ReactNativeOnyx from 'react-native-onyx';
 import ONYXKEYS from '../../ONYXKEYS';
@@ -14,26 +15,28 @@ const propTypes = {
     /** Callback to open all items in new tabs */
     onOpenAll: PropTypes.func,
 
-    /** A checkbox to show next to the title */
-    checkbox: PropTypes.shape({
-        /** The id and the name of the input */
-        id: PropTypes.string.isRequired,
+    /** Checkboxes to show next to the title */
+    checkboxes: PropTypes.arrayOf(
+        PropTypes.shape({
+            /** The id and the name of the input */
+            id: PropTypes.string.isRequired,
 
-        /** The text to show next to the input */
-        label: PropTypes.string.isRequired,
+            /** The text to show next to the input */
+            label: PropTypes.string.isRequired,
 
-        /** Whether the checkbox is checked */
-        isChecked: PropTypes.bool,
+            /** Whether the checkbox is checked */
+            isChecked: PropTypes.bool,
 
-        /** Callback when the user toggles the checkbox */
-        onChange: PropTypes.func.isRequired,
-    }),
+            /** Callback when the user toggles the checkbox */
+            onChange: PropTypes.func.isRequired,
+        }),
+    ),
 };
 
 const defaultProps = {
     count: null,
     onOpenAll: null,
-    checkbox: null,
+    checkboxes: [],
 };
 
 class Title extends React.Component {
@@ -62,16 +65,18 @@ class Title extends React.Component {
     }
 
     render() {
-        const {
-            text, count, onOpenAll, checkbox,
-        } = this.props;
+        const {text, count, onOpenAll, checkboxes} = this.props;
         return (
             <div>
                 <h3 className="panel-title panel-title-with-actions">
                     <span>
                         {`${text} ${count !== null ? `(${count})` : ''}`}
-                        {checkbox && (
-                            <label className="panel-title-checkbox" htmlFor={checkbox.id}>
+                        {_.map(checkboxes, checkbox => (
+                            <label
+                                key={checkbox.id}
+                                className="panel-title-checkbox"
+                                htmlFor={checkbox.id}
+                            >
                                 <input
                                     type="checkbox"
                                     id={checkbox.id}
@@ -81,7 +86,7 @@ class Title extends React.Component {
                                 />
                                 {checkbox.label}
                             </label>
-                        )}
+                        ))}
                     </span>
                     {onOpenAll && count > 0 && this.state.showOpenAllButtons && (
                         <button

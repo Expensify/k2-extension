@@ -32,7 +32,10 @@ export default function positionK2Tab() {
     k2Tab.style.top = `${rectangle.top + window.scrollY}px`;
     k2Tab.style.left = `${rectangle.right + window.scrollX + 8}px`;
     k2Tab.style.zIndex = '1000';
-    document.documentElement.style.setProperty('--k2-tab-width', `${k2Link.getBoundingClientRect().width}px`);
+    document.documentElement.style.setProperty(
+        '--k2-tab-width',
+        `${k2Link.getBoundingClientRect().width}px`,
+    );
 
     return true;
 }

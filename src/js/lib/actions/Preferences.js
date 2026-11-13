@@ -34,7 +34,7 @@ function setAuthData(data) {
 
 ReactNativeOnyx.connect({
     key: ONYXKEYS.PREFERENCES,
-    callback: (preferences) => {
+    callback: preferences => {
         // Make sure they have entered their API token
         if (!preferences) {
             return;
@@ -155,6 +155,13 @@ function setShouldShowPRNumbers(value) {
     ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {shouldShowPRNumbers: value});
 }
 
+/**
+ * @param {Boolean} value
+ */
+function setShouldGroupPRsByIssue(value) {
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {shouldGroupPRsByIssue: value});
+}
+
 export {
     getGitHubToken,
     setGitHubToken,
@@ -171,4 +178,5 @@ export {
     getShowOpenAllButtons,
     setShowOpenAllButtons,
     setShouldShowPRNumbers,
+    setShouldGroupPRsByIssue,
 };
