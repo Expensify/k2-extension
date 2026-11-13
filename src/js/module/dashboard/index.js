@@ -5,19 +5,22 @@ import ReactNativeOnyx from 'react-native-onyx';
 import ListIssues from './ListIssues';
 import FormPassword from './FormPassword';
 import ONYXKEYS from '../../ONYXKEYS';
+import getRepositoryContent from '../../lib/getRepositoryContent';
 
 /**
  * Display our dashboard with the list of issues
  */
 function showDashboard() {
-    // Clean up password form
-    $('.repository-content').children('.passwordform').remove();
+    const repositoryContent = $(getRepositoryContent());
 
-    if (!$('.repository-content').children('.k2dashboard').length) {
-        $('.repository-content').append('<div class="k2dashboard">');
+    // Clean up password form
+    repositoryContent.children('.passwordform').remove();
+
+    if (!repositoryContent.children('.k2dashboard').length) {
+        repositoryContent.append('<div class="k2dashboard">');
     }
 
-    const root = createRoot($('.k2dashboard').show()[0]);
+    const root = createRoot(repositoryContent.children('.k2dashboard').show()[0]);
     root.render(<ListIssues pollInterval={60000} />);
 }
 
@@ -27,16 +30,18 @@ function showDashboard() {
  * @date 2015-06-14
  */
 function showPasswordForm() {
-    // Clean up dashboard
-    $('.repository-content').children('.k2dashboard').remove();
+    const repositoryContent = $(getRepositoryContent());
 
-    if (!$('.repository-content').children('.passwordform').length) {
-        $('.repository-content').append('<div class="passwordform k2-passwordform">');
+    // Clean up dashboard
+    repositoryContent.children('.k2dashboard').remove();
+
+    if (!repositoryContent.children('.passwordform').length) {
+        repositoryContent.append('<div class="passwordform k2-passwordform">');
     }
 
-    $('.repository-content').children('.passwordform').addClass('k2-passwordform');
+    repositoryContent.children('.passwordform').addClass('k2-passwordform');
 
-    const root = createRoot($('.passwordform').show()[0]);
+    const root = createRoot(repositoryContent.children('.passwordform').show()[0]);
     root.render(<FormPassword onFinished={showDashboard} />);
 }
 
@@ -59,13 +64,14 @@ function checkAuthAndShowInterface(preferences) {
 
 export default () => ({
     draw() {
-        const passwordFormWasDrawn = $('.repository-content').children('.passwordform').length;
-        const dashboardWasDrawn = $('.repository-content').children('.k2dashboard').length;
+        const repositoryContent = $(getRepositoryContent());
+        const passwordFormWasDrawn = repositoryContent.children('.passwordform').length;
+        const dashboardWasDrawn = repositoryContent.children('.k2dashboard').length;
 
         if (passwordFormWasDrawn || dashboardWasDrawn) {
             return;
         }
-        $('.repository-content').children().remove();
+        repositoryContent.children().remove();
         ReactNativeOnyx.init({
             keys: ONYXKEYS,
         });

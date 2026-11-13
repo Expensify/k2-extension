@@ -9,6 +9,7 @@ import ghIssue from './lib/pages/github/issue';
 import ghIssuenew from './lib/pages/github/issuenew';
 import ghIssueChoose from './lib/pages/github/issuechoose';
 import ghMain from './lib/pages/github/main';
+import getRepositoryContent from './lib/getRepositoryContent';
 
 const pages = [
     ghAll(),
@@ -73,15 +74,15 @@ document.addEventListener('click', (e) => {
     const linkUrl = new URL(link.href, window.location.origin);
     const targetPathname = linkUrl.pathname;
 
-    // Check if we're on the right pathname AND the .repository-content container exists.
+    // Check if we're on the right pathname and the repository content area exists.
     // If the container is missing (e.g., after GitHub's SPA navigation from Code tab),
     // we need a full page reload to get GitHub to render the proper DOM.
-    const repoContent = document.querySelector('.repository-content');
+    const repoContent = getRepositoryContent();
     if (window.location.pathname === targetPathname && repoContent) {
         window.location.hash = '#k2';
         setupPages();
     } else if (window.location.pathname === targetPathname) {
-        // Same pathname but missing .repository-content - need to force reload.
+        // Same pathname but missing repository content, so force a reload.
         // Just setting href won't reload because browser sees same pathname as hash-only change.
         window.location.hash = '#k2';
         window.location.reload();
