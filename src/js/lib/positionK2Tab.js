@@ -39,11 +39,9 @@ export default function positionK2Tab() {
 
     // Use document coordinates so K2 scrolls and bounces with GitHub's tab list.
     const rectangle = pullsTab.getBoundingClientRect();
-    k2Tab.style.display = 'flex';
-    k2Tab.style.position = 'absolute';
+    k2Tab.style.removeProperty('display');
     k2Tab.style.top = `${rectangle.top + window.scrollY}px`;
     k2Tab.style.left = `${rectangle.right + window.scrollX + 8}px`;
-    k2Tab.style.zIndex = '1000';
     document.documentElement.style.setProperty(
         '--k2-tab-width',
         `${k2Link.getBoundingClientRect().width}px`,
