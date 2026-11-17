@@ -9,8 +9,10 @@ import ghIssuenew from './lib/pages/github/issuenew';
 import ghIssueChoose from './lib/pages/github/issuechoose';
 import ghMain from './lib/pages/github/main';
 import * as dashboard from './module/dashboard/index';
+import positionK2Tab from './lib/positionK2Tab';
 
-const pages = [ghAll(), ghPr(), ghIssue(), ghIssuenew(), ghIssueChoose(), ghMain()];
+const mainPage = ghMain();
+const pages = [ghAll(), ghPr(), ghIssue(), ghIssuenew(), ghIssueChoose(), mainPage];
 
 /**
  * Clean up K2 state when NOT on K2 page.
@@ -52,19 +54,19 @@ messenger.on('nav', () => setupPages());
 window.addEventListener('hashchange', () => setupPages());
 
 // Restore K2 when GitHub replaces the body or repository content after page load.
-let pendingSetupTimeout = null;
 new MutationObserver(() => {
     const isK2Page = window.location.hash.indexOf('#k2') === 0;
     const isK2TabMissing = !document.querySelector('li.k2-extension');
+    if (isK2TabMissing) {
+        positionK2Tab();
+    }
     const isK2PageClassMissing = isK2Page && !document.body.classList.contains('k2-page-active');
     const isK2DashboardMissing =
         isK2Page && dashboard.getDashboardParent() && !document.querySelector('.k2-dashboard-host');
-    if (!isK2TabMissing && !isK2PageClassMissing && !isK2DashboardMissing) {
-        return;
+    if (isK2Page && (isK2TabMissing || isK2PageClassMissing || isK2DashboardMissing)) {
+        mainPage.init();
     }
-    clearTimeout(pendingSetupTimeout);
-    pendingSetupTimeout = setTimeout(setupPages, 100);
-}).observe(document.body, {
+}).observe(document, {
     childList: true,
     subtree: true,
     attributes: true,

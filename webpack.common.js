@@ -10,6 +10,7 @@ module.exports = env => {
     return {
         context: path.resolve(__dirname, '.'),
         entry: {
+            navigation: './src/js/navigation.js',
             content: './src/js/content.js',
             events: './src/js/events.js',
         },
