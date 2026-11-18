@@ -8,7 +8,7 @@
         "48": "icon48.png",
         "128": "icon128.png"
     },
-    "permissions": ["webNavigation", "storage", "tabs", "identity"],
+    "permissions": ["webNavigation", "storage", "identity"],
     "host_permissions": ["*://api.github.com/*", "*://github.com/*", "https://ksv2.exfy.io/*"],
     "content_scripts": [
         {
