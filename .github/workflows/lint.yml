@@ -6,7 +6,7 @@ on:
 
 jobs:
     lint:
-        runs-on: blacksmith-2vcpu-ubuntu-2404
+        runs-on: blacksmith-2vcpu-ubuntu-2404-arm
         steps:
             - name: Checkout repository
               uses: useblacksmith/checkout@2d63ce5ba61677748c4e92f6eb578a8694226225 # v1.2.0
