@@ -17,7 +17,9 @@ export default function positionK2Tab() {
 
     if (!k2Tab) {
         // Keep K2 outside GitHub's managed list to preserve search behavior.
-        document.body.insertAdjacentHTML('beforeend', k2Button({url: '/Expensify/Expensify'}));
+        // Share the page's stacking context so GitHub's overlays can cover it.
+        const pageContainer = pullsTab.closest('[data-turbo-body]') || document.body;
+        pageContainer.insertAdjacentHTML('beforeend', k2Button({url: '/Expensify/Expensify'}));
         k2Tab = document.querySelector('li.k2-extension');
     }
 
