@@ -6,7 +6,7 @@ import ONYXKEYS from '../../ONYXKEYS';
 import ActionThrottle from '../ActionThrottle';
 
 function getHotPicks() {
-    ActionThrottle('getHotPicks', () =>
+    return ActionThrottle('getHotPicks', () =>
         API.getHotPickIssues().then(issues => {
             const sortedData = _.chain(issues)
                 .map(item => {
@@ -44,7 +44,7 @@ function getHotPicks() {
 }
 
 function getDailyImprovements() {
-    ActionThrottle('getDailyImprovements', () =>
+    return ActionThrottle('getDailyImprovements', () =>
         API.getDailyImprovements().then(issues => {
             // Always use set() here because there is no way to remove issues from Onyx
             // that get closed and are no longer assigned
@@ -54,7 +54,7 @@ function getDailyImprovements() {
 }
 
 function getAllAssigned() {
-    ActionThrottle('getAllAssigned', () =>
+    return ActionThrottle('getAllAssigned', () =>
         API.getIssuesAssigned().then(issues => {
             const currentUser = API.getCurrentUser();
             const issuesMarkedWithOwner = _.reduce(
@@ -93,7 +93,7 @@ function getAllAssigned() {
 }
 
 function getEngineering() {
-    ActionThrottle('getEngineering', () =>
+    return ActionThrottle('getEngineering', () =>
         API.getEngineeringIssues().then(issues => {
             // Set the type of the item to be the label we are looking for
             const sortedData = _.chain(issues)

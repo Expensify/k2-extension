@@ -1,8 +1,6 @@
 import _ from 'underscore';
-import ReactNativeOnyx from 'react-native-onyx';
-import * as Preferences from './actions/Preferences';
 import * as CheckStatusVerdicts from './checkStatusVerdicts';
-import ONYXKEYS from '../ONYXKEYS';
+import * as GitHubOAuth from './GitHubOAuth';
 
 // Marks an indicator we have rewritten, so it can be found again and put back if the commit turns out to
 // be failing after all. Without it a rewritten indicator no longer matches anything we look for.
@@ -34,7 +32,6 @@ const X_ICON_PATH =
 
 let observer = null;
 let scanScheduled = false;
-let preferenceSubscribed = false;
 
 function replaceIcon(element, currentClass, newClass, iconPath) {
     const icon = element.querySelector(`svg.${currentClass}`);
@@ -170,27 +167,14 @@ function start() {
  * commit history still says which commits had their tests passing.
  */
 function initCommitCheckStatuses() {
-    if (preferenceSubscribed) {
-        return;
-    }
-    preferenceSubscribed = true;
-
-    // Every lookup needs the API, and an unauthenticated Octokit gets cached for the life of the page,
-    // so nothing can start until the token the user entered on the dashboard has loaded out of Onyx.
-    if (Preferences.getGitHubToken()) {
-        start();
-        return;
-    }
-
-    ReactNativeOnyx.connect({
-        key: ONYXKEYS.PREFERENCES,
-        callback: () => {
-            if (!Preferences.getGitHubToken()) {
+    GitHubOAuth.getAuthState()
+        .then(authState => {
+            if (!authState.authenticated) {
                 return;
             }
             start();
-        },
-    });
+        })
+        .catch(() => {});
 }
 
 // eslint-disable-next-line import/prefer-default-export

@@ -51,61 +51,72 @@ function getChecks(prs, onyxKey) {
         prs,
         (finalPromiseArray, pr) => {
             finalPromiseArray.push(
-                API.getCheckRuns(pr.repository.name, pr.headRefOid).then(response => {
-                    if (!response.data.check_runs || !response.data.check_runs.length) {
-                        return;
-                    }
-                    ReactNativeOnyx.merge(onyxKey, {
-                        [pr.id]: {
-                            checkConclusion: _.reduce(
-                                response.data.check_runs,
-                                (previousValue, currentValue) => {
-                                    if (
-                                        _.contains(CONST.IGNORED_CHECK_RUN_NAMES, currentValue.name)
-                                    ) {
+                API.getCheckRuns(pr.repository.owner.login, pr.repository.name, pr.headRefOid).then(
+                    response => {
+                        if (!response.data.check_runs || !response.data.check_runs.length) {
+                            return;
+                        }
+                        ReactNativeOnyx.merge(onyxKey, {
+                            [pr.id]: {
+                                checkConclusion: _.reduce(
+                                    response.data.check_runs,
+                                    (previousValue, currentValue) => {
+                                        if (
+                                            _.contains(
+                                                CONST.IGNORED_CHECK_RUN_NAMES,
+                                                currentValue.name,
+                                            )
+                                        ) {
+                                            return previousValue;
+                                        }
+
+                                        const conclusion = currentValue.conclusion;
+
+                                        // If any check runs are failing, mark it failed
+                                        if (
+                                            conclusion === 'failure' ||
+                                            previousValue === 'failure'
+                                        ) {
+                                            return 'failure';
+                                        }
+
+                                        // Check runs only get a conclusion once they complete, so any run that isn't
+                                        // completed yet means the overall result is still pending
+                                        if (
+                                            currentValue.status !== 'completed' ||
+                                            previousValue === 'pending'
+                                        ) {
+                                            return 'pending';
+                                        }
+
+                                        // If the current check run is successful, mark it success. If the previous one is
+                                        // successful, this one could only be successful or skipped, and either way, we
+                                        // want to mark the whole thing as successful
+                                        if (
+                                            conclusion === 'success' ||
+                                            previousValue === 'success'
+                                        ) {
+                                            return 'success';
+                                        }
+
+                                        // If the check is skipped, mark it skipped
+                                        if (conclusion === 'skipped') {
+                                            return 'skipped';
+                                        }
+
+                                        // All possible states include: action_required, cancelled, failure, neutral,
+                                        // success, skipped, stale, timed_out. We may wish to consider some of these states
+                                        // failures, such as "cancelled". If we get here, we have reached a state we have
+                                        // not handled above and therefore consider "unknown." In that case, return
+                                        // previousValue which should be set to the seed value of 'unknown'.
                                         return previousValue;
-                                    }
-
-                                    const conclusion = currentValue.conclusion;
-
-                                    // If any check runs are failing, mark it failed
-                                    if (conclusion === 'failure' || previousValue === 'failure') {
-                                        return 'failure';
-                                    }
-
-                                    // Check runs only get a conclusion once they complete, so any run that isn't
-                                    // completed yet means the overall result is still pending
-                                    if (
-                                        currentValue.status !== 'completed' ||
-                                        previousValue === 'pending'
-                                    ) {
-                                        return 'pending';
-                                    }
-
-                                    // If the current check run is successful, mark it success. If the previous one is
-                                    // successful, this one could only be successful or skipped, and either way, we
-                                    // want to mark the whole thing as successful
-                                    if (conclusion === 'success' || previousValue === 'success') {
-                                        return 'success';
-                                    }
-
-                                    // If the check is skipped, mark it skipped
-                                    if (conclusion === 'skipped') {
-                                        return 'skipped';
-                                    }
-
-                                    // All possible states include: action_required, cancelled, failure, neutral,
-                                    // success, skipped, stale, timed_out. We may wish to consider some of these states
-                                    // failures, such as "cancelled". If we get here, we have reached a state we have
-                                    // not handled above and therefore consider "unknown." In that case, return
-                                    // previousValue which should be set to the seed value of 'unknown'.
-                                    return previousValue;
-                                },
-                                'unknown',
-                            ),
-                        },
-                    });
-                }),
+                                    },
+                                    'unknown',
+                                ),
+                            },
+                        });
+                    },
+                ),
             );
             return finalPromiseArray;
         },
@@ -115,7 +126,7 @@ function getChecks(prs, onyxKey) {
 }
 
 function getAssigned() {
-    ActionThrottle('getAssigned', () =>
+    return ActionThrottle('getAssigned', () =>
         API.getPullsByType('assignee').then(prs =>
             API.getPullsByType('author')
                 .then(authorPrs => {
@@ -142,7 +153,7 @@ function getAssigned() {
 }
 
 function getReviewing() {
-    ActionThrottle('getReviewing', () => {
+    return ActionThrottle('getReviewing', () => {
         const promises = [];
         promises.push(API.getPullsByType('review-requested'));
         promises.push(API.getPullsByType('reviewed-by'));

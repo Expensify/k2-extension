@@ -4,6 +4,8 @@ import ReactNativeOnyx from 'react-native-onyx';
 import ListIssues from './ListIssues';
 import FormPassword from './FormPassword';
 import ONYXKEYS from '../../ONYXKEYS';
+import * as Preferences from '../../lib/actions/Preferences';
+import * as GitHubOAuth from '../../lib/GitHubOAuth';
 
 const HOST_CLASS = 'k2-dashboard-host';
 
@@ -87,17 +89,17 @@ function showPasswordForm() {
 
 /**
  * Check authentication status and show appropriate interface
+ * @param {Object} currentPreferences - User preferences from Onyx, potentially containing legacy credentials
  */
-function checkAuthAndShowInterface() {
-    // Check if user is authenticated with either PAT or OAuth
-    const hasPatAuth = preferences && preferences.ghToken;
-    const hasOAuthAuth =
-        preferences &&
-        preferences.auth &&
-        preferences.auth.type === 'oauth' &&
-        preferences.auth.token;
-
-    if (!hasPatAuth && !hasOAuthAuth) {
+async function checkAuthAndShowInterface(currentPreferences) {
+    const legacyAuth = Preferences.getLegacyGitHubAuth(currentPreferences);
+    const authState = legacyAuth
+        ? await GitHubOAuth.migrateLegacyAuth(legacyAuth)
+        : await GitHubOAuth.getAuthState();
+    if (legacyAuth) {
+        Preferences.clearLegacyGitHubAuth();
+    }
+    if (!authState.authenticated) {
         showPasswordForm();
         return;
     }
@@ -105,22 +107,35 @@ function checkAuthAndShowInterface() {
     showDashboard();
 }
 
+function updateInterface() {
+    checkAuthAndShowInterface(preferences).catch(error => {
+        console.error('Unable to check GitHub authentication', error);
+    });
+}
+
 export {getDashboardParent};
 
 export default () => ({
     draw() {
-        if (host && host.isConnected) {
+        if (host) {
+            getRoot();
             return;
         }
 
         if (isConnectedToPreferences) {
             if (preferencesLoaded) {
-                checkAuthAndShowInterface();
+                updateInterface();
             }
             return;
         }
 
         isConnectedToPreferences = true;
+        GitHubOAuth.onAuthStateChange(() => {
+            if (!preferencesLoaded) {
+                return;
+            }
+            updateInterface();
+        });
         ReactNativeOnyx.init({
             keys: ONYXKEYS,
         });
@@ -131,7 +146,7 @@ export default () => ({
             callback: newPreferences => {
                 preferences = newPreferences;
                 preferencesLoaded = true;
-                checkAuthAndShowInterface();
+                updateInterface();
             },
         });
     },

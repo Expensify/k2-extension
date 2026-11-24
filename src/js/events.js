@@ -4,6 +4,11 @@ import ksBrowser from './lib/browser';
 
 let inflightRefreshPromise = null;
 
+const {GITHUB_AUTH_STORAGE_KEY, LEGACY_OAUTH_STORAGE_KEY} = GitHubOAuth;
+const GITHUB_AUTH_MIGRATED_STORAGE_KEY = 'k2GitHubAuthMigrated';
+const REFRESH_SKEW_MS = 5 * 60 * 1000;
+const TOKEN_JUST_ISSUED_MS = 30 * 1000;
+
 /**
  * @param {Object} tokenData
  * @returns {Object}
@@ -14,57 +19,20 @@ function authDataFromTokenData(tokenData) {
         token: tokenData.access_token,
         refreshToken: tokenData.refresh_token,
         expiresAt: tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : null,
+        issuedAt: Date.now(),
     };
 }
 
 /**
- * @param {Object} authData
- * @returns {Object}
+ * @param {Object|null} authData
+ * @returns {boolean}
  */
-function tokenDataFromAuthData(authData) {
-    const tokenData = {
-        access_token: authData.token,
-        refresh_token: authData.refreshToken,
-    };
-
-    if (authData.expiresAt) {
-        tokenData.expires_in = Math.max(0, Math.floor((authData.expiresAt - Date.now()) / 1000));
-    }
-
-    return tokenData;
+function isPATAuthData(authData) {
+    return !!(authData && authData.type === 'pat' && authData.token);
 }
 
 /**
- * @returns {Promise<Object|null>}
- */
-function getStoredAuthData() {
-    return Promise.resolve(ksBrowser.storage.local.get(GitHubOAuth.OAUTH_STORAGE_KEY)).then(
-        result =>
-            result && result[GitHubOAuth.OAUTH_STORAGE_KEY]
-                ? result[GitHubOAuth.OAUTH_STORAGE_KEY]
-                : null,
-    );
-}
-
-/**
- * @param {Object} authData
- * @returns {Promise<void>}
- */
-function setStoredAuthData(authData) {
-    return Promise.resolve(
-        ksBrowser.storage.local.set({[GitHubOAuth.OAUTH_STORAGE_KEY]: authData}),
-    );
-}
-
-/**
- * @returns {Promise<void>}
- */
-function clearStoredAuthData() {
-    return Promise.resolve(ksBrowser.storage.local.remove(GitHubOAuth.OAUTH_STORAGE_KEY));
-}
-
-/**
- * @param {Object} authData
+ * @param {Object|null} authData
  * @returns {boolean}
  */
 function isOAuthAuthData(authData) {
@@ -72,15 +40,94 @@ function isOAuthAuthData(authData) {
 }
 
 /**
- * @param {Object} authData
+ * @param {Object|null} authData
+ * @returns {Object|null}
+ */
+function normalizeAuthData(authData) {
+    if (isOAuthAuthData(authData)) {
+        return {
+            type: 'oauth',
+            token: authData.token,
+            refreshToken: authData.refreshToken,
+            expiresAt: authData.expiresAt || null,
+            issuedAt: authData.issuedAt || 0,
+        };
+    }
+
+    if (isPATAuthData(authData)) {
+        return {type: 'pat', token: authData.token};
+    }
+
+    return null;
+}
+
+/**
+ * @param {Object|null} authData
+ * @returns {Promise<void>}
+ */
+function setStoredAuthData(authData) {
+    return ksBrowser.storage.local.set({
+        [GITHUB_AUTH_STORAGE_KEY]: authData,
+        [LEGACY_OAUTH_STORAGE_KEY]: null,
+        [GITHUB_AUTH_MIGRATED_STORAGE_KEY]: true,
+    });
+}
+
+function readAuthStorage() {
+    return ksBrowser.storage.local.get([
+        GITHUB_AUTH_STORAGE_KEY,
+        LEGACY_OAUTH_STORAGE_KEY,
+        GITHUB_AUTH_MIGRATED_STORAGE_KEY,
+    ]);
+}
+
+function authDataFromStorage(result) {
+    return normalizeAuthData(result[GITHUB_AUTH_STORAGE_KEY] || result[LEGACY_OAUTH_STORAGE_KEY]);
+}
+
+/**
+ * @returns {Promise<Object|null>}
+ */
+async function getStoredAuthData() {
+    return authDataFromStorage(await readAuthStorage());
+}
+
+/**
+ * @param {string|null} rejectedToken
+ * @returns {Promise<void>}
+ */
+async function clearStoredAuthData(rejectedToken = null) {
+    if (rejectedToken) {
+        const currentAuth = await getStoredAuthData();
+        if (!currentAuth || currentAuth.token !== rejectedToken) {
+            return;
+        }
+    }
+
+    await setStoredAuthData(null);
+}
+
+/**
+ * @param {Object|null} authData
  * @returns {boolean}
  */
 function shouldRefreshAuthData(authData) {
-    if (!isOAuthAuthData(authData) || !authData.expiresAt) {
-        return false;
-    }
+    return !!(
+        isOAuthAuthData(authData) &&
+        authData.expiresAt &&
+        Date.now() + REFRESH_SKEW_MS >= authData.expiresAt
+    );
+}
 
-    return Date.now() + 5 * 60 * 1000 >= authData.expiresAt;
+/**
+ * @param {Object|null} authData
+ * @returns {Object}
+ */
+function getAuthState(authData) {
+    return {
+        authenticated: !!authData,
+        authType: authData ? authData.type : null,
+    };
 }
 
 /**
@@ -93,15 +140,19 @@ function refreshStoredAuthData(authData) {
     }
 
     inflightRefreshPromise = GitHubOAuth.refreshToken(authData.refreshToken)
-        .then(tokenData => {
+        .then(async tokenData => {
+            const currentAuth = await getStoredAuthData();
+            if (!currentAuth || currentAuth.refreshToken !== authData.refreshToken) {
+                return null;
+            }
+
             const nextAuthData = authDataFromTokenData(tokenData);
-            return setStoredAuthData(nextAuthData).then(() => nextAuthData);
+            await setStoredAuthData(nextAuthData);
+            return nextAuthData;
         })
-        .catch(error => {
+        .catch(async error => {
             if (error.isAuthError) {
-                return clearStoredAuthData().then(() => {
-                    throw error;
-                });
+                await clearStoredAuthData(authData.token);
             }
 
             throw error;
@@ -117,23 +168,61 @@ function refreshStoredAuthData(authData) {
  * @param {Object} request
  * @returns {Promise<Object>}
  */
-async function getValidOAuthToken(request) {
+async function getValidGitHubToken(request) {
     let authData = await getStoredAuthData();
-
-    if (!authData && isOAuthAuthData(request.authData)) {
-        authData = request.authData;
-        await setStoredAuthData(authData);
+    if (!authData) {
+        return {success: false, error: 'No GitHub auth data', isAuthError: true};
     }
 
-    if (!isOAuthAuthData(authData)) {
-        return {success: false, error: 'No OAuth auth data', isAuthError: true};
+    if (
+        authData.type === 'oauth' &&
+        request.rejectedToken &&
+        request.rejectedToken !== authData.token
+    ) {
+        return {success: true, token: authData.token, authType: authData.type};
     }
 
-    if (request.forceRefresh || shouldRefreshAuthData(authData)) {
+    if (
+        authData.type === 'oauth' &&
+        request.forceRefresh &&
+        Date.now() - authData.issuedAt < TOKEN_JUST_ISSUED_MS
+    ) {
+        await clearStoredAuthData(authData.token);
+        return {
+            success: false,
+            error: 'The newly issued OAuth token was rejected',
+            isAuthError: true,
+        };
+    }
+
+    if (authData.type === 'oauth' && (request.forceRefresh || shouldRefreshAuthData(authData))) {
         authData = await refreshStoredAuthData(authData);
+        if (!authData) {
+            return {success: false, error: 'GitHub auth changed during refresh', isAuthError: true};
+        }
     }
 
-    return {success: true, tokenData: tokenDataFromAuthData(authData)};
+    return {success: true, token: authData.token, authType: authData.type};
+}
+
+/**
+ * @param {Object} request
+ * @returns {Promise<Object>}
+ */
+async function migrateLegacyAuth(request) {
+    const result = await readAuthStorage();
+    const authData = authDataFromStorage(result);
+    if (result[GITHUB_AUTH_MIGRATED_STORAGE_KEY]) {
+        return {success: true, ...getAuthState(authData)};
+    }
+
+    const legacyAuthData = authData || normalizeAuthData(request.authData);
+    if (!legacyAuthData) {
+        return {success: true, ...getAuthState(null)};
+    }
+
+    await setStoredAuthData(legacyAuthData);
+    return {success: true, ...getAuthState(legacyAuthData)};
 }
 
 // Start navigation event publisher
@@ -145,15 +234,14 @@ messenger.startNavEventPublisher();
 ksBrowser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'initiate-oauth') {
         GitHubOAuth.handleOAuthFlow()
-            .then(result => {
+            .then(async result => {
                 if (!result.success) {
                     sendResponse(result);
                     return;
                 }
 
-                setStoredAuthData(authDataFromTokenData(result.tokenData)).then(() =>
-                    sendResponse(result),
-                );
+                await setStoredAuthData(authDataFromTokenData(result.tokenData));
+                sendResponse({success: true, authenticated: true, authType: 'oauth'});
             })
             .catch(error => {
                 sendResponse({success: false, error: error.message});
@@ -163,8 +251,8 @@ ksBrowser.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;
     }
 
-    if (request.action === 'get-valid-oauth-token') {
-        getValidOAuthToken(request)
+    if (request.action === 'get-valid-github-token') {
+        getValidGitHubToken(request)
             .then(result => {
                 sendResponse(result);
             })
@@ -180,8 +268,24 @@ ksBrowser.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;
     }
 
-    if (request.action === 'clear-oauth') {
-        clearStoredAuthData()
+    if (request.action === 'get-github-auth-state') {
+        getStoredAuthData()
+            .then(authData => sendResponse({success: true, ...getAuthState(authData)}))
+            .catch(error => sendResponse({success: false, error: error.message}));
+
+        return true;
+    }
+
+    if (request.action === 'migrate-legacy-github-auth') {
+        migrateLegacyAuth(request)
+            .then(sendResponse)
+            .catch(error => sendResponse({success: false, error: error.message}));
+
+        return true;
+    }
+
+    if (request.action === 'clear-github-auth') {
+        clearStoredAuthData(request.rejectedToken)
             .then(() => sendResponse({success: true}))
             .catch(error => sendResponse({success: false, error: error.message}));
 

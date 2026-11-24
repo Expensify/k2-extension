@@ -1,113 +1,51 @@
 import ReactNativeOnyx from 'react-native-onyx';
 import ONYXKEYS from '../../ONYXKEYS';
 
-let ghToken;
 let useAbsoluteTimestamps;
 let autoLoadMoreComments;
 let showOpenAllButtons;
-let authData = {
-    type: 'pat', // 'pat' for Personal Access Token, 'oauth' for OAuth
-    token: null,
-    refreshToken: null,
-    expiresAt: null,
-};
-
-/**
- * Check if OAuth token is still valid
- * @returns {boolean}
- */
-function isTokenValid() {
-    if (!authData.expiresAt) {
-        return true; // GitHub OAuth tokens don't expire by default
-    }
-    return new Date().getTime() < authData.expiresAt;
-}
-
-/**
- * Set OAuth authentication data
- * @param {Object} data - OAuth data containing token, refreshToken, etc.
- */
-function setAuthData(data) {
-    authData = {...authData, ...data};
-    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {auth: authData});
-}
 
 ReactNativeOnyx.connect({
     key: ONYXKEYS.PREFERENCES,
     callback: preferences => {
-        // Make sure they have entered their API token
         if (!preferences) {
             return;
         }
 
-        ghToken = preferences.ghToken;
-        if (preferences.auth) {
-            authData = {...authData, ...preferences.auth};
-        }
         useAbsoluteTimestamps = !!preferences.useAbsoluteTimestamps;
         autoLoadMoreComments = preferences.autoLoadMoreComments || false;
         showOpenAllButtons = preferences.showOpenAllButtons;
     },
 });
 
-function getGitHubToken() {
-    // Return OAuth token if available and valid, otherwise return PAT
-    if (authData.type === 'oauth' && authData.token && isTokenValid()) {
-        return authData.token;
+/**
+ * Return credentials stored by previous versions so they can be migrated once
+ * to the background-owned auth store.
+ * @param {Object|null} preferences
+ * @returns {Object|null}
+ */
+function getLegacyGitHubAuth(preferences) {
+    if (!preferences) {
+        return null;
     }
-    return ghToken;
-}
 
-/**
- * Get current authentication type
- * @returns {String} 'pat' or 'oauth'
- */
-function getAuthType() {
-    return authData.type;
-}
-
-/**
- * Get a copy of the current auth data (type, token, refreshToken, expiresAt)
- * @returns {Object}
- */
-function getAuthData() {
-    return {...authData};
-}
-
-/**
- * Set Personal Access Token
- * @param {String} value
- */
-function setGitHubToken(value) {
-    ghToken = value;
-    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {ghToken: value});
-
-    // If setting a PAT, update auth type
-    if (value) {
-        setAuthData({type: 'pat'});
+    const {auth, ghToken} = preferences;
+    if (auth && auth.type === 'oauth' && auth.token && auth.refreshToken) {
+        return auth;
     }
+
+    if (ghToken) {
+        return {type: 'pat', token: ghToken};
+    }
+
+    return null;
 }
 
 /**
- * Clear all authentication data
+ * Remove only credentials from the legacy preferences record.
  */
-function clearAuth() {
-    ghToken = null;
-    authData = {
-        type: 'pat',
-        token: null,
-        refreshToken: null,
-        expiresAt: null,
-    };
-    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {ghToken: null, auth: authData});
-}
-
-/**
- * Check if user is authenticated (has either PAT or valid OAuth token)
- * @returns {boolean}
- */
-function isAuthenticated() {
-    return !!(ghToken || (authData.type === 'oauth' && authData.token && isTokenValid()));
+function clearLegacyGitHubAuth() {
+    ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {ghToken: null, auth: null});
 }
 
 function getUseAbsoluteTimestamps() {
@@ -163,14 +101,8 @@ function setShouldGroupPRsByIssue(value) {
 }
 
 export {
-    getGitHubToken,
-    setGitHubToken,
-    getAuthType,
-    getAuthData,
-    setAuthData,
-    clearAuth,
-    isAuthenticated,
-    isTokenValid,
+    getLegacyGitHubAuth,
+    clearLegacyGitHubAuth,
     getUseAbsoluteTimestamps,
     setUseAbsoluteTimestamps,
     getAutoLoadMoreComments,

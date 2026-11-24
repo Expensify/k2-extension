@@ -19,6 +19,8 @@ export default function () {
         'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/CONTRIBUTOR_PLUS_CHECKLIST.md';
     const NO_CHECKLIST_NEEDED_TEMPLATE =
         '### No Checklist Needed\n\n<C+ Please state the reason why checklist is not needed for this issue>';
+    const MAX_WORKFLOW_DISCOVERY_ATTEMPTS = 20;
+    const MAX_WORKFLOW_STATUS_ATTEMPTS = 60;
 
     // Marks the start of the payment details in a backend contributor payment request body. The "post payment
     // details" button posts everything after it, keeping the explanatory line and the button out of the comment.
@@ -156,11 +158,10 @@ export default function () {
 
             // Poll for the workflow run until we find one that started after our trigger time
             let latestRun = null;
-            const maxRetries = 20; // Try for up to ~40 seconds
             let retries = 0;
 
             // eslint-disable-next-line no-await-in-loop
-            while (!latestRun && retries < maxRetries) {
+            while (!latestRun && retries < MAX_WORKFLOW_DISCOVERY_ATTEMPTS) {
                 // Wait 2 seconds between checks
                 // eslint-disable-next-line no-await-in-loop
                 await new Promise(resolve => {
@@ -172,12 +173,11 @@ export default function () {
                 const workflowRuns = await API.getWorkflowRuns('generateTranslations.yml', 5);
                 const runs = workflowRuns.data.workflow_runs;
 
-                // Find a run that started after our trigger time and is queued or in progress
+                // Find a workflow run that started after our trigger time and is queued or in progress.
                 const matchingRun = _.find(runs, run => {
                     const runStartTime = new Date(run.created_at);
-                    const isAfterTrigger = runStartTime >= triggerTime;
                     const isRunning = run.status === 'queued' || run.status === 'in_progress';
-                    return isAfterTrigger && isRunning;
+                    return runStartTime >= triggerTime && isRunning;
                 });
 
                 if (matchingRun) {
@@ -198,8 +198,14 @@ export default function () {
                 button.parentNode.insertBefore(statusElement, button.nextSibling);
 
                 // Poll the workflow status every 5 seconds
+                let statusPollAttempts = 0;
                 const pollWorkflow = async () => {
                     try {
+                        if (!document.body.contains(button)) {
+                            return;
+                        }
+
+                        statusPollAttempts++;
                         const runStatus = await API.getWorkflowRun(runId);
                         const {status, conclusion} = runStatus.data;
 
@@ -228,9 +234,11 @@ export default function () {
                                     button.disabled = false;
                                 }, 4000);
                             }
-                        } else {
+                        } else if (statusPollAttempts < MAX_WORKFLOW_STATUS_ATTEMPTS) {
                             // Continue polling
                             setTimeout(pollWorkflow, 5000);
+                        } else {
+                            throw new Error('Workflow status polling timed out');
                         }
                     } catch (pollError) {
                         console.error('Error polling workflow status:', pollError);

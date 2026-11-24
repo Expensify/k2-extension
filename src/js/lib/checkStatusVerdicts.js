@@ -18,8 +18,6 @@ const FAILED_CHECK_RUN_CONCLUSIONS = [
     'STALE',
 ];
 
-const UNREPORTED_STATUS_CONTEXT_STATES = ['PENDING', 'EXPECTED'];
-
 // How long a verdict lasts when the commit's checks could still report something new.
 const VERDICT_LIFETIME_MS = 60000;
 
@@ -81,16 +79,6 @@ function hasFailed(context) {
     );
 }
 
-function hasReported(context) {
-    if (context.type === 'CheckRun') {
-        return context.status === 'COMPLETED';
-    }
-    return (
-        context.type === 'StatusContext' &&
-        !_.contains(UNREPORTED_STATUS_CONTEXT_STATES, context.state)
-    );
-}
-
 /**
  * Whether a commit that GitHub shows as failing only fails because of checks we ignore.
  *
@@ -122,7 +110,7 @@ function getVerdict(owner, repo, sha) {
     const key = `${owner}/${repo}/${sha}`;
     const verdict = verdicts[key];
 
-    if (verdict && (verdict.isFinal || Date.now() - verdict.fetchedAt <= VERDICT_LIFETIME_MS)) {
+    if (verdict && Date.now() - verdict.fetchedAt <= VERDICT_LIFETIME_MS) {
         return verdict.shouldShowAsPassing;
     }
 
@@ -134,12 +122,7 @@ function getVerdict(owner, repo, sha) {
                 verdicts[key] = {
                     shouldShowAsPassing,
 
-                    // A commit that is failing with every check reported can't change without something
-                    // being re-run, so that verdict is worth keeping and a PR full of failing commits
-                    // stops asking about them. Everything else expires, including a commit still waiting
-                    // on checks, which is the usual state of one being worked on.
-                    isFinal:
-                        !shouldShowAsPassing && contexts.length > 0 && _.all(contexts, hasReported),
+                    // Checks can be re-run on the same SHA, so every verdict eventually expires.
                     fetchedAt: Date.now(),
                 };
             })
@@ -148,11 +131,7 @@ function getVerdict(owner, repo, sha) {
 
                 // Recording the failure is what stops a bad token or a rate limit from turning every scan
                 // into another request. A null verdict leaves the status as GitHub rendered it.
-                verdicts[key] = {
-                    shouldShowAsPassing: null,
-                    isFinal: false,
-                    fetchedAt: Date.now(),
-                };
+                verdicts[key] = {shouldShowAsPassing: null, fetchedAt: Date.now()};
             })
             .finally(() => {
                 delete requestsInFlight[key];
