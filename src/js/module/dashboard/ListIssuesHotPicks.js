@@ -57,21 +57,18 @@ class ListIssuesHotPicks extends React.Component {
                 />
 
                 {!this.props.issues && (
-                    <div className="blankslate capped clean-background">
-                        Loading
-                    </div>
+                    <div className="blankslate capped clean-background">Loading</div>
                 )}
 
                 {!this.props.issues.length ? (
-                    <div className="blankslate capped clean-background">
-                        No items
-                    </div>
+                    <div className="blankslate capped clean-background">No items</div>
                 ) : (
                     <>
-                        {_.map(this.props.issues, issue => <ListItemIssue key={issue.id} issue={issue} showAttendees />)}
+                        {_.map(this.props.issues, issue => (
+                            <ListItemIssue key={issue.id} issue={issue} showAttendees />
+                        ))}
                     </>
                 )}
-
             </div>
         );
     }

@@ -25,12 +25,15 @@ function ActionThrottle(commandName, methodThatReturnsAPromise) {
         return Promise.resolve();
     }
 
-    const request = Promise.resolve().then(methodThatReturnsAPromise);
-    currentlyFetching[commandName] = request
-        .finally(() => {
-            lastFetchTimestamps[commandName] = Date.now();
-            delete currentlyFetching[commandName];
+    const request = Promise.resolve()
+        .then(methodThatReturnsAPromise)
+        .catch(error => {
+            console.error('K2 dashboard poll failed:', commandName, error.message);
         });
+    currentlyFetching[commandName] = request.finally(() => {
+        lastFetchTimestamps[commandName] = Date.now();
+        delete currentlyFetching[commandName];
+    });
 
     return currentlyFetching[commandName];
 }

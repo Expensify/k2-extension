@@ -9,7 +9,9 @@ export default function () {
          * so this is called often and only draws when our list is missing.
          */
         draw() {
-            const section = document.querySelector('div[data-testid="sidebar-development-section"]');
+            const section = document.querySelector(
+                'div[data-testid="sidebar-development-section"]',
+            );
             if (!section) {
                 return;
             }
@@ -25,7 +27,9 @@ export default function () {
                 existingWrapper.remove();
             }
 
-            const nativeList = section.querySelector('ul[data-testid="issue-viewer-linked-pr-container"]');
+            const nativeList = section.querySelector(
+                'ul[data-testid="issue-viewer-linked-pr-container"]',
+            );
             const wrapper = document.createElement('div');
             wrapper.className = 'k2linkedprs-wrapper';
             wrapper.dataset.issuePath = issuePath;

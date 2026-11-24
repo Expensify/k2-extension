@@ -36,7 +36,7 @@ function catchError(e) {
  */
 function setOwner(owner) {
     API.getCurrentIssueDescription()
-        .then((response) => {
+        .then(response => {
             const ghDescription = response.data.body;
             const newDescription = `${ghDescription}
 
@@ -52,9 +52,12 @@ function setOwner(owner) {
  */
 function removeOwner(owner) {
     API.getCurrentIssueDescription()
-        .then((response) => {
+        .then(response => {
             const ghDescription = response.data.body;
-            const newDescription = ghDescription.replace(`<details><summary>Issue Owner</summary>Current Issue Owner: @${owner}</details>`, '');
+            const newDescription = ghDescription.replace(
+                `<details><summary>Issue Owner</summary>Current Issue Owner: @${owner}</details>`,
+                '',
+            );
             API.setCurrentIssueBody(newDescription);
         })
         .catch(catchError);
@@ -67,9 +70,12 @@ function removeOwner(owner) {
  */
 function replaceOwner(oldOwner, newOwner) {
     API.getCurrentIssueDescription()
-        .then((response) => {
+        .then(response => {
             const ghDescription = response.data.body;
-            const newDescription = ghDescription.replace(`Current Issue Owner: @${oldOwner}`, `Current Issue Owner: @${newOwner}`);
+            const newDescription = ghDescription.replace(
+                `Current Issue Owner: @${oldOwner}`,
+                `Current Issue Owner: @${newOwner}`,
+            );
             API.setCurrentIssueBody(newDescription);
         })
         .catch(catchError);
@@ -79,7 +85,7 @@ function replaceOwner(oldOwner, newOwner) {
  * This method is all about adding the "issue owner" functionality which melvin will use to see who should be providing ksv2 updates to an issue.
  * @param {String | null} [issueOwner] GitHub username of the issue owner. Null means no owner, undefined means get the owner from issue body
  */
-const renderAssignees = (issueOwner) => {
+const renderAssignees = issueOwner => {
     // Always start by erasing whatever was drawn before (so it always starts from a clean slate)
     $('.k2-button-remove-owner, .k2-button-make-owner').remove();
 
@@ -112,24 +118,28 @@ const renderAssignees = (issueOwner) => {
     });
 
     // Remove the owner with this button is clicked
-    $('.k2-button-remove-owner').off('click').on('click', async (e) => {
-        e.preventDefault();
-        const owner = $(e.target).data('owner');
-        removeOwner(owner);
-        renderAssignees(null);
-    });
+    $('.k2-button-remove-owner')
+        .off('click')
+        .on('click', async e => {
+            e.preventDefault();
+            const owner = $(e.target).data('owner');
+            removeOwner(owner);
+            renderAssignees(null);
+        });
 
     // Make a new owner when this button is clicked
-    $('.k2-button-make-owner').off('click').on('click', async (e) => {
-        e.preventDefault();
-        const newOwner = $(e.target).data('owner');
-        if (currentOwner) {
-            replaceOwner(currentOwner, newOwner);
-        } else {
-            setOwner(newOwner);
-        }
-        renderAssignees(newOwner);
-    });
+    $('.k2-button-make-owner')
+        .off('click')
+        .on('click', async e => {
+            e.preventDefault();
+            const newOwner = $(e.target).data('owner');
+            if (currentOwner) {
+                replaceOwner(currentOwner, newOwner);
+            } else {
+                setOwner(newOwner);
+            }
+            renderAssignees(newOwner);
+        });
 };
 
 const refreshPicker = function () {
@@ -144,12 +154,16 @@ const refreshPicker = function () {
         // Find the last sidebar item or sidebar container and append to bottom
         const lastSidebarItem = $('.discussion-sidebar-item').last();
         if (lastSidebarItem.length) {
-            lastSidebarItem.after('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+            lastSidebarItem.after(
+                '<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>',
+            );
         } else {
             // Fallback: append to sidebar container
             const sidebar = $('.discussion-sidebar, [role="complementary"]').first();
             if (sidebar.length) {
-                sidebar.append('<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>');
+                sidebar.append(
+                    '<div class="discussion-sidebar-item js-discussion-sidebar-item k2toggletimestamps-wrapper"></div>',
+                );
             }
         }
     }
@@ -158,11 +172,15 @@ const refreshPicker = function () {
     if (!$('.k2autoloadmore-wrapper').length) {
         const timestampWrapper = $('.k2toggletimestamps-wrapper');
         if (timestampWrapper.length) {
-            timestampWrapper.after('<div class="discussion-sidebar-item js-discussion-sidebar-item k2autoloadmore-wrapper"></div>');
+            timestampWrapper.after(
+                '<div class="discussion-sidebar-item js-discussion-sidebar-item k2autoloadmore-wrapper"></div>',
+            );
         } else {
             const sidebar = $('.discussion-sidebar, [role="complementary"]').first();
             if (sidebar.length) {
-                sidebar.append('<div class="discussion-sidebar-item js-discussion-sidebar-item k2autoloadmore-wrapper"></div>');
+                sidebar.append(
+                    '<div class="discussion-sidebar-item js-discussion-sidebar-item k2autoloadmore-wrapper"></div>',
+                );
             }
         }
     }

@@ -13,32 +13,27 @@ const GITHUB_OAUTH_CONFIG = {
 };
 
 let inflightTokenPromise = null;
+const GITHUB_AUTH_STORAGE_KEY = 'k2GitHubAuth';
+const LEGACY_OAUTH_STORAGE_KEY = 'k2OAuthAuth';
 
-/**
- * Whether a runtime message failed because the background receiver is not available.
- * This happens transiently when an unpacked/temporary extension is reloaded
- * while an old content script is still alive on the page.
- * @param {string} message
- * @returns {boolean}
- */
-function isRuntimeReceiverUnavailableMessage(message) {
-    return !!message
-        && (
-            message.indexOf('Receiving end does not exist') !== -1
-            || message.indexOf('Could not establish connection') !== -1
-            || message.indexOf('Extension context invalidated') !== -1
-        );
+function didAuthChange(change) {
+    return change && !!change.oldValue !== !!change.newValue;
 }
 
 /**
- * Build an error for runtime message failures, tagging expected no-receiver cases.
- * @param {string} message
- * @returns {Error}
+ * @param {Function} callback
  */
-function buildRuntimeMessageError(message) {
-    const error = new Error(message);
-    error.isRuntimeReceiverUnavailable = isRuntimeReceiverUnavailableMessage(message);
-    return error;
+function onAuthStateChange(callback) {
+    ksBrowser.storage.onChanged.addListener((changes, area) => {
+        if (
+            area !== 'local' ||
+            (!didAuthChange(changes[GITHUB_AUTH_STORAGE_KEY]) &&
+                !didAuthChange(changes[LEGACY_OAUTH_STORAGE_KEY]))
+        ) {
+            return;
+        }
+        callback();
+    });
 }
 
 /**
@@ -48,14 +43,14 @@ function buildRuntimeMessageError(message) {
  */
 function sendAuthMessage(request) {
     return new Promise((resolve, reject) => {
-        if ((!ksBrowser) || !ksBrowser.runtime || !ksBrowser.runtime.sendMessage) {
+        if (!ksBrowser || !ksBrowser.runtime || !ksBrowser.runtime.sendMessage) {
             reject(new Error('Browser runtime API not available'));
             return;
         }
 
-        ksBrowser.runtime.sendMessage(request, (response) => {
+        ksBrowser.runtime.sendMessage(request, response => {
             if (ksBrowser.runtime.lastError) {
-                reject(buildRuntimeMessageError(ksBrowser.runtime.lastError.message));
+                reject(new Error(ksBrowser.runtime.lastError.message));
                 return;
             }
 
@@ -87,16 +82,16 @@ function getAuthState() {
  * @param {Object|null} authData
  * @returns {Promise<Object>}
  */
-async function migrateLegacyAuth(authData) {
-    const response = await sendAuthMessage({action: 'migrate-legacy-github-auth', authData});
-    return response;
+function migrateLegacyAuth(authData) {
+    return sendAuthMessage({action: 'migrate-legacy-github-auth', authData});
 }
 
 /**
+ * @param {string|null} rejectedToken Only clear credentials if this token is still stored.
  * @returns {Promise<void>}
  */
-async function clearGitHubAuth() {
-    await sendAuthMessage({action: 'clear-github-auth'});
+async function clearGitHubAuth(rejectedToken = null) {
+    await sendAuthMessage({action: 'clear-github-auth', rejectedToken});
 }
 
 /**
@@ -104,14 +99,7 @@ async function clearGitHubAuth() {
  * @returns {Promise<Object>} Authentication state
  */
 function initiateOAuth() {
-    return new Promise((resolve, reject) => {
-        if ((!ksBrowser) || !ksBrowser.runtime) {
-            reject(new Error('Chrome runtime API not available'));
-            return;
-        }
-
-        sendAuthMessage({action: 'initiate-oauth'}).then(resolve).catch(reject);
-    });
+    return sendAuthMessage({action: 'initiate-oauth'});
 }
 
 /**
@@ -124,9 +112,7 @@ function isOAuthAvailable() {
 
 /**
  * Refresh the OAuth token using the refresh token. This is a pure network call:
- * it does NOT touch storage, because it runs in the background script context,
- * which does not share an Onyx store with the content script. The caller (content
- * script) is responsible for persisting the returned token data.
+ * it does not touch storage. The background script persists the returned tokens.
  *
  * Errors are tagged with `isAuthError: true` when the refresh token itself was
  * rejected (i.e. the user must re-authenticate), as opposed to transient
@@ -279,7 +265,11 @@ async function exchangeCodeViaWorker(code, redirectUri) {
  */
 function handleOAuthFlow() {
     return new Promise((resolve, reject) => {
-        if (!ksBrowser.identity || !ksBrowser.identity.launchWebAuthFlow || !ksBrowser.identity.getRedirectURL) {
+        if (
+            !ksBrowser.identity ||
+            !ksBrowser.identity.launchWebAuthFlow ||
+            !ksBrowser.identity.getRedirectURL
+        ) {
             reject(new Error('Browser identity API not available'));
             return;
         }
@@ -295,65 +285,63 @@ function handleOAuthFlow() {
         authorize.searchParams.set('state', state);
         authorize.searchParams.set('allow_signup', 'true');
 
-        ksBrowser.identity.launchWebAuthFlow({
-            url: authorize.toString(),
-            interactive: true,
-        }, (redirectedTo) => {
-            // Handle errors from the identity flow
-            if (ksBrowser.runtime && ksBrowser.runtime.lastError) {
-                reject(new Error(ksBrowser.runtime.lastError.message));
-                return;
-            }
-            if (!redirectedTo) {
-                reject(new Error('No redirect URL returned'));
-                return;
-            }
+        ksBrowser.identity.launchWebAuthFlow(
+            {
+                url: authorize.toString(),
+                interactive: true,
+            },
+            redirectedTo => {
+                // Handle errors from the identity flow
+                if (ksBrowser.runtime && ksBrowser.runtime.lastError) {
+                    reject(new Error(ksBrowser.runtime.lastError.message));
+                    return;
+                }
+                if (!redirectedTo) {
+                    reject(new Error('No redirect URL returned'));
+                    return;
+                }
 
-            // Check for error in redirect
-            const err = extractErrorFromUrl(redirectedTo);
-            if (err) {
-                reject(new Error(`OAuth error: ${err}`));
-                return;
-            }
+                // Check for error in redirect
+                const err = extractErrorFromUrl(redirectedTo);
+                if (err) {
+                    reject(new Error(`OAuth error: ${err}`));
+                    return;
+                }
 
-            // Validate state then exchange code via worker endpoint
-            const returnedState = getQueryParam(redirectedTo, 'state');
-            if (!returnedState || returnedState !== state) {
-                reject(new Error('Invalid OAuth state'));
-                return;
-            }
-            const code = getQueryParam(redirectedTo, 'code');
-            if (!code) {
-                reject(new Error('No authorization code received'));
-                return;
-            }
+                // Validate state then exchange code via worker endpoint
+                const returnedState = getQueryParam(redirectedTo, 'state');
+                if (!returnedState || returnedState !== state) {
+                    reject(new Error('Invalid OAuth state'));
+                    return;
+                }
+                const code = getQueryParam(redirectedTo, 'code');
+                if (!code) {
+                    reject(new Error('No authorization code received'));
+                    return;
+                }
 
-            exchangeCodeViaWorker(code, redirectUri)
-                .then((tokenData) => {
-                    resolve({success: true, tokenData});
-                })
-                .catch((tokenError) => {
-                    reject(new Error(`${tokenError.message}`));
-                });
-        });
+                exchangeCodeViaWorker(code, redirectUri)
+                    .then(tokenData => {
+                        resolve({success: true, tokenData});
+                    })
+                    .catch(tokenError => {
+                        reject(new Error(`${tokenError.message}`));
+                    });
+            },
+        );
     });
 }
 
-/**
- * Background-owned credentials are cleared on sign out. The OAuth worker owns
- * the application secret required for remote token revocation.
- * @returns {Promise<void>}
- */
-const revokeToken = clearGitHubAuth;
-
 export {
+    GITHUB_AUTH_STORAGE_KEY,
+    LEGACY_OAUTH_STORAGE_KEY,
     clearGitHubAuth,
     getAuthState,
     getValidGitHubToken,
     initiateOAuth,
     isOAuthAvailable,
     migrateLegacyAuth,
-    revokeToken,
+    onAuthStateChange,
     handleOAuthFlow,
     refreshToken,
 };

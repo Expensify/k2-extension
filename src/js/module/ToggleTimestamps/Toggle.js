@@ -23,7 +23,7 @@ class Toggle extends React.Component {
         // Connect to Onyx to read the preference
         this.onyxConnection = ReactNativeOnyx.connect({
             key: ONYXKEYS.PREFERENCES,
-            callback: (preferences) => {
+            callback: preferences => {
                 if (!preferences) {
                     return;
                 }
@@ -45,7 +45,7 @@ class Toggle extends React.Component {
      * Toggle the absolute timestamps preference
      */
     handleToggle() {
-        this.setState((prevState) => {
+        this.setState(prevState => {
             const newValue = !prevState.useAbsoluteTimestamps;
             Preferences.setUseAbsoluteTimestamps(newValue);
             convertTimestamps(newValue);
@@ -58,15 +58,15 @@ class Toggle extends React.Component {
             <div style={{width: '100%'}}>
                 <button
                     type="button"
-                    className={this.state.useAbsoluteTimestamps
-                        ? `${defaultBtnClass} k2-absolute-timestamps selected`
-                        : `${defaultBtnClass} k2-absolute-timestamps`}
+                    className={
+                        this.state.useAbsoluteTimestamps
+                            ? `${defaultBtnClass} k2-absolute-timestamps selected`
+                            : `${defaultBtnClass} k2-absolute-timestamps`
+                    }
                     onClick={() => this.handleToggle()}
                     style={{width: '100%'}}
                 >
-                    {this.state.useAbsoluteTimestamps
-                        ? 'Hide Timestamps'
-                        : 'Show Timestamps'}
+                    {this.state.useAbsoluteTimestamps ? 'Hide Timestamps' : 'Show Timestamps'}
                 </button>
             </div>
         );

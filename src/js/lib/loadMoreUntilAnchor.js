@@ -43,10 +43,12 @@ function findTarget(hash) {
  * @returns {Boolean}
  */
 function isClickable(el) {
-    return !el.disabled
-        && el.getAttribute('aria-disabled') !== 'true'
-        && el.getAttribute('data-loading') !== 'true'
-        && !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+    return (
+        !el.disabled &&
+        el.getAttribute('aria-disabled') !== 'true' &&
+        el.getAttribute('data-loading') !== 'true' &&
+        !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length)
+    );
 }
 
 /**
@@ -139,10 +141,12 @@ function onClick(event) {
         return;
     }
 
-    if (!hash
-        || url.origin !== window.location.origin
-        || getIssuePath(url.pathname) !== getIssuePath(window.location.pathname)
-        || findTarget(hash)) {
+    if (
+        !hash ||
+        url.origin !== window.location.origin ||
+        getIssuePath(url.pathname) !== getIssuePath(window.location.pathname) ||
+        findTarget(hash)
+    ) {
         return;
     }
 
@@ -159,7 +163,9 @@ function initLoadMoreUntilAnchor() {
     document.addEventListener('click', onClick, {capture: true});
 
     // Any user scroll means they have moved on, so we shouldn't yank them to the target.
-    ['wheel', 'touchstart', 'keydown'].forEach(eventName => window.addEventListener(eventName, stopSearch, {capture: true, passive: true}));
+    ['wheel', 'touchstart', 'keydown'].forEach(eventName =>
+        window.addEventListener(eventName, stopSearch, {capture: true, passive: true}),
+    );
 }
 
 // eslint-disable-next-line import/prefer-default-export

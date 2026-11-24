@@ -3,14 +3,14 @@ const CopyPlugin = require('copy-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const {IgnorePlugin} = require('webpack');
-const ESLintPlugin = require('eslint-webpack-plugin');
 
-module.exports = (env) => {
+module.exports = env => {
     const isFirefox = env && env.platform === 'firefox';
 
     return {
         context: path.resolve(__dirname, '.'),
         entry: {
+            navigation: './src/js/navigation.js',
             content: './src/js/content.js',
             events: './src/js/events.js',
         },
@@ -33,12 +33,6 @@ module.exports = (env) => {
                 resourceRegExp: /^\.\/locale$/,
             }),
 
-            new ESLintPlugin({
-                cache: false,
-                emitWarning: true,
-                overrideConfigFile: path.resolve(__dirname, '.eslintrc.js'),
-            }),
-
             // Conditional copy of manifest files and other assets
             new CopyPlugin({
                 patterns: [
@@ -51,7 +45,9 @@ module.exports = (env) => {
                     },
                     {
                         // Conditionally copy the manifest based on platform
-                        from: isFirefox ? './assets/manifest-firefox.json' : './assets/manifest.json',
+                        from: isFirefox
+                            ? './assets/manifest-firefox.json'
+                            : './assets/manifest.json',
                         to: path.resolve(__dirname, 'dist/manifest.json'),
                     },
                 ],
@@ -63,7 +59,7 @@ module.exports = (env) => {
                 // Load .html files as strings, used for underscore templates
                 {
                     test: /\.html$/i,
-                    use: 'underscore-template-loader'
+                    use: 'underscore-template-loader',
                 },
                 {
                     test: /\.svg$/i,
@@ -104,7 +100,7 @@ module.exports = (env) => {
                         'sass-loader',
                     ],
                 },
-            ]
+            ],
         },
     };
 };

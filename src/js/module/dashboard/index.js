@@ -15,6 +15,7 @@ let root = null;
 
 let preferences = null;
 let isConnectedToPreferences = false;
+let preferencesLoaded = false;
 
 /**
  * Get the element of the repository page that holds the K2 dashboard. Classic repository pages use
@@ -24,7 +25,10 @@ let isConnectedToPreferences = false;
  * @returns {HTMLElement|null}
  */
 function getDashboardParent() {
-    return document.getElementById('ui-service-main-content') || document.querySelector('.repository-content');
+    return (
+        document.getElementById('ui-service-main-content') ||
+        document.querySelector('.repository-content')
+    );
 }
 
 /**
@@ -39,12 +43,15 @@ function getRoot() {
 
     const parent = getDashboardParent();
     if (!parent) {
-        console.error('K2: could not find the repository content container to render the dashboard into');
+        console.error(
+            'K2: could not find the repository content container to render the dashboard into',
+        );
         return null;
     }
 
-    if (root) {
-        root.unmount();
+    if (host) {
+        parent.appendChild(host);
+        return root;
     }
 
     // Keep GitHub's content and hydration data intact; CSS hides the host's siblings while K2 is active.
@@ -85,17 +92,14 @@ function showPasswordForm() {
  * @param {Object} currentPreferences - User preferences from Onyx, potentially containing legacy credentials
  */
 async function checkAuthAndShowInterface(currentPreferences) {
-    let legacyAuth = null;
-    if (currentPreferences && currentPreferences.auth) {
-        legacyAuth = currentPreferences.auth;
-    } else if (currentPreferences && currentPreferences.ghToken) {
-        legacyAuth = {type: 'pat', token: currentPreferences.ghToken};
-    }
-    const migration = await GitHubOAuth.migrateLegacyAuth(legacyAuth);
-    if (migration.migrated) {
+    const legacyAuth = Preferences.getLegacyGitHubAuth(currentPreferences);
+    const authState = legacyAuth
+        ? await GitHubOAuth.migrateLegacyAuth(legacyAuth)
+        : await GitHubOAuth.getAuthState();
+    if (legacyAuth) {
         Preferences.clearLegacyGitHubAuth();
     }
-    if (!migration.authenticated) {
+    if (!authState.authenticated) {
         showPasswordForm();
         return;
     }
@@ -104,10 +108,8 @@ async function checkAuthAndShowInterface(currentPreferences) {
 }
 
 function updateInterface() {
-    checkAuthAndShowInterface(preferences).catch((error) => {
-        // eslint-disable-next-line no-console
+    checkAuthAndShowInterface(preferences).catch(error => {
         console.error('Unable to check GitHub authentication', error);
-        showPasswordForm();
     });
 }
 
@@ -115,16 +117,25 @@ export {getDashboardParent};
 
 export default () => ({
     draw() {
-        if (host && host.isConnected) {
+        if (host) {
+            getRoot();
             return;
         }
 
         if (isConnectedToPreferences) {
-            updateInterface();
+            if (preferencesLoaded) {
+                updateInterface();
+            }
             return;
         }
 
         isConnectedToPreferences = true;
+        GitHubOAuth.onAuthStateChange(() => {
+            if (!preferencesLoaded) {
+                return;
+            }
+            updateInterface();
+        });
         ReactNativeOnyx.init({
             keys: ONYXKEYS,
         });
@@ -132,8 +143,9 @@ export default () => ({
         // Connect to preferences store
         ReactNativeOnyx.connect({
             key: ONYXKEYS.PREFERENCES,
-            callback: (newPreferences) => {
+            callback: newPreferences => {
                 preferences = newPreferences;
+                preferencesLoaded = true;
                 updateInterface();
             },
         });

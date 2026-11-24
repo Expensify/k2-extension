@@ -55,14 +55,14 @@ function getHeadRefOid(owner, repo, pullRequestNumber) {
     const key = `${owner}/${repo}/${pullRequestNumber}`;
     const cached = headRefOids[key];
 
-    if (!cached || (Date.now() - cached.fetchedAt) > HEAD_REF_OID_LIFETIME_MS) {
+    if (!cached || Date.now() - cached.fetchedAt > HEAD_REF_OID_LIFETIME_MS) {
         if (!requestsInFlight[key]) {
             requestsInFlight[key] = true;
             API.getPullRequestHeadRefOid(owner, repo, Number(pullRequestNumber))
-                .then((oid) => {
+                .then(oid => {
                     headRefOids[key] = {oid, fetchedAt: Date.now()};
                 })
-                .catch((error) => {
+                .catch(error => {
                     console.error('Error fetching the head commit of pull request', key, error);
 
                     // Recording the failure is what stops a bad token or a rate limit from turning every
@@ -96,7 +96,7 @@ function update() {
     const headRefOid = getHeadRefOid(owner, repo, pullRequestNumber);
     const verdict = headRefOid ? CheckStatusVerdicts.getVerdict(owner, repo, headRefOid) : null;
 
-    _.each(links, (link) => {
+    _.each(links, link => {
         const originalHref = link.getAttribute(REWRITTEN_ATTRIBUTE);
         const href = link.getAttribute('href') || '';
 
@@ -123,7 +123,10 @@ function start() {
     // change, either of which puts the red X back.
     observer = new MutationObserver(scheduleUpdate);
     observer.observe(document.head, {
-        childList: true, subtree: true, attributes: true, attributeFilter: ['href'],
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['href'],
     });
 }
 
@@ -132,17 +135,19 @@ function start() {
  * so a tab left open while iterating still says whether the tests are passing.
  */
 function initPrFavicon() {
-    GitHubOAuth.getAuthState().then((authState) => {
-        if (!authState.authenticated) {
-            return;
-        }
+    GitHubOAuth.getAuthState()
+        .then(authState => {
+            if (!authState.authenticated) {
+                return;
+            }
 
-        start();
+            start();
 
-        // GitHub swaps page content without reloading, so a pull request opened from another page needs
-        // another pass even though the observer is already attached.
-        scheduleUpdate();
-    }).catch(() => {});
+            // GitHub swaps page content without reloading, so a pull request opened from another page needs
+            // another pass even though the observer is already attached.
+            scheduleUpdate();
+        })
+        .catch(() => {});
 }
 
 // eslint-disable-next-line import/prefer-default-export

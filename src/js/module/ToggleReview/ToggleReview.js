@@ -5,7 +5,9 @@ import Toggle from './Toggle';
 export default function () {
     return {
         draw() {
-            const root = createRoot(document.getElementsByClassName('k2togglereviewing-wrapper')[0]);
+            const root = createRoot(
+                document.getElementsByClassName('k2togglereviewing-wrapper')[0],
+            );
             root.render(<Toggle />);
         },
     };

@@ -58,7 +58,10 @@ class ListIssuesAssigned extends React.Component {
         this.toggleOwnedBySomeoneElseFilter = this.toggleOwnedBySomeoneElseFilter.bind(this);
         this.toggleNotOverdueFilter = this.toggleNotOverdueFilter.bind(this);
         this.applySearchFilter = this.applySearchFilter.bind(this);
-        this.applyDebouncedSearchFilter = _.debounce(this.applyDebouncedSearchFilter.bind(this), 300);
+        this.applyDebouncedSearchFilter = _.debounce(
+            this.applyDebouncedSearchFilter.bind(this),
+            300,
+        );
     }
 
     componentDidMount() {
@@ -98,17 +101,25 @@ class ListIssuesAssigned extends React.Component {
     }
 
     toggleNotOverdueFilter() {
-        this.setState(prevState => ({shouldHideNotOverdueIssues: !prevState.shouldHideNotOverdueIssues}));
+        this.setState(prevState => ({
+            shouldHideNotOverdueIssues: !prevState.shouldHideNotOverdueIssues,
+        }));
         Issues.saveCheckboxes({shouldHideNotOverdue: !this.state.shouldHideNotOverdueIssues});
     }
 
     toggleOwnedBySomeoneElseFilter() {
-        this.setState(prevState => ({shouldHideOwnedBySomeoneElseIssues: !prevState.shouldHideOwnedBySomeoneElseIssues}));
-        Issues.saveCheckboxes({shouldHideOwnedBySomeoneElse: !this.state.shouldHideOwnedBySomeoneElseIssues});
+        this.setState(prevState => ({
+            shouldHideOwnedBySomeoneElseIssues: !prevState.shouldHideOwnedBySomeoneElseIssues,
+        }));
+        Issues.saveCheckboxes({
+            shouldHideOwnedBySomeoneElse: !this.state.shouldHideOwnedBySomeoneElseIssues,
+        });
     }
 
     toggleUnderReviewFilter() {
-        this.setState(prevState => ({shouldHideUnderReviewIssues: !prevState.shouldHideUnderReviewIssues}));
+        this.setState(prevState => ({
+            shouldHideUnderReviewIssues: !prevState.shouldHideUnderReviewIssues,
+        }));
         Issues.saveCheckboxes({shouldHideUnderReview: !this.state.shouldHideUnderReviewIssues});
     }
 
@@ -137,12 +148,16 @@ class ListIssuesAssigned extends React.Component {
         let remaining = searchText;
         const matches = searchText.match(labelPattern) || [];
 
-        _.each(matches, (matchStr) => {
+        _.each(matches, matchStr => {
             // Re-parse each match to extract named capture groups
-            const singleMatch = /(?<exclude>-?)label:(?:"(?<quoted>[^"]+)"|(?<unquoted>\S+))/i.exec(matchStr);
+            const singleMatch = /(?<exclude>-?)label:(?:"(?<quoted>[^"]+)"|(?<unquoted>\S+))/i.exec(
+                matchStr,
+            );
             if (singleMatch && singleMatch.groups) {
                 const isExclusion = singleMatch.groups.exclude === '-';
-                const labelValue = (singleMatch.groups.quoted || singleMatch.groups.unquoted).toLowerCase();
+                const labelValue = (
+                    singleMatch.groups.quoted || singleMatch.groups.unquoted
+                ).toLowerCase();
 
                 if (isExclusion) {
                     excludeLabels.push(labelValue);
@@ -157,7 +172,7 @@ class ListIssuesAssigned extends React.Component {
 
         // Parse remaining text for regular title search terms
         const textTerms = _.filter(remaining.trim().split(/\s+/), term => term.length > 0);
-        _.each(textTerms, (term) => {
+        _.each(textTerms, term => {
             if (term.startsWith('-') && term.length > 1) {
                 excludeTerms.push(term.slice(1).toLowerCase());
             } else {
@@ -174,21 +189,35 @@ class ListIssuesAssigned extends React.Component {
     }
 
     filterIssues(issues) {
-        const {
-            includeLabels, excludeLabels, includeTerms, excludeTerms,
-        } = this.parseSearchText(this.state.searchText);
+        const {includeLabels, excludeLabels, includeTerms, excludeTerms} = this.parseSearchText(
+            this.state.searchText,
+        );
 
-        return _.filter(issues, (item) => {
-            if (this.state.shouldHideHeldIssues && item.title.toLowerCase().indexOf('[hold') > -1 ? ' hold' : '') {
+        return _.filter(issues, item => {
+            if (
+                this.state.shouldHideHeldIssues && item.title.toLowerCase().indexOf('[hold') > -1
+                    ? ' hold'
+                    : ''
+            ) {
                 return false;
             }
-            if (this.state.shouldHideUnderReviewIssues && _.find(item.labels, label => label.name.toLowerCase() === 'reviewing')) {
+            if (
+                this.state.shouldHideUnderReviewIssues &&
+                _.find(item.labels, label => label.name.toLowerCase() === 'reviewing')
+            ) {
                 return false;
             }
-            if (this.state.shouldHideOwnedBySomeoneElseIssues && item.issueHasOwner && !item.currentUserIsOwner) {
+            if (
+                this.state.shouldHideOwnedBySomeoneElseIssues &&
+                item.issueHasOwner &&
+                !item.currentUserIsOwner
+            ) {
                 return false;
             }
-            if (this.state.shouldHideNotOverdueIssues && !_.find(item.labels, label => label.name.toLowerCase() === 'overdue')) {
+            if (
+                this.state.shouldHideNotOverdueIssues &&
+                !_.find(item.labels, label => label.name.toLowerCase() === 'overdue')
+            ) {
                 return false;
             }
 
@@ -196,13 +225,17 @@ class ListIssuesAssigned extends React.Component {
             const itemLabels = _.map(item.labels, label => label.name.toLowerCase());
 
             // Must have ALL include labels
-            const hasAllIncludeLabels = _.every(includeLabels, label => _.some(itemLabels, itemLabel => itemLabel.indexOf(label) !== -1));
+            const hasAllIncludeLabels = _.every(includeLabels, label =>
+                _.some(itemLabels, itemLabel => itemLabel.indexOf(label) !== -1),
+            );
             if (!hasAllIncludeLabels) {
                 return false;
             }
 
             // Must NOT have ANY exclude labels
-            const hasAnyExcludeLabel = _.some(excludeLabels, label => _.some(itemLabels, itemLabel => itemLabel.indexOf(label) !== -1));
+            const hasAnyExcludeLabel = _.some(excludeLabels, label =>
+                _.some(itemLabels, itemLabel => itemLabel.indexOf(label) !== -1),
+            );
             if (hasAnyExcludeLabel) {
                 return false;
             }
@@ -210,7 +243,10 @@ class ListIssuesAssigned extends React.Component {
             // Free text search filter (case insensitive)
             // Title must contain ALL include terms
             const titleLower = item.title.toLowerCase();
-            const matchesAllIncludes = _.every(includeTerms, term => titleLower.indexOf(term) !== -1);
+            const matchesAllIncludes = _.every(
+                includeTerms,
+                term => titleLower.indexOf(term) !== -1,
+            );
             if (!matchesAllIncludes) {
                 return false;
             }
@@ -226,32 +262,42 @@ class ListIssuesAssigned extends React.Component {
     }
 
     render() {
-        const hourlyIssues = this.filterIssues(_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Hourly'})));
-        const dailyIssues = this.filterIssues(_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Daily'})));
-        const weeklyIssues = this.filterIssues(_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Weekly'})));
-        const monthlyIssues = this.filterIssues(_.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Monthly'})));
+        const hourlyIssues = this.filterIssues(
+            _.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Hourly'})),
+        );
+        const dailyIssues = this.filterIssues(
+            _.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Daily'})),
+        );
+        const weeklyIssues = this.filterIssues(
+            _.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Weekly'})),
+        );
+        const monthlyIssues = this.filterIssues(
+            _.pick(this.props.issues, issue => _.findWhere(issue.labels, {name: 'Monthly'})),
+        );
         const issuesNoLabel = this.filterIssues(
-            _.pick(this.props.issues, issue => _.intersection(_.map(issue.labels, label => label.name), ['Hourly', 'Daily', 'Weekly', 'Monthly']).length === 0),
+            _.pick(
+                this.props.issues,
+                issue =>
+                    _.intersection(
+                        _.map(issue.labels, label => label.name),
+                        ['Hourly', 'Daily', 'Weekly', 'Monthly'],
+                    ).length === 0,
+            ),
         );
 
         // Doesn't matter what the column size is if there are no columns, just make sure we don't divide by 0
-        const numColumns = _.filter([hourlyIssues, dailyIssues, weeklyIssues, monthlyIssues], col => !_.isEmpty(col)).length;
+        const numColumns = _.filter(
+            [hourlyIssues, dailyIssues, weeklyIssues, monthlyIssues],
+            col => !_.isEmpty(col),
+        ).length;
         const columnSize = numColumns === 0 ? -1 : 12 / numColumns;
 
         if (!this.props.issues) {
-            return (
-                <div className="blankslate capped clean-background">
-                    Loading
-                </div>
-            );
+            return <div className="blankslate capped clean-background">Loading</div>;
         }
 
         if (!_.size(this.props.issues)) {
-            return (
-                <div className="blankslate capped clean-background">
-                    No items
-                </div>
-            );
+            return <div className="blankslate capped clean-background">No items</div>;
         }
 
         return (
@@ -266,7 +312,9 @@ class ListIssuesAssigned extends React.Component {
                                     name="shouldHideIfHeld"
                                     id="shouldHideIfHeld"
                                     onChange={this.toggleHeldFilter}
-                                    checked={this.state.shouldHideHeldIssues ? 'checked' : undefined}
+                                    checked={
+                                        this.state.shouldHideHeldIssues ? 'checked' : undefined
+                                    }
                                 />
                                 On Hold
                             </label>
@@ -278,7 +326,11 @@ class ListIssuesAssigned extends React.Component {
                                     name="shouldHideIfUnderReview"
                                     id="shouldHideIfUnderReview"
                                     onChange={this.toggleUnderReviewFilter}
-                                    checked={this.state.shouldHideUnderReviewIssues ? 'checked' : undefined}
+                                    checked={
+                                        this.state.shouldHideUnderReviewIssues
+                                            ? 'checked'
+                                            : undefined
+                                    }
                                 />
                                 Under Review
                             </label>
@@ -290,7 +342,11 @@ class ListIssuesAssigned extends React.Component {
                                     name="shouldHideIfOwnedBySomeoneElse"
                                     id="shouldHideIfOwnedBySomeoneElse"
                                     onChange={this.toggleOwnedBySomeoneElseFilter}
-                                    checked={this.state.shouldHideOwnedBySomeoneElseIssues ? 'checked' : undefined}
+                                    checked={
+                                        this.state.shouldHideOwnedBySomeoneElseIssues
+                                            ? 'checked'
+                                            : undefined
+                                    }
                                 />
                                 Owned by Someone Else
                             </label>
@@ -302,7 +358,11 @@ class ListIssuesAssigned extends React.Component {
                                     name="shouldHideIfNotOverdue"
                                     id="shouldHideIfNotOverdue"
                                     onChange={this.toggleNotOverdueFilter}
-                                    checked={this.state.shouldHideNotOverdueIssues ? 'checked' : undefined}
+                                    checked={
+                                        this.state.shouldHideNotOverdueIssues
+                                            ? 'checked'
+                                            : undefined
+                                    }
                                 />
                                 Not Overdue
                             </label>

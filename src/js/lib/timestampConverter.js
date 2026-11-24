@@ -28,7 +28,7 @@ function convertTimestamps(useAbsoluteTimestamps) {
         // Find all relative-time elements that don't have absolute timestamp added yet
         const elements = document.querySelectorAll('relative-time:not([data-k2-absolute-added])');
 
-        Array.from(elements).forEach((el) => {
+        Array.from(elements).forEach(el => {
             const datetime = el.getAttribute('datetime');
 
             if (!datetime) {
@@ -62,13 +62,18 @@ function convertTimestamps(useAbsoluteTimestamps) {
         });
 
         // Update existing absolute parts (refresh the absolute timestamp)
-        const elementsWithAbsolute = document.querySelectorAll('relative-time[data-k2-absolute-added]');
-        Array.from(elementsWithAbsolute).forEach((el) => {
+        const elementsWithAbsolute = document.querySelectorAll(
+            'relative-time[data-k2-absolute-added]',
+        );
+        Array.from(elementsWithAbsolute).forEach(el => {
             const datetime = el.dataset.k2OriginalDatetime || el.getAttribute('datetime');
             if (datetime) {
                 // Find the absolute span that follows this element
                 let absoluteSpan = el.nextSibling;
-                while (absoluteSpan && (!absoluteSpan.dataset || !absoluteSpan.dataset.k2AbsolutePart)) {
+                while (
+                    absoluteSpan &&
+                    (!absoluteSpan.dataset || !absoluteSpan.dataset.k2AbsolutePart)
+                ) {
                     absoluteSpan = absoluteSpan.nextSibling;
                 }
 
@@ -83,10 +88,13 @@ function convertTimestamps(useAbsoluteTimestamps) {
         // Find all relative-time elements that have absolute timestamps added
         const elements = document.querySelectorAll('relative-time[data-k2-absolute-added]');
 
-        Array.from(elements).forEach((el) => {
+        Array.from(elements).forEach(el => {
             // Find and remove the absolute timestamp span
             let absoluteSpan = el.nextSibling;
-            while (absoluteSpan && (!absoluteSpan.dataset || !absoluteSpan.dataset.k2AbsolutePart)) {
+            while (
+                absoluteSpan &&
+                (!absoluteSpan.dataset || !absoluteSpan.dataset.k2AbsolutePart)
+            ) {
                 absoluteSpan = absoluteSpan.nextSibling;
             }
 

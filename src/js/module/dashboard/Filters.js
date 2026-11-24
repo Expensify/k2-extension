@@ -10,13 +10,15 @@ import filterPropTypes from '../../lib/filterPropTypes';
 
 const propTypes = {
     /** Data for milestones in GH */
-    milestones: PropTypes.objectOf(PropTypes.shape({
-        /** The GH ID of the milestone */
-        id: PropTypes.string.isRequired,
+    milestones: PropTypes.objectOf(
+        PropTypes.shape({
+            /** The GH ID of the milestone */
+            id: PropTypes.string.isRequired,
 
-        /** The title of the milestone */
-        title: PropTypes.string.isRequired,
-    })),
+            /** The title of the milestone */
+            title: PropTypes.string.isRequired,
+        }),
+    ),
 
     /** The filters to apply to the GH issues */
     filters: filterPropTypes,
@@ -75,38 +77,48 @@ class Filters extends React.Component {
                     Filter by:
                     <div className="checkbox">
                         <label>
-                            <input type="checkbox" name="improvement" ref={el => this.fieldImprovement = el} />
+                            <input
+                                type="checkbox"
+                                name="improvement"
+                                ref={el => (this.fieldImprovement = el)}
+                            />
                             Improvement
                         </label>
                     </div>
-
                     <div className="checkbox">
                         <label>
-                            <input type="checkbox" name="task" ref={el => this.fieldTask = el} />
+                            <input type="checkbox" name="task" ref={el => (this.fieldTask = el)} />
                             Task
                         </label>
                     </div>
-
                     <div className="checkbox">
                         <label>
-                            <input type="checkbox" name="feature" ref={el => this.fieldFeature = el} />
+                            <input
+                                type="checkbox"
+                                name="feature"
+                                ref={el => (this.fieldFeature = el)}
+                            />
                             New Feature
                         </label>
                     </div>
-
                     <div className="checkbox">
-                        <label htmlFor="milestone">
-                            Milestone:&nbsp;
-                        </label>
-                        <select id="milestone" name="milestone" ref={el => this.fieldMilestone = el}>
+                        <label htmlFor="milestone">Milestone:&nbsp;</label>
+                        <select
+                            id="milestone"
+                            name="milestone"
+                            ref={el => (this.fieldMilestone = el)}
+                        >
                             <option value="">-All Milestones-</option>
                             {_.map(this.props.milestones, option => (
-                                <option value={option.id} key={option.id}>{option.title}</option>
+                                <option value={option.id} key={option.id}>
+                                    {option.title}
+                                </option>
                             ))}
                         </select>
                     </div>
-
-                    <button type="submit" className="btn btn-default">Apply</button>
+                    <button type="submit" className="btn btn-default">
+                        Apply
+                    </button>
                 </form>
             </div>
         );

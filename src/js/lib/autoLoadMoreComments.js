@@ -6,7 +6,8 @@ import * as Preferences from './actions/Preferences';
 // Matches the visible text on every comment-pagination control we want to auto-click.
 // Anchored at the start of the trimmed text so we don't match buttons that merely contain
 // these words inside a longer label.
-const LOAD_MORE_TEXT = /^(load more|show\s+(\d+|hidden)\s+(hidden|earlier|more|previous|outdated)\s+(item|comment|conversation))/i;
+const LOAD_MORE_TEXT =
+    /^(load more|show\s+(\d+|hidden)\s+(hidden|earlier|more|previous|outdated)\s+(item|comment|conversation))/i;
 
 const SCOPES = [
     '.js-discussion',
@@ -85,12 +86,14 @@ function scan() {
     $('button[data-testid="hidden-items-expander"]').each((i, el) => clickOnce(el));
 
     // eslint-disable-next-line rulesdir/prefer-underscore-method
-    $(SCOPES).find('button, a').each((i, el) => {
-        const text = (el.textContent || '').trim();
-        if (LOAD_MORE_TEXT.test(text)) {
-            clickOnce(el);
-        }
-    });
+    $(SCOPES)
+        .find('button, a')
+        .each((i, el) => {
+            const text = (el.textContent || '').trim();
+            if (LOAD_MORE_TEXT.test(text)) {
+                clickOnce(el);
+            }
+        });
 }
 
 // Coalesce bursts of mutations into a single scan per animation frame so that the rapid
@@ -132,7 +135,9 @@ function start() {
     observer.observe(document.body, {childList: true, subtree: true});
 
     // Capture phase so we still hear about interactions whose propagation GitHub stops.
-    USER_INTERACTION_EVENTS.forEach(eventName => window.addEventListener(eventName, onUserInteraction, {capture: true, passive: true}));
+    USER_INTERACTION_EVENTS.forEach(eventName =>
+        window.addEventListener(eventName, onUserInteraction, {capture: true, passive: true}),
+    );
 }
 
 function stop() {
@@ -142,7 +147,9 @@ function stop() {
     observer.disconnect();
     observer = null;
 
-    USER_INTERACTION_EVENTS.forEach(eventName => window.removeEventListener(eventName, onUserInteraction, {capture: true}));
+    USER_INTERACTION_EVENTS.forEach(eventName =>
+        window.removeEventListener(eventName, onUserInteraction, {capture: true}),
+    );
     clearTimeout(anchorRestoreTimeout);
     anchorRestorePending = false;
 }

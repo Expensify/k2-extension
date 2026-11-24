@@ -39,9 +39,11 @@ class Toggle extends React.Component {
         }
 
         // Set all the proper active/inactive classes
-        newState = _.mapObject(this.initialState, (val, key) => (key === label
-            ? `${defaultBtnClass} k2-${key.toLowerCase()} selected`
-            : `${defaultBtnClass} k2-${key.toLowerCase()}`));
+        newState = _.mapObject(this.initialState, (val, key) =>
+            key === label
+                ? `${defaultBtnClass} k2-${key.toLowerCase()} selected`
+                : `${defaultBtnClass} k2-${key.toLowerCase()}`,
+        );
         this.setState(newState);
     }
 
@@ -57,13 +59,12 @@ class Toggle extends React.Component {
             previousLabel = key;
         });
         if (label !== previousLabel) {
-            API.addLabel(label)
-                .then(() => {
-                    if (!previousLabel) {
-                        return;
-                    }
-                    API.removeLabel(previousLabel);
-                });
+            API.addLabel(label).then(() => {
+                if (!previousLabel) {
+                    return;
+                }
+                API.removeLabel(previousLabel);
+            });
         } else {
             API.removeLabel(label);
         }
@@ -86,7 +87,7 @@ class Toggle extends React.Component {
                         className={this.state.Reviewing}
                         onClick={() => this.clickNSave('Reviewing')}
                     >
-                        {(this.state.Reviewing.indexOf('selected') > -1)
+                        {this.state.Reviewing.indexOf('selected') > -1
                             ? 'Remove "Reviewing" Label'
                             : 'Add "Reviewing" Label'}
                     </button>

@@ -31,7 +31,7 @@ class Toggle extends React.Component {
     }
 
     handleToggle() {
-        this.setState((prevState) => {
+        this.setState(prevState => {
             const newValue = !prevState.autoLoadMoreComments;
             Preferences.setAutoLoadMoreComments(newValue);
             return {autoLoadMoreComments: newValue};
@@ -43,9 +43,11 @@ class Toggle extends React.Component {
             <div style={{width: '100%'}}>
                 <button
                     type="button"
-                    className={this.state.autoLoadMoreComments
-                        ? `${defaultBtnClass} k2-auto-load-more selected`
-                        : `${defaultBtnClass} k2-auto-load-more`}
+                    className={
+                        this.state.autoLoadMoreComments
+                            ? `${defaultBtnClass} k2-auto-load-more selected`
+                            : `${defaultBtnClass} k2-auto-load-more`
+                    }
                     onClick={() => this.handleToggle()}
                     style={{width: '100%'}}
                 >

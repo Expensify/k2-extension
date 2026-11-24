@@ -13,9 +13,12 @@ import convertTimestamps from '../../timestampConverter';
 export default function () {
     const Page = {};
 
-    const REVIEWER_CHECKLIST_URL = 'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/REVIEWER_CHECKLIST.md';
-    const CONTRIBUTOR_PLUS_CHECKLIST_URL = 'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/CONTRIBUTOR_PLUS_CHECKLIST.md';
-    const NO_CHECKLIST_NEEDED_TEMPLATE = '### No Checklist Needed\n\n<C+ Please state the reason why checklist is not needed for this issue>';
+    const REVIEWER_CHECKLIST_URL =
+        'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/REVIEWER_CHECKLIST.md';
+    const CONTRIBUTOR_PLUS_CHECKLIST_URL =
+        'https://raw.githubusercontent.com/Expensify/App/main/contributingGuides/CONTRIBUTOR_PLUS_CHECKLIST.md';
+    const NO_CHECKLIST_NEEDED_TEMPLATE =
+        '### No Checklist Needed\n\n<C+ Please state the reason why checklist is not needed for this issue>';
     const MAX_WORKFLOW_DISCOVERY_ATTEMPTS = 20;
     const MAX_WORKFLOW_STATUS_ATTEMPTS = 60;
 
@@ -29,7 +32,8 @@ export default function () {
      * @param {'cplus' | 'reviewer'} checklistType Type of target checklist
      */
     const copyReviewerChecklist = async (e, checklistType) => {
-        const checklistUrl = checklistType === 'cplus' ? CONTRIBUTOR_PLUS_CHECKLIST_URL : REVIEWER_CHECKLIST_URL;
+        const checklistUrl =
+            checklistType === 'cplus' ? CONTRIBUTOR_PLUS_CHECKLIST_URL : REVIEWER_CHECKLIST_URL;
 
         e.preventDefault();
 
@@ -62,7 +66,7 @@ export default function () {
      * The C+ then edits the comment to fill in the reason.
      * @param {Event} e
      */
-    const postNoChecklistNeededTemplate = async (e) => {
+    const postNoChecklistNeededTemplate = async e => {
         e.preventDefault();
 
         // Get the button element
@@ -91,7 +95,7 @@ export default function () {
      * the button are left out of the posted comment.
      * @param {Event} e
      */
-    const postPaymentDetails = async (e) => {
+    const postPaymentDetails = async e => {
         e.preventDefault();
 
         // Get the button element
@@ -124,7 +128,7 @@ export default function () {
      * Runs the GitHub workflow for generating translations
      * @param {Event} e
      */
-    const runTranslationWorkflow = async (e) => {
+    const runTranslationWorkflow = async e => {
         e.preventDefault();
 
         // Get the button element
@@ -141,7 +145,9 @@ export default function () {
         const commentElement = button.closest('.timeline-comment');
         const permalinkElement = commentElement.querySelector('.js-timestamp[id*="issuecomment-"]');
         const permalinkId = permalinkElement ? permalinkElement.id : null; // Format: "issuecomment-{id}-permalink"
-        const commentId = permalinkId ? permalinkId.replace('issuecomment-', '').replace('-permalink', '') : null;
+        const commentId = permalinkId
+            ? permalinkId.replace('issuecomment-', '').replace('-permalink', '')
+            : null;
 
         try {
             // Record the time before triggering the workflow
@@ -158,7 +164,7 @@ export default function () {
             while (!latestRun && retries < MAX_WORKFLOW_DISCOVERY_ATTEMPTS) {
                 // Wait 2 seconds between checks
                 // eslint-disable-next-line no-await-in-loop
-                await new Promise((resolve) => {
+                await new Promise(resolve => {
                     setTimeout(resolve, 2000);
                 });
 
@@ -167,10 +173,11 @@ export default function () {
                 const workflowRuns = await API.getWorkflowRuns('generateTranslations.yml', 5);
                 const runs = workflowRuns.data.workflow_runs;
 
-                // Find the run started by this dispatch, including a quick completion.
-                const matchingRun = _.find(runs, (run) => {
+                // Find a workflow run that started after our trigger time and is queued or in progress.
+                const matchingRun = _.find(runs, run => {
                     const runStartTime = new Date(run.created_at);
-                    return runStartTime >= triggerTime;
+                    const isRunning = run.status === 'queued' || run.status === 'in_progress';
+                    return runStartTime >= triggerTime && isRunning;
                 });
 
                 if (matchingRun) {
@@ -274,8 +281,10 @@ export default function () {
 
     Page.init = function () {
         // The home page is a special case because the pathname will be empty
-        if (this.urlPath === ''
-            && (window.location.pathname === '' || window.location.pathname === '/')) {
+        if (
+            this.urlPath === '' &&
+            (window.location.pathname === '' || window.location.pathname === '/')
+        ) {
             return this.setup();
         }
 
@@ -301,12 +310,14 @@ export default function () {
     Page.setup = function () {};
 
     Page.getRepoOwner = function () {
-        return document.querySelectorAll('.AppHeader-context-item-label.Truncate-text')[0] // Org name next to GitHub logo
+        return document
+            .querySelectorAll('.AppHeader-context-item-label.Truncate-text')[0] // Org name next to GitHub logo
             .textContent.trim();
     };
 
     Page.getRepo = function () {
-        return document.querySelectorAll('.AppHeader-context-item-label.Truncate-text')[1] // Repo name next to GitHub logo
+        return document
+            .querySelectorAll('.AppHeader-context-item-label.Truncate-text')[1] // Repo name next to GitHub logo
             .textContent.trim();
     };
 
@@ -322,17 +333,23 @@ export default function () {
 
             // When the button template is found, replace it with an HTML button and then put that back into the DOM so someone can click on it
             // Check for checklist-specific content (CONTRIBUTOR_PLUS_CHECKLIST.md or REVIEWER_CHECKLIST.md)
-            const isChecklistComment = commentHtml
-                && commentHtml.indexOf('you can simply click: [this button]') > -1
-                && (commentHtml.indexOf('CONTRIBUTOR_PLUS_CHECKLIST.md') > -1
-                || commentHtml.indexOf('REVIEWER_CHECKLIST.md') > -1);
+            const isChecklistComment =
+                commentHtml &&
+                commentHtml.indexOf('you can simply click: [this button]') > -1 &&
+                (commentHtml.indexOf('CONTRIBUTOR_PLUS_CHECKLIST.md') > -1 ||
+                    commentHtml.indexOf('REVIEWER_CHECKLIST.md') > -1);
 
             if (isChecklistComment) {
-                const newHtml = commentHtml.replace('[this button]', '<button type="button" class="btn btn-sm k2-copy-checklist">HERE</button>');
+                const newHtml = commentHtml.replace(
+                    '[this button]',
+                    '<button type="button" class="btn btn-sm k2-copy-checklist">HERE</button>',
+                );
                 $(el).html(newHtml);
 
                 // Now that the button is on the page, add a click handler to it (always remove all handlers first so that we know there will always be one handler attached)
-                $('.k2-copy-checklist').off().on('click', e => copyReviewerChecklist(e, checklistType));
+                $('.k2-copy-checklist')
+                    .off()
+                    .on('click', e => copyReviewerChecklist(e, checklistType));
             }
         });
     };
@@ -348,7 +365,10 @@ export default function () {
             const commentHtml = $(el).html();
 
             if (commentHtml && commentHtml.indexOf('[no checklist button]') > -1) {
-                const newHtml = commentHtml.replace('[no checklist button]', '<button type="button" class="btn btn-sm k2-no-checklist-needed">HERE</button>');
+                const newHtml = commentHtml.replace(
+                    '[no checklist button]',
+                    '<button type="button" class="btn btn-sm k2-no-checklist-needed">HERE</button>',
+                );
                 $(el).html(newHtml);
 
                 // Always remove all handlers first so we know there is exactly one attached
@@ -368,7 +388,10 @@ export default function () {
             const commentHtml = $(el).html();
 
             if (commentHtml && commentHtml.indexOf('[post payment details]') > -1) {
-                const newHtml = commentHtml.replace('[post payment details]', '<button type="button" class="btn btn-sm k2-post-payment-details">Post payment details</button>');
+                const newHtml = commentHtml.replace(
+                    '[post payment details]',
+                    '<button type="button" class="btn btn-sm k2-post-payment-details">Post payment details</button>',
+                );
                 $(el).html(newHtml);
 
                 // Always remove all handlers first so we know there is exactly one attached
@@ -388,9 +411,16 @@ export default function () {
 
             // Check if this comment is about translations by looking for the workflow link
             // AND that we haven't already replaced the button (to avoid refresh loops)
-            if (fullCommentHTML && fullCommentHTML.includes('generateTranslations.yml') && fullCommentHTML.includes('[this button]')) {
+            if (
+                fullCommentHTML &&
+                fullCommentHTML.includes('generateTranslations.yml') &&
+                fullCommentHTML.includes('[this button]')
+            ) {
                 // Now find `[this button]` and replace it with our button
-                const updatedFullCommentHTML = fullCommentHTML.replace('[this button]', '<button type="button" class="btn btn-sm k2-translation-workflow">HERE</button>');
+                const updatedFullCommentHTML = fullCommentHTML.replace(
+                    '[this button]',
+                    '<button type="button" class="btn btn-sm k2-translation-workflow">HERE</button>',
+                );
                 $(commentBody).html(updatedFullCommentHTML);
 
                 // Now that the button is on the page, add a click handler to it
@@ -406,7 +436,7 @@ export default function () {
     Page.setupTimestampFormat = function setupTimestampFormat() {
         ReactNativeOnyx.connect({
             key: ONYXKEYS.PREFERENCES,
-            callback: (preferences) => {
+            callback: preferences => {
                 if (!preferences) {
                     return;
                 }

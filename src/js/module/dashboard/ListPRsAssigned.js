@@ -24,6 +24,9 @@ const propTypes = {
 
         /** Whether PRs are grouped under the issues they address */
         shouldGroupPRsByIssue: PropTypes.bool,
+
+        /** Whether the Open All buttons are shown */
+        showOpenAllButtons: PropTypes.bool,
     }),
 };
 const defaultProps = {
@@ -63,13 +66,13 @@ class ListPRsAssigned extends React.Component {
         }
 
         const groups = {};
-        _.each(prs, (pr) => {
+        _.each(prs, pr => {
             if (!_.size(pr.linkedIssues)) {
                 unlinkedGroup.prs.push(pr);
                 return;
             }
 
-            _.each(pr.linkedIssues, (issue) => {
+            _.each(pr.linkedIssues, issue => {
                 const key = issue.url.toLowerCase();
                 if (!groups[key]) {
                     groups[key] = {issue, prs: []};
@@ -97,6 +100,7 @@ class ListPRsAssigned extends React.Component {
         // Defaults to true so the numbers show until the user turns them off.
         const shouldShowPRNumbers = this.props.preferences.shouldShowPRNumbers !== false;
         const shouldGroupPRsByIssue = !!this.props.preferences.shouldGroupPRsByIssue;
+        const shouldShowOpenAllButtons = this.props.preferences.showOpenAllButtons !== false;
 
         return (
             <div className="panel your-pull-requests mb-3">
@@ -104,38 +108,60 @@ class ListPRsAssigned extends React.Component {
                     text="Your Pull Requests"
                     count={_.size(this.props.prs) || 0}
                     onOpenAll={() => openAllUrls(this.props.prs)}
-                    checkboxes={[{
-                        id: 'shouldShowPRNumbers',
-                        label: 'Show PR numbers',
-                        isChecked: shouldShowPRNumbers,
-                        onChange: () => Preferences.setShouldShowPRNumbers(!shouldShowPRNumbers),
-                    }, {
-                        id: 'shouldGroupPRsByIssue',
-                        label: 'Group by issue',
-                        isChecked: shouldGroupPRsByIssue,
-                        onChange: () => Preferences.setShouldGroupPRsByIssue(!shouldGroupPRsByIssue),
-                    }]}
+                    checkboxes={[
+                        {
+                            id: 'shouldShowPRNumbers',
+                            label: 'Show PR numbers',
+                            isChecked: shouldShowPRNumbers,
+                            onChange: () =>
+                                Preferences.setShouldShowPRNumbers(!shouldShowPRNumbers),
+                        },
+                        {
+                            id: 'shouldGroupPRsByIssue',
+                            label: 'Group by issue',
+                            isChecked: shouldGroupPRsByIssue,
+                            onChange: () =>
+                                Preferences.setShouldGroupPRsByIssue(!shouldGroupPRsByIssue),
+                        },
+                    ]}
                 />
 
                 {!this.props.prs && (
-                    <div className="blankslate capped clean-background">
-                        Loading
-                    </div>
+                    <div className="blankslate capped clean-background">Loading</div>
                 )}
 
                 {_.map(this.getGroups(), group => (
-                    <div key={group.issue ? group.issue.url : 'unlinked'} className={shouldGroupPRsByIssue ? 'pr-issue-group' : undefined}>
+                    <div
+                        key={group.issue ? group.issue.url : 'unlinked'}
+                        className={shouldGroupPRsByIssue ? 'pr-issue-group' : undefined}
+                    >
                         {shouldGroupPRsByIssue && (
                             <h4 className="pr-issue-group-title">
                                 {group.issue ? (
-                                    <a href={group.issue.url} target="_blank" rel="noreferrer noopener">
+                                    <a
+                                        href={group.issue.url}
+                                        target="_blank"
+                                        rel="noreferrer noopener"
+                                    >
                                         {group.issue.title}
                                     </a>
                                 ) : (
                                     <span>No linked issue</span>
                                 )}
-                                <span className="Counter pr-issue-group-count">
-                                    {`${group.prs.length} ${group.prs.length === 1 ? 'PR' : 'PRs'}`}
+                                <span className="pr-issue-group-actions">
+                                    <span className="Counter pr-issue-group-count">
+                                        {`${group.prs.length} ${group.prs.length === 1 ? 'PR' : 'PRs'}`}
+                                    </span>
+                                    {shouldShowOpenAllButtons && (
+                                        <button
+                                            type="button"
+                                            className="btn btn-sm"
+                                            onClick={() => openAllUrls(group.prs)}
+                                            title={`Open all ${group.prs.length} PRs in new tabs`}
+                                        >
+                                            Open All
+                                        </button>
+                                    )}
                                 </span>
                             </h4>
                         )}

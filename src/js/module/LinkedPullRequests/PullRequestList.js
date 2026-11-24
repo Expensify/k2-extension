@@ -57,11 +57,10 @@ const pullRequestsByIssuePath = {};
 function getPullRequests() {
     const issuePath = window.location.pathname;
     if (!pullRequestsByIssuePath[issuePath]) {
-        pullRequestsByIssuePath[issuePath] = API.getCurrentIssuePullRequests()
-            .catch((e) => {
-                delete pullRequestsByIssuePath[issuePath];
-                throw e;
-            });
+        pullRequestsByIssuePath[issuePath] = API.getCurrentIssuePullRequests().catch(e => {
+            delete pullRequestsByIssuePath[issuePath];
+            throw e;
+        });
     }
     return pullRequestsByIssuePath[issuePath];
 }
@@ -96,7 +95,9 @@ class PullRequestList extends React.Component {
         }
 
         // GitHub loads its linked pull requests after the section appears, and it updates them when someone links one.
-        this.nativeListObserver = new MutationObserver(() => this.setState({nativeURLs: getNativeURLs(this.props.nativeList)}));
+        this.nativeListObserver = new MutationObserver(() =>
+            this.setState({nativeURLs: getNativeURLs(this.props.nativeList)}),
+        );
         this.nativeListObserver.observe(this.props.nativeList, {childList: true, subtree: true});
     }
 
@@ -108,14 +109,16 @@ class PullRequestList extends React.Component {
     }
 
     render() {
-        const pullRequests = _.reject(this.state.pullRequests, pullRequest => _.contains(this.state.nativeURLs, pullRequest.url));
+        const pullRequests = _.reject(this.state.pullRequests, pullRequest =>
+            _.contains(this.state.nativeURLs, pullRequest.url),
+        );
         if (!pullRequests.length) {
             return null;
         }
 
         return (
             <ul className="k2-linked-prs">
-                {_.map(pullRequests, (pullRequest) => {
+                {_.map(pullRequests, pullRequest => {
                     const state = getPullRequestState(pullRequest);
                     const author = pullRequest.author;
                     return (
@@ -142,7 +145,13 @@ class PullRequestList extends React.Component {
                                         {author && (
                                             <>
                                                 {' by '}
-                                                <img className="k2-linked-pr-avatar" src={author.avatarUrl} alt="" width="16" height="16" />
+                                                <img
+                                                    className="k2-linked-pr-avatar"
+                                                    src={author.avatarUrl}
+                                                    alt=""
+                                                    width="16"
+                                                    height="16"
+                                                />
                                                 {author.login}
                                             </>
                                         )}

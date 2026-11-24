@@ -15,7 +15,10 @@ try {
     const manifestPath = path.join(temporaryDirectory, 'manifest.json');
     const archivePath = path.join(temporaryDirectory, 'dist.zip');
     fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 4)}\n`);
-    execFileSync('zip', ['-r', '-X', archivePath, '.', '-x', 'manifest.json'], {cwd: distDirectory, stdio: 'inherit'});
+    execFileSync('zip', ['-r', '-X', archivePath, '.', '-x', 'manifest.json'], {
+        cwd: distDirectory,
+        stdio: 'inherit',
+    });
     execFileSync('zip', ['-j', '-X', archivePath, manifestPath], {stdio: 'inherit'});
     fs.copyFileSync(archivePath, path.join(projectDirectory, 'dist.zip'));
 } finally {

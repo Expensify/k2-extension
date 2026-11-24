@@ -56,7 +56,10 @@ class ListPRsReviewing extends React.Component {
         this.toggleAlreadyReviewedFilter = this.toggleAlreadyReviewedFilter.bind(this);
         this.toggleOnHoldFilter = this.toggleOnHoldFilter.bind(this);
         this.applySearchFilter = this.applySearchFilter.bind(this);
-        this.applyDebouncedSearchFilter = _.debounce(this.applyDebouncedSearchFilter.bind(this), 300);
+        this.applyDebouncedSearchFilter = _.debounce(
+            this.applyDebouncedSearchFilter.bind(this),
+            300,
+        );
         this.filterPRs = this.filterPRs.bind(this);
     }
 
@@ -92,8 +95,12 @@ class ListPRsReviewing extends React.Component {
     }
 
     toggleAlreadyReviewedFilter() {
-        this.setState(prevState => ({shouldHideAlreadyReviewed: !prevState.shouldHideAlreadyReviewed}));
-        PullRequests.saveCheckboxes({shouldHideAlreadyReviewed: !this.state.shouldHideAlreadyReviewed});
+        this.setState(prevState => ({
+            shouldHideAlreadyReviewed: !prevState.shouldHideAlreadyReviewed,
+        }));
+        PullRequests.saveCheckboxes({
+            shouldHideAlreadyReviewed: !this.state.shouldHideAlreadyReviewed,
+        });
     }
 
     toggleOnHoldFilter() {
@@ -113,7 +120,7 @@ class ListPRsReviewing extends React.Component {
         const terms = _.filter(this.state.searchText.trim().split(/\s+/), term => term.length > 0);
         const includeTerms = [];
         const excludeTerms = [];
-        _.each(terms, (term) => {
+        _.each(terms, term => {
             if (term.startsWith('-') && term.length > 1) {
                 excludeTerms.push(term.slice(1).toLowerCase());
             } else {
@@ -121,19 +128,25 @@ class ListPRsReviewing extends React.Component {
             }
         });
 
-        return _.filter(prs, (pr) => {
+        return _.filter(prs, pr => {
             if (this.state.shouldHideDraft && pr.isDraft) {
                 return false;
             }
             if (this.state.shouldHideAlreadyReviewed && pr.isReviewRequested === false) {
                 return false;
             }
-            if (this.state.shouldHideOnHold && (pr.title.indexOf('[HOLD') > -1 || pr.title.indexOf('[WIP') > -1)) {
+            if (
+                this.state.shouldHideOnHold &&
+                (pr.title.indexOf('[HOLD') > -1 || pr.title.indexOf('[WIP') > -1)
+            ) {
                 return false;
             }
 
             const titleLower = pr.title.toLowerCase();
-            const matchesAllIncludes = _.every(includeTerms, term => titleLower.indexOf(term) !== -1);
+            const matchesAllIncludes = _.every(
+                includeTerms,
+                term => titleLower.indexOf(term) !== -1,
+            );
             if (!matchesAllIncludes) {
                 return false;
             }
@@ -178,7 +191,9 @@ class ListPRsReviewing extends React.Component {
                                     name="shouldHideAlreadyReviewed"
                                     id="shouldHideAlreadyReviewed"
                                     onChange={this.toggleAlreadyReviewedFilter}
-                                    checked={this.state.shouldHideAlreadyReviewed ? 'checked' : undefined}
+                                    checked={
+                                        this.state.shouldHideAlreadyReviewed ? 'checked' : undefined
+                                    }
                                 />
                                 Already reviewed
                             </label>
@@ -213,9 +228,7 @@ class ListPRsReviewing extends React.Component {
                     />
 
                     {!this.props.prs && (
-                        <div className="blankslate capped clean-background">
-                            Loading
-                        </div>
+                        <div className="blankslate capped clean-background">Loading</div>
                     )}
 
                     {_.chain(filteredPRs)

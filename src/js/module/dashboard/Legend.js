@@ -1,13 +1,16 @@
 import React from 'react';
+import ReactNativeOnyx from 'react-native-onyx';
 import * as GitHubOAuth from '../../lib/GitHubOAuth';
 import ToggleOpenAll from '../ToggleOpenAll/Toggle';
 
 function Legend() {
     async function signOut() {
         try {
-            await GitHubOAuth.revokeToken();
+            await GitHubOAuth.clearGitHubAuth();
+            await ReactNativeOnyx.clear();
         } catch (error) {
-            // The auth store is unavailable only when the extension was reloaded.
+            console.error('Unable to sign out of K2', error);
+            return;
         }
 
         window.location.reload();
@@ -55,64 +58,40 @@ function Legend() {
             <div className="issue planning">Planning</div>
             <div className="issue contributor-assigned">Contributor Assigned</div>
             <div className="issue">
-                <sup>E</sup>
-                {' '}
-                External
+                <sup>E</sup> External
             </div>
             <div>
-                <span className="owner">★</span>
-                {' '}
-                Issue owner
+                <span className="owner">★</span> Issue owner
             </div>
             <div>
-                <span>☆</span>
-                {' '}
-                Issue is owned by someone else
+                <span>☆</span> Issue is owned by someone else
             </div>
             <div className="issue">
-                <sup>I</sup>
-                {' '}
-                Improvement
+                <sup>I</sup> Improvement
             </div>
             <div className="issue">
-                <sup>T</sup>
-                {' '}
-                Task
+                <sup>T</sup> Task
             </div>
             <div className="issue">
-                <sup>F</sup>
-                {' '}
-                New Feature
+                <sup>F</sup> New Feature
             </div>
             <div>
-                <span className="label hourly">H</span>
-                {' '}
-                Hourly
+                <span className="label hourly">H</span> Hourly
             </div>
             <div>
-                <span className="label daily">D</span>
-                {' '}
-                Daily
+                <span className="label daily">D</span> Daily
             </div>
             <div>
-                <span className="label weekly">W</span>
-                {' '}
-                Weekly
+                <span className="label weekly">W</span> Weekly
             </div>
             <div>
-                <span className="label monthly">M</span>
-                {' '}
-                Monthly
+                <span className="label monthly">M</span> Monthly
             </div>
             <div>
-                <span className="label newhire">FP</span>
-                {' '}
-                First Pick
+                <span className="label newhire">FP</span> First Pick
             </div>
             <div>
-                <span className="label whatsnext">WN</span>
-                {' '}
-                WhatsNext
+                <span className="label whatsnext">WN</span> WhatsNext
             </div>
         </div>
     );

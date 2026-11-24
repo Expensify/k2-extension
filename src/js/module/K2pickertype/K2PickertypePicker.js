@@ -47,9 +47,11 @@ class K2PickertypePicker extends React.Component {
         }
 
         // Set all the proper active/inactive classes
-        newState = _.mapObject(this.initialState, (val, key) => (key === label
-            ? `${defaultBtnClass} k2-${key.toLowerCase()} active`
-            : `${defaultBtnClass} k2-${key.toLowerCase()} inactive`));
+        newState = _.mapObject(this.initialState, (val, key) =>
+            key === label
+                ? `${defaultBtnClass} k2-${key.toLowerCase()} active`
+                : `${defaultBtnClass} k2-${key.toLowerCase()} inactive`,
+        );
         this.setState(newState);
     }
 
@@ -73,13 +75,12 @@ class K2PickertypePicker extends React.Component {
             previousLabel = key;
         });
         if (label !== previousLabel) {
-            API.addLabel(label)
-                .then(() => {
-                    if (!previousLabel) {
-                        return;
-                    }
-                    API.removeLabel(previousLabel);
-                });
+            API.addLabel(label).then(() => {
+                if (!previousLabel) {
+                    return;
+                }
+                API.removeLabel(previousLabel);
+            });
         } else {
             API.removeLabel(label);
         }

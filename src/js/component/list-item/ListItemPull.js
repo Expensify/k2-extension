@@ -41,8 +41,7 @@ function ListItemPull(props) {
             className += ' overdue';
         }
 
-        if (pr.title.indexOf('[HOLD') > -1
-            || pr.title.indexOf('[WIP') > -1) {
+        if (pr.title.indexOf('[HOLD') > -1 || pr.title.indexOf('[WIP') > -1) {
             className += ' hold';
         }
 
@@ -83,35 +82,22 @@ function ListItemPull(props) {
     return (
         <div className={`panel-item${pr.isReviewRequested === false ? ' reviewed' : ''}`}>
             <span className="panel-item-meta">
-                <span className="age">
-                    Updated:
-                    {' '}
-                    {moment(pr.updatedAt).fromNow()}
-                </span>
+                <span className="age">Updated: {moment(pr.updatedAt).fromNow()}</span>
 
-                <span className="comments">
-                    Comments:
-                    {' '}
-                    {pr.comments.totalCount}
-                </span>
+                <span className="comments">Comments: {pr.comments.totalCount}</span>
 
-                <span className="comments">
-                    Reviews:
-                    {' '}
-                    {pr.reviews.totalCount}
-                </span>
+                <span className="comments">Reviews: {pr.reviews.totalCount}</span>
 
                 {pr.checkConclusion && (
                     <span className={`github-actions-status ${pr.checkConclusion}`}>
-                        Github Actions:
-                        {' '}
-                        {pr.checkConclusion}
-                        ,
+                        Github Actions: {pr.checkConclusion},
                     </span>
                 )}
 
                 {mergeability && (
-                    <span className={`mergeable-state ${pr.reviewDecision} ${pr.mergeable} ${(mergeability === 'Draft' && 'DRAFT') || ''}`}>
+                    <span
+                        className={`mergeable-state ${pr.reviewDecision} ${pr.mergeable} ${(mergeability === 'Draft' && 'DRAFT') || ''}`}
+                    >
                         {mergeability}
                     </span>
                 )}
@@ -119,8 +105,7 @@ function ListItemPull(props) {
 
             <a href={pr.url} className={getClassName()} target="_blank" rel="noreferrer noopener">
                 <span className="octicon octicon-alert" />
-                {`${repoPrefix} ${pr.title}`}
-                {' '}
+                {`${repoPrefix} ${pr.title}`}{' '}
             </a>
 
             {mergeability === 'Draft' && <span className="Counter">draft</span>}

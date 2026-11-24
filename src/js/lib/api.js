@@ -45,15 +45,12 @@ function createDynamicAuth() {
             let retryAuthResponse;
             try {
                 retryAuthResponse = await GitHubOAuth.getValidGitHubToken(true, tokenUsed);
-            } catch (refreshError) {
-                if (!refreshError.isRuntimeReceiverUnavailable) {
-                    await GitHubOAuth.clearGitHubAuth();
-                }
+            } catch {
+                // The background only clears credentials when GitHub rejects the refresh token.
                 throw error;
             }
 
-            if (!retryAuthResponse.token || retryAuthResponse.token === tokenUsed) {
-                await GitHubOAuth.clearGitHubAuth();
+            if (retryAuthResponse.authType !== 'oauth' || retryAuthResponse.token === tokenUsed) {
                 throw error;
             }
 
@@ -64,7 +61,7 @@ function createDynamicAuth() {
                 return await request(endpoint);
             } catch (retryError) {
                 if (retryError.status === 401) {
-                    await GitHubOAuth.clearGitHubAuth();
+                    await GitHubOAuth.clearGitHubAuth(retryAuthResponse.token);
                 }
                 throw retryError;
             }
@@ -93,7 +90,9 @@ function getOctokit() {
  */
 function getCurrentUser() {
     const params = new URLSearchParams(window.location.search);
-    const currentUser = params.get('currentUser') ? params.get('currentUser') : $('meta[name=user-login]').attr('content');
+    const currentUser = params.get('currentUser')
+        ? params.get('currentUser')
+        : $('meta[name=user-login]').attr('content');
     return currentUser.replace('@', '');
 }
 
@@ -106,7 +105,8 @@ function getCurrentUser() {
  */
 function getRequestParams() {
     const url = window.location.href;
-    const regex = /github.com\/(?<owner>[\w-]+)\/(?<repo>[\w.-]+)(?:\/(?:issues|pull)\/(?<issue_number>\d+))?/;
+    const regex =
+        /github.com\/(?<owner>[\w-]+)\/(?<repo>[\w.-]+)(?:\/(?:issues|pull)\/(?<issue_number>\d+))?/;
     const matches = url.match(regex);
 
     return {
@@ -135,15 +135,20 @@ function getMilestones() {
 }
     `;
 
-    return getOctokit().graphql(graphQLQuery)
-        .then((data) => {
+    return getOctokit()
+        .graphql(graphQLQuery)
+        .then(data => {
             // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-            const results = _.reduce(data.repository.milestones.nodes, (milestones, milestonesNode) => {
-                milestones.push({
-                    ...milestonesNode,
-                });
-                return milestones;
-            }, []);
+            const results = _.reduce(
+                data.repository.milestones.nodes,
+                (milestones, milestonesNode) => {
+                    milestones.push({
+                        ...milestonesNode,
+                    });
+                    return milestones;
+                },
+                [],
+            );
 
             // Index the results by their ID so they are easier to access as a collection
             return _.indexBy(results, 'id');
@@ -187,24 +192,36 @@ async function getFullResultsUsingPagination(query) {
  * @returns {Object}
  */
 function formatIssueResults(rawIssueData) {
-    const cleanData = _.reduce(rawIssueData, (cleanSearchResults, searchNode) => {
-        cleanSearchResults.push({
-            ...searchNode,
-            labels: _.reduce(searchNode.labels.nodes, (cleanLabels, labelNode) => {
-                cleanLabels.push({
-                    ...labelNode,
-                });
-                return cleanLabels;
-            }, []),
-            assignees: _.reduce(searchNode.assignees.nodes, (cleanAssignees, assigneeNode) => {
-                cleanAssignees.push({
-                    ...assigneeNode,
-                });
-                return cleanAssignees;
-            }, []),
-        });
-        return cleanSearchResults;
-    }, []);
+    const cleanData = _.reduce(
+        rawIssueData,
+        (cleanSearchResults, searchNode) => {
+            cleanSearchResults.push({
+                ...searchNode,
+                labels: _.reduce(
+                    searchNode.labels.nodes,
+                    (cleanLabels, labelNode) => {
+                        cleanLabels.push({
+                            ...labelNode,
+                        });
+                        return cleanLabels;
+                    },
+                    [],
+                ),
+                assignees: _.reduce(
+                    searchNode.assignees.nodes,
+                    (cleanAssignees, assigneeNode) => {
+                        cleanAssignees.push({
+                            ...assigneeNode,
+                        });
+                        return cleanAssignees;
+                    },
+                    [],
+                ),
+            });
+            return cleanSearchResults;
+        },
+        [],
+    );
 
     // Index the results by ID so that they can be accessed as a collection easier
     return _.indexBy(cleanData, 'id');
@@ -258,8 +275,7 @@ function getHotPickIssues() {
         }
     `;
 
-    return getFullResultsUsingPagination(graphQLQuery)
-        .then(formatIssueResults);
+    return getFullResultsUsingPagination(graphQLQuery).then(formatIssueResults);
 }
 
 /**
@@ -324,15 +340,20 @@ query {
 }
     `;
 
-    return getOctokit().graphql(graphQLQuery)
-        .then((data) => {
+    return getOctokit()
+        .graphql(graphQLQuery)
+        .then(data => {
             // Put the data into a format that the rest of the app will use to remove things like edges and nodes
-            const results = _.reduce(data.search.nodes, (pullRequests, searchNodes) => {
-                pullRequests.push({
-                    ...searchNodes,
-                });
-                return pullRequests;
-            }, []);
+            const results = _.reduce(
+                data.search.nodes,
+                (pullRequests, searchNodes) => {
+                    pullRequests.push({
+                        ...searchNodes,
+                    });
+                    return pullRequests;
+                },
+                [],
+            );
 
             // Index the results by their ID so they are easier to access as a collection
             return _.indexBy(results, 'id');
@@ -359,8 +380,15 @@ query($owner:String!, $repo:String!, $number:Int!) {
 }
     `;
 
-    return getOctokit().graphql(graphQLQuery, {owner, repo, number: pullRequestNumber})
-        .then(data => (data.repository && data.repository.pullRequest && data.repository.pullRequest.headRefOid) || null);
+    return getOctokit()
+        .graphql(graphQLQuery, {owner, repo, number: pullRequestNumber})
+        .then(
+            data =>
+                (data.repository &&
+                    data.repository.pullRequest &&
+                    data.repository.pullRequest.headRefOid) ||
+                null,
+        );
 }
 
 /**
@@ -417,10 +445,14 @@ query($owner:String!, $repo:String!, $oid:GitObjectID!, $cursor:String) {
     do {
         // eslint-disable-next-line no-await-in-loop
         const data = await getOctokit().graphql(graphQLQuery, {
-            owner, repo, oid, cursor,
+            owner,
+            repo,
+            oid,
+            cursor,
         });
 
-        const rollup = data.repository && data.repository.object && data.repository.object.statusCheckRollup;
+        const rollup =
+            data.repository && data.repository.object && data.repository.object.statusCheckRollup;
         if (!rollup) {
             // A commit that has no checks at all has a null rollup. Once pages have already been read,
             // a missing one instead means an incomplete set, and callers must not mistake the checks we
@@ -492,7 +524,8 @@ query($owner:String!, $repo:String!, $number:Int!, $cursor:String) {
             number: Number(issueNumber),
             cursor,
         });
-        const timelineItems = data.repository && data.repository.issue && data.repository.issue.timelineItems;
+        const timelineItems =
+            data.repository && data.repository.issue && data.repository.issue.timelineItems;
         if (!timelineItems) {
             break;
         }
@@ -503,7 +536,11 @@ query($owner:String!, $repo:String!, $number:Int!, $cursor:String) {
 
     // Issues also show up as cross references, and those have no url in this query.
     // A pull request can mention the issue more than once, so this keeps the first mention of each one.
-    return _.uniq(_.filter(pullRequests, pullRequest => pullRequest && pullRequest.url), false, pullRequest => pullRequest.url);
+    return _.uniq(
+        _.filter(pullRequests, pullRequest => pullRequest && pullRequest.url),
+        false,
+        pullRequest => pullRequest.url,
+    );
 }
 
 /**
@@ -512,27 +549,36 @@ query($owner:String!, $repo:String!, $number:Int!, $cursor:String) {
  */
 function getIssueByURL(url) {
     const [, owner, repo, , issueNumber] = new URL(url).pathname.split('/');
-    return getOctokit().rest.issues.get({owner, repo, issue_number: Number(issueNumber)})
+    return getOctokit()
+        .rest.issues.get({owner, repo, issue_number: Number(issueNumber)})
         .then(response => ({title: response.data.title, url: response.data.html_url}));
 }
 
 function getCheckRuns(owner, repo, headSHA) {
     const key = `${owner}/${repo}/${headSHA}`;
     const cached = checkRunRequests[key];
-    if (cached && (Date.now() - cached.fetchedAt) < CHECK_RUN_CACHE_LIFETIME_MS) {
-        return cached.promise;
+    if (cached) {
+        return cached;
     }
 
-    const promise = getOctokit().paginate('GET /repos/{owner}/{repo}/commits/{ref}/check-runs', {
-        owner,
-        repo,
-        ref: headSHA,
-        per_page: 100,
-    }).then(checkRuns => ({data: {check_runs: checkRuns}})).catch((error) => {
-        delete checkRunRequests[key];
-        throw error;
-    });
-    checkRunRequests[key] = {promise, fetchedAt: Date.now()};
+    const promise = getOctokit()
+        .paginate('GET /repos/{owner}/{repo}/commits/{ref}/check-runs', {
+            owner,
+            repo,
+            ref: headSHA,
+            per_page: 100,
+        })
+        .then(checkRuns => {
+            setTimeout(() => {
+                delete checkRunRequests[key];
+            }, CHECK_RUN_CACHE_LIFETIME_MS);
+            return {data: {check_runs: checkRuns}};
+        })
+        .catch(error => {
+            delete checkRunRequests[key];
+            throw error;
+        });
+    checkRunRequests[key] = promise;
     return promise;
 }
 
@@ -563,6 +609,7 @@ function getIssues(assignee = 'none', labels = []) {
     query += ' repo:Expensify/Alteryx-Data';
     query += ' repo:Expensify/Expensify-Guides';
     query += ' repo:Expensify/react-native-onyx';
+    query += ' repo:Expensify/CX-Sales-Vendors';
 
     if (assignee === 'none') {
         query += ' no:assignee';
@@ -610,8 +657,7 @@ function getIssues(assignee = 'none', labels = []) {
         }
     `;
 
-    return getFullResultsUsingPagination(graphQLQuery)
-        .then(formatIssueResults);
+    return getFullResultsUsingPagination(graphQLQuery).then(formatIssueResults);
 }
 
 /**
@@ -671,8 +717,7 @@ function getPreviousInstancesOfIssue(titleParts) {
         }
     `;
 
-    return getFullResultsUsingPagination(graphQLQuery)
-        .then(formatIssueResults);
+    return getFullResultsUsingPagination(graphQLQuery).then(formatIssueResults);
 }
 
 /**
@@ -781,7 +826,8 @@ function updateComment(commentId, body) {
  */
 function getIssueCommentNodeID(commentID) {
     const {owner, repo} = getRequestParams();
-    return getOctokit().rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
+    return getOctokit()
+        .rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
         .then(response => response.data.node_id);
 }
 
@@ -792,12 +838,14 @@ function getIssueCommentNodeID(commentID) {
  */
 function getPullRequestReviewNodeID(reviewID) {
     const {owner, repo, issue_number} = getRequestParams();
-    return getOctokit().rest.pulls.getReview({
-        owner,
-        repo,
-        pull_number: Number(issue_number),
-        review_id: Number(reviewID),
-    }).then(response => response.data.node_id);
+    return getOctokit()
+        .rest.pulls.getReview({
+            owner,
+            repo,
+            pull_number: Number(issue_number),
+            review_id: Number(reviewID),
+        })
+        .then(response => response.data.node_id);
 }
 
 /**
@@ -807,11 +855,13 @@ function getPullRequestReviewNodeID(reviewID) {
  */
 function getPullRequestReviewCommentNodeID(commentID) {
     const {owner, repo} = getRequestParams();
-    return getOctokit().rest.pulls.getReviewComment({
-        owner,
-        repo,
-        comment_id: Number(commentID),
-    }).then(response => response.data.node_id);
+    return getOctokit()
+        .rest.pulls.getReviewComment({
+            owner,
+            repo,
+            comment_id: Number(commentID),
+        })
+        .then(response => response.data.node_id);
 }
 
 /**
@@ -841,7 +891,8 @@ function minimizeComment(nodeID, classifier) {
  */
 function getIssueCommentMinimizedReason(commentID) {
     const {owner, repo} = getRequestParams();
-    return getOctokit().rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
+    return getOctokit()
+        .rest.issues.getComment({owner, repo, comment_id: Number(commentID)})
         .then(response => response.data.minimized && response.data.minimized.reason);
 }
 

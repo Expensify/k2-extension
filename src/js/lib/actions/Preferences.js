@@ -1,22 +1,17 @@
 import ReactNativeOnyx from 'react-native-onyx';
 import ONYXKEYS from '../../ONYXKEYS';
 
-let ghToken;
 let useAbsoluteTimestamps;
 let autoLoadMoreComments;
 let showOpenAllButtons;
-let legacyAuthData;
 
 ReactNativeOnyx.connect({
     key: ONYXKEYS.PREFERENCES,
-    callback: (preferences) => {
-        // Make sure they have entered their API token
+    callback: preferences => {
         if (!preferences) {
             return;
         }
 
-        ghToken = preferences.ghToken;
-        legacyAuthData = preferences.auth;
         useAbsoluteTimestamps = !!preferences.useAbsoluteTimestamps;
         autoLoadMoreComments = preferences.autoLoadMoreComments || false;
         showOpenAllButtons = preferences.showOpenAllButtons;
@@ -26,11 +21,17 @@ ReactNativeOnyx.connect({
 /**
  * Return credentials stored by previous versions so they can be migrated once
  * to the background-owned auth store.
+ * @param {Object|null} preferences
  * @returns {Object|null}
  */
-function getLegacyGitHubAuth() {
-    if (legacyAuthData && legacyAuthData.type === 'oauth' && legacyAuthData.token && legacyAuthData.refreshToken) {
-        return {...legacyAuthData};
+function getLegacyGitHubAuth(preferences) {
+    if (!preferences) {
+        return null;
+    }
+
+    const {auth, ghToken} = preferences;
+    if (auth && auth.type === 'oauth' && auth.token && auth.refreshToken) {
+        return auth;
     }
 
     if (ghToken) {
@@ -44,8 +45,6 @@ function getLegacyGitHubAuth() {
  * Remove only credentials from the legacy preferences record.
  */
 function clearLegacyGitHubAuth() {
-    ghToken = null;
-    legacyAuthData = null;
     ReactNativeOnyx.merge(ONYXKEYS.PREFERENCES, {ghToken: null, auth: null});
 }
 

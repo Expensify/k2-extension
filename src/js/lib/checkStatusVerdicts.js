@@ -9,7 +9,14 @@ const PASSING_CHECK_RUN_CONCLUSIONS = ['SUCCESS', 'NEUTRAL', 'SKIPPED'];
 
 // Conversely, a check has to have definitely failed before we treat it as the reason GitHub shows a commit
 // as failed, so this list is deliberately not the inverse of the one above.
-const FAILED_CHECK_RUN_CONCLUSIONS = ['FAILURE', 'TIMED_OUT', 'CANCELLED', 'ACTION_REQUIRED', 'STARTUP_FAILURE', 'STALE'];
+const FAILED_CHECK_RUN_CONCLUSIONS = [
+    'FAILURE',
+    'TIMED_OUT',
+    'CANCELLED',
+    'ACTION_REQUIRED',
+    'STARTUP_FAILURE',
+    'STALE',
+];
 
 // How long a verdict lasts when the commit's checks could still report something new.
 const VERDICT_LIFETIME_MS = 60000;
@@ -42,23 +49,34 @@ function getWorkflowPath(context) {
  * @returns {Boolean}
  */
 function isIgnoredCheck(context) {
-    return context.type === 'CheckRun'
-        && _.contains(CONST.IGNORED_CHECK_RUN_NAMES, context.name)
-        && getWorkflowPath(context).indexOf(CONST.PEER_REVIEW_WORKFLOW_PATH) > -1;
+    return (
+        context.type === 'CheckRun' &&
+        _.contains(CONST.IGNORED_CHECK_RUN_NAMES, context.name) &&
+        getWorkflowPath(context).indexOf(CONST.PEER_REVIEW_WORKFLOW_PATH) > -1
+    );
 }
 
 function isPassing(context) {
     if (context.type === 'CheckRun') {
-        return context.status === 'COMPLETED' && _.contains(PASSING_CHECK_RUN_CONCLUSIONS, context.conclusion);
+        return (
+            context.status === 'COMPLETED' &&
+            _.contains(PASSING_CHECK_RUN_CONCLUSIONS, context.conclusion)
+        );
     }
     return context.type === 'StatusContext' && context.state === 'SUCCESS';
 }
 
 function hasFailed(context) {
     if (context.type === 'CheckRun') {
-        return context.status === 'COMPLETED' && _.contains(FAILED_CHECK_RUN_CONCLUSIONS, context.conclusion);
+        return (
+            context.status === 'COMPLETED' &&
+            _.contains(FAILED_CHECK_RUN_CONCLUSIONS, context.conclusion)
+        );
     }
-    return context.type === 'StatusContext' && (context.state === 'FAILURE' || context.state === 'ERROR');
+    return (
+        context.type === 'StatusContext' &&
+        (context.state === 'FAILURE' || context.state === 'ERROR')
+    );
 }
 
 /**
@@ -92,14 +110,14 @@ function getVerdict(owner, repo, sha) {
     const key = `${owner}/${repo}/${sha}`;
     const verdict = verdicts[key];
 
-    if (verdict && (Date.now() - verdict.fetchedAt) <= VERDICT_LIFETIME_MS) {
+    if (verdict && Date.now() - verdict.fetchedAt <= VERDICT_LIFETIME_MS) {
         return verdict.shouldShowAsPassing;
     }
 
     if (!requestsInFlight[key] && _.size(requestsInFlight) < MAX_CONCURRENT_REQUESTS) {
         requestsInFlight[key] = true;
         API.getStatusCheckRollup(owner, repo, sha)
-            .then((contexts) => {
+            .then(contexts => {
                 const shouldShowAsPassing = onlyIgnoredChecksAreFailing(contexts);
                 verdicts[key] = {
                     shouldShowAsPassing,
@@ -108,7 +126,7 @@ function getVerdict(owner, repo, sha) {
                     fetchedAt: Date.now(),
                 };
             })
-            .catch((error) => {
+            .catch(error => {
                 console.error('Error fetching check statuses for commit', sha, error);
 
                 // Recording the failure is what stops a bad token or a rate limit from turning every scan
@@ -136,7 +154,4 @@ function onVerdictSettled(listener) {
     settledListeners.push(listener);
 }
 
-export {
-    getVerdict,
-    onVerdictSettled,
-};
+export {getVerdict, onVerdictSettled};
