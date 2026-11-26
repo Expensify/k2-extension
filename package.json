@@ -59,6 +59,7 @@
     "cross-spawn": "^7.0.6",
     "flatted": "^3.4.2",
     "image-size": "^2.0.4",
+    "immutable": "^5.1.8",
     "jws": "^3.2.3",
     "oxfmt": {
       "tinypool": "2.1.2"
